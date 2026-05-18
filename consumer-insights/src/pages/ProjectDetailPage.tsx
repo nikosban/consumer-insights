@@ -67,10 +67,12 @@ function AnalysesTab({
   project,
   dashboards,
   newFrom,
+  onSubViewChange,
 }: {
   project: import('@/types').Project
   dashboards: import('@/types').Dashboard[]
   newFrom?: string
+  onSubViewChange?: (inSubView: boolean) => void
 }) {
   const { addAnalysis, updateAnalysis, removeAnalysis } = useProjectStore()
   const { widgets } = useWidgetStore()
@@ -85,6 +87,16 @@ function AnalysesTab({
       ? { type: 'create', dashboardId: newFrom, template: 'summary', generating: false }
       : { type: 'list' }
   )
+
+  function changeMode(next: Mode) {
+    setMode(next)
+    onSubViewChange?.(next.type !== 'list')
+  }
+
+  useEffect(() => {
+    onSubViewChange?.(mode.type !== 'list')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const [editingSection, setEditingSection] = useState<string | null>(null)
   const [editContent, setEditContent] = useState('')
   const [exporting, setExporting] = useState<'pdf' | 'pptx' | null>(null)
@@ -98,7 +110,7 @@ function AnalysesTab({
   const pptxColor = brandColor.replace('#', '')
 
   function goToDetail(analysisId: string) {
-    setMode({ type: 'detail', analysisId })
+    changeMode({ type: 'detail', analysisId })
     setEditingSection(null)
   }
 
@@ -132,7 +144,7 @@ function AnalysesTab({
 
   async function handleGenerate() {
     if (mode.type !== 'create' || !mode.dashboardId) return
-    setMode({ ...mode, generating: true })
+    changeMode({ ...mode, generating: true })
     await new Promise((r) => setTimeout(r, 1500))
     const dashboard = dashboards.find((d) => d.id === mode.dashboardId)!
     const sections = generateSections(dashboard.name, getWidgetTitles(dashboard), mode.template)
@@ -327,7 +339,7 @@ function AnalysesTab({
             description="Generate a narrative report from any dashboard linked to this project."
             ctaLabel="New Analysis"
             onCta={() =>
-              setMode({ type: 'create', dashboardId: dashboards[0].id, template: 'summary', generating: false })
+              changeMode({ type: 'create', dashboardId: dashboards[0].id, template: 'summary', generating: false })
             }
           />
         ) : (
@@ -365,7 +377,7 @@ function AnalysesTab({
           <Button
             variant="outline"
             onClick={() =>
-              setMode({ type: 'create', dashboardId: dashboards[0]?.id ?? '', template: 'summary', generating: false })
+              changeMode({ type: 'create', dashboardId: dashboards[0]?.id ?? '', template: 'summary', generating: false })
             }
           >
             <Sparkles className="h-3.5 w-3.5 mr-1.5" />
@@ -392,12 +404,10 @@ function AnalysesTab({
       <div className="space-y-6 max-w-lg">
         <button
           className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
-          onClick={() => setMode({ type: 'list' })}
+          onClick={() => changeMode({ type: 'list' })}
         >
           ← Back to analyses
         </button>
-
-        <h2 className="text-base font-semibold text-gray-900">New Analysis</h2>
 
         {/* Dashboard picker */}
         <div className="space-y-2">
@@ -495,7 +505,7 @@ function AnalysesTab({
     <div className="flex-1 min-w-0 space-y-3">
       <button
         className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
-        onClick={() => { setMode({ type: 'list' }); setEditingSection(null) }}
+        onClick={() => { changeMode({ type: 'list' }); setEditingSection(null) }}
       >
         ← Back to analyses
       </button>
@@ -699,6 +709,7 @@ export default function ProjectDetailPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const [analysesSubView, setAnalysesSubView] = useState(!!newFrom)
   const [noteText, setNoteText] = useState('')
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
   const [editingContent, setEditingContent] = useState('')
@@ -748,15 +759,17 @@ export default function ProjectDetailPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={(v) => setSearchParams({ tab: v })}>
-        <TabsList>
-          <TabsTrigger value="dashboards">Dashboards</TabsTrigger>
-          <TabsTrigger value="analyses">Analyses</TabsTrigger>
-          <TabsTrigger value="notes">Notes</TabsTrigger>
-        </TabsList>
+        {!(activeTab === 'analyses' && analysesSubView) && (
+          <TabsList>
+            <TabsTrigger value="dashboards">Dashboards</TabsTrigger>
+            <TabsTrigger value="analyses">Analyses</TabsTrigger>
+            <TabsTrigger value="notes">Notes</TabsTrigger>
+          </TabsList>
+        )}
 
         {/* Analyses */}
         <TabsContent value="analyses" className="mt-4">
-          <AnalysesTab project={proj} dashboards={projectDashboards} newFrom={newFrom} />
+          <AnalysesTab project={proj} dashboards={projectDashboards} newFrom={newFrom} onSubViewChange={setAnalysesSubView} />
         </TabsContent>
 
         {/* Dashboards */}
