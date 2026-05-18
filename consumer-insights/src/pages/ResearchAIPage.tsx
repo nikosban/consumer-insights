@@ -179,24 +179,28 @@ function ChipSelect({ options, value, onChange }: {
 function InputBox({
   input, setInput, isStreaming, onSend,
   surveyType, setSurveyType, audience, setAudience, audienceOptions,
-  rows = 3,
+  rows = 3, variant = 'dark',
 }: {
   input: string; setInput: (v: string) => void; isStreaming: boolean; onSend: () => void
   surveyType: string; setSurveyType: (v: string) => void
   audience: string; setAudience: (v: string) => void; audienceOptions: string[]
-  rows?: number
+  rows?: number; variant?: 'dark' | 'light'
 }) {
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onSend() }
   }
 
+  const isDark = variant === 'dark'
+
   return (
-    <div className="bg-gray-900 border border-white/20 rounded-2xl">
-      {/* Dark input card — 2px inset */}
-      <div className="p-[2px]">
-        <div className="bg-gray-800 rounded-[14px] border border-white/10">
+    <div className={cn('rounded-2xl', isDark ? 'bg-gray-900 border border-white/20' : 'bg-white border border-border shadow-sm')}>
+      <div className={isDark ? 'p-[2px]' : ''}>
+        <div className={cn('rounded-[14px]', isDark ? 'bg-gray-800 border border-white/10' : '')}>
           <Textarea
-            className="resize-none text-sm border-0 bg-transparent shadow-none focus-visible:ring-0 px-4 pt-3 pb-1 text-white placeholder:text-gray-400"
+            className={cn(
+              'resize-none text-sm border-0 bg-transparent shadow-none focus-visible:ring-0 px-4 pt-3 pb-1',
+              isDark ? 'text-white placeholder:text-gray-400' : 'text-gray-900 placeholder:text-muted-foreground'
+            )}
             placeholder="Ask about your audience, brand metrics, or consumer behaviour…"
             rows={rows}
             value={input}
@@ -219,7 +223,7 @@ function InputBox({
       </div>
 
       {/* Chip toolbar */}
-      <div className="flex items-center gap-2 px-3 py-2">
+      <div className={cn('flex items-center gap-2 px-3 py-2', isDark ? '' : 'border-t border-border')}>
         <ChipSelect label="Survey"   options={SURVEY_TYPES}    value={surveyType} onChange={setSurveyType} />
         <ChipSelect label="Audience" options={audienceOptions}  value={audience}   onChange={setAudience} />
       </div>
@@ -418,6 +422,7 @@ export default function ResearchAIPage() {
                 audience={audience} setAudience={setAudience}
                 audienceOptions={audienceOptions}
                 rows={2}
+                variant="light"
               />
               <p className="text-xs text-muted-foreground mt-2 text-center">
                 Press Enter to send · Shift+Enter for new line · Responses are illustrative

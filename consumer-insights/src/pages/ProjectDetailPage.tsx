@@ -1,5 +1,5 @@
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useProjectStore } from '@/store/projectStore'
 import { useAudienceStore } from '@/store/audienceStore'
 import { useDashboardStore } from '@/store/dashboardStore'
@@ -66,9 +66,11 @@ function DashboardRow({ dashboard, onOpen, onDelete }: {
 function AnalysesTab({
   project,
   dashboards,
+  newFrom,
 }: {
   project: import('@/types').Project
   dashboards: import('@/types').Dashboard[]
+  newFrom?: string
 }) {
   const { addAnalysis, updateAnalysis, removeAnalysis } = useProjectStore()
   const { widgets } = useWidgetStore()
@@ -78,7 +80,11 @@ function AnalysesTab({
     | { type: 'create'; dashboardId: string; template: 'summary' | 'full'; generating: boolean }
     | { type: 'detail'; analysisId: string }
 
-  const [mode, setMode] = useState<Mode>({ type: 'list' })
+  const [mode, setMode] = useState<Mode>(
+    newFrom && dashboards.find(d => d.id === newFrom)
+      ? { type: 'create', dashboardId: newFrom, template: 'summary', generating: false }
+      : { type: 'list' }
+  )
   const [editingSection, setEditingSection] = useState<string | null>(null)
   const [editContent, setEditContent] = useState('')
   const [exporting, setExporting] = useState<'pdf' | 'pptx' | null>(null)
@@ -686,6 +692,12 @@ export default function ProjectDetailPage() {
 
   const [searchParams, setSearchParams] = useSearchParams()
   const activeTab = searchParams.get('tab') ?? 'dashboards'
+  const newFrom = searchParams.get('newFrom') ?? undefined
+
+  useEffect(() => {
+    if (newFrom) setSearchParams({ tab: 'analyses', newFrom }, { replace: true })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const [noteText, setNoteText] = useState('')
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
@@ -744,7 +756,7 @@ export default function ProjectDetailPage() {
 
         {/* Analyses */}
         <TabsContent value="analyses" className="mt-4">
-          <AnalysesTab project={proj} dashboards={projectDashboards} />
+          <AnalysesTab project={proj} dashboards={projectDashboards} newFrom={newFrom} />
         </TabsContent>
 
         {/* Dashboards */}

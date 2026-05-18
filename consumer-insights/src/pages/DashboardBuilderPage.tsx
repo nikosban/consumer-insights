@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import GridLayout from 'react-grid-layout'
 import type { LayoutItem, Layout } from 'react-grid-layout'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 import { useDashboardStore } from '@/store/dashboardStore'
+import { useProjectStore } from '@/store/projectStore'
 import { useWidgetStore } from '@/store/widgetStore'
 import { useAudienceStore } from '@/store/audienceStore'
 import { Button } from '@/components/ui/button'
@@ -666,9 +667,11 @@ function AIPromptCard({
 
 export default function DashboardBuilderPage() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const { dashboards, add, update, updateLayout, toggleShare } = useDashboardStore()
   const { widgets, add: addWidget, update: updateWidget } = useWidgetStore()
   const { audiences } = useAudienceStore()
+  const { projects } = useProjectStore()
 
   const existing = id ? dashboards.find((d) => d.id === id) : null
   const isNew = !existing
@@ -879,13 +882,19 @@ export default function DashboardBuilderPage() {
               <RefreshCw className="h-3.5 w-3.5" />
             </Button>
             <Button
-              variant="outline"
               size="sm"
               className="h-7 text-xs gap-1"
-              onClick={() => setExportOpen(true)}
+              onClick={() => {
+                const project = projects.find(p => p.dashboardIds.includes(dashId))
+                if (project) {
+                  navigate(`/workspace/${project.id}?tab=analyses&newFrom=${dashId}`)
+                } else {
+                  navigate(`/workspace?newFrom=${dashId}`)
+                }
+              }}
             >
-              <Download className="h-3.5 w-3.5" />
-              Export
+              <Sparkles className="h-3.5 w-3.5" />
+              Generate Analysis
             </Button>
           </div>
         </div>
