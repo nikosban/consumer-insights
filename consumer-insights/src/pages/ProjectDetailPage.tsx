@@ -80,6 +80,15 @@ function AnalysesTab({
   const [editingSection, setEditingSection] = useState<string | null>(null)
   const [editContent, setEditContent] = useState('')
   const [exporting, setExporting] = useState<'pdf' | 'pptx' | null>(null)
+  const [previewTab, setPreviewTab] = useState<'report' | 'ppt'>('report')
+  const [slideIndex, setSlideIndex] = useState(0)
+
+  function goToDetail(analysisId: string) {
+    setMode({ type: 'detail', analysisId })
+    setSlideIndex(0)
+    setPreviewTab('report')
+    setEditingSection(null)
+  }
 
   // ── helpers ──────────────────────────────────────────────────────────────
 
@@ -106,7 +115,7 @@ function AnalysesTab({
       createdAt: new Date().toISOString(),
     }
     addAnalysis(project.id, analysis)
-    setMode({ type: 'detail', analysisId: analysis.id })
+    goToDetail(analysis.id)
   }
 
   async function exportPDF(analysis: Analysis) {
@@ -207,7 +216,7 @@ function AnalysesTab({
               <div
                 key={analysis.id}
                 className="group flex items-center gap-3 py-3 rounded-xl hover:bg-gray-50 transition-colors -mx-3 px-3 cursor-pointer"
-                onClick={() => setMode({ type: 'detail', analysisId: analysis.id })}
+                onClick={() => goToDetail(analysis.id)}
               >
                 <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/8 text-primary shrink-0">
                   <FileText className="h-3.5 w-3.5" />
@@ -344,90 +353,166 @@ function AnalysesTab({
     setEditingSection(null)
   }
 
+  const sections = analysis.sections ?? []
+  const slides = [
+    { id: 'title', heading: analysis.name, content: `Generated ${new Date(analysis.createdAt).toLocaleDateString()}`, isTitle: true },
+    ...sections.map((s) => ({ id: s.id, heading: s.heading, content: s.content, isTitle: false })),
+  ]
+  const totalSlides = slides.length
+  const currentSlide = slides[slideIndex] ?? slides[0]
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
+      <div>
+        <button
+          className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 mb-2"
+          onClick={() => { setMode({ type: 'list' }); setEditingSection(null) }}
+        >
+          ← Back to analyses
+        </button>
+        <h2 className="text-base font-semibold text-gray-900">{analysis.name}</h2>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Generated {new Date(analysis.createdAt).toLocaleDateString()}
+        </p>
+      </div>
+
+      {/* Tab bar */}
+      <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg w-fit">
+        {([
+          { id: 'report', icon: FileText, label: 'Report' },
+          { id: 'ppt',    icon: Presentation, label: 'PPT' },
+        ] as const).map(({ id, icon: Icon, label }) => (
           <button
-            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 mb-2"
-            onClick={() => { setMode({ type: 'list' }); setEditingSection(null) }}
+            key={id}
+            onClick={() => setPreviewTab(id)}
+            className={cn(
+              'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors',
+              previewTab === id
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-muted-foreground hover:text-gray-700'
+            )}
           >
-            ← Back to analyses
+            <Icon className="h-3.5 w-3.5" />
+            {label}
           </button>
-          <h2 className="text-base font-semibold text-gray-900">{analysis.name}</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Generated {new Date(analysis.createdAt).toLocaleDateString()}
-          </p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
+        ))}
+      </div>
+
+      {/* ── Report tab ─────────────────────────────────────────────────── */}
+      {previewTab === 'report' && (
+        <div className="space-y-3">
+          {sections.map((sec) => (
+            <Card key={sec.id}>
+              <CardHeader className="pb-2 pt-4 flex flex-row items-center justify-between">
+                <CardTitle className="text-sm font-semibold">{sec.heading}</CardTitle>
+                {editingSection !== sec.id && (
+                  <button
+                    onClick={() => { setEditingSection(sec.id); setEditContent(sec.content) }}
+                    className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </CardHeader>
+              <CardContent className="pb-4">
+                {editingSection === sec.id ? (
+                  <div className="space-y-2">
+                    <Textarea
+                      value={editContent}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      rows={6}
+                      className="text-sm resize-none"
+                    />
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={() => saveSection(sec.id)}>
+                        <Check className="h-3.5 w-3.5 mr-1" /> Save
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => setEditingSection(null)}>
+                        <X className="h-3.5 w-3.5 mr-1" /> Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
+                    {sec.content}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          ))}
           <Button
             variant="outline"
-            size="sm"
+            className="w-full"
             disabled={exporting !== null}
             onClick={() => exportPDF(analysis)}
           >
             {exporting === 'pdf'
-              ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-              : <FileText className="h-3.5 w-3.5 mr-1.5" />}
-            PDF
+              ? <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
+              : <FileText className="h-3.5 w-3.5 mr-2" />}
+            Download PDF
           </Button>
+        </div>
+      )}
+
+      {/* ── PPT tab ────────────────────────────────────────────────────── */}
+      {previewTab === 'ppt' && (
+        <div className="space-y-3">
+          {/* Slide */}
+          <div className="w-full aspect-video rounded-xl overflow-hidden border border-border shadow-sm select-none">
+            {currentSlide.isTitle ? (
+              <div className="w-full h-full bg-primary flex flex-col items-center justify-center gap-3 px-10 text-center">
+                <p className="text-white font-bold text-xl leading-snug">{currentSlide.heading}</p>
+                <p className="text-white/60 text-sm">{currentSlide.content}</p>
+              </div>
+            ) : (
+              <div className="w-full h-full flex flex-col bg-white">
+                <div className="bg-primary px-7 py-4 shrink-0">
+                  <p className="text-white font-bold text-base">{currentSlide.heading}</p>
+                </div>
+                <div className="flex-1 px-7 py-5 overflow-hidden">
+                  <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line line-clamp-[10]">
+                    {currentSlide.content}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Navigation */}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setSlideIndex((i) => Math.max(0, i - 1))}
+              disabled={slideIndex === 0}
+              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border text-muted-foreground hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              ‹
+            </button>
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {slideIndex + 1} / {totalSlides}
+            </span>
+            <button
+              onClick={() => setSlideIndex((i) => Math.min(totalSlides - 1, i + 1))}
+              disabled={slideIndex === totalSlides - 1}
+              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border text-muted-foreground hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              ›
+            </button>
+          </div>
+
           <Button
             variant="outline"
-            size="sm"
+            className="w-full"
             disabled={exporting !== null}
             onClick={() => exportPPTX(analysis)}
           >
             {exporting === 'pptx'
-              ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-              : <Presentation className="h-3.5 w-3.5 mr-1.5" />}
-            PPTX
+              ? <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
+              : <Presentation className="h-3.5 w-3.5 mr-2" />}
+            Download PPTX
           </Button>
         </div>
-      </div>
-
-      {/* Sections */}
-      <div className="space-y-3">
-        {(analysis.sections ?? []).map((sec) => (
-          <Card key={sec.id}>
-            <CardHeader className="pb-2 pt-4 flex flex-row items-center justify-between">
-              <CardTitle className="text-sm font-semibold">{sec.heading}</CardTitle>
-              {editingSection !== sec.id && (
-                <button
-                  onClick={() => { setEditingSection(sec.id); setEditContent(sec.content) }}
-                  className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                </button>
-              )}
-            </CardHeader>
-            <CardContent className="pb-4">
-              {editingSection === sec.id ? (
-                <div className="space-y-2">
-                  <Textarea
-                    value={editContent}
-                    onChange={(e) => setEditContent(e.target.value)}
-                    rows={6}
-                    className="text-sm resize-none"
-                  />
-                  <div className="flex gap-2">
-                    <Button size="sm" onClick={() => saveSection(sec.id)}>
-                      <Check className="h-3.5 w-3.5 mr-1" /> Save
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => setEditingSection(null)}>
-                      <X className="h-3.5 w-3.5 mr-1" /> Cancel
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
-                  {sec.content}
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      )}
     </div>
   )
 }
