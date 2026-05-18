@@ -25,7 +25,7 @@ import { SURVEY_CATALOG, SURVEY_TYPES, SURVEY_COUNTRIES } from '@/data/surveyDat
 import type { SurveyQuestion } from '@/data/surveyData'
 import type { DashboardWidget, Widget, WidgetType, ChartData } from '@/types'
 import {
-  Share2, RefreshCw, Download, X, GripVertical,
+  Share2, RefreshCw, X, GripVertical,
   Search, ChevronRight, Plus,
   Table2, BarChart2, TrendingUp, PieChart, Hash,
   Sparkles, Send,
