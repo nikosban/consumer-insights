@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import GridLayout from 'react-grid-layout'
 import type { LayoutItem, Layout } from 'react-grid-layout'
 import 'react-grid-layout/css/styles.css'
@@ -22,7 +22,7 @@ import EmptyState from '@/components/EmptyState'
 import { generateChartData, DIMENSION_VALUES } from '@/data/fakeGenerators'
 import { SURVEY_CATALOG, SURVEY_TYPES, SURVEY_COUNTRIES } from '@/data/surveyData'
 import type { SurveyQuestion } from '@/data/surveyData'
-import type { DashboardWidget, Widget, WidgetType } from '@/types'
+import type { DashboardWidget, Widget, WidgetType, ChartData } from '@/types'
 import {
   Share2, RefreshCw, Download, X, GripVertical,
   Search, ChevronRight, Plus,
@@ -222,7 +222,7 @@ function WidgetPropertiesPanel({
           <label className="text-xs font-medium text-muted-foreground block mb-1.5">Country</label>
           <Select
             value={widget.country ?? 'All countries'}
-            onValueChange={(v) => onUpdate({ country: v })}
+            onValueChange={(v) => onUpdate({ country: v ?? undefined })}
           >
             <SelectTrigger className="h-8 text-xs w-full">
               <SelectValue />
@@ -240,7 +240,7 @@ function WidgetPropertiesPanel({
           <label className="text-xs font-medium text-muted-foreground block mb-1.5">Year</label>
           <Select
             value={widget.year ?? 'All years'}
-            onValueChange={(v) => onUpdate({ year: v })}
+            onValueChange={(v) => onUpdate({ year: v ?? undefined })}
           >
             <SelectTrigger className="h-8 text-xs w-full">
               <SelectValue />
@@ -258,7 +258,7 @@ function WidgetPropertiesPanel({
           <label className="text-xs font-medium text-muted-foreground block mb-1.5">Audience</label>
           <Select
             value={widget.audienceId}
-            onValueChange={(v) => onUpdate({ audienceId: v })}
+            onValueChange={(v) => onUpdate({ audienceId: v ?? '' })}
           >
             <SelectTrigger className="h-8 text-xs w-full">
               <SelectValue />
@@ -365,7 +365,7 @@ function SurveyBrowser({ onAdd, onDragStart, onDragEnd }: {
             className="h-8 text-xs pl-7 pr-2"
           />
         </div>
-        <Select value={surveyType} onValueChange={setSurveyType}>
+        <Select value={surveyType} onValueChange={(v) => setSurveyType(v ?? '')}>
           <SelectTrigger className="h-8 text-xs w-full">
             <SelectValue />
           </SelectTrigger>
@@ -375,7 +375,7 @@ function SurveyBrowser({ onAdd, onDragStart, onDragEnd }: {
             ))}
           </SelectContent>
         </Select>
-        <Select value={country} onValueChange={setCountry}>
+        <Select value={country} onValueChange={(v) => setCountry(v ?? '')}>
           <SelectTrigger className="h-8 text-xs w-full">
             <SelectValue />
           </SelectTrigger>
@@ -385,7 +385,7 @@ function SurveyBrowser({ onAdd, onDragStart, onDragEnd }: {
             ))}
           </SelectContent>
         </Select>
-        <Select value={year} onValueChange={setYear}>
+        <Select value={year} onValueChange={(v) => setYear(v ?? '')}>
           <SelectTrigger className="h-8 text-xs w-full">
             <SelectValue />
           </SelectTrigger>
@@ -666,7 +666,6 @@ function AIPromptCard({
 
 export default function DashboardBuilderPage() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
   const { dashboards, add, update, updateLayout, toggleShare } = useDashboardStore()
   const { widgets, add: addWidget, update: updateWidget } = useWidgetStore()
   const { audiences } = useAudienceStore()

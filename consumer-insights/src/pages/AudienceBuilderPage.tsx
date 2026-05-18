@@ -10,7 +10,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from '@/components/ui/select'
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
 import { RegionPicker } from '@/components/RegionPicker'
@@ -133,9 +132,7 @@ function PreviewCard({ size }: { size: number }) {
 type GroupEditorProps = { group: FilterGroup; onChange: (g: FilterGroup) => void; depth?: number }
 
 function GroupEditor({ group, onChange, depth = 0 }: GroupEditorProps) {
-  function toggleOperator() {
-    onChange({ ...group, operator: group.operator === 'AND' ? 'OR' : 'AND' })
-  }
+
   function updateCondition(index: number, patch: Partial<FilterCondition>) {
     const updated = group.conditions.map((c, i) =>
       i === index && !isFilterGroup(c) ? { ...c, ...patch } : c

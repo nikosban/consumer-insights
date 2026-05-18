@@ -132,8 +132,8 @@ function HistorySection({ onSelect }: { onSelect: (q: string) => void }) {
 const SURVEY_TYPES    = ['All surveys', 'Global Survey', 'Brand KPIs', 'Pulse', 'Media and Touchpoints', 'Survey Library']
 const AUDIENCE_OPTIONS = ['All audiences', 'Millennial Shoppers', 'Gen Z Mobile Users', 'High-Income Homeowners']
 
-function ChipSelect({ label, options, value, onChange }: {
-  label: string; options: string[]; value: string; onChange: (v: string) => void
+function ChipSelect({ options, value, onChange }: {
+  label?: string; options: string[]; value: string; onChange: (v: string) => void
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
