@@ -1,10 +1,11 @@
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useProjectStore } from '@/store/projectStore'
 import { useAudienceStore } from '@/store/audienceStore'
 import { useDashboardStore } from '@/store/dashboardStore'
 import { useWidgetStore } from '@/store/widgetStore'
 import { generateSections } from '@/data/fakeAnalysisGenerator'
+import { generateChartData } from '@/data/fakeGenerators'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -23,7 +24,7 @@ import {
   Loader2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { Dashboard, Analysis } from '@/types'
+import type { Dashboard, Analysis, Widget, ChartData, WidgetType } from '@/types'
 
 function DashboardRow({ dashboard, onOpen, onDelete }: {
   dashboard: Dashboard
@@ -80,15 +81,31 @@ function AnalysesTab({
   const [editingSection, setEditingSection] = useState<string | null>(null)
   const [editContent, setEditContent] = useState('')
   const [exporting, setExporting] = useState<'pdf' | 'pptx' | null>(null)
-  const [previewTab, setPreviewTab] = useState<'report' | 'ppt'>('report')
-  const [slideIndex, setSlideIndex] = useState(0)
 
   function goToDetail(analysisId: string) {
     setMode({ type: 'detail', analysisId })
-    setSlideIndex(0)
-    setPreviewTab('report')
     setEditingSection(null)
   }
+
+  // Stable widget data for the current analysis (memoised to keep random values fixed)
+  const currentAnalysisId = mode.type === 'detail' ? mode.analysisId : null
+  type WidgetDatum = { widget: Widget; data: ChartData }
+  const widgetData = useMemo((): { scorecards: WidgetDatum[]; charts: WidgetDatum[] } => {
+    if (!currentAnalysisId) return { scorecards: [], charts: [] }
+    const analysis = project.savedAnalyses.find(a => a.id === currentAnalysisId)
+    if (!analysis?.dashboardId) return { scorecards: [], charts: [] }
+    const dashboard = dashboards.find(d => d.id === analysis.dashboardId)
+    if (!dashboard) return { scorecards: [], charts: [] }
+    const all = dashboard.widgets
+      .map(dw => widgets.find(w => w.id === dw.widgetId))
+      .filter((w): w is Widget => w !== undefined)
+      .map(w => ({ widget: w, data: generateChartData(w.type, !!w.benchmarkAudienceId, w.crossDimensionLabel) }))
+    return {
+      scorecards: all.filter(d => d.widget.type === 'scorecard'),
+      charts: all.filter(d => d.widget.type !== 'scorecard' && d.widget.type !== 'table'),
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentAnalysisId, dashboards, widgets])
 
   // ── helpers ──────────────────────────────────────────────────────────────
 
@@ -124,28 +141,65 @@ function AnalysesTab({
       const { default: jsPDF } = await import('jspdf')
       const doc = new jsPDF()
       let y = 20
-      doc.setFontSize(18)
-      doc.setFont('helvetica', 'bold')
-      doc.text(analysis.name, 14, y)
-      y += 8
-      doc.setFontSize(10)
-      doc.setFont('helvetica', 'normal')
-      doc.setTextColor(120, 120, 120)
-      doc.text(`Generated ${new Date(analysis.createdAt).toLocaleDateString()}`, 14, y)
-      y += 12
+
+      // Title
+      doc.setFontSize(18); doc.setFont('helvetica', 'bold'); doc.setTextColor(17, 24, 39)
+      doc.text(analysis.name, 14, y); y += 8
+      doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.setTextColor(120, 120, 120)
+      doc.text(`Generated ${new Date(analysis.createdAt).toLocaleDateString()}`, 14, y); y += 14
+
+      // Key Metrics
+      if (widgetData.scorecards.length > 0) {
+        doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(17, 24, 39)
+        doc.text('Key Metrics', 14, y); y += 8
+        const cardW = 85; const cardH = 22
+        widgetData.scorecards.forEach((d, i) => {
+          const col = i % 2; const row = Math.floor(i / 2)
+          const x = 14 + col * (cardW + 10); const cardY = y + row * (cardH + 5)
+          if (cardY > 255) { doc.addPage(); y = 20 }
+          doc.setFillColor(249, 250, 251); doc.setDrawColor(229, 231, 235)
+          doc.roundedRect(x, cardY, cardW, cardH, 2, 2, 'FD')
+          doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(107, 114, 128)
+          doc.text(d.widget.title, x + 4, cardY + 7)
+          doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(17, 24, 39)
+          doc.text(`${d.data.series[0].values[0]}%`, x + 4, cardY + 17)
+          if (d.data.series[1]) {
+            doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(156, 163, 175)
+            doc.text(`Benchmark: ${d.data.series[1].values[0]}%`, x + 34, cardY + 17)
+          }
+        })
+        y += Math.ceil(widgetData.scorecards.length / 2) * (cardH + 5) + 8
+      }
+
+      // Chart data tables
+      for (const d of widgetData.charts) {
+        if (y > 240) { doc.addPage(); y = 20 }
+        doc.setFontSize(12); doc.setFont('helvetica', 'bold'); doc.setTextColor(17, 24, 39)
+        doc.text(d.widget.title, 14, y); y += 6
+        doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(107, 114, 128)
+        doc.text('Category', 14, y)
+        d.data.series.forEach((s, si) => doc.text(s.name, 70 + si * 40, y))
+        y += 3; doc.setDrawColor(229, 231, 235); doc.line(14, y, 196, y); y += 4
+        doc.setFont('helvetica', 'normal')
+        d.data.labels.forEach((label, li) => {
+          if (y > 270) { doc.addPage(); y = 20 }
+          doc.setTextColor(55, 65, 81); doc.text(label, 14, y)
+          d.data.series.forEach((s, si) => doc.text(`${s.values[li]}%`, 70 + si * 40, y))
+          y += 5
+        })
+        y += 8
+      }
+
+      // Narrative sections
       for (const sec of analysis.sections ?? []) {
         if (y > 250) { doc.addPage(); y = 20 }
-        doc.setFontSize(13)
-        doc.setFont('helvetica', 'bold')
-        doc.setTextColor(0, 0, 0)
-        doc.text(sec.heading, 14, y)
-        y += 7
-        doc.setFontSize(10)
-        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(17, 24, 39)
+        doc.text(sec.heading, 14, y); y += 7
+        doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.setTextColor(55, 65, 81)
         const lines = doc.splitTextToSize(sec.content, 180)
-        doc.text(lines, 14, y)
-        y += lines.length * 5 + 10
+        doc.text(lines, 14, y); y += lines.length * 5 + 10
       }
+
       doc.save(`${analysis.name}.pdf`)
     } finally {
       setExporting(null)
@@ -158,14 +212,51 @@ function AnalysesTab({
       const pptxgen = (await import('pptxgenjs')).default
       const pptx = new pptxgen()
       pptx.layout = 'LAYOUT_WIDE'
+
+      // Title slide
       const title = pptx.addSlide()
-      title.addText(analysis.name, { x: 1, y: 1.5, w: 8, h: 1.2, fontSize: 28, bold: true, color: '111827' })
-      title.addText(`Generated ${new Date(analysis.createdAt).toLocaleDateString()}`, { x: 1, y: 3, w: 8, h: 0.5, fontSize: 14, color: '6B7280' })
+      title.background = { color: '4F46E5' }
+      title.addText(analysis.name, { x: 1, y: 1.5, w: 8, h: 1.2, fontSize: 28, bold: true, color: 'FFFFFF' })
+      title.addText(`Generated ${new Date(analysis.createdAt).toLocaleDateString()}`, { x: 1, y: 3, w: 8, h: 0.5, fontSize: 14, color: 'FFFFFF', transparency: 40 })
+
+      // Key Metrics slide
+      if (widgetData.scorecards.length > 0) {
+        const metricsSlide = pptx.addSlide()
+        metricsSlide.addText('Key Metrics', { x: 0.5, y: 0.15, w: 9, h: 0.55, fontSize: 18, bold: true, color: '111827' })
+        const cols = Math.min(widgetData.scorecards.length, 3)
+        const cardW = (9.0 / cols) - 0.2
+        widgetData.scorecards.forEach((d, i) => {
+          const col = i % cols; const row = Math.floor(i / cols)
+          const x = 0.5 + col * (cardW + 0.2); const y = 0.85 + row * 1.7
+          metricsSlide.addShape('rect' as Parameters<typeof metricsSlide.addShape>[0], { x, y, w: cardW, h: 1.5, fill: { color: 'F9FAFB' }, line: { color: 'E5E7EB', width: 0.5 } })
+          metricsSlide.addText(d.widget.title, { x: x + 0.12, y: y + 0.12, w: cardW - 0.24, h: 0.32, fontSize: 10, color: '6B7280' })
+          metricsSlide.addText(`${d.data.series[0].values[0]}%`, { x: x + 0.12, y: y + 0.52, w: cardW - 0.24, h: 0.65, fontSize: 26, bold: true, color: '111827' })
+          if (d.data.series[1]) {
+            metricsSlide.addText(`vs ${d.data.series[1].values[0]}% benchmark`, { x: x + 0.12, y: y + 1.2, w: cardW - 0.24, h: 0.28, fontSize: 9, color: '9CA3AF' })
+          }
+        })
+      }
+
+      // Chart slides (bar / line / pie — native pptxgenjs charts)
+      for (const d of widgetData.charts) {
+        const slide = pptx.addSlide()
+        slide.addText(d.widget.title, { x: 0.5, y: 0.15, w: 9, h: 0.5, fontSize: 18, bold: true, color: '111827' })
+        const chartRows = d.data.series.map(s => ({ name: s.name, labels: d.data.labels, values: s.values }))
+        const chartType: WidgetType = d.widget.type
+        slide.addChart(
+          chartType === 'line' ? pptx.ChartType.line : chartType === 'pie' ? pptx.ChartType.pie : pptx.ChartType.bar,
+          chartRows,
+          { x: 0.5, y: 0.75, w: 9, h: 4.6, chartColors: ['4F46E5', '10B981', 'F59E0B', 'EF4444', '8B5CF6'], showLegend: d.data.series.length > 1, legendPos: 'b', dataLabelFontSize: 9 },
+        )
+      }
+
+      // Narrative section slides
       for (const sec of analysis.sections ?? []) {
         const slide = pptx.addSlide()
         slide.addText(sec.heading, { x: 0.5, y: 0.3, w: 9, h: 0.6, fontSize: 20, bold: true, color: '111827' })
         slide.addText(sec.content, { x: 0.5, y: 1.1, w: 9, h: 5, fontSize: 12, color: '374151' })
       }
+
       await pptx.writeFile({ fileName: `${analysis.name}.pptx` })
     } finally {
       setExporting(null)
@@ -177,24 +268,6 @@ function AnalysesTab({
   if (mode.type === 'list') {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            {project.savedAnalyses.length === 0
-              ? 'No analyses yet.'
-              : `${project.savedAnalyses.length} analysis${project.savedAnalyses.length !== 1 ? 'es' : ''}`}
-          </p>
-          <Button
-            size="sm"
-            onClick={() =>
-              setMode({ type: 'create', dashboardId: dashboards[0]?.id ?? '', template: 'summary', generating: false })
-            }
-            disabled={dashboards.length === 0}
-          >
-            <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-            New Analysis
-          </Button>
-        </div>
-
         {dashboards.length === 0 && (
           <p className="text-xs text-muted-foreground bg-gray-50 rounded-lg px-4 py-3">
             Link a dashboard to this project first, then generate an analysis from it.
@@ -240,6 +313,17 @@ function AnalysesTab({
               </div>
             ))}
           </div>
+        )}
+        {dashboards.length > 0 && (
+          <Button
+            variant="outline"
+            onClick={() =>
+              setMode({ type: 'create', dashboardId: dashboards[0]?.id ?? '', template: 'summary', generating: false })
+            }
+          >
+            <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+            New Analysis
+          </Button>
         )}
       </div>
     )
@@ -354,165 +438,116 @@ function AnalysesTab({
   }
 
   const sections = analysis.sections ?? []
-  const slides = [
-    { id: 'title', heading: analysis.name, content: `Generated ${new Date(analysis.createdAt).toLocaleDateString()}`, isTitle: true },
-    ...sections.map((s) => ({ id: s.id, heading: s.heading, content: s.content, isTitle: false })),
-  ]
-  const totalSlides = slides.length
-  const currentSlide = slides[slideIndex] ?? slides[0]
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div>
-        <button
-          className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 mb-2"
-          onClick={() => { setMode({ type: 'list' }); setEditingSection(null) }}
-        >
-          ← Back to analyses
-        </button>
-        <h2 className="text-base font-semibold text-gray-900">{analysis.name}</h2>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          Generated {new Date(analysis.createdAt).toLocaleDateString()}
-        </p>
-      </div>
+    <div className="space-y-3">
+      <button
+        className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+        onClick={() => { setMode({ type: 'list' }); setEditingSection(null) }}
+      >
+        ← Back to analyses
+      </button>
 
-      {/* Tab bar */}
-      <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg w-fit">
-        {([
-          { id: 'report', icon: FileText, label: 'Report' },
-          { id: 'ppt',    icon: Presentation, label: 'PPT' },
-        ] as const).map(({ id, icon: Icon, label }) => (
-          <button
-            key={id}
-            onClick={() => setPreviewTab(id)}
-            className={cn(
-              'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors',
-              previewTab === id
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-muted-foreground hover:text-gray-700'
-            )}
-          >
-            <Icon className="h-3.5 w-3.5" />
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {/* ── Report tab ─────────────────────────────────────────────────── */}
-      {previewTab === 'report' && (
-        <div className="space-y-3">
-          {sections.map((sec) => (
-            <Card key={sec.id}>
-              <CardHeader className="pb-2 pt-4 flex flex-row items-center justify-between">
-                <CardTitle className="text-sm font-semibold">{sec.heading}</CardTitle>
-                {editingSection !== sec.id && (
-                  <button
-                    onClick={() => { setEditingSection(sec.id); setEditContent(sec.content) }}
-                    className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </button>
-                )}
-              </CardHeader>
-              <CardContent className="pb-4">
-                {editingSection === sec.id ? (
-                  <div className="space-y-2">
-                    <Textarea
-                      value={editContent}
-                      onChange={(e) => setEditContent(e.target.value)}
-                      rows={6}
-                      className="text-sm resize-none"
-                    />
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={() => saveSection(sec.id)}>
-                        <Check className="h-3.5 w-3.5 mr-1" /> Save
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => setEditingSection(null)}>
-                        <X className="h-3.5 w-3.5 mr-1" /> Cancel
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
-                    {sec.content}
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-          <Button
-            variant="outline"
-            className="w-full"
-            disabled={exporting !== null}
-            onClick={() => exportPDF(analysis)}
-          >
-            {exporting === 'pdf'
-              ? <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
-              : <FileText className="h-3.5 w-3.5 mr-2" />}
-            Download PDF
-          </Button>
-        </div>
+      {/* Key metrics */}
+      {widgetData.scorecards.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2 pt-4">
+            <CardTitle className="text-sm font-semibold">Key Metrics</CardTitle>
+          </CardHeader>
+          <CardContent className="pb-4">
+            <div className="grid grid-cols-2 gap-3">
+              {widgetData.scorecards.map(d => (
+                <div key={d.widget.id} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                  <p className="text-xs text-muted-foreground">{d.widget.title}</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">{d.data.series[0].values[0]}%</p>
+                  {d.data.series[1] && (
+                    <p className="text-xs text-muted-foreground mt-0.5">Benchmark {d.data.series[1].values[0]}%</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
 
-      {/* ── PPT tab ────────────────────────────────────────────────────── */}
-      {previewTab === 'ppt' && (
-        <div className="space-y-3">
-          {/* Slide */}
-          <div className="w-full aspect-video rounded-xl overflow-hidden border border-border shadow-sm select-none">
-            {currentSlide.isTitle ? (
-              <div className="w-full h-full bg-primary flex flex-col items-center justify-center gap-3 px-10 text-center">
-                <p className="text-white font-bold text-xl leading-snug">{currentSlide.heading}</p>
-                <p className="text-white/60 text-sm">{currentSlide.content}</p>
+      {/* Chart widgets */}
+      {widgetData.charts.map(d => {
+        const max = Math.max(...d.data.series[0].values)
+        return (
+          <Card key={d.widget.id}>
+            <CardHeader className="pb-2 pt-4">
+              <CardTitle className="text-sm font-semibold">{d.widget.title}</CardTitle>
+            </CardHeader>
+            <CardContent className="pb-4 space-y-2">
+              {d.data.labels.map((label, i) => {
+                const pct = Math.round((d.data.series[0].values[i] / max) * 100)
+                return (
+                  <div key={label} className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground w-20 shrink-0 truncate">{label}</span>
+                    <div className="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-primary/70 rounded-full" style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className="text-xs text-muted-foreground w-8 tabular-nums text-right">{d.data.series[0].values[i]}%</span>
+                  </div>
+                )
+              })}
+            </CardContent>
+          </Card>
+        )
+      })}
+
+      {/* Narrative sections */}
+      {sections.map((sec) => (
+        <Card key={sec.id}>
+          <CardHeader className="pb-2 pt-4 flex flex-row items-center justify-between">
+            <CardTitle className="text-sm font-semibold">{sec.heading}</CardTitle>
+            {editingSection !== sec.id && (
+              <button
+                onClick={() => { setEditingSection(sec.id); setEditContent(sec.content) }}
+                className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </CardHeader>
+          <CardContent className="pb-4">
+            {editingSection === sec.id ? (
+              <div className="space-y-2">
+                <Textarea
+                  value={editContent}
+                  onChange={(e) => setEditContent(e.target.value)}
+                  rows={6}
+                  className="text-sm resize-none"
+                />
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={() => saveSection(sec.id)}>
+                    <Check className="h-3.5 w-3.5 mr-1" /> Save
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => setEditingSection(null)}>
+                    <X className="h-3.5 w-3.5 mr-1" /> Cancel
+                  </Button>
+                </div>
               </div>
             ) : (
-              <div className="w-full h-full flex flex-col bg-white">
-                <div className="bg-primary px-7 py-4 shrink-0">
-                  <p className="text-white font-bold text-base">{currentSlide.heading}</p>
-                </div>
-                <div className="flex-1 px-7 py-5 overflow-hidden">
-                  <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line line-clamp-[10]">
-                    {currentSlide.content}
-                  </p>
-                </div>
-              </div>
+              <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
+                {sec.content}
+              </p>
             )}
-          </div>
+          </CardContent>
+        </Card>
+      ))}
 
-          {/* Navigation */}
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => setSlideIndex((i) => Math.max(0, i - 1))}
-              disabled={slideIndex === 0}
-              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border text-muted-foreground hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
-              ‹
-            </button>
-            <span className="text-xs text-muted-foreground tabular-nums">
-              {slideIndex + 1} / {totalSlides}
-            </span>
-            <button
-              onClick={() => setSlideIndex((i) => Math.min(totalSlides - 1, i + 1))}
-              disabled={slideIndex === totalSlides - 1}
-              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border text-muted-foreground hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
-              ›
-            </button>
-          </div>
-
-          <Button
-            variant="outline"
-            className="w-full"
-            disabled={exporting !== null}
-            onClick={() => exportPPTX(analysis)}
-          >
-            {exporting === 'pptx'
-              ? <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
-              : <Presentation className="h-3.5 w-3.5 mr-2" />}
-            Download PPTX
-          </Button>
-        </div>
-      )}
+      {/* Export */}
+      <div className="flex gap-3 pt-1">
+        <Button variant="outline" className="flex-1" disabled={exporting !== null} onClick={() => exportPDF(analysis)}>
+          {exporting === 'pdf' ? <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" /> : <FileText className="h-3.5 w-3.5 mr-2" />}
+          Download PDF
+        </Button>
+        <Button variant="outline" className="flex-1" disabled={exporting !== null} onClick={() => exportPPTX(analysis)}>
+          {exporting === 'pptx' ? <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" /> : <Presentation className="h-3.5 w-3.5 mr-2" />}
+          Download PPTX
+        </Button>
+      </div>
     </div>
   )
 }
