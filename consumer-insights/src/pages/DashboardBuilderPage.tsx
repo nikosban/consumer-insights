@@ -932,7 +932,7 @@ export default function DashboardBuilderPage() {
               {name || 'Untitled Dashboard'}
             </span>
           )}
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-2" data-toolbar>
             <Select value={audienceOverride} onValueChange={(v) => setAudienceOverride(v ?? '')}>
               <SelectTrigger className="text-xs w-40">
                 <SelectValue placeholder="Audience override" />

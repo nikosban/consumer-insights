@@ -66,7 +66,9 @@
     --field-shadow: rgba(0,0,0,0.08) 0px -2px 0px inset, rgba(0,0,0,0.12) 0px 0px 0px 1px;
     /* Paper primary button */
     --btn-primary-bg: linear-gradient(in oklab 180deg, oklab(57.3% -0.024 -0.233) 0%, oklab(47% -0.025 -0.241) 100%);
-    --btn-primary-shadow: rgba(255,255,255,0.12) 0px 1px 0px inset, #0C41DF 0px 0px 0px 1px;
+    --btn-primary-shadow: rgba(255,255,255,0.12) 0px 1px 0px inset;
+    /* Toolbar */
+    --toolbar-item-h: 2rem; /* 32px — enforced on all toolbar children */
     --field-shadow-focus: rgba(0,0,0,0.08) 0px -2px 0px inset, rgba(61,156,243,0.12) 0px 0px 0px 3px, #1F7BE1 0px 0px 0px 1px;
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
@@ -101,6 +103,11 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.47 0.243 264);
+}
+
+/* Toolbar: enforce consistent item height so component-level size drift is caught */
+[data-toolbar] > * {
+  height: var(--toolbar-item-h);
 }
 
 /* Halftone dot pulse — used in audience preview card */
