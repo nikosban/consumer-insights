@@ -1029,13 +1029,14 @@ export default function DashboardBuilderPage() {
                       const qLabel = e.dataTransfer.getData('survey-question-label')
                       if (qId && qLabel) addCrossDimension(pw.widgetId, qId, qLabel)
                     }}
-                    className={`group bg-background rounded-lg flex flex-col overflow-hidden shadow-sm transition-all cursor-pointer border ${
+                    className={`group bg-background rounded-lg flex flex-col overflow-hidden transition-all cursor-pointer ${
                       isDragTarget
-                        ? 'border-primary ring-2 ring-primary/30'
+                        ? 'ring-2 ring-primary/30'
                         : isSelected
-                          ? 'border-primary'
-                          : 'border-border hover:border-border/80'
+                          ? 'ring-2 ring-primary'
+                          : ''
                     }`}
+                    style={{ boxShadow: BROWSER_FIELD_SHADOW }}
                   >
                     {/* Header */}
                     <div className={`relative flex items-center gap-2 px-3 py-2 shrink-0 ${widget.type === 'scorecard' ? 'border-b border-border' : ''}`}>
