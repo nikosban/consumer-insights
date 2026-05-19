@@ -3,8 +3,8 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { useAudienceStore } from '@/store/audienceStore'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { FieldGroup } from '@/components/app'
 import {
   Select,
   SelectContent,
@@ -392,14 +392,10 @@ function HighlightedInput({
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>
   placeholder?: string
 }) {
-  const [focused, setFocused] = useState(false)
   const tokens = tokenise(value)
 
   return (
-    <div className={cn(
-      'relative flex-1 h-8 rounded-md border bg-background transition-shadow',
-      focused ? 'border-ring ring-2 ring-ring/30' : 'border-input',
-    )}>
+    <div className="relative flex-1 h-8 rounded-md border-0 bg-[#FDFDFD] shadow-[var(--field-shadow)] focus-within:shadow-[var(--field-shadow-focus)] transition-shadow">
       {/* Highlight overlay */}
       <div
         aria-hidden
@@ -419,8 +415,6 @@ function HighlightedInput({
         value={value}
         onChange={e => onChange(e.target.value)}
         onKeyDown={onKeyDown}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
         className="absolute inset-0 w-full h-full px-3 text-xs bg-transparent text-transparent caret-gray-900 rounded-md focus:outline-none"
         style={{ caretColor: 'var(--color-foreground)' }}
         spellCheck={false}
@@ -558,12 +552,10 @@ export default function AudienceBuilderPage() {
 
       {/* Top fields */}
       <div className="max-w-[560px] space-y-5 mb-8">
-        <div className="space-y-1.5">
-          <Label>Region</Label>
+        <FieldGroup label="Region">
           <RegionPicker value={region} onChange={setRegion} />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="aud-desc">Description</Label>
+        </FieldGroup>
+        <FieldGroup label="Description">
           <Textarea
             id="aud-desc"
             value={description}
@@ -572,7 +564,7 @@ export default function AudienceBuilderPage() {
             rows={2}
             className="resize-none"
           />
-        </div>
+        </FieldGroup>
       </div>
 
       <div className="h-px bg-border mb-8" />
