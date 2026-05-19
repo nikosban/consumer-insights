@@ -129,6 +129,7 @@ function WidgetPropertiesPanel({
   onUpdate: (patch: Partial<Widget>) => void
 }) {
   const [panelWidth, setPanelWidth] = useState(DEFAULT_PANEL_WIDTH)
+  const [titleFocused, setTitleFocused] = useState(false)
   const isResizing = useRef(false)
 
   const startResize = useCallback((e: React.MouseEvent) => {
@@ -300,7 +301,10 @@ function WidgetPropertiesPanel({
             <Input
               value={widget.title}
               onChange={(e) => onUpdate({ title: e.target.value })}
-              className="h-8 text-xs"
+              onFocus={() => setTitleFocused(true)}
+              onBlur={() => setTitleFocused(false)}
+              className="h-8 text-xs border-0 focus-visible:ring-0 bg-[#FDFDFD]"
+              style={{ boxShadow: titleFocused ? BROWSER_FIELD_FOCUS_SHADOW : BROWSER_FIELD_SHADOW }}
             />
           </div>
 
