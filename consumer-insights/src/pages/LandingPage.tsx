@@ -37,7 +37,7 @@ export default function LandingPage() {
         <span className="font-semibold text-foreground">Consumer Insights</span>
         <span className="ml-1 text-xs text-muted-foreground hidden sm:inline">by Statista</span>
         <div className="ml-auto">
-          <Button variant="outline" size="sm" onClick={() => navigate('/workspace')}>
+          <Button variant="outline" size="sm" onClick={() => navigate('/research-ai')}>
             Open App
           </Button>
         </div>
@@ -57,7 +57,7 @@ export default function LandingPage() {
           Consumer Insights combines AI-driven research, powerful audience segmentation, and interactive dashboards — all in one place.
         </p>
         <div className="flex flex-col sm:flex-row gap-3">
-          <Button size="lg" onClick={() => navigate('/workspace')}>
+          <Button size="lg" onClick={() => navigate('/research-ai')}>
             Get Started
           </Button>
           <Button size="lg" variant="outline" onClick={() => navigate('/research-ai')}>
