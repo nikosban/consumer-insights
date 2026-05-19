@@ -4,7 +4,7 @@ import { useAudienceStore } from '@/store/audienceStore'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { FieldGroup } from '@/components/app'
+import { Chip, FieldGroup, SegmentedControl } from '@/components/app'
 import {
   Select,
   SelectContent,
@@ -150,24 +150,11 @@ function GroupEditor({ group, onChange, depth = 0 }: GroupEditorProps) {
     <div className={cn('space-y-3', depth > 0 ? 'ml-4 pl-4 border-l-2 border-gray-100' : '')}>
       {/* AND / OR segmented toggle */}
       <div className="flex items-center gap-2.5">
-        <div className="inline-flex rounded-md border border-border overflow-hidden text-xs font-semibold shrink-0">
-          {(['AND', 'OR'] as const).map((op, i) => (
-            <button
-              key={op}
-              type="button"
-              onClick={() => onChange({ ...group, operator: op })}
-              className={cn(
-                'px-2.5 py-1 transition-colors',
-                i > 0 && 'border-l border-border',
-                group.operator === op
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-background text-muted-foreground hover:bg-accent hover:text-gray-900'
-              )}
-            >
-              {op}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl
+          options={['AND', 'OR'] as const}
+          value={group.operator}
+          onChange={(op) => onChange({ ...group, operator: op })}
+        />
         <span className="text-xs text-muted-foreground">
           match {group.operator === 'AND' ? 'all' : 'any'} of the following
         </span>
@@ -179,13 +166,15 @@ function GroupEditor({ group, onChange, depth = 0 }: GroupEditorProps) {
           return (
             <div key={item.id} className="relative">
               <GroupEditor group={item} onChange={(g) => updateSubGroup(index, g)} depth={depth + 1} />
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon"
                 onClick={() => removeItem(index)}
-                className="absolute top-0 right-0 p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+                className="absolute top-0 right-0 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
               >
                 <Trash2 className="h-3.5 w-3.5" />
-              </button>
+              </Button>
             </div>
           )
         }
@@ -243,13 +232,15 @@ function GroupEditor({ group, onChange, depth = 0 }: GroupEditorProps) {
               />
             )}
 
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               onClick={() => removeItem(index)}
-              className="p-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+              className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
             >
               <Trash2 className="h-3.5 w-3.5" />
-            </button>
+            </Button>
           </div>
         )
       })}
@@ -462,14 +453,12 @@ function AIQueryInput({ onApply }: { onApply: (f: FilterGroup) => void }) {
       </div>
       <div className="flex flex-wrap gap-1.5">
         {AI_EXAMPLES.map(ex => (
-          <button
+          <Chip
             key={ex}
-            type="button"
+            label={ex}
+            variant="suggestion"
             onClick={() => { setQuery(ex); apply(ex) }}
-            className="inline-flex items-center rounded-full border border-border bg-white px-2.5 py-0.5 text-xs text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
-          >
-            {ex}
-          </button>
+          />
         ))}
       </div>
     </div>
