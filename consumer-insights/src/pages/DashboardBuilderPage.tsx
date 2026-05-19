@@ -370,6 +370,7 @@ const SURVEY_YEARS = ['All years', '2022', '2023', '2024', '2025']
 
 // Design token: subtle inset-bottom shadow + hairline border, matching the Paper design spec
 const BROWSER_FIELD_SHADOW = 'rgba(0,0,0,0.08) 0px -2px 0px inset, rgba(0,0,0,0.12) 0px 0px 0px 1px'
+const BROWSER_FIELD_FOCUS_SHADOW = 'rgba(0,0,0,0.08) 0px -2px 0px inset, rgba(61,156,243,0.12) 0px 0px 0px 3px, #1F7BE1 0px 0px 0px 1px'
 
 function SurveyBrowser({ onAdd, onDragStart, onDragEnd }: {
   onAdd: (q: SurveyQuestion) => void
@@ -1029,14 +1030,8 @@ export default function DashboardBuilderPage() {
                       const qLabel = e.dataTransfer.getData('survey-question-label')
                       if (qId && qLabel) addCrossDimension(pw.widgetId, qId, qLabel)
                     }}
-                    className={`group bg-background rounded-lg flex flex-col overflow-hidden transition-all cursor-pointer ${
-                      isDragTarget
-                        ? 'ring-2 ring-primary/30'
-                        : isSelected
-                          ? 'ring-2 ring-primary'
-                          : ''
-                    }`}
-                    style={{ boxShadow: BROWSER_FIELD_SHADOW }}
+                    className="group bg-background rounded-lg flex flex-col overflow-hidden transition-all cursor-pointer"
+                    style={{ boxShadow: isDragTarget || isSelected ? BROWSER_FIELD_FOCUS_SHADOW : BROWSER_FIELD_SHADOW }}
                   >
                     {/* Header */}
                     <div className={`relative flex items-center gap-2 px-3 py-2 shrink-0 ${widget.type === 'scorecard' ? 'border-b border-border' : ''}`}>
