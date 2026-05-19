@@ -368,6 +368,9 @@ function WidgetPropertiesPanel({
 
 const SURVEY_YEARS = ['All years', '2022', '2023', '2024', '2025']
 
+// Design token: subtle inset-bottom shadow + hairline border, matching the Paper design spec
+const BROWSER_FIELD_SHADOW = 'rgba(0,0,0,0.08) 0px -2px 0px inset, rgba(0,0,0,0.12) 0px 0px 0px 1px'
+
 function SurveyBrowser({ onAdd, onDragStart, onDragEnd }: {
   onAdd: (q: SurveyQuestion) => void
   onDragStart?: (q: SurveyQuestion) => void
@@ -408,42 +411,63 @@ function SurveyBrowser({ onAdd, onDragStart, onDragEnd }: {
   return (
     <>
       <div className="p-3 space-y-2 border-b border-border shrink-0">
-        <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-          <Input
-            placeholder="Search questions…"
+        {/* Search */}
+        <div
+          className="flex items-center gap-1.5 h-8 px-2 rounded-md bg-[#FDFDFD] dark:bg-input"
+          style={{ boxShadow: BROWSER_FIELD_SHADOW }}
+        >
+          <Search className="h-4 w-4 shrink-0" style={{ color: '#B8B8B8' }} />
+          <input
+            placeholder="Search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="h-8 text-xs pl-7 pr-2"
+            className="flex-1 text-sm bg-transparent outline-none placeholder:text-[#B8B8B8]"
+            style={{ color: '#707070' }}
           />
+          <kbd className="text-[11px] font-sans shrink-0" style={{ color: '#B8B8B8' }}>⌘K</kbd>
         </div>
+
+        {/* Survey type */}
         <Select value={surveyType} onValueChange={(v) => setSurveyType(v ?? '')}>
-          <SelectTrigger className="h-8 text-xs w-full">
+          <SelectTrigger
+            className="h-8 text-sm w-full rounded-md border-0 bg-[#FDFDFD] dark:bg-input [&_svg]:text-[#B8B8B8]"
+            style={{ boxShadow: BROWSER_FIELD_SHADOW, color: '#707070' }}
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {SURVEY_TYPES.map((t) => (
-              <SelectItem key={t} value={t} className="text-xs">{t}</SelectItem>
+              <SelectItem key={t} value={t} className="text-sm">{t}</SelectItem>
             ))}
           </SelectContent>
         </Select>
+
+        {/* Country */}
         <Select value={country} onValueChange={(v) => setCountry(v ?? '')}>
-          <SelectTrigger className="h-8 text-xs w-full">
+          <SelectTrigger
+            className="h-8 text-sm w-full rounded-md border-0 bg-[#FDFDFD] dark:bg-input [&_svg]:text-[#B8B8B8]"
+            style={{ boxShadow: BROWSER_FIELD_SHADOW, color: '#707070' }}
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {SURVEY_COUNTRIES.map((c) => (
-              <SelectItem key={c} value={c} className="text-xs">{c}</SelectItem>
+              <SelectItem key={c} value={c} className="text-sm">{c}</SelectItem>
             ))}
           </SelectContent>
         </Select>
+
+        {/* Year */}
         <Select value={year} onValueChange={(v) => setYear(v ?? '')}>
-          <SelectTrigger className="h-8 text-xs w-full">
+          <SelectTrigger
+            className="h-8 text-sm w-full rounded-md border-0 bg-[#FDFDFD] dark:bg-input [&_svg]:text-[#B8B8B8]"
+            style={{ boxShadow: BROWSER_FIELD_SHADOW, color: '#707070' }}
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {SURVEY_YEARS.map((y) => (
-              <SelectItem key={y} value={y} className="text-xs">{y}</SelectItem>
+              <SelectItem key={y} value={y} className="text-sm">{y}</SelectItem>
             ))}
           </SelectContent>
         </Select>
