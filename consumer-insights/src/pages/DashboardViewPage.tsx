@@ -7,6 +7,7 @@ import 'react-resizable/css/styles.css'
 import { useDashboardStore } from '@/store/dashboardStore'
 import { useWidgetStore } from '@/store/widgetStore'
 import { Badge } from '@/components/ui/badge'
+import { Toolbar } from '@/components/app'
 import ChartRenderer from '@/components/charts/ChartRenderer'
 import { generateChartData } from '@/data/fakeGenerators'
 
@@ -58,14 +59,14 @@ export default function DashboardViewPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="h-14 border-b border-border flex items-center px-6 gap-3">
+      <Toolbar className="px-6">
         <span className="font-bold text-primary text-lg">CI</span>
         <span className="font-semibold text-foreground">{dashboard.name}</span>
         <Badge className="bg-primary/10 text-primary border-0 text-xs">Shared Dashboard</Badge>
         <span className="ml-auto text-xs text-muted-foreground">
           Updated {new Date(dashboard.updatedAt).toLocaleDateString()}
         </span>
-      </header>
+      </Toolbar>
 
       <div className="p-4" data-dashboard-canvas>
         <GridLayout

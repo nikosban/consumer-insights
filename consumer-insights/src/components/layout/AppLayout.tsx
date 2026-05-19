@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Menu } from 'lucide-react'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import WorkspaceSidebar from './WorkspaceSidebar'
+import { Toolbar } from '@/components/app'
 
 export default function AppLayout() {
   const navigate = useNavigate()
@@ -18,7 +19,7 @@ export default function AppLayout() {
 
       {/* Mobile: top bar with hamburger + sheet sidebar */}
       <div className="flex flex-col flex-1 overflow-hidden">
-        <header className="md:hidden h-14 border-b border-border flex items-center px-4 gap-3 bg-background shrink-0">
+        <Toolbar className="md:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger className="inline-flex items-center justify-center rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground">
               <Menu className="h-5 w-5" />
@@ -33,7 +34,7 @@ export default function AppLayout() {
           >
             Consumer Insights
           </button>
-        </header>
+        </Toolbar>
 
         <main className="flex-1 overflow-auto bg-background">
           <Outlet />

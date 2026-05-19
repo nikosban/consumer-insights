@@ -3,6 +3,7 @@ import { Plus, Pencil, Trash2, Check, ChevronDown, Globe } from 'lucide-react'
 import { useRegionStore, ALL_COUNTRIES, COUNTRY_CODE } from '@/store/regionStore'
 import type { Region } from '@/store/regionStore'
 import { cn } from '@/lib/utils'
+import { SectionLabel } from '@/components/app'
 
 // ─── Country badge ────────────────────────────────────────────────────────────
 
@@ -261,9 +262,7 @@ export function RegionPicker({ value, onChange }: RegionPickerProps) {
         <div className="absolute left-0 top-full mt-1.5 z-50 w-full min-w-[360px] bg-background border border-border rounded-xl shadow-lg overflow-hidden">
           <div className="max-h-72 overflow-y-auto p-2 space-y-0.5">
             {/* Built-in */}
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 py-1.5">
-              Built-in
-            </p>
+            <SectionLabel className="px-3 py-1.5 mb-0">Built-in</SectionLabel>
             {builtIn.map((r) => (
               <RegionRow
                 key={r.id}
@@ -277,9 +276,7 @@ export function RegionPicker({ value, onChange }: RegionPickerProps) {
             {custom.length > 0 && (
               <>
                 <div className="h-px bg-border mx-1 my-1" />
-                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 py-1.5">
-                  Custom
-                </p>
+                <SectionLabel className="px-3 py-1.5 mb-0">Custom</SectionLabel>
                 {custom.map((r) => (
                   editingId === r.id ? null : (
                     <RegionRow
