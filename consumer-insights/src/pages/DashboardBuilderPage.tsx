@@ -934,7 +934,7 @@ export default function DashboardBuilderPage() {
           )}
           <div className="ml-auto flex items-center gap-2">
             <Select value={audienceOverride} onValueChange={(v) => setAudienceOverride(v ?? '')}>
-              <SelectTrigger className="h-7 text-xs w-40">
+              <SelectTrigger className="text-xs w-40">
                 <SelectValue placeholder="Audience override" />
               </SelectTrigger>
               <SelectContent>
@@ -944,16 +944,16 @@ export default function DashboardBuilderPage() {
                 ))}
               </SelectContent>
             </Select>
-            <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={handleToggleShare}>
+            <Button variant="outline" size="default" className="text-xs" onClick={handleToggleShare}>
               <Share2 className="h-3.5 w-3.5" />
               {isShared ? 'Shared' : 'Share'}
             </Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleRefresh}>
+            <Button variant="ghost" size="icon" onClick={handleRefresh}>
               <RefreshCw className="h-3.5 w-3.5" />
             </Button>
             <Button
-              size="sm"
-              className="h-7 text-xs gap-1"
+              size="default"
+              className="text-xs"
               onClick={() => {
                 const project = projects.find(p => p.dashboardIds.includes(dashId))
                 if (project) {
