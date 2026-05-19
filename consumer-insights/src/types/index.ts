@@ -41,11 +41,28 @@ export type Widget = {
   year?: string;
   crossDimensionLabel?: string;
   crossDimensionId?: string;
+  showIndex?: boolean;
+  showTotalShare?: boolean;
+};
+
+export type ChartSeries = {
+  name: string;
+  values: number[];       // percent
+  absolutes?: number[];   // absolute count in group
+  populations?: number[]; // in millions
+  indexValues?: number[]; // index (100 = average)
+  baseN?: number;         // group respondent base
 };
 
 export type ChartData = {
   labels: string[];
-  series: Array<{ name: string; values: number[] }>;
+  series: ChartSeries[];
+  totalSeries?: {         // "Total share of all respondents" column
+    values: number[];
+    absolutes?: number[];
+    populations?: number[];
+    baseN?: number;
+  };
 };
 
 // ─── Dashboard ───────────────────────────────────────────────────────────────

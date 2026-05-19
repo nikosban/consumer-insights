@@ -185,129 +185,188 @@ function WidgetPropertiesPanel({
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-5">
-        {/* Title */}
-        <div>
-          <label className="text-xs font-medium text-muted-foreground block mb-1.5">Title</label>
-          <Input
-            value={widget.title}
-            onChange={(e) => onUpdate({ title: e.target.value })}
-            className="h-8 text-xs"
-          />
-        </div>
+      <div className="flex-1 overflow-y-auto">
 
-        {/* Chart type */}
-        <div>
-          <label className="text-xs font-medium text-muted-foreground block mb-1.5">Chart type</label>
-          <div className="grid grid-cols-5 gap-1">
-            {CHART_TYPES.map(({ type, label, Icon }) => (
-              <button
-                key={type}
-                onClick={() => onUpdate({ type })}
-                title={label}
-                className={`flex flex-col items-center gap-1 py-2.5 rounded border transition-colors ${
-                  widget.type === type
-                    ? 'border-primary bg-primary/8 text-primary'
-                    : 'border-border text-muted-foreground hover:border-primary/40 hover:bg-primary/5'
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                <span className="text-[10px] font-medium">{label.slice(0, 5)}</span>
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* ── Rows / Columns / Filters ── */}
+        <div className="p-4 space-y-4 border-b border-border">
 
-        {/* Country */}
-        <div>
-          <label className="text-xs font-medium text-muted-foreground block mb-1.5">Country</label>
-          <Select
-            value={widget.country ?? 'All countries'}
-            onValueChange={(v) => onUpdate({ country: v ?? undefined })}
-          >
-            <SelectTrigger className="h-8 text-xs w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {SURVEY_COUNTRIES.map((c) => (
-                <SelectItem key={c} value={c} className="text-xs">{c}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Year */}
-        <div>
-          <label className="text-xs font-medium text-muted-foreground block mb-1.5">Year</label>
-          <Select
-            value={widget.year ?? 'All years'}
-            onValueChange={(v) => onUpdate({ year: v ?? undefined })}
-          >
-            <SelectTrigger className="h-8 text-xs w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {YEARS.map((y) => (
-                <SelectItem key={y} value={y} className="text-xs">{y}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Audience */}
-        <div>
-          <label className="text-xs font-medium text-muted-foreground block mb-1.5">Audience</label>
-          <Select
-            value={widget.audienceId}
-            onValueChange={(v) => onUpdate({ audienceId: v ?? '' })}
-          >
-            <SelectTrigger className="h-8 text-xs w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {audiences.map((a) => (
-                <SelectItem key={a.id} value={a.id} className="text-xs">{a.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Breakdown */}
-        <div>
-          <label className="text-xs font-medium text-muted-foreground block mb-1.5">Breakdown</label>
-          <Select
-            value={widget.breakdown ?? ''}
-            onValueChange={(v) => onUpdate({ breakdown: v || undefined })}
-          >
-            <SelectTrigger className="h-8 text-xs w-full">
-              <SelectValue placeholder="None" />
-            </SelectTrigger>
-            <SelectContent>
-              {BREAKDOWN_OPTIONS.map((b) => (
-                <SelectItem key={b.value || '__none'} value={b.value || '__none'} className="text-xs">
-                  {b.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Cross dimension */}
-        {widget.crossDimensionLabel && (
+          {/* Rows */}
           <div>
-            <label className="text-xs font-medium text-muted-foreground block mb-1.5">Cross dimension</label>
-            <div className="flex items-center gap-2 px-3 py-2 bg-primary/5 border border-primary/20 rounded-lg">
-              <span className="text-xs flex-1 text-foreground truncate">{widget.crossDimensionLabel}</span>
-              <button
-                onClick={() => onUpdate({ crossDimensionLabel: undefined, crossDimensionId: undefined })}
-                title="Remove cross dimension"
-                className="p-0.5 rounded text-muted-foreground hover:text-destructive transition-colors shrink-0"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Rows</p>
+            {widget.title ? (
+              <div className="flex flex-wrap gap-1.5">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-muted rounded-md text-xs text-foreground max-w-full">
+                  <span className="truncate">{widget.title}</span>
+                  <button
+                    onClick={() => onUpdate({ title: '' })}
+                    className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground/50 italic py-0.5">No row selected</p>
+            )}
+          </div>
+
+          {/* Columns */}
+          <div>
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Columns</p>
+            {widget.crossDimensionLabel ? (
+              <div className="flex flex-wrap gap-1.5">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-primary/8 border border-primary/20 rounded-md text-xs text-primary max-w-full">
+                  <span className="truncate">{widget.crossDimensionLabel}</span>
+                  <button
+                    onClick={() => onUpdate({ crossDimensionLabel: undefined, crossDimensionId: undefined })}
+                    className="shrink-0 rounded p-0.5 text-primary/60 hover:text-primary transition-colors"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground/50 italic py-0.5">Drop a question as column</p>
+            )}
+          </div>
+
+          {/* Filters */}
+          <div>
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Filters</p>
+            <div className="flex flex-wrap gap-1.5">
+              {/* Audience */}
+              <Select value={widget.audienceId} onValueChange={(v) => onUpdate({ audienceId: v })}>
+                <SelectTrigger size="sm" className="text-xs w-auto max-w-[160px] bg-muted border-0 rounded-md">
+                  <span className="truncate">
+                    {audiences.find((a) => a.id === widget.audienceId)?.name ?? widget.audienceId}
+                  </span>
+                </SelectTrigger>
+                <SelectContent>
+                  {audiences.map((a) => (
+                    <SelectItem key={a.id} value={a.id} className="text-xs">{a.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Country — chip when active, native select when not */}
+              {widget.country && widget.country !== 'All countries' ? (
+                <span className="inline-flex items-center gap-1 px-2.5 h-7 bg-muted rounded-md text-xs text-foreground">
+                  <span>{widget.country}</span>
+                  <button
+                    onClick={() => onUpdate({ country: undefined })}
+                    className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ) : (
+                <select
+                  value=""
+                  onChange={(e) => { if (e.target.value) onUpdate({ country: e.target.value }) }}
+                  className="h-7 text-xs pl-2.5 pr-2 bg-muted/50 border border-dashed border-border rounded-md text-muted-foreground cursor-pointer appearance-none"
+                >
+                  <option value="">+ Country</option>
+                  {SURVEY_COUNTRIES.filter((c) => c !== 'All countries').map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              )}
+
+              {/* Year — chip when active, native select when not */}
+              {widget.year && widget.year !== 'All years' ? (
+                <span className="inline-flex items-center gap-1 px-2.5 h-7 bg-muted rounded-md text-xs text-foreground">
+                  <span>{widget.year}</span>
+                  <button
+                    onClick={() => onUpdate({ year: undefined })}
+                    className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ) : (
+                <select
+                  value=""
+                  onChange={(e) => { if (e.target.value) onUpdate({ year: e.target.value }) }}
+                  className="h-7 text-xs pl-2.5 pr-2 bg-muted/50 border border-dashed border-border rounded-md text-muted-foreground cursor-pointer appearance-none"
+                >
+                  <option value="">+ Year</option>
+                  {YEARS.filter((y) => y !== 'All years').map((y) => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+              )}
             </div>
           </div>
-        )}
+        </div>
+
+        {/* ── Detailed settings ── */}
+        <div className="p-4 space-y-5">
+
+          {/* Title */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground block mb-1.5">Title</label>
+            <Input
+              value={widget.title}
+              onChange={(e) => onUpdate({ title: e.target.value })}
+              className="h-8 text-xs"
+            />
+          </div>
+
+          {/* Chart type */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground block mb-1.5">Chart type</label>
+            <div className="grid grid-cols-5 gap-1">
+              {CHART_TYPES.map(({ type, label, Icon }) => (
+                <button
+                  key={type}
+                  onClick={() => onUpdate({ type })}
+                  title={label}
+                  className={`flex flex-col items-center gap-1 py-2.5 rounded border transition-colors ${
+                    widget.type === type
+                      ? 'border-primary bg-primary/8 text-primary'
+                      : 'border-border text-muted-foreground hover:border-primary/40 hover:bg-primary/5'
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span className="text-[10px] font-medium">{label.slice(0, 5)}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Metrics — only when a cross dimension is set */}
+          {widget.crossDimensionLabel && (
+            <div>
+              <label className="text-xs font-medium text-muted-foreground block mb-2">Metrics</label>
+              <div className="space-y-3">
+                <label className="flex items-start gap-2.5 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5 h-3.5 w-3.5 rounded border-border accent-primary cursor-pointer"
+                    checked={!!widget.showIndex}
+                    onChange={(e) => onUpdate({ showIndex: e.target.checked })}
+                  />
+                  <div>
+                    <p className="text-xs font-medium text-foreground group-hover:text-primary transition-colors">Index</p>
+                    <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">Shows the relevance for a target group.</p>
+                  </div>
+                </label>
+                <label className="flex items-start gap-2.5 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5 h-3.5 w-3.5 rounded border-border accent-primary cursor-pointer"
+                    checked={!!widget.showTotalShare}
+                    onChange={(e) => onUpdate({ showTotalShare: e.target.checked })}
+                  />
+                  <div>
+                    <p className="text-xs font-medium text-foreground group-hover:text-primary transition-colors">Total share of all respondents</p>
+                    <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">Calculates results for all respondents.</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </aside>
   )

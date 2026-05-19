@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type { Project, Analysis, Note } from '@/types';
 import { seedProjects } from '@/data/seed';
 
@@ -17,7 +18,9 @@ type ProjectStore = {
   unlinkDashboard: (projectId: string, dashboardId: string) => void;
 };
 
-export const useProjectStore = create<ProjectStore>((set) => ({
+export const useProjectStore = create<ProjectStore>()(
+  persist(
+    (set) => ({
   projects: seedProjects,
 
   add: (p) => set((s) => ({ projects: [...s.projects, p] })),
@@ -94,4 +97,6 @@ export const useProjectStore = create<ProjectStore>((set) => ({
           : p
       ),
     })),
-}));
+  }),
+  { name: 'ci-projects' }
+));

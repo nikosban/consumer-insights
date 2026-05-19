@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type { Widget } from '@/types';
 import { seedWidgets } from '@/data/seed';
 
@@ -9,7 +10,9 @@ type WidgetStore = {
   remove: (id: string) => void;
 };
 
-export const useWidgetStore = create<WidgetStore>((set) => ({
+export const useWidgetStore = create<WidgetStore>()(
+  persist(
+    (set) => ({
   widgets: seedWidgets,
 
   add: (w) => set((s) => ({ widgets: [...s.widgets, w] })),
@@ -20,4 +23,6 @@ export const useWidgetStore = create<WidgetStore>((set) => ({
     })),
 
   remove: (id) => set((s) => ({ widgets: s.widgets.filter((w) => w.id !== id) })),
-}));
+  }),
+  { name: 'ci-widgets' }
+));

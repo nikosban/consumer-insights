@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type { Dashboard, DashboardWidget } from '@/types';
 import { seedDashboards } from '@/data/seed';
 
@@ -11,7 +12,9 @@ type DashboardStore = {
   toggleShare: (id: string) => void;
 };
 
-export const useDashboardStore = create<DashboardStore>((set) => ({
+export const useDashboardStore = create<DashboardStore>()(
+  persist(
+    (set) => ({
   dashboards: seedDashboards,
 
   add: (d) => set((s) => ({ dashboards: [...s.dashboards, d] })),
@@ -38,4 +41,6 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
         d.id === id ? { ...d, isShared: !d.isShared, updatedAt: new Date().toISOString() } : d
       ),
     })),
-}));
+  }),
+  { name: 'ci-dashboards' }
+));

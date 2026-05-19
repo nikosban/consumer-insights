@@ -75,15 +75,49 @@ export const DIMENSION_VALUES: Record<string, string[]> = {
   'Education level': ['Primary', 'Secondary', 'Tertiary', 'Postgraduate'],
 }
 
+const POP_SCALE = 22500 // respondents-to-population multiplier (fake)
+
 function crosstableData(dimensionLabel: string): ChartData {
   const answers = SURVEY_ANSWERS.slice(0, 5)
   const dimensions = DIMENSION_VALUES[dimensionLabel] ?? ['Group A', 'Group B', 'Group C']
+
+  const TOTAL_N = 8599
+  const basePerGroup = Math.floor(TOTAL_N / dimensions.length)
+  const groupNs = dimensions.map((_, i) =>
+    i === dimensions.length - 1 ? TOTAL_N - basePerGroup * (dimensions.length - 1) : basePerGroup
+  )
+
+  const groupPercents = dimensions.map(() => answers.map(() => rand(5, 45)))
+
+  const totalPercents = answers.map((_, ai) => {
+    const weightedSum = groupPercents.reduce((sum, gp, gi) => sum + gp[ai] * groupNs[gi], 0)
+    return Math.round(weightedSum / TOTAL_N)
+  })
+
+  const series = dimensions.map((dim, gi) => {
+    const groupN = groupNs[gi]
+    const percents = groupPercents[gi]
+    return {
+      name: dim,
+      values: percents,
+      absolutes: percents.map((p) => Math.round((p * groupN) / 100)),
+      populations: percents.map((p) => Math.round((p * groupN * POP_SCALE) / 1e8) / 10), // millions, 1dp
+      indexValues: percents.map((p, ai) =>
+        totalPercents[ai] > 0 ? Math.round((p / totalPercents[ai]) * 100) : 100
+      ),
+      baseN: groupN,
+    }
+  })
+
   return {
     labels: answers,
-    series: dimensions.map((dim) => ({
-      name: dim,
-      values: answers.map(() => rand(5, 45)),
-    })),
+    series,
+    totalSeries: {
+      values: totalPercents,
+      absolutes: totalPercents.map((p) => Math.round((p * TOTAL_N) / 100)),
+      populations: totalPercents.map((p) => Math.round((p * TOTAL_N * POP_SCALE) / 1e8) / 10),
+      baseN: TOTAL_N,
+    },
   }
 }
 

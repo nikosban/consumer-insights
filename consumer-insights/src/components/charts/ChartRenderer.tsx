@@ -1,3 +1,4 @@
+import React from 'react'
 import {
   BarChart,
   Bar,
@@ -167,29 +168,70 @@ export default function ChartRenderer({ widget, data, height = 200 }: ChartRende
     const isCrosstable = !!widget.crossDimensionLabel
 
     if (isCrosstable) {
+      const showIndex = !!widget.showIndex
+      const showTotal = !!widget.showTotalShare
+      const colsPerGroup = 1 + (showIndex ? 1 : 0) // Percent [+ Index]
+      const totalColsPerGroup = 1 // just Percent for total
+
+      const thBase = 'py-1.5 px-2 font-medium text-muted-foreground border-b border-border text-right whitespace-nowrap'
+      const tdBase = 'py-1.5 px-2 tabular-nums text-right'
+
       return (
         <div className="overflow-auto" style={{ maxHeight: height }}>
           <table className="w-full text-xs border-collapse">
             <thead>
+              {/* Group name row */}
               <tr className="bg-muted/50">
-                <th className="text-left py-2 px-3 font-medium text-muted-foreground border-b border-border sticky left-0 bg-muted/50 min-w-[160px]">
+                <th className="text-left py-1.5 px-2 font-medium text-muted-foreground border-b border-border sticky left-0 bg-muted/50 min-w-[140px]" rowSpan={2}>
                   Answers
                 </th>
+                {showTotal && (
+                  <th colSpan={totalColsPerGroup} className={`${thBase} border-l border-border`}>
+                    Total
+                  </th>
+                )}
                 {data.series.map((s) => (
-                  <th key={s.name} className="text-right py-2 px-3 font-medium text-muted-foreground border-b border-border whitespace-nowrap">
+                  <th key={s.name} colSpan={colsPerGroup} className={`${thBase} border-l border-border`}>
                     {s.name}
                   </th>
+                ))}
+              </tr>
+              {/* Sub-column row */}
+              <tr className="bg-muted/30">
+                {showTotal && (
+                  <th className={`${thBase} border-l border-border font-normal text-[10px]`}>%</th>
+                )}
+                {data.series.map((s) => (
+                  <React.Fragment key={s.name}>
+                    <th className={`${thBase} border-l border-border font-normal text-[10px]`}>%</th>
+                    {showIndex && (
+                      <th className={`${thBase} font-normal text-[10px]`}>Index</th>
+                    )}
+                  </React.Fragment>
                 ))}
               </tr>
             </thead>
             <tbody>
               {data.labels.map((label, i) => (
                 <tr key={label} className="border-b border-border/40 last:border-0 hover:bg-muted/20 transition-colors">
-                  <td className="py-2 px-3 text-foreground sticky left-0 bg-background">{label}</td>
-                  {data.series.map((s) => (
-                    <td key={s.name} className="text-right py-2 px-3 tabular-nums text-muted-foreground">
-                      {s.values[i]}%
+                  <td className="py-1.5 px-2 text-foreground sticky left-0 bg-background">{label}</td>
+                  {showTotal && (
+                    <td className={`${tdBase} text-muted-foreground border-l border-border/40`}>
+                      {data.totalSeries?.values[i] ?? 0}%
                     </td>
+                  )}
+                  {data.series.map((s) => (
+                    <React.Fragment key={s.name}>
+                      <td className={`${tdBase} text-muted-foreground border-l border-border/40`}>
+                        {s.values[i]}%
+                      </td>
+                      {showIndex && (
+                        <td className={`${tdBase} font-medium`}
+                          style={{ color: (s.indexValues?.[i] ?? 100) >= 110 ? '#2563eb' : (s.indexValues?.[i] ?? 100) <= 90 ? '#9ca3af' : undefined }}>
+                          {s.indexValues?.[i] ?? 100}
+                        </td>
+                      )}
+                    </React.Fragment>
                   ))}
                 </tr>
               ))}

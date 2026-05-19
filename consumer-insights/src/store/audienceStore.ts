@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type { Audience } from '@/types';
 import { seedAudiences } from '@/data/seed';
 
@@ -10,7 +11,9 @@ type AudienceStore = {
   duplicate: (id: string) => void;
 };
 
-export const useAudienceStore = create<AudienceStore>((set, get) => ({
+export const useAudienceStore = create<AudienceStore>()(
+  persist(
+    (set, get) => ({
   audiences: seedAudiences,
 
   add: (a) => set((s) => ({ audiences: [...s.audiences, a] })),
@@ -37,4 +40,6 @@ export const useAudienceStore = create<AudienceStore>((set, get) => ({
     };
     set((s) => ({ audiences: [...s.audiences, copy] }));
   },
-}));
+  }),
+  { name: 'ci-audiences' }
+));
