@@ -32,6 +32,7 @@ import {
 } from 'lucide-react'
 import type { Audience } from '@/types'
 import type { LucideIcon } from 'lucide-react'
+import { Chip, FieldGroup, SectionLabel, Toolbar, ToolbarActions } from '@/components/app'
 
 const ROW_HEIGHT = 60
 
@@ -184,18 +185,10 @@ function WidgetPropertiesPanel({
 
           {/* Rows */}
           <div>
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Rows</p>
+            <SectionLabel>Rows</SectionLabel>
             {widget.title ? (
               <div className="flex flex-wrap gap-1.5">
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-muted rounded-md text-xs text-foreground max-w-full">
-                  <span className="truncate">{widget.title}</span>
-                  <button
-                    onClick={() => onUpdate({ title: '' })}
-                    className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
+                <Chip label={widget.title} onRemove={() => onUpdate({ title: '' })} />
               </div>
             ) : (
               <p className="text-xs text-muted-foreground/50 italic py-0.5">No row selected</p>
@@ -204,18 +197,14 @@ function WidgetPropertiesPanel({
 
           {/* Columns */}
           <div>
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Columns</p>
+            <SectionLabel>Columns</SectionLabel>
             {widget.crossDimensionLabel ? (
               <div className="flex flex-wrap gap-1.5">
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-primary/8 border border-primary/20 rounded-md text-xs text-primary max-w-full">
-                  <span className="truncate">{widget.crossDimensionLabel}</span>
-                  <button
-                    onClick={() => onUpdate({ crossDimensionLabel: undefined, crossDimensionId: undefined })}
-                    className="shrink-0 rounded p-0.5 text-primary/60 hover:text-primary transition-colors"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
+                <Chip
+                  label={widget.crossDimensionLabel}
+                  variant="primary"
+                  onRemove={() => onUpdate({ crossDimensionLabel: undefined, crossDimensionId: undefined })}
+                />
               </div>
             ) : (
               <p className="text-xs text-muted-foreground/50 italic py-0.5">Drop a question as column</p>
@@ -224,7 +213,7 @@ function WidgetPropertiesPanel({
 
           {/* Filters */}
           <div>
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Filters</p>
+            <SectionLabel>Filters</SectionLabel>
             <div className="flex flex-wrap gap-1.5">
               {/* Audience */}
               <Select value={widget.audienceId} onValueChange={(v) => onUpdate({ audienceId: v ?? undefined })}>
@@ -242,15 +231,7 @@ function WidgetPropertiesPanel({
 
               {/* Country — chip when active, native select when not */}
               {widget.country && widget.country !== 'All countries' ? (
-                <span className="inline-flex items-center gap-1 px-2.5 h-7 bg-muted rounded-md text-xs text-foreground">
-                  <span>{widget.country}</span>
-                  <button
-                    onClick={() => onUpdate({ country: undefined })}
-                    className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
+                <Chip label={widget.country} onRemove={() => onUpdate({ country: undefined })} />
               ) : (
                 <select
                   value=""
@@ -266,15 +247,7 @@ function WidgetPropertiesPanel({
 
               {/* Year — chip when active, native select when not */}
               {widget.year && widget.year !== 'All years' ? (
-                <span className="inline-flex items-center gap-1 px-2.5 h-7 bg-muted rounded-md text-xs text-foreground">
-                  <span>{widget.year}</span>
-                  <button
-                    onClick={() => onUpdate({ year: undefined })}
-                    className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
+                <Chip label={widget.year} onRemove={() => onUpdate({ year: undefined })} />
               ) : (
                 <select
                   value=""
@@ -295,18 +268,16 @@ function WidgetPropertiesPanel({
         <div className="p-4 space-y-5">
 
           {/* Title */}
-          <div>
-            <label className="text-xs font-medium text-muted-foreground block mb-1.5">Title</label>
+          <FieldGroup label="Title">
             <Input
               value={widget.title}
               onChange={(e) => onUpdate({ title: e.target.value })}
               className="text-xs"
             />
-          </div>
+          </FieldGroup>
 
           {/* Chart type */}
-          <div>
-            <label className="text-xs font-medium text-muted-foreground block mb-1.5">Chart type</label>
+          <FieldGroup label="Chart type">
             <div className="grid grid-cols-5 gap-1">
               {CHART_TYPES.map(({ type, label, Icon }) => (
                 <button
@@ -324,12 +295,11 @@ function WidgetPropertiesPanel({
                 </button>
               ))}
             </div>
-          </div>
+          </FieldGroup>
 
           {/* Metrics — only when a cross dimension is set */}
           {widget.crossDimensionLabel && (
-            <div>
-              <label className="text-xs font-medium text-muted-foreground block mb-2">Metrics</label>
+            <FieldGroup label="Metrics">
               <div className="space-y-3">
                 <label className="flex items-start gap-2.5 cursor-pointer group">
                   <input
@@ -356,7 +326,7 @@ function WidgetPropertiesPanel({
                   </div>
                 </label>
               </div>
-            </div>
+            </FieldGroup>
           )}
         </div>
       </div>
@@ -912,7 +882,7 @@ export default function DashboardBuilderPage() {
       {/* Main canvas */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Toolbar */}
-        <div className="h-14 border-b border-border flex items-center px-4 gap-3 bg-background shrink-0">
+        <Toolbar>
           {editingTitle ? (
             <input
               ref={titleInputRef}
@@ -932,7 +902,7 @@ export default function DashboardBuilderPage() {
               {name || 'Untitled Dashboard'}
             </span>
           )}
-          <div className="ml-auto flex items-center gap-2" data-toolbar>
+          <ToolbarActions>
             <Select value={audienceOverride} onValueChange={(v) => setAudienceOverride(v ?? '')}>
               <SelectTrigger className="text-xs w-40">
                 <SelectValue placeholder="Audience override" />
@@ -966,8 +936,8 @@ export default function DashboardBuilderPage() {
               <Sparkles className="h-3.5 w-3.5" />
               Generate Analysis
             </Button>
-          </div>
-        </div>
+          </ToolbarActions>
+        </Toolbar>
 
         {/* Grid canvas */}
         <div
