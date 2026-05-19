@@ -412,7 +412,7 @@ function SurveyBrowser({ onAdd, onDragStart, onDragEnd }: {
       <div className="p-3 space-y-2 border-b border-border shrink-0">
         {/* Search */}
         <div
-          className="flex items-center gap-1.5 h-8 px-2 rounded-md bg-[#FDFDFD] dark:bg-input shadow-[var(--field-shadow)]"
+          className="flex items-center gap-1.5 h-8 px-2 rounded-md bg-[#FDFDFD] dark:bg-input shadow-[var(--field-shadow)] focus-within:shadow-[var(--field-shadow-focus)] transition-shadow"
         >
           <Search className="h-4 w-4 shrink-0" style={{ color: '#B8B8B8' }} />
           <input
@@ -428,13 +428,13 @@ function SurveyBrowser({ onAdd, onDragStart, onDragEnd }: {
         {/* Survey type */}
         <Select value={surveyType} onValueChange={(v) => setSurveyType(v ?? '')}>
           <SelectTrigger
-            className="h-8 text-sm w-full rounded-md"
+            className="h-8 text-xs w-full rounded-md"
           >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {SURVEY_TYPES.map((t) => (
-              <SelectItem key={t} value={t} className="text-sm">{t}</SelectItem>
+              <SelectItem key={t} value={t} className="text-xs">{t}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -442,13 +442,13 @@ function SurveyBrowser({ onAdd, onDragStart, onDragEnd }: {
         {/* Country */}
         <Select value={country} onValueChange={(v) => setCountry(v ?? '')}>
           <SelectTrigger
-            className="h-8 text-sm w-full rounded-md"
+            className="h-8 text-xs w-full rounded-md"
           >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {SURVEY_COUNTRIES.map((c) => (
-              <SelectItem key={c} value={c} className="text-sm">{c}</SelectItem>
+              <SelectItem key={c} value={c} className="text-xs">{c}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -456,13 +456,13 @@ function SurveyBrowser({ onAdd, onDragStart, onDragEnd }: {
         {/* Year */}
         <Select value={year} onValueChange={(v) => setYear(v ?? '')}>
           <SelectTrigger
-            className="h-8 text-sm w-full rounded-md"
+            className="h-8 text-xs w-full rounded-md"
           >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {SURVEY_YEARS.map((y) => (
-              <SelectItem key={y} value={y} className="text-sm">{y}</SelectItem>
+              <SelectItem key={y} value={y} className="text-xs">{y}</SelectItem>
             ))}
           </SelectContent>
         </Select>
