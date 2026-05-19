@@ -112,14 +112,6 @@ function ChartTypeSwitcher({
 
 const YEARS = ['All years', '2022', '2023', '2024', '2025']
 
-const BREAKDOWN_OPTIONS = [
-  { value: '', label: 'None' },
-  { value: 'gender', label: 'Gender' },
-  { value: 'age_group', label: 'Age group' },
-  { value: 'income_bracket', label: 'Income' },
-  { value: 'country', label: 'Country' },
-  { value: 'device_type', label: 'Device type' },
-]
 
 const MIN_PANEL_WIDTH = 220
 const MAX_PANEL_WIDTH = 480
@@ -235,7 +227,7 @@ function WidgetPropertiesPanel({
             <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Filters</p>
             <div className="flex flex-wrap gap-1.5">
               {/* Audience */}
-              <Select value={widget.audienceId} onValueChange={(v) => onUpdate({ audienceId: v })}>
+              <Select value={widget.audienceId} onValueChange={(v) => onUpdate({ audienceId: v ?? undefined })}>
                 <SelectTrigger size="sm" className="text-xs w-auto max-w-[160px] bg-muted border-0 rounded-md">
                   <span className="truncate">
                     {audiences.find((a) => a.id === widget.audienceId)?.name ?? widget.audienceId}
