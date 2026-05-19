@@ -129,7 +129,6 @@ function WidgetPropertiesPanel({
   onUpdate: (patch: Partial<Widget>) => void
 }) {
   const [panelWidth, setPanelWidth] = useState(DEFAULT_PANEL_WIDTH)
-  const [titleFocused, setTitleFocused] = useState(false)
   const isResizing = useRef(false)
 
   const startResize = useCallback((e: React.MouseEvent) => {
@@ -301,10 +300,7 @@ function WidgetPropertiesPanel({
             <Input
               value={widget.title}
               onChange={(e) => onUpdate({ title: e.target.value })}
-              onFocus={() => setTitleFocused(true)}
-              onBlur={() => setTitleFocused(false)}
-              className="h-8 text-xs border-0 focus-visible:ring-0 bg-[#FDFDFD]"
-              style={{ boxShadow: titleFocused ? BROWSER_FIELD_FOCUS_SHADOW : BROWSER_FIELD_SHADOW }}
+              className="text-xs"
             />
           </div>
 
@@ -373,8 +369,6 @@ function WidgetPropertiesPanel({
 const SURVEY_YEARS = ['All years', '2022', '2023', '2024', '2025']
 
 // Design token: subtle inset-bottom shadow + hairline border, matching the Paper design spec
-const BROWSER_FIELD_SHADOW = 'rgba(0,0,0,0.08) 0px -2px 0px inset, rgba(0,0,0,0.12) 0px 0px 0px 1px'
-const BROWSER_FIELD_FOCUS_SHADOW = 'rgba(0,0,0,0.08) 0px -2px 0px inset, rgba(61,156,243,0.12) 0px 0px 0px 3px, #1F7BE1 0px 0px 0px 1px'
 
 function SurveyBrowser({ onAdd, onDragStart, onDragEnd }: {
   onAdd: (q: SurveyQuestion) => void
@@ -418,8 +412,7 @@ function SurveyBrowser({ onAdd, onDragStart, onDragEnd }: {
       <div className="p-3 space-y-2 border-b border-border shrink-0">
         {/* Search */}
         <div
-          className="flex items-center gap-1.5 h-8 px-2 rounded-md bg-[#FDFDFD] dark:bg-input"
-          style={{ boxShadow: BROWSER_FIELD_SHADOW }}
+          className="flex items-center gap-1.5 h-8 px-2 rounded-md bg-[#FDFDFD] dark:bg-input shadow-[var(--field-shadow)]"
         >
           <Search className="h-4 w-4 shrink-0" style={{ color: '#B8B8B8' }} />
           <input
@@ -435,8 +428,7 @@ function SurveyBrowser({ onAdd, onDragStart, onDragEnd }: {
         {/* Survey type */}
         <Select value={surveyType} onValueChange={(v) => setSurveyType(v ?? '')}>
           <SelectTrigger
-            className="h-8 text-sm w-full rounded-md border-0 bg-[#FDFDFD] dark:bg-input [&_svg]:text-[#B8B8B8]"
-            style={{ boxShadow: BROWSER_FIELD_SHADOW, color: '#707070' }}
+            className="h-8 text-sm w-full rounded-md"
           >
             <SelectValue />
           </SelectTrigger>
@@ -450,8 +442,7 @@ function SurveyBrowser({ onAdd, onDragStart, onDragEnd }: {
         {/* Country */}
         <Select value={country} onValueChange={(v) => setCountry(v ?? '')}>
           <SelectTrigger
-            className="h-8 text-sm w-full rounded-md border-0 bg-[#FDFDFD] dark:bg-input [&_svg]:text-[#B8B8B8]"
-            style={{ boxShadow: BROWSER_FIELD_SHADOW, color: '#707070' }}
+            className="h-8 text-sm w-full rounded-md"
           >
             <SelectValue />
           </SelectTrigger>
@@ -465,8 +456,7 @@ function SurveyBrowser({ onAdd, onDragStart, onDragEnd }: {
         {/* Year */}
         <Select value={year} onValueChange={(v) => setYear(v ?? '')}>
           <SelectTrigger
-            className="h-8 text-sm w-full rounded-md border-0 bg-[#FDFDFD] dark:bg-input [&_svg]:text-[#B8B8B8]"
-            style={{ boxShadow: BROWSER_FIELD_SHADOW, color: '#707070' }}
+            className="h-8 text-sm w-full rounded-md"
           >
             <SelectValue />
           </SelectTrigger>
@@ -1035,7 +1025,7 @@ export default function DashboardBuilderPage() {
                       if (qId && qLabel) addCrossDimension(pw.widgetId, qId, qLabel)
                     }}
                     className="group bg-background rounded-lg flex flex-col overflow-hidden transition-all cursor-pointer"
-                    style={{ boxShadow: isDragTarget || isSelected ? BROWSER_FIELD_FOCUS_SHADOW : BROWSER_FIELD_SHADOW }}
+                    style={{ boxShadow: isDragTarget || isSelected ? 'var(--field-shadow-focus)' : 'var(--field-shadow)' }}
                   >
                     {/* Header */}
                     <div className={`relative flex items-center gap-2 px-3 py-2 shrink-0 ${widget.type === 'scorecard' ? 'border-b border-border' : ''}`}>

@@ -56,9 +56,15 @@
     --leading-body: 20px;
     --text-support: 12px;
     --leading-support: 16px;
+    /* Paper field shadows */
+    --shadow-field: var(--field-shadow);
+    --shadow-field-focus: var(--field-shadow-focus);
 }
 
 :root {
+    /* Paper field shadows */
+    --field-shadow: rgba(0,0,0,0.08) 0px -2px 0px inset, rgba(0,0,0,0.12) 0px 0px 0px 1px;
+    --field-shadow-focus: rgba(0,0,0,0.08) 0px -2px 0px inset, rgba(61,156,243,0.12) 0px 0px 0px 3px, #1F7BE1 0px 0px 0px 1px;
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
