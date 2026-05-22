@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { getFakeAIResponse } from '@/data/fakeGenerators'
 import {
   ArrowRight, Send, Sparkles, RotateCcw, ChevronDown,
-  Users, Globe, TrendingUp, Clock,
+  Users, Globe, TrendingUp, Clock, SquarePen,
 } from 'lucide-react'
 import { IconWrapper, ICON_SIZES } from '@/components/ui/IconWrapper'
 import { cn } from '@/lib/utils'
@@ -82,7 +82,7 @@ function UseCaseTile({ Icon, title, desc, color, onClick }: { Icon: React.Elemen
   )
 }
 
-// ─── History ──────────────────────────────────────────────────────────────────
+// ─── Recent chats panel ───────────────────────────────────────────────────────
 
 const HISTORY_ITEMS = [
   'What are the key differences between Millennial and Gen Z shoppers?',
@@ -94,36 +94,37 @@ const HISTORY_ITEMS = [
   'Which regions show the strongest brand affinity?',
 ]
 
-function HistorySection({ onSelect }: { onSelect: (q: string) => void }) {
-  const [expanded, setExpanded] = useState(false)
-  const visible = expanded ? HISTORY_ITEMS : HISTORY_ITEMS.slice(0, 5)
-
+function RecentChatsPanel({ onSelect, onNew, showNewChat }: { onSelect: (q: string) => void; onNew: () => void; showNewChat: boolean }) {
   return (
-    <div className="w-full mt-16">
-      <p className="text-xs font-semibold text-muted-foreground mb-1 px-1">Recent</p>
-      <div className="flex flex-col">
-        {visible.map((item, i) => (
+    <aside className="w-[220px] shrink-0 flex flex-col border-r border-border bg-sidebar h-full overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-3 h-14 border-b border-border shrink-0">
+        <span className="text-xs font-semibold text-muted-foreground tracking-wide">Recent</span>
+        {showNewChat && (
+          <button
+            onClick={onNew}
+            title="New chat"
+            className="inline-flex items-center justify-center w-7 h-7 rounded text-muted-foreground hover:bg-accent hover:text-gray-900 transition-colors"
+          >
+            <SquarePen size={14} />
+          </button>
+        )}
+      </div>
+
+      {/* Chat list */}
+      <div className="flex-1 overflow-y-auto py-2 px-2 space-y-0.5">
+        {HISTORY_ITEMS.map((item, i) => (
           <button
             key={i}
             onClick={() => onSelect(item)}
-            className="flex items-center gap-2.5 w-full text-left py-2 px-2 text-xs text-gray-600 rounded-lg transition-all hover:bg-white hover:shadow-sm hover:text-gray-900"
+            className="flex items-center gap-2 w-full text-left px-2 py-2 text-xs text-gray-600 rounded-md transition-colors hover:bg-gray-100 hover:text-gray-900"
           >
-            <IconWrapper size="support">
-              <Clock size={ICON_SIZES.support} className="text-muted-foreground shrink-0" />
-            </IconWrapper>
+            <Clock size={12} className="text-muted-foreground shrink-0" />
             <span className="truncate">{item}</span>
           </button>
         ))}
       </div>
-      {!expanded && HISTORY_ITEMS.length > 5 && (
-        <button
-          onClick={() => setExpanded(true)}
-          className="mt-2 inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium text-gray-700 bg-background border border-border rounded-md hover:bg-accent hover:text-gray-900 active:bg-accent/70 transition-colors"
-        >
-          Show more
-        </button>
-      )}
-    </div>
+    </aside>
   )
 }
 
@@ -343,94 +344,97 @@ export default function ResearchAIPage() {
   const isEmpty = conversation.messages.length === 0
 
   return (
-    <div className="relative flex flex-col h-full overflow-hidden">
+    <div className="relative flex h-full overflow-hidden">
       {/* Grid background */}
       <div style={gridBgStyle} aria-hidden />
 
-      {isEmpty ? (
-        /* ── Empty / home state ── */
-        <div className="relative flex-1 overflow-y-auto">
-          <div className="flex flex-col items-center justify-center min-h-full py-12 px-4">
-            <div className="w-full max-w-[720px]">
+      {/* Recent chats panel */}
+      <RecentChatsPanel onSelect={q => { reset(); setInput(q) }} onNew={reset} showNewChat={!isEmpty} />
 
-              {/* Heading */}
-              <h2 className="text-[24px] leading-[36px] font-bold text-gray-900 mb-8">
-                What are you researching today?<br />
-                Good to see you, <span style={gradientNameStyle}>Nikos</span>.
-              </h2>
+      {/* Main content */}
+      <div className="relative flex flex-col flex-1 overflow-hidden">
+        {isEmpty ? (
+          /* ── Empty / home state ── */
+          <div className="flex-1 overflow-y-auto">
+            <div className="flex flex-col items-center justify-center min-h-full py-12 px-8">
+              <div className="w-full max-w-[640px]">
 
-              {/* Input */}
-              <InputBox
-                input={input} setInput={setInput}
-                isStreaming={isStreaming} onSend={() => handleSend()}
-                surveyType={surveyType} setSurveyType={setSurveyType}
-                audience={audience} setAudience={setAudience}
-                audienceOptions={audienceOptions}
-              />
+                {/* Heading */}
+                <h2 className="text-[24px] leading-[36px] font-bold text-gray-900 mb-8">
+                  What are you researching today?<br />
+                  Good to see you, <span style={gradientNameStyle}>Nikos</span>.
+                </h2>
 
-              <p className="text-xs text-muted-foreground mt-2.5 text-center">
-                Press Enter to send · Shift+Enter for new line · Responses are illustrative
-              </p>
+                {/* Input */}
+                <InputBox
+                  input={input} setInput={setInput}
+                  isStreaming={isStreaming} onSend={() => handleSend()}
+                  surveyType={surveyType} setSurveyType={setSurveyType}
+                  audience={audience} setAudience={setAudience}
+                  audienceOptions={audienceOptions}
+                />
 
-              {/* Use-case tiles */}
-              <div className="grid grid-cols-3 gap-2 mt-6">
-                {USE_CASES.map(({ Icon, title, desc, color }) => (
-                  <UseCaseTile
-                    key={title}
-                    Icon={Icon}
-                    title={title}
-                    desc={desc}
-                    color={color}
-                    onClick={() => handleSend(title)}
-                  />
-                ))}
+                <p className="text-xs text-muted-foreground mt-2.5 text-center">
+                  Press Enter to send · Shift+Enter for new line · Responses are illustrative
+                </p>
+
+                {/* Use-case tiles */}
+                <div className="grid grid-cols-3 gap-2 mt-6">
+                  {USE_CASES.map(({ Icon, title, desc, color }) => (
+                    <UseCaseTile
+                      key={title}
+                      Icon={Icon}
+                      title={title}
+                      desc={desc}
+                      color={color}
+                      onClick={() => handleSend(title)}
+                    />
+                  ))}
+                </div>
+
               </div>
-
-              {/* History */}
-              <HistorySection onSelect={q => { setInput(q) }} />
-
             </div>
           </div>
-        </div>
-      ) : (
-        /* ── Conversation state ── */
-        <>
-          <div className="relative flex items-center justify-between px-6 py-3 border-b border-border shrink-0 bg-background/80 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-              <Sparkles className="h-4 w-4 text-primary" />
-              Research AI
+        ) : (
+          /* ── Conversation state ── */
+          <>
+            <div className="relative flex items-center justify-between px-6 py-3 border-b border-border shrink-0 bg-background/80 backdrop-blur-sm">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <Sparkles className="h-4 w-4 text-primary" />
+                Research AI
+              </div>
+              <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={reset}>
+                <RotateCcw className="h-3 w-3" />
+                New conversation
+              </Button>
             </div>
-            <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={reset}>
-              <RotateCcw className="h-3 w-3" />
-              New conversation
-            </Button>
-          </div>
 
-          <div ref={scrollRef} className="relative flex-1 overflow-y-auto px-6 py-6">
-            <div className="max-w-3xl mx-auto">
-              {conversation.messages.map(msg => <MessageBubble key={msg.id} msg={msg} />)}
-              {isStreaming && conversation.messages.at(-1)?.role !== 'assistant' && <StreamingSkeleton />}
+            <div ref={scrollRef} className="relative flex-1 overflow-y-auto px-6 py-6">
+              <div className="max-w-3xl mx-auto">
+                {conversation.messages.map(msg => <MessageBubble key={msg.id} msg={msg} />)}
+                {isStreaming && conversation.messages.at(-1)?.role !== 'assistant' && <StreamingSkeleton />}
+              </div>
             </div>
-          </div>
 
-          <div className="relative px-6 py-4 shrink-0">
-            <div className="max-w-3xl mx-auto">
-              <InputBox
-                input={input} setInput={setInput}
-                isStreaming={isStreaming} onSend={() => handleSend()}
-                surveyType={surveyType} setSurveyType={setSurveyType}
-                audience={audience} setAudience={setAudience}
-                audienceOptions={audienceOptions}
-                rows={2}
-                variant="light"
-              />
-              <p className="text-xs text-muted-foreground mt-2 text-center">
-                Press Enter to send · Shift+Enter for new line · Responses are illustrative
-              </p>
+            <div className="relative px-6 py-4 shrink-0">
+              <div className="max-w-3xl mx-auto">
+                <InputBox
+                  input={input} setInput={setInput}
+                  isStreaming={isStreaming} onSend={() => handleSend()}
+                  surveyType={surveyType} setSurveyType={setSurveyType}
+                  audience={audience} setAudience={setAudience}
+                  audienceOptions={audienceOptions}
+                  rows={2}
+                  variant="light"
+                />
+                <p className="text-xs text-muted-foreground mt-2 text-center">
+                  Press Enter to send · Shift+Enter for new line · Responses are illustrative
+                </p>
+              </div>
             </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </div>
     </div>
   )
 }

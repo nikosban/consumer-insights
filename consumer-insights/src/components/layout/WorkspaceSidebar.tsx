@@ -3,13 +3,14 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import { useProjectStore } from '@/store/projectStore'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { IconWrapper, ICON_SIZES } from '@/components/ui/IconWrapper'
-import { Home, Users, Folder, LogOut, Plus, PanelLeftClose, PanelLeftOpen, LayoutDashboard, LineChart, FileText } from 'lucide-react'
+import { MessageSquare, Users, BarChart2, FlaskConical, Folder, LogOut, Plus, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const SUB_ITEMS = [
-  { tab: 'dashboards', label: 'Dashboards', icon: LayoutDashboard },
-  { tab: 'analyses',   label: 'Analyses',   icon: LineChart },
-  { tab: 'notes',      label: 'Notes',      icon: FileText },
+const WORKSPACE_SUB_ITEMS = [
+  { key: 'dash-1', label: 'Dashboard 1', tab: 'dashboards' },
+  { key: 'dash-2', label: 'Dashboard 2', tab: 'dashboards' },
+  { key: 'anal-1', label: 'Analysis 1',  tab: 'analyses'   },
+  { key: 'anal-2', label: 'Analysis 2',  tab: 'analyses'   },
 ]
 
 const MIN_WIDTH = 160
@@ -117,10 +118,15 @@ export default function WorkspaceSidebar() {
         {!collapsed && (
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 font-semibold text-sidebar-foreground hover:text-primary transition-colors flex-1 min-w-0 overflow-hidden"
+            className="flex items-center flex-1 min-w-0 overflow-hidden"
           >
-            <span className="text-primary font-bold text-base leading-none shrink-0">CI</span>
-            <span className="text-sm truncate">Consumer Insights</span>
+            <img
+              src="/statista-logo.svg"
+              alt="Statista"
+              data-logo
+              style={{ height: 18, filter: 'brightness(0)' }}
+              draggable={false}
+            />
           </button>
         )}
         <div className={cn('shrink-0', collapsed && 'flex-1 flex justify-center')}>
@@ -139,8 +145,10 @@ export default function WorkspaceSidebar() {
 
       {/* Primary nav */}
       <div className={cn('pt-3 pb-1 space-y-0.5 shrink-0', collapsed ? 'px-1.5 flex flex-col items-center' : 'px-2')}>
-        <NavItem to="/research-ai" icon={<Home size={ICON_SIZES.body} />} label="Home" collapsed={collapsed} />
-        <NavItem to="/audiences" icon={<Users size={ICON_SIZES.body} />} label="Audiences" collapsed={collapsed} />
+        <NavItem to="/research-ai" icon={<MessageSquare size={ICON_SIZES.body} />} label="Chat"      collapsed={collapsed} />
+        <NavItem to="/audiences"   icon={<Users        size={ICON_SIZES.body} />} label="Audiences" collapsed={collapsed} />
+        <NavItem to="/charts"      icon={<BarChart2    size={ICON_SIZES.body} />} label="Charts"    collapsed={collapsed} />
+        <NavItem to="/analyses"    icon={<FlaskConical size={ICON_SIZES.body} />} label="Analyses"  collapsed={collapsed} />
       </div>
 
       {/* Workspaces header — hidden when collapsed */}
@@ -193,11 +201,11 @@ export default function WorkspaceSidebar() {
 
                 {isExpanded && (
                   <div className="ml-5 mt-0.5 mb-1 border-l border-border pl-1.5 space-y-0.5">
-                    {SUB_ITEMS.map(({ tab, label }) => {
+                    {WORKSPACE_SUB_ITEMS.map(({ key, label, tab }) => {
                       const isActive = activeTab === tab
                       return (
                         <NavLink
-                          key={tab}
+                          key={key}
                           to={`/workspace/${project.id}?tab=${tab}`}
                           className={cn(
                             'flex items-center pl-3 pr-3 py-1.5 rounded-md text-sm transition-colors w-full',
