@@ -120,7 +120,7 @@ function ChatHistoryPanel({ onSelect, onNew, showNewChat }: {
           </button>
         )}
       </div>
-      <div className="flex-1 overflow-y-auto py-2">
+      <div className="flex-1 min-h-0 overflow-y-auto py-2">
         {sevenDays.length > 0 && (
           <div className="mb-2">
             <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground tracking-wider">7 days</p>
@@ -938,7 +938,7 @@ export default function ResearchAIPage() {
               </button>
             </div>
 
-            <div ref={scrollRef} className="relative flex-1 overflow-y-auto px-6 py-6">
+            <div ref={scrollRef} className="relative flex-1 min-h-0 overflow-y-auto px-6 py-6">
               <div className="max-w-3xl mx-auto">
                 {conversation.messages.map(msg => <MessageBubble key={msg.id} msg={msg} onSend={handleSend} />)}
                 {isStreaming && conversation.messages.at(-1)?.role !== 'assistant' && <StreamingSkeleton />}
