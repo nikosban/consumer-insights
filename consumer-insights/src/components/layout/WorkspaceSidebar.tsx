@@ -22,16 +22,16 @@ const navItemCls = (isActive: boolean) =>
   cn(
     'flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors w-full',
     isActive
-      ? 'bg-gray-100 text-gray-900 font-medium'
-      : 'text-sidebar-foreground hover:bg-gray-100'
+      ? 'bg-white text-gray-900 font-medium shadow-sm'
+      : 'text-sidebar-foreground hover:bg-white/70'
   )
 
 const iconOnlyCls = (isActive: boolean) =>
   cn(
     'flex items-center justify-center w-8 h-8 rounded-md transition-colors',
     isActive
-      ? 'bg-gray-100 text-gray-900'
-      : 'text-sidebar-foreground hover:bg-gray-100'
+      ? 'bg-white text-gray-900 shadow-sm'
+      : 'text-sidebar-foreground hover:bg-white/70'
   )
 
 function NavItem({ to, icon, label, end, collapsed }: {
@@ -192,7 +192,7 @@ export default function WorkspaceSidebar() {
                     'flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors w-full',
                     isActive
                       ? 'text-gray-900 font-medium'
-                      : 'text-sidebar-foreground hover:bg-gray-100'
+                      : 'text-sidebar-foreground hover:bg-white/70'
                   )}
                 >
                   <IconWrapper><Folder size={ICON_SIZES.body} /></IconWrapper>
@@ -211,7 +211,7 @@ export default function WorkspaceSidebar() {
                             'flex items-center pl-3 pr-3 py-1.5 rounded-md text-sm transition-colors w-full',
                             isActive
                               ? 'bg-primary/8 text-primary font-semibold'
-                              : 'text-muted-foreground hover:text-foreground hover:bg-gray-100'
+                              : 'text-muted-foreground hover:text-foreground hover:bg-white/70'
                           )}
                         >
                           {label}

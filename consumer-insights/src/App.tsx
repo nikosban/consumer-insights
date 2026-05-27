@@ -10,6 +10,7 @@ import DashboardBuilderPage from '@/pages/DashboardBuilderPage'
 import DashboardViewPage from '@/pages/DashboardViewPage'
 import ResearchAIPage from '@/pages/ResearchAIPage'
 import WidgetCreatorPage from '@/pages/WidgetCreatorPage'
+import ChartsPage from '@/pages/ChartsPage'
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="/dashboards/new" element={<DashboardBuilderPage />} />
         <Route path="/dashboards/:id" element={<DashboardBuilderPage />} />
         <Route path="/research-ai" element={<ResearchAIPage />} />
+        <Route path="/charts" element={<ChartsPage />} />
         <Route path="/widgets/new" element={<WidgetCreatorPage />} />
       </Route>
       <Route path="/dashboards/:id/view" element={<DashboardViewPage />} />

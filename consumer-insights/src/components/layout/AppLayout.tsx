@@ -36,8 +36,8 @@ export default function AppLayout() {
           </button>
         </Toolbar>
 
-        <main className="flex-1 overflow-hidden bg-sidebar p-2 pl-0">
-          <div className="h-full rounded-xl overflow-hidden bg-background">
+        <main className="flex-1 overflow-hidden bg-sidebar p-2 flex flex-col">
+          <div className="flex-1 min-h-0 rounded-[24px] overflow-hidden bg-background">
             <Outlet />
           </div>
         </main>

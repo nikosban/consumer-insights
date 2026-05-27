@@ -117,7 +117,7 @@ function RecentChatsPanel({ onSelect, onNew, showNewChat }: { onSelect: (q: stri
           <button
             key={i}
             onClick={() => onSelect(item)}
-            className="flex items-center gap-2 w-full text-left px-2 py-2 text-xs text-gray-600 rounded-md transition-colors hover:bg-gray-100 hover:text-gray-900"
+            className="flex items-center gap-2 w-full text-left px-2 py-2 text-xs text-gray-600 rounded-md transition-colors hover:bg-white/70 hover:text-gray-900"
           >
             <Clock size={12} className="text-muted-foreground shrink-0" />
             <span className="truncate">{item}</span>
@@ -344,15 +344,15 @@ export default function ResearchAIPage() {
   const isEmpty = conversation.messages.length === 0
 
   return (
-    <div className="relative flex h-full overflow-hidden">
-      {/* Grid background */}
-      <div style={gridBgStyle} aria-hidden />
+    <div className="flex h-full overflow-hidden">
 
       {/* Recent chats panel */}
       <RecentChatsPanel onSelect={q => { reset(); setInput(q) }} onNew={reset} showNewChat={!isEmpty} />
 
       {/* Main content */}
       <div className="relative flex flex-col flex-1 overflow-hidden">
+        {/* Grid background — scoped to content area only */}
+        <div style={gridBgStyle} aria-hidden />
         {isEmpty ? (
           /* ── Empty / home state ── */
           <div className="flex-1 overflow-y-auto">
