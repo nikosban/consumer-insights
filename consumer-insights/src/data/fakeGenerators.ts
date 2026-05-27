@@ -1,4 +1,4 @@
-import type { ChartData, WidgetType, CIHandoff } from '@/types';
+import type { ChartData, WidgetType, AudienceCardData, DataWidgetCardData } from '@/types';
 
 // ─── Audience size ────────────────────────────────────────────────────────────
 
@@ -140,84 +140,238 @@ const DATASETS = [
   'Brand Health Tracker 2025',
   'E-commerce Behaviour Study 2024',
   'Mobile Usage Insights 2025',
+  'Consumer Insights Survey DE 2025',
 ];
 
-type FakeAIScenario = {
-  insight: string;
-  handoff: CIHandoff;
-  dataset: string;
-};
 
-const SCENARIOS: FakeAIScenario[] = [
-  {
-    insight:
-      "Millennial shoppers aged 25–34 show significantly higher purchase intent for sustainable products compared to older cohorts — 68% vs 41% for 45–54. This segment also skews toward mobile-first discovery. I'd suggest building a focused audience segment around this group to explore brand affinity further.",
-    handoff: {
-      type: 'create_audience',
-      payload: {
-        name: 'Sustainable Millennial Shoppers',
-        description: 'Ages 25–34 with high purchase intent for sustainable products',
-        filters: {
-          id: 'fg-ai-1',
-          operator: 'AND',
-          conditions: [
-            { id: 'c-ai-1', attribute: 'age', operator: 'gte', value: 25 },
-            { id: 'c-ai-2', attribute: 'age', operator: 'lte', value: 34 },
-            { id: 'c-ai-3', attribute: 'interests', operator: 'in', value: ['sustainability', 'eco_products'] },
-          ],
-        },
-        region: 'US',
-      },
+// ─── Pre-scripted data widget cards ──────────────────────────────────────────
+
+export const GEN_Z_AD_RECALL_WIDGET: DataWidgetCardData = {
+  title: 'Ad Recall by Device Type',
+  subtitle: 'Gen Z vs. all-demographics benchmark',
+  chartType: 'bar',
+  chartData: {
+    labels: ['Mobile', 'Desktop', 'Tablet', 'Smart TV'],
+    series: [
+      { name: 'Gen Z',      values: [72, 58, 31, 55] },
+      { name: 'Benchmark',  values: [54, 51, 28, 42] },
+    ],
+  },
+  metric: 'Ad recall (%)',
+  source: 'Digital Audience Report Q4 2024',
+}
+
+export const PURCHASE_INTENT_WIDGET: DataWidgetCardData = {
+  title: 'Purchase Intent — Premium Footwear',
+  subtitle: 'By age group, Germany 2025',
+  chartType: 'bar',
+  chartData: {
+    labels: ['18–24', '25–34', '35–44', '45–54', '55+'],
+    series: [
+      { name: 'Premium Footwear', values: [61, 74, 52, 38, 24] },
+      { name: 'Market avg.',      values: [44, 55, 48, 36, 28] },
+    ],
+  },
+  metric: 'Purchase intent (%)',
+  source: 'Consumer Insights Survey DE 2025',
+}
+
+// ─── Audience cards for all scenarios ────────────────────────────────────────
+
+export const SUSTAINABLE_MILLENNIAL_CARD: AudienceCardData = {
+  name: 'Sustainable Millennial Shoppers',
+  subtitle: 'Ages 25–34 with high purchase intent for eco-friendly products',
+  sampleSize: 14_800,
+  region: 'Global',
+  confidence: 79,
+  demographics: [
+    { label: 'Age range',  value: '25–34 years' },
+    { label: 'Gender',     value: 'Mixed (52% F)' },
+    { label: 'Country',    value: 'Global' },
+    { label: 'Device',     value: 'Mobile-first' },
+  ],
+  behaviors: [
+    { label: 'Purchase intent',  value: '68% (vs 41% avg)' },
+    { label: 'Discovery',        value: 'Social / mobile' },
+    { label: 'Top values',       value: 'Sustainability' },
+    { label: 'Preferred retail', value: 'Online (71%)' },
+  ],
+  prefill: {
+    name: 'Sustainable Millennial Shoppers',
+    filters: {
+      id: 'fg-sust-1',
+      operator: 'AND',
+      conditions: [
+        { id: 'c-sust-1', attribute: 'Age (basic)',          operator: 'in', value: ['18 - 29 years', '30 - 39 years'] },
+        { id: 'c-sust-2', attribute: 'Health consciousness', operator: 'in', value: ['Very health-conscious', 'Somewhat'] },
+        { id: 'c-sust-3', attribute: 'Purchase frequency',  operator: 'in', value: ['Weekly', 'Bi-weekly', 'Monthly'] },
+      ],
     },
+  },
+}
+
+export const PREMIUM_HOME_IMPROVERS_CARD: AudienceCardData = {
+  name: 'Premium Home Improvers — US',
+  subtitle: 'High-income homeowners with strong NPS for home improvement brands',
+  sampleSize: 8_200,
+  region: 'United States',
+  confidence: 82,
+  demographics: [
+    { label: 'Income',    value: '$100k+' },
+    { label: 'Housing',   value: 'Homeowner' },
+    { label: 'Age range', value: '35–55 years' },
+    { label: 'Country',   value: 'United States' },
+  ],
+  behaviors: [
+    { label: 'NPS',              value: '61 (vs 43 avg)' },
+    { label: 'Category pen.',    value: '2.4× market avg' },
+    { label: 'Spend level',      value: 'High' },
+    { label: 'Purchase freq.',   value: 'Quarterly+' },
+  ],
+  prefill: {
+    name: 'Premium Home Improvers — US',
+    filters: {
+      id: 'fg-home-1',
+      operator: 'AND',
+      conditions: [
+        { id: 'c-home-1', attribute: 'Income bracket',  operator: 'in', value: ['$100k–$150k', '$150k+'] },
+        { id: 'c-home-2', attribute: 'Home ownership',  operator: 'in', value: ['Owner'] },
+        { id: 'c-home-3', attribute: 'Age (basic)',     operator: 'in', value: ['30 - 39 years', '40 - 49 years', '50 - 64 years'] },
+      ],
+    },
+    region: 'United States',
+  },
+}
+
+// ─── Nike Germany audience card ──────────────────────────────────────────────
+
+export const NIKE_GERMANY_CARD: AudienceCardData = {
+  name: 'Nike Premium Buyers — Germany',
+  subtitle: 'Urban males 25–40 purchasing premium athletic footwear online',
+  sampleSize: 12_400,
+  region: 'Germany',
+  confidence: 87,
+  demographics: [
+    { label: 'Gender',     value: 'Male (74%)' },
+    { label: 'Age range',  value: '25–40 years' },
+    { label: 'Country',    value: 'Germany' },
+    { label: 'Income',     value: '€50k–€100k+' },
+  ],
+  behaviors: [
+    { label: 'Purchase freq.', value: 'Monthly+' },
+    { label: 'Avg. spend',     value: '€150+ per item' },
+    { label: 'Channel',        value: 'Online-first (63%)' },
+    { label: 'Top brands',     value: 'Nike, Adidas' },
+  ],
+  prefill: {
+    name: 'Nike Premium Buyers — Germany',
+    filters: {
+      id: 'fg-nike-1',
+      operator: 'AND',
+      conditions: [
+        { id: 'c-nike-1', attribute: 'Country',      operator: 'in', value: ['Germany']                         },
+        { id: 'c-nike-2', attribute: 'Gender',        operator: 'in', value: ['Male']                            },
+        { id: 'c-nike-3', attribute: 'Age (basic)',   operator: 'in', value: ['18 - 29 years', '30 - 39 years'] },
+        { id: 'c-nike-4', attribute: 'Online spend',  operator: 'in', value: ['High']                            },
+      ],
+    },
+    region: 'Germany',
+  },
+}
+
+// ─── New unified response type ────────────────────────────────────────────────
+
+export type FakeAIResponse = {
+  type: 'text' | 'audience_card' | 'clarify' | 'data_widget';
+  content: string;
+  audienceCard?: AudienceCardData;
+  dataWidget?: DataWidgetCardData;
+  dataset?: string;
+}
+
+function isAudienceQuery(q: string): boolean {
+  return /buyer|shopper|audience|customer|consumer|segment|sneaker|footwear|nike|brand/i.test(q)
+}
+
+function hasRegion(q: string): boolean {
+  return /germany|german|berlin|munich|münchen|united states|\bus\b|\buk\b|france|japan/i.test(q)
+}
+
+export function getFakeAIResponse(
+  query: string,
+  ctx: { lastWasClarify?: boolean } = {}
+): FakeAIResponse {
+  const q = query.toLowerCase()
+
+  // Follow-up after a clarifying question → always return the audience card
+  if (ctx.lastWasClarify) {
+    return {
+      type: 'audience_card',
+      content: "Got it. Based on your context, here's an audience profile built from Consumer Insights data:",
+      audienceCard: NIKE_GERMANY_CARD,
+      dataset: DATASETS[5],
+    }
+  }
+
+  // ── Data widget checks come first — they are more specific than audience queries ──
+
+  // Gen Z / ad recall / short-form video → inline widget
+  if (/gen.?z|genz|ad.?recall|short.?form|video.*(recall|performance|engagement)/i.test(q)) {
+    return {
+      type: 'data_widget',
+      content: "Here's the data based on Consumer Insights:",
+      dataWidget: GEN_Z_AD_RECALL_WIDGET,
+      dataset: DATASETS[1],
+    }
+  }
+
+  // Purchase intent / intent data → inline widget
+  if (/purchase.?intent|buying.?intent|intent.?data/i.test(q)) {
+    return {
+      type: 'data_widget',
+      content: "Here's the purchase intent breakdown:",
+      dataWidget: PURCHASE_INTENT_WIDGET,
+      dataset: DATASETS[5],
+    }
+  }
+
+  // ── Audience queries ──
+
+  // Audience queries with a named region → show card immediately
+  if (isAudienceQuery(q) && hasRegion(q)) {
+    return {
+      type: 'audience_card',
+      content: "Here's an audience profile matching your brief, drawn from Consumer Insights data:",
+      audienceCard: NIKE_GERMANY_CARD,
+      dataset: DATASETS[5],
+    }
+  }
+
+  // Audience queries without region → ask one clarifying question
+  if (isAudienceQuery(q)) {
+    return {
+      type: 'clarify',
+      content: 'To build the most accurate segment, I need a bit more context. Which market are you targeting — for example, Germany, the US, or globally? And is there a specific product category or brand in mind?',
+    }
+  }
+
+  // Home / income → audience card
+  if (/home|homeown|income|renovati/i.test(q)) {
+    return {
+      type: 'audience_card',
+      content: "Here's an audience profile based on Consumer Insights data:",
+      audienceCard: PREMIUM_HOME_IMPROVERS_CARD,
+      dataset: DATASETS[2],
+    }
+  }
+
+  // Default → audience card (sustainable millennial shoppers)
+  return {
+    type: 'audience_card',
+    content: "Here's an audience profile matching your brief:",
+    audienceCard: SUSTAINABLE_MILLENNIAL_CARD,
     dataset: DATASETS[0],
-  },
-  {
-    insight:
-      "Gen Z mobile users show the highest ad recall rates (72%) among all demographics when exposed to short-form video content. Their brand awareness scores are rising quarter-over-quarter. Creating a chart comparing ad recall across device types would help visualise this trend.",
-    handoff: {
-      type: 'create_widget',
-      payload: {
-        type: 'bar',
-        title: 'Ad Recall by Device Type — Gen Z',
-        audienceId: 'aud-2',
-        metric: 'ad_recall',
-        breakdown: 'device_type',
-      },
-    },
-    dataset: DATASETS[1],
-  },
-  {
-    insight:
-      "High-income homeowners (HHI $100k+) demonstrate a strong net promoter score of 61 for home improvement brands — significantly above the 43 average. This segment has a 2.4× higher category penetration rate than the general population, making it a prime target for premium positioning.",
-    handoff: {
-      type: 'create_audience',
-      payload: {
-        name: 'Premium Home Improvers',
-        description: 'High-income homeowners with strong brand affinity for home improvement',
-        filters: {
-          id: 'fg-ai-2',
-          operator: 'AND',
-          conditions: [
-            { id: 'c-ai-4', attribute: 'income_bracket', operator: 'in', value: ['100k-150k', '150k+'] },
-            { id: 'c-ai-5', attribute: 'interests', operator: 'in', value: ['home_improvement', 'real_estate'] },
-          ],
-        },
-        region: 'US',
-      },
-    },
-    dataset: DATASETS[2],
-  },
-];
-
-export function getFakeAIResponse(query: string): FakeAIScenario {
-  const lower = query.toLowerCase();
-  if (lower.includes('gen z') || lower.includes('mobile') || lower.includes('video')) {
-    return SCENARIOS[1];
   }
-  if (lower.includes('home') || lower.includes('income') || lower.includes('premium')) {
-    return SCENARIOS[2];
-  }
-  return SCENARIOS[0];
 }
 
 export { DATASETS };

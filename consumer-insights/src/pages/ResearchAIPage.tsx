@@ -1,16 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAIStore } from '@/store/aiStore'
+import { useAudienceStore } from '@/store/audienceStore'
+import { useDashboardStore } from '@/store/dashboardStore'
 import type { ChatHistoryEntry } from '@/store/aiStore'
-import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getFakeAIResponse } from '@/data/fakeGenerators'
+import ChartRenderer from '@/components/charts/ChartRenderer'
+import type { AudienceCardData, DataWidgetCardData, Audience, AIMessage, Widget } from '@/types'
 import {
-  ArrowRight, Send, Sparkles, RotateCcw, ChevronDown,
+  Send, Sparkles, RotateCcw, ChevronDown,
   Users, Globe, TrendingUp, SquarePen, MessageSquare, BarChart2,
+  Check, LayoutDashboard, ExternalLink, ChevronRight, ArrowUpRight,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { AIMessage } from '@/types'
 
 // ─── Gradient styles ──────────────────────────────────────────────────────────
 
@@ -309,6 +312,14 @@ function InputBox({
   const [market, setMarket]   = useState(MARKET_OPTIONS[0])
   const [country, setCountry] = useState(COUNTRY_OPTIONS[0])
   const [audience, setAudience] = useState('All Audiences')
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  // Listen for "focus-chat-input" custom event (dispatched by AudienceCard "Refine in chat")
+  useEffect(() => {
+    function onFocus() { textareaRef.current?.focus() }
+    document.addEventListener('focus-chat-input', onFocus)
+    return () => document.removeEventListener('focus-chat-input', onFocus)
+  }, [])
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onSend() }
@@ -324,6 +335,7 @@ function InputBox({
           </div>
         )}
         <textarea
+          ref={textareaRef}
           className="resize-none text-sm w-full bg-transparent outline-none border-0 text-gray-900 placeholder:text-transparent"
           rows={rows}
           value={input}
@@ -369,6 +381,324 @@ function InputBox({
   )
 }
 
+// ─── Audience Card message ────────────────────────────────────────────────────
+
+function AudienceCardMessage({ card }: { card: AudienceCardData }) {
+  const navigate = useNavigate()
+  const { add: addAudience } = useAudienceStore()
+  const { dashboards } = useDashboardStore()
+  const [saved, setSaved] = useState(false)
+  const [dashPickerOpen, setDashPickerOpen] = useState(false)
+  const [addedToDash, setAddedToDash] = useState<{ id: string; name: string } | null>(null)
+  const dashRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function close(e: MouseEvent) {
+      if (dashRef.current && !dashRef.current.contains(e.target as Node)) setDashPickerOpen(false)
+    }
+    document.addEventListener('mousedown', close)
+    return () => document.removeEventListener('mousedown', close)
+  }, [])
+
+  function handleOpenBuilder() {
+    navigate('/audiences/new', { state: { prefill: card.prefill } })
+  }
+
+  function handleSaveToLibrary() {
+    if (saved) return
+    const aud: Audience = {
+      id: `aud-${Date.now()}`,
+      name: card.prefill.name ?? card.name,
+      description: card.subtitle,
+      filters: card.prefill.filters ?? { id: 'fg-empty', operator: 'AND', conditions: [] },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      isShared: false,
+      region: card.region,
+    }
+    addAudience(aud)
+    setSaved(true)
+  }
+
+  function handleAddToDashboard(dashId: string, dashName: string) {
+    setDashPickerOpen(false)
+    setAddedToDash({ id: dashId, name: dashName })
+  }
+
+  return (
+    <div className="max-w-[480px] w-full rounded-2xl rounded-bl-sm border border-border bg-white shadow-sm overflow-hidden">
+
+      {/* ── Header ── */}
+      <div className="px-4 pt-4 pb-3 border-b border-border">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h3 className="text-sm font-semibold text-gray-900 leading-tight">{card.name}</h3>
+            <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{card.subtitle}</p>
+          </div>
+          {/* Confidence badge */}
+          <span className="shrink-0 text-[11px] font-medium text-primary bg-primary/8 rounded-full px-2 py-0.5 leading-5">
+            {card.confidence}% match
+          </span>
+        </div>
+
+        {/* Stats chips */}
+        <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
+          <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground bg-muted rounded-full px-2 py-0.5">
+            <Users size={10} className="shrink-0" />
+            {card.sampleSize.toLocaleString()} respondents
+          </span>
+          <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground bg-muted rounded-full px-2 py-0.5">
+            <Globe size={10} className="shrink-0" />
+            {card.region}
+          </span>
+        </div>
+      </div>
+
+      {/* ── Body: 2-column grid ── */}
+      <div className="grid grid-cols-2 divide-x divide-border">
+        {/* Demographics */}
+        <div className="px-4 py-3">
+          <p className="text-[10px] font-semibold text-muted-foreground tracking-wider mb-2">DEMOGRAPHICS</p>
+          <div className="space-y-2">
+            {card.demographics.map(d => (
+              <div key={d.label} className="flex items-baseline justify-between gap-2">
+                <span className="text-[11px] text-muted-foreground shrink-0">{d.label}</span>
+                <span className="text-[11px] font-medium text-gray-900 text-right">{d.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Behaviors */}
+        <div className="px-4 py-3">
+          <p className="text-[10px] font-semibold text-muted-foreground tracking-wider mb-2">BEHAVIORS</p>
+          <div className="space-y-2">
+            {card.behaviors.map(b => (
+              <div key={b.label} className="flex items-baseline justify-between gap-2">
+                <span className="text-[11px] text-muted-foreground shrink-0">{b.label}</span>
+                <span className="text-[11px] font-medium text-gray-900 text-right">{b.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── CTAs ── */}
+      <div className="px-4 py-3 border-t border-border space-y-2">
+        {/* Primary row: Create draft + Add to dashboard */}
+        <div className="flex items-center gap-2">
+          {/* Create Draft Audience — primary action */}
+          <button
+            onClick={handleSaveToLibrary}
+            className={cn(
+              'flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-colors active:scale-[0.98]',
+              saved
+                ? 'border border-green-200 bg-green-50 text-green-700 cursor-default'
+                : 'bg-primary text-white hover:bg-primary/90'
+            )}
+          >
+            {saved ? <Check size={11} /> : <Users size={11} />}
+            {saved ? 'Audience created' : 'Create draft audience'}
+          </button>
+
+          {/* Add to Dashboard */}
+          <div ref={dashRef} className="relative flex-1">
+            <button
+              onClick={() => !addedToDash && setDashPickerOpen(o => !o)}
+              className={cn(
+                'w-full flex items-center justify-center gap-1.5 h-8 rounded-lg border text-xs font-medium transition-colors',
+                addedToDash
+                  ? 'border-green-200 bg-green-50 text-green-700 cursor-default'
+                  : 'border-border bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+              )}
+            >
+              {addedToDash ? <Check size={11} /> : <LayoutDashboard size={11} />}
+              {addedToDash ? 'Added' : 'Add to Dashboard'}
+            </button>
+
+            {/* Dashboard picker dropdown */}
+            {dashPickerOpen && (
+              <div className="absolute bottom-full left-0 right-0 mb-1 z-20 bg-white border border-border rounded-xl shadow-lg py-1 min-w-[160px]">
+                <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground tracking-wider">Select dashboard</p>
+                {dashboards.length === 0 && (
+                  <p className="px-3 py-2 text-xs text-muted-foreground">No dashboards yet</p>
+                )}
+                {dashboards.map(d => (
+                  <button
+                    key={d.id}
+                    onClick={() => handleAddToDashboard(d.id, d.name)}
+                    className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-between gap-2"
+                  >
+                    <span className="truncate">{d.name}</span>
+                    <ChevronRight size={11} className="shrink-0 text-muted-foreground" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Refine in chat */}
+          <button
+            onClick={() => document.dispatchEvent(new CustomEvent('focus-chat-input'))}
+            className="flex items-center justify-center gap-1 h-8 px-3 rounded-lg border border-border bg-white text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+          >
+            Refine
+          </button>
+        </div>
+
+        {/* Open in Builder — secondary link */}
+        <button
+          onClick={handleOpenBuilder}
+          className="w-full flex items-center justify-center gap-1 h-7 text-xs text-muted-foreground hover:text-primary transition-colors"
+        >
+          Open in Audience Builder
+          <ArrowUpRight size={11} className="shrink-0" />
+        </button>
+
+        {/* Go to Dashboard strip */}
+        {addedToDash && (
+          <div className="flex items-center justify-between gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+            <span className="text-xs text-green-800">Added to <span className="font-medium">{addedToDash.name}</span></span>
+            <button
+              onClick={() => navigate(`/dashboards/${addedToDash.id}`)}
+              className="flex items-center gap-1 text-xs font-medium text-green-700 hover:text-green-900 transition-colors shrink-0"
+            >
+              Go there
+              <ExternalLink size={10} />
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ─── Data Widget Card message ─────────────────────────────────────────────────
+
+function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
+  const navigate = useNavigate()
+  const { dashboards } = useDashboardStore()
+  const [dashPickerOpen, setDashPickerOpen] = useState(false)
+  const [addedToDash, setAddedToDash] = useState<{ id: string; name: string } | null>(null)
+  const dashRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function close(e: MouseEvent) {
+      if (dashRef.current && !dashRef.current.contains(e.target as Node)) setDashPickerOpen(false)
+    }
+    document.addEventListener('mousedown', close)
+    return () => document.removeEventListener('mousedown', close)
+  }, [])
+
+  // Minimal Widget shell — ChartRenderer only needs type + id
+  const fakeWidget: Widget = {
+    id: 'chat-widget-preview',
+    type: card.chartType,
+    title: card.title,
+    audienceId: '',
+    metric: card.metric,
+    createdAt: new Date().toISOString(),
+  }
+
+  function handleAddToDashboard(dashId: string, dashName: string) {
+    setDashPickerOpen(false)
+    setAddedToDash({ id: dashId, name: dashName })
+  }
+
+  return (
+    <div className="max-w-[480px] w-full rounded-2xl rounded-bl-sm border border-border bg-white shadow-sm overflow-hidden">
+
+      {/* ── Header ── */}
+      <div className="px-4 pt-4 pb-3 border-b border-border">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h3 className="text-sm font-semibold text-gray-900 leading-tight">{card.title}</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">{card.subtitle}</p>
+          </div>
+          <span className="shrink-0 text-[11px] font-medium text-muted-foreground bg-muted rounded-full px-2 py-0.5 leading-5 whitespace-nowrap">
+            {card.metric}
+          </span>
+        </div>
+      </div>
+
+      {/* ── Chart ── */}
+      <div className="px-3 pt-3 pb-1">
+        <ChartRenderer widget={fakeWidget} data={card.chartData} height={150} />
+      </div>
+
+      {/* ── Source ── */}
+      <div className="px-4 pb-3">
+        <span className="text-[10px] text-muted-foreground">Source: {card.source}</span>
+      </div>
+
+      {/* ── CTAs ── */}
+      <div className="px-4 py-3 border-t border-border space-y-2">
+        <div className="flex items-center gap-2">
+
+          {/* Add to Dashboard (primary) */}
+          <div ref={dashRef} className="relative flex-1">
+            <button
+              onClick={() => !addedToDash && setDashPickerOpen(o => !o)}
+              className={cn(
+                'w-full flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-colors',
+                addedToDash
+                  ? 'border border-green-200 bg-green-50 text-green-700 cursor-default'
+                  : 'bg-primary text-white hover:bg-primary/90 active:scale-[0.98]'
+              )}
+            >
+              {addedToDash ? <Check size={11} /> : <LayoutDashboard size={11} />}
+              {addedToDash ? 'Added to Dashboard' : 'Add to Dashboard'}
+            </button>
+
+            {/* Dashboard picker */}
+            {dashPickerOpen && (
+              <div className="absolute bottom-full left-0 right-0 mb-1 z-20 bg-white border border-border rounded-xl shadow-lg py-1 min-w-[180px]">
+                <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground tracking-wider">Select dashboard</p>
+                {dashboards.length === 0 && (
+                  <p className="px-3 py-2 text-xs text-muted-foreground">No dashboards yet</p>
+                )}
+                {dashboards.map(d => (
+                  <button
+                    key={d.id}
+                    onClick={() => handleAddToDashboard(d.id, d.name)}
+                    className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-between gap-2"
+                  >
+                    <span className="truncate">{d.name}</span>
+                    <ChevronRight size={11} className="shrink-0 text-muted-foreground" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Refine */}
+          <button
+            onClick={() => document.dispatchEvent(new CustomEvent('focus-chat-input'))}
+            className="flex items-center justify-center gap-1 h-8 px-3 rounded-lg border border-border bg-white text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+          >
+            Refine
+          </button>
+        </div>
+
+        {/* Go to Dashboard strip */}
+        {addedToDash && (
+          <div className="flex items-center justify-between gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+            <span className="text-xs text-green-800">
+              Added to <span className="font-medium">{addedToDash.name}</span>
+            </span>
+            <button
+              onClick={() => navigate(`/dashboards/${addedToDash.id}`)}
+              className="flex items-center gap-1 text-xs font-medium text-green-700 hover:text-green-900 transition-colors shrink-0"
+            >
+              Go there <ExternalLink size={10} />
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ─── Message rendering ────────────────────────────────────────────────────────
 
 function renderMarkdown(text: string) {
@@ -383,42 +713,61 @@ function MessageBubble({ msg }: { msg: AIMessage }) {
   const navigate = useNavigate()
   const isUser = msg.role === 'user'
 
-  function handleHandoff() {
-    if (!msg.handoff) return
-    if (msg.handoff.type === 'create_audience') navigate('/audiences/new', { state: { prefill: msg.handoff.payload } })
-    else if (msg.handoff.type === 'create_widget') navigate('/widgets/new', { state: { prefill: msg.handoff.payload } })
+  if (isUser) {
+    return (
+      <div className="flex justify-end mb-4">
+        <div className="max-w-xl ml-12">
+          <div className="rounded-2xl rounded-br-sm px-4 py-3 text-sm leading-relaxed bg-primary text-primary-foreground">
+            {msg.content.split('\n').map((line, i, arr) => (
+              <span key={i}>{renderMarkdown(line)}{i < arr.length - 1 && <br />}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
   }
 
+  // Assistant message
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
-      {!isUser && (
-        <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center mr-2 shrink-0 mt-1">
-          <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
-        </div>
-      )}
-      <div className={`max-w-xl ${isUser ? 'ml-12' : 'mr-8'}`}>
-        <div className={cn('rounded-2xl px-4 py-3 text-sm leading-relaxed',
-          isUser ? 'bg-primary text-primary-foreground rounded-br-sm' : 'bg-muted text-foreground rounded-bl-sm'
+    <div className="flex justify-start mb-4">
+      {/* Avatar */}
+      <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center mr-2 shrink-0 mt-1">
+        <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
+      </div>
+
+      <div className="max-w-xl mr-8 w-full">
+        {/* Text bubble — always shows (streaming cursor while loading, text when done) */}
+        <div className={cn(
+          'rounded-2xl rounded-bl-sm px-4 py-3 text-sm leading-relaxed bg-muted text-foreground',
+          !msg.isStreaming && (msg.audienceCard || msg.dataWidget) && 'mb-3'
         )}>
           {msg.isStreaming ? (
-            <span>{renderMarkdown(msg.content)}<span className="inline-block w-1.5 h-4 bg-current ml-0.5 animate-pulse rounded-sm" /></span>
+            <span>
+              {renderMarkdown(msg.content)}
+              <span className="inline-block w-1.5 h-4 bg-current ml-0.5 animate-pulse rounded-sm" />
+            </span>
           ) : (
             msg.content.split('\n').map((line, i, arr) => (
               <span key={i}>{renderMarkdown(line)}{i < arr.length - 1 && <br />}</span>
             ))
           )}
         </div>
-        {!isUser && !msg.isStreaming && msg.handoff && (
-          <div className="mt-2 border border-primary/20 bg-primary/5 rounded-xl px-4 py-3">
-            <p className="text-xs text-muted-foreground mb-2">Suggested action</p>
-            <Button size="sm" className="gap-1.5" onClick={handleHandoff}>
-              <ArrowRight className="h-3.5 w-3.5" />
-              {msg.handoff.type === 'create_audience' ? 'Open in Audience Builder' : 'Open in Widget Creator'}
-            </Button>
-          </div>
+
+        {/* Audience card */}
+        {!msg.isStreaming && msg.audienceCard && (
+          <AudienceCardMessage card={msg.audienceCard} />
         )}
-        {!isUser && !msg.isStreaming && msg.attribution && (
-          <p className="text-xs text-muted-foreground mt-1.5 px-1">Based on Statista survey data, {msg.attribution}</p>
+
+        {/* Data widget card */}
+        {!msg.isStreaming && msg.dataWidget && (
+          <DataWidgetCardMessage card={msg.dataWidget} />
+        )}
+
+        {/* Attribution */}
+        {!msg.isStreaming && msg.attribution && (
+          <p className="text-xs text-muted-foreground mt-1.5 px-1">
+            Based on Statista survey data, {msg.attribution}
+          </p>
         )}
       </div>
     </div>
@@ -456,18 +805,40 @@ export default function ResearchAIPage() {
     const text = (override ?? input).trim()
     if (!text || isStreaming) return
     setInput('')
+
     addMessage({ id: `msg-${Date.now()}`, role: 'user', content: text })
-    const assistantMsg: AIMessage = { id: `msg-${Date.now() + 1}`, role: 'assistant', content: '', isStreaming: true }
+
+    // Check if the last assistant message was a clarifying question
+    const lastAssistantMsg = conversation.messages
+      .filter(m => m.role === 'assistant')
+      .at(-1)
+    const lastWasClarify = lastAssistantMsg?.messageType === 'clarify'
+
+    const assistantMsg: AIMessage = {
+      id: `msg-${Date.now() + 1}`,
+      role: 'assistant',
+      content: '',
+      isStreaming: true,
+    }
     addMessage(assistantMsg)
     setStreaming(true)
-    const scenario = getFakeAIResponse(text)
+
+    const scenario = getFakeAIResponse(text, { lastWasClarify })
+
     let charIndex = 0
     intervalRef.current = setInterval(() => {
       charIndex++
-      updateLastAssistantMessage({ content: scenario.insight.slice(0, charIndex) })
-      if (charIndex >= scenario.insight.length) {
+      updateLastAssistantMessage({ content: scenario.content.slice(0, charIndex) })
+      if (charIndex >= scenario.content.length) {
         clearInterval(intervalRef.current!)
-        updateLastAssistantMessage({ content: scenario.insight, isStreaming: false, handoff: scenario.handoff, attribution: scenario.dataset })
+        updateLastAssistantMessage({
+          content: scenario.content,
+          isStreaming: false,
+          attribution: scenario.dataset,
+          audienceCard: scenario.audienceCard,
+          dataWidget: scenario.dataWidget,
+          messageType: scenario.type,
+        })
         setStreaming(false)
       }
     }, 18)
@@ -536,10 +907,10 @@ export default function ResearchAIPage() {
                 <Sparkles className="h-4 w-4 text-primary" />
                 Research AI
               </div>
-              <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={reset}>
+              <button onClick={reset} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors rounded-md px-2 py-1.5 hover:bg-accent">
                 <RotateCcw className="h-3 w-3" />
                 New conversation
-              </Button>
+              </button>
             </div>
 
             <div ref={scrollRef} className="relative flex-1 overflow-y-auto px-6 py-6">

@@ -122,6 +122,26 @@ export type CIHandoff = {
   payload: Partial<Audience> | Partial<Widget>;
 };
 
+export type AudienceCardData = {
+  name: string;
+  subtitle: string;
+  sampleSize: number;
+  region: string;
+  confidence: number;
+  demographics: Array<{ label: string; value: string }>;
+  behaviors: Array<{ label: string; value: string }>;
+  prefill: Partial<Audience>;
+};
+
+export type DataWidgetCardData = {
+  title: string;
+  subtitle: string;
+  chartType: WidgetType;
+  chartData: ChartData;
+  metric: string;
+  source: string;
+};
+
 export type AIMessage = {
   id: string;
   role: 'user' | 'assistant';
@@ -129,6 +149,9 @@ export type AIMessage = {
   handoff?: CIHandoff;
   attribution?: string;
   isStreaming?: boolean;
+  audienceCard?: AudienceCardData;
+  dataWidget?: DataWidgetCardData;
+  messageType?: 'text' | 'audience_card' | 'clarify' | 'data_widget';
 };
 
 export type AIConversation = {
