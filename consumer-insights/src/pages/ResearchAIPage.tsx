@@ -1,16 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAIStore } from '@/store/aiStore'
-import { useAudienceStore } from '@/store/audienceStore'
+import type { ChatHistoryEntry } from '@/store/aiStore'
 import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getFakeAIResponse } from '@/data/fakeGenerators'
 import {
   ArrowRight, Send, Sparkles, RotateCcw, ChevronDown,
-  Users, Globe, TrendingUp, Clock, SquarePen,
+  Users, Globe, TrendingUp, SquarePen, MessageSquare, BarChart2,
 } from 'lucide-react'
-import { IconWrapper, ICON_SIZES } from '@/components/ui/IconWrapper'
 import { cn } from '@/lib/utils'
 import type { AIMessage } from '@/types'
 
@@ -82,59 +80,135 @@ function UseCaseTile({ Icon, title, desc, color, onClick }: { Icon: React.Elemen
   )
 }
 
-// ─── Recent chats panel ───────────────────────────────────────────────────────
+// ─── Chat History Panel ───────────────────────────────────────────────────────
 
-const HISTORY_ITEMS = [
-  'What are the key differences between Millennial and Gen Z shoppers?',
-  'Which audience has the highest purchase intent?',
-  'How do high-income homeowners compare to average consumers?',
-  'What devices do Gen Z users prefer for online shopping?',
-  'Brand awareness trends for sustainable products in 2024',
-  'How does ad recall differ by gender and age group?',
-  'Which regions show the strongest brand affinity?',
-]
+function groupHistory(history: ChatHistoryEntry[]) {
+  const now = Date.now()
+  const sevenDays: ChatHistoryEntry[] = []
+  const pastMonth: ChatHistoryEntry[] = []
+  history.forEach(entry => {
+    const age = now - new Date(entry.createdAt).getTime()
+    const days = age / (1000 * 60 * 60 * 24)
+    if (days <= 7) sevenDays.push(entry)
+    else if (days <= 30) pastMonth.push(entry)
+  })
+  return { sevenDays, pastMonth }
+}
 
-function RecentChatsPanel({ onSelect, onNew, showNewChat }: { onSelect: (q: string) => void; onNew: () => void; showNewChat: boolean }) {
+function ChatHistoryPanel({ onSelect, onNew, showNewChat }: {
+  onSelect: (q: string) => void
+  onNew: () => void
+  showNewChat: boolean
+}) {
+  const { history } = useAIStore()
+  const { sevenDays, pastMonth } = groupHistory(history)
+
   return (
     <aside className="w-[220px] shrink-0 flex flex-col border-r border-border bg-sidebar h-full overflow-hidden">
-      {/* Header */}
       <div className="flex items-center justify-between px-3 h-14 border-b border-border shrink-0">
-        <span className="text-xs font-semibold text-muted-foreground tracking-wide">Recent</span>
+        <span className="text-xs font-semibold text-muted-foreground tracking-wide">Chat history</span>
         {showNewChat && (
           <button
             onClick={onNew}
             title="New chat"
-            className="inline-flex items-center justify-center w-7 h-7 rounded text-muted-foreground hover:bg-accent hover:text-gray-900 transition-colors"
+            className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-primary text-white hover:bg-primary/90 transition-colors"
           >
-            <SquarePen size={14} />
+            <SquarePen size={12} />
           </button>
         )}
       </div>
-
-      {/* Chat list */}
-      <div className="flex-1 overflow-y-auto py-2 px-2 space-y-0.5">
-        {HISTORY_ITEMS.map((item, i) => (
-          <button
-            key={i}
-            onClick={() => onSelect(item)}
-            className="flex items-center gap-2 w-full text-left px-2 py-2 text-xs text-gray-600 rounded-md transition-colors hover:bg-white/70 hover:text-gray-900"
-          >
-            <Clock size={12} className="text-muted-foreground shrink-0" />
-            <span className="truncate">{item}</span>
-          </button>
-        ))}
+      <div className="flex-1 overflow-y-auto py-2">
+        {sevenDays.length > 0 && (
+          <div className="mb-2">
+            <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground tracking-wider">7 days</p>
+            {sevenDays.map(entry => (
+              <button key={entry.id} onClick={() => onSelect(entry.firstMessage)}
+                className="flex items-center gap-2 w-full text-left px-3 py-2 text-xs text-sidebar-foreground rounded-md mx-1 transition-colors hover:bg-white/70"
+                style={{ width: 'calc(100% - 8px)' }}
+              >
+                <MessageSquare size={11} className="shrink-0 text-muted-foreground" />
+                <span className="truncate">{entry.firstMessage}</span>
+              </button>
+            ))}
+          </div>
+        )}
+        {pastMonth.length > 0 && (
+          <div>
+            <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground tracking-wider">Past month</p>
+            {pastMonth.map(entry => (
+              <button key={entry.id} onClick={() => onSelect(entry.firstMessage)}
+                className="flex items-center gap-2 w-full text-left px-3 py-2 text-xs text-sidebar-foreground rounded-md mx-1 transition-colors hover:bg-white/70"
+                style={{ width: 'calc(100% - 8px)' }}
+              >
+                <MessageSquare size={11} className="shrink-0 text-muted-foreground" />
+                <span className="truncate">{entry.firstMessage}</span>
+              </button>
+            ))}
+          </div>
+        )}
+        {sevenDays.length === 0 && pastMonth.length === 0 && (
+          <p className="px-3 py-4 text-xs text-muted-foreground text-center">No chat history yet</p>
+        )}
       </div>
     </aside>
   )
 }
 
-// ─── Chip selects ─────────────────────────────────────────────────────────────
+// ─── Revolving placeholder ────────────────────────────────────────────────────
 
-const SURVEY_TYPES    = ['All surveys', 'Global Survey', 'Brand KPIs', 'Pulse', 'Media and Touchpoints', 'Survey Library']
-const AUDIENCE_OPTIONS = ['All audiences', 'Millennial Shoppers', 'Gen Z Mobile Users', 'High-Income Homeowners']
+const REVOLVING_PROMPTS = [
+  'How many wireless earphones were sold in Germany last quarter?',
+  'What market insights can you uncover about smartphone sales trends in the US?',
+  'What customer behavior data do you need regarding online shopping habits?',
+  'Which consumer segments are you analyzing for the recent wearable tech launch?',
+  'What buying habit patterns are you investigating for eco-friendly products?',
+  'Which regions show the strongest brand affinity for premium fashion?',
+]
 
-function ChipSelect({ options, value, onChange }: {
-  label?: string; options: string[]; value: string; onChange: (v: string) => void
+function RevolvingPlaceholder() {
+  const [idx, setIdx] = useState(0)
+  const [phase, setPhase] = useState<'idle' | 'exit' | 'enter'>('idle')
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPhase('exit')
+      setTimeout(() => {
+        setIdx(i => (i + 1) % REVOLVING_PROMPTS.length)
+        setPhase('enter')
+        setTimeout(() => setPhase('idle'), 350)
+      }, 350)
+    }, 3500)
+    return () => clearInterval(interval)
+  }, [])
+
+  const style: React.CSSProperties = {
+    transition: 'transform 350ms ease, opacity 350ms ease',
+    transform: phase === 'exit' ? 'translateY(-14px)' : phase === 'enter' ? 'translateY(14px)' : 'translateY(0)',
+    opacity: phase === 'idle' ? 1 : 0,
+  }
+
+  return (
+    <span className="pointer-events-none select-none" style={style}>
+      {REVOLVING_PROMPTS[idx]}
+    </span>
+  )
+}
+
+// ─── Source chip + contextual chips ──────────────────────────────────────────
+
+const SOURCE_OPTIONS = [
+  { value: 'general',  label: 'General Chat',      icon: MessageSquare },
+  { value: 'consumer', label: 'Consumer Insights', icon: BarChart2     },
+  { value: 'market',   label: 'Market Insights',   icon: Globe         },
+] as const
+type SourceMode = 'general' | 'consumer' | 'market'
+
+const SURVEY_OPTIONS  = ['All Surveys', 'Survey Pulse', 'Brand KPIs', 'Media & Touchpoints', 'Survey Library']
+const MARKET_OPTIONS  = ['All Markets', 'Consumer Electronics', 'Fashion', 'Food & Beverage', 'Finance', 'Health', 'Mobility']
+const COUNTRY_OPTIONS = ['All Countries', 'Germany', 'United States', 'United Kingdom', 'France', 'Japan', 'Brazil']
+
+function ContextChip({ label, value, options, onChange }: {
+  label: string; value: string; options: string[]; onChange: (v: string) => void
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -145,23 +219,26 @@ function ChipSelect({ options, value, onChange }: {
     return () => document.removeEventListener('mousedown', close)
   }, [])
 
+  const isDefault = value === options[0]
+
   return (
     <div ref={ref} className="relative">
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
         className={cn(
-          'inline-flex items-center gap-1 text-xs transition-colors py-1',
-          value !== options[0]
-            ? 'text-white font-medium'
-            : 'text-gray-400 hover:text-gray-100'
+          'h-[26px] px-2 rounded-[6px] border text-xs flex items-center gap-1 cursor-pointer transition-colors',
+          isDefault
+            ? 'bg-sidebar border-border text-muted-foreground hover:border-primary/40'
+            : 'bg-primary/5 border-primary/30 text-primary'
         )}
       >
         <span>{value}</span>
-        <IconWrapper size="support"><ChevronDown size={ICON_SIZES.support} /></IconWrapper>
+        <ChevronDown size={10} className="shrink-0" />
       </button>
       {open && (
-        <div className="absolute top-full left-0 mt-1 z-20 bg-white border border-gray-200 rounded-xl shadow-lg py-1 min-w-[160px]">
+        <div className="absolute bottom-full left-0 mb-1 z-20 bg-white border border-border rounded-xl shadow-lg py-1 min-w-[160px]">
+          <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground tracking-wider">{label}</p>
           {options.map(opt => (
             <button
               key={opt} type="button"
@@ -175,58 +252,118 @@ function ChipSelect({ options, value, onChange }: {
   )
 }
 
-// ─── Input box (shared) ───────────────────────────────────────────────────────
+function SourceChip({ value, onChange }: { value: SourceMode; onChange: (v: SourceMode) => void }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const current = SOURCE_OPTIONS.find(o => o.value === value)!
+  const CurrentIcon = current.icon
+
+  useEffect(() => {
+    function close(e: MouseEvent) { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }
+    document.addEventListener('mousedown', close)
+    return () => document.removeEventListener('mousedown', close)
+  }, [])
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="h-[26px] px-2 rounded-[6px] bg-sidebar border border-border text-xs flex items-center gap-1 cursor-pointer transition-colors hover:border-primary/40 text-muted-foreground"
+      >
+        <CurrentIcon size={11} className="shrink-0" />
+        <span>{current.label}</span>
+        <ChevronDown size={10} className="shrink-0" />
+      </button>
+      {open && (
+        <div className="absolute bottom-full left-0 mb-1 z-20 bg-white border border-border rounded-xl shadow-lg py-1 min-w-[180px]">
+          <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground tracking-wider">Source</p>
+          {SOURCE_OPTIONS.map(opt => {
+            const Icon = opt.icon
+            return (
+              <button
+                key={opt.value} type="button"
+                onClick={() => { onChange(opt.value); setOpen(false) }}
+                className={cn('w-full text-left px-3 py-2 text-xs hover:bg-gray-50 transition-colors flex items-center gap-2', opt.value === value ? 'text-primary font-medium' : 'text-gray-700')}
+              >
+                <Icon size={12} className="shrink-0" />
+                {opt.label}
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Input box ────────────────────────────────────────────────────────────────
 
 function InputBox({
-  input, setInput, isStreaming, onSend,
-  surveyType, setSurveyType, audience, setAudience, audienceOptions,
-  rows = 3, variant = 'dark',
+  input, setInput, isStreaming, onSend, rows = 2,
 }: {
-  input: string; setInput: (v: string) => void; isStreaming: boolean; onSend: () => void
-  surveyType: string; setSurveyType: (v: string) => void
-  audience: string; setAudience: (v: string) => void; audienceOptions: string[]
-  rows?: number; variant?: 'dark' | 'light'
+  input: string; setInput: (v: string) => void; isStreaming: boolean; onSend: () => void; rows?: number
 }) {
+  const [sourceMode, setSourceMode] = useState<SourceMode>('general')
+  const [survey, setSurvey]   = useState(SURVEY_OPTIONS[0])
+  const [market, setMarket]   = useState(MARKET_OPTIONS[0])
+  const [country, setCountry] = useState(COUNTRY_OPTIONS[0])
+  const [audience, setAudience] = useState('All Audiences')
+
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onSend() }
   }
 
-  const isDark = variant === 'dark'
-
   return (
-    <div className={cn('rounded-2xl', isDark ? 'bg-gray-900 border border-white/20' : 'bg-white border border-border shadow-sm')}>
-      <div className={isDark ? 'p-[2px]' : ''}>
-        <div className={cn('rounded-[14px]', isDark ? 'bg-gray-800 border border-white/10' : '')}>
-          <Textarea
-            className={cn(
-              'resize-none text-sm border-0 bg-transparent shadow-none focus-visible:ring-0 px-4 pt-3 pb-1',
-              isDark ? 'text-white placeholder:text-gray-400' : 'text-gray-900 placeholder:text-muted-foreground'
-            )}
-            placeholder="Ask about your audience, brand metrics, or consumer behaviour…"
-            rows={rows}
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={isStreaming}
-          />
-          <div className="flex justify-end px-3 pb-2.5">
-            <Button
-              onClick={onSend}
-              disabled={!input.trim() || isStreaming}
-              size="icon"
-              variant="default"
-              className="h-8 w-8 shrink-0 bg-blue-500 hover:bg-blue-400 text-white disabled:bg-blue-500/40 disabled:opacity-100 disabled:text-white/60"
-            >
-              <Send className="h-3.5 w-3.5" />
-            </Button>
+    <div className="rounded-2xl bg-white border border-border shadow-sm overflow-visible">
+      {/* Textarea area with revolving placeholder */}
+      <div className="relative px-4 pt-3 pb-1">
+        {!input && (
+          <div className="absolute top-3 left-4 right-16 text-sm text-muted-foreground pointer-events-none overflow-hidden flex items-start">
+            <RevolvingPlaceholder />
           </div>
-        </div>
+        )}
+        <textarea
+          className="resize-none text-sm w-full bg-transparent outline-none border-0 text-gray-900 placeholder:text-transparent"
+          rows={rows}
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          disabled={isStreaming}
+          placeholder=" "
+        />
       </div>
 
-      {/* Chip toolbar */}
-      <div className={cn('flex items-center gap-2 px-3 py-2', isDark ? '' : 'border-t border-border')}>
-        <ChipSelect label="Survey"   options={SURVEY_TYPES}    value={surveyType} onChange={setSurveyType} />
-        <ChipSelect label="Audience" options={audienceOptions}  value={audience}   onChange={setAudience} />
+      {/* Bottom row: chips left, send right */}
+      <div className="flex items-center gap-1.5 px-3 pb-2.5 border-t border-border pt-2">
+        {/* Source chip */}
+        <SourceChip value={sourceMode} onChange={setSourceMode} />
+
+        {/* Contextual chips */}
+        {sourceMode === 'consumer' && (
+          <>
+            <ContextChip label="Survey"   value={survey}   options={SURVEY_OPTIONS}  onChange={setSurvey} />
+            <ContextChip label="Audience" value={audience} options={['All Audiences', 'Millennial Shoppers', 'Gen Z Mobile Users', 'High-Income Homeowners']} onChange={setAudience} />
+          </>
+        )}
+        {sourceMode === 'market' && (
+          <>
+            <ContextChip label="Market"  value={market}  options={MARKET_OPTIONS}  onChange={setMarket} />
+            <ContextChip label="Country" value={country} options={COUNTRY_OPTIONS} onChange={setCountry} />
+          </>
+        )}
+
+        <div className="flex-1" />
+
+        {/* Send button */}
+        <button
+          type="button"
+          onClick={onSend}
+          disabled={!input.trim() || isStreaming}
+          className="w-[30px] h-[30px] rounded-[6px] bg-gray-900 text-white flex items-center justify-center shrink-0 transition-opacity disabled:opacity-30"
+        >
+          <Send className="h-3.5 w-3.5" />
+        </button>
       </div>
     </div>
   )
@@ -305,14 +442,9 @@ function StreamingSkeleton() {
 
 export default function ResearchAIPage() {
   const { conversation, isStreaming, addMessage, updateLastAssistantMessage, setStreaming, reset } = useAIStore()
-  const { audiences } = useAudienceStore()
   const [input, setInput] = useState('')
-  const [surveyType, setSurveyType] = useState(SURVEY_TYPES[0])
-  const [audience, setAudience] = useState(AUDIENCE_OPTIONS[0])
   const scrollRef = useRef<HTMLDivElement>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-
-  const audienceOptions = [AUDIENCE_OPTIONS[0], ...audiences.map(a => a.name)]
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
@@ -346,8 +478,12 @@ export default function ResearchAIPage() {
   return (
     <div className="flex h-full overflow-hidden">
 
-      {/* Recent chats panel */}
-      <RecentChatsPanel onSelect={q => { reset(); setInput(q) }} onNew={reset} showNewChat={!isEmpty} />
+      {/* Chat history panel */}
+      <ChatHistoryPanel
+        onSelect={q => { reset(); setInput(q) }}
+        onNew={reset}
+        showNewChat={!isEmpty}
+      />
 
       {/* Main content */}
       <div className="relative flex flex-col flex-1 overflow-hidden">
@@ -369,9 +505,6 @@ export default function ResearchAIPage() {
                 <InputBox
                   input={input} setInput={setInput}
                   isStreaming={isStreaming} onSend={() => handleSend()}
-                  surveyType={surveyType} setSurveyType={setSurveyType}
-                  audience={audience} setAudience={setAudience}
-                  audienceOptions={audienceOptions}
                 />
 
                 <p className="text-xs text-muted-foreground mt-2.5 text-center">
@@ -421,11 +554,7 @@ export default function ResearchAIPage() {
                 <InputBox
                   input={input} setInput={setInput}
                   isStreaming={isStreaming} onSend={() => handleSend()}
-                  surveyType={surveyType} setSurveyType={setSurveyType}
-                  audience={audience} setAudience={setAudience}
-                  audienceOptions={audienceOptions}
                   rows={2}
-                  variant="light"
                 />
                 <p className="text-xs text-muted-foreground mt-2 text-center">
                   Press Enter to send · Shift+Enter for new line · Responses are illustrative

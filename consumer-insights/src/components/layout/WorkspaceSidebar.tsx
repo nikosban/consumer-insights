@@ -3,7 +3,7 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import { useProjectStore } from '@/store/projectStore'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { IconWrapper, ICON_SIZES } from '@/components/ui/IconWrapper'
-import { MessageSquare, Users, BarChart2, FlaskConical, Folder, LogOut, Plus, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { MessageSquare, Users, BarChart2, FlaskConical, Folder, LogOut, Plus, PanelLeftClose, PanelLeftOpen, Search, LayoutDashboard } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const WORKSPACE_SUB_ITEMS = [
@@ -64,12 +64,16 @@ export default function WorkspaceSidebar() {
   const [collapsed, setCollapsed] = useState(false)
   const isResizing = useRef(false)
 
-  // ⌘S / Ctrl+S toggles the sidebar
+  // ⌘S / Ctrl+S toggles the sidebar; ⌘R / Ctrl+R opens global search
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === 's') {
         e.preventDefault()
         setCollapsed(c => !c)
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'r') {
+        e.preventDefault()
+        document.dispatchEvent(new CustomEvent('open-search'))
       }
     }
     document.addEventListener('keydown', onKeyDown)
@@ -143,12 +147,26 @@ export default function WorkspaceSidebar() {
         </div>
       </div>
 
+      {/* Search bar — triggers global search modal */}
+      <div className={cn('px-2 pt-3 pb-2 shrink-0', collapsed && 'hidden')}>
+        <button
+          onClick={() => document.dispatchEvent(new CustomEvent('open-search'))}
+          className="w-full flex items-center gap-2 h-9 px-2 rounded-md bg-background border border-border text-muted-foreground text-sm transition-colors hover:border-primary/40 hover:text-foreground"
+          style={{ borderRadius: 6 }}
+        >
+          <Search className="h-3.5 w-3.5 shrink-0" />
+          <span className="flex-1 text-left text-xs">Search</span>
+          <kbd className="text-[10px] text-muted-foreground/60 font-mono">⌘R</kbd>
+        </button>
+      </div>
+
       {/* Primary nav */}
-      <div className={cn('pt-3 pb-1 space-y-0.5 shrink-0', collapsed ? 'px-1.5 flex flex-col items-center' : 'px-2')}>
-        <NavItem to="/research-ai" icon={<MessageSquare size={ICON_SIZES.body} />} label="Chat"      collapsed={collapsed} />
-        <NavItem to="/audiences"   icon={<Users        size={ICON_SIZES.body} />} label="Audiences" collapsed={collapsed} />
-        <NavItem to="/charts"      icon={<BarChart2    size={ICON_SIZES.body} />} label="Charts"    collapsed={collapsed} />
-        <NavItem to="/analyses"    icon={<FlaskConical size={ICON_SIZES.body} />} label="Analyses"  collapsed={collapsed} />
+      <div className={cn('pt-1 pb-1 space-y-0.5 shrink-0', collapsed ? 'px-1.5 flex flex-col items-center' : 'px-2')}>
+        <NavItem to="/research-ai" icon={<MessageSquare    size={ICON_SIZES.body} />} label="Chat"       collapsed={collapsed} />
+        <NavItem to="/audiences"   icon={<Users            size={ICON_SIZES.body} />} label="Audience"   collapsed={collapsed} />
+        <NavItem to="/charts"      icon={<BarChart2        size={ICON_SIZES.body} />} label="Charts"     collapsed={collapsed} />
+        <NavItem to="/dashboards"  icon={<LayoutDashboard  size={ICON_SIZES.body} />} label="Dashboards" collapsed={collapsed} />
+        <NavItem to="/analyses"    icon={<FlaskConical     size={ICON_SIZES.body} />} label="Analysis"   collapsed={collapsed} />
       </div>
 
       {/* Workspaces header — hidden when collapsed */}

@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "statusMessage": "Mapping Paper token…",
+            "command": "MSG=$(jq -r '.tool_input.message // .message // \"\"' 2>/dev/null); if echo \"$MSG\" | grep -qE 'rgba\\(|oklab\\(|oklch\\(|linear-gradient|box-shadow|#[0-9a-fA-F]{3,6}\\b|--[a-z][a-z0-9-]+\\s*:'; then jq -r '.tool_input.message // .message // \"\"' | python3 -c \"\nimport sys, json, re\nmsg = sys.stdin.read()\ntokens = {\n  '--field-shadow': 'rgba(0,0,0,0.08) 0px -2px 0px inset, rgba(0,0,0,0.12) 0px 0px 0px 1px',\n  '--field-shadow-focus': 'rgba(0,0,0,0.08) 0px -2px 0px inset, rgba(61,156,243,0.12) 0px 0px 0px 3px, #1F7BE1 0px 0px 0px 1px',\n  '--btn-primary-bg': 'linear-gradient(in oklab 180deg, oklab(57.3% -0.024 -0.233) 0%, oklab(47% -0.025 -0.241) 100%)',\n  '--btn-primary-shadow': 'rgba(255,255,255,0.12) 0px 1px 0px inset',\n  '--color-brand': '#0666e5',\n  '--primary': 'oklch(0.47 0.243 264)',\n}\nmatches = [name for name, val in tokens.items() if val.lower() in msg.lower() or name in msg]\nif matches:\n    names = ', '.join(f'\\`{m}\\`' for m in matches)\n    ctx = f'[PAPER TOKEN] The pasted value matches {names}. Use var({matches[0]}) in code instead of the raw value.'\n    print(json.dumps({'hookSpecificOutput': {'hookEventName': 'UserPromptSubmit', 'additionalContext': ctx}}))\nelse:\n    ctx = '[PAPER TOKEN] A CSS value was detected but no existing token matches. Ask the user: should this become a new named token in src/index.css?'\n    print(json.dumps({'hookSpecificOutput': {'hookEventName': 'UserPromptSubmit', 'additionalContext': ctx}}))\n\"; else echo '{}'; fi"
+          }
+        ]
+      }
+    ]
+  }
+}

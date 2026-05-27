@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import AppLayout from '@/components/layout/AppLayout'
+import SearchModal from '@/components/ui/SearchModal'
 import LandingPage from '@/pages/LandingPage'
 import WorkspacePage from '@/pages/WorkspacePage'
 import ProjectDetailPage from '@/pages/ProjectDetailPage'
@@ -14,9 +15,11 @@ import ChartsPage from '@/pages/ChartsPage'
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route element={<AppLayout />}>
+    <>
+      <SearchModal />
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route element={<AppLayout />}>
         <Route path="/workspace" element={<WorkspacePage />} />
         <Route path="/workspace/:projectId" element={<ProjectDetailPage />} />
         <Route path="/audiences" element={<AudiencesPage />} />
@@ -30,6 +33,7 @@ export default function App() {
         <Route path="/widgets/new" element={<WidgetCreatorPage />} />
       </Route>
       <Route path="/dashboards/:id/view" element={<DashboardViewPage />} />
-    </Routes>
+      </Routes>
+    </>
   )
 }
