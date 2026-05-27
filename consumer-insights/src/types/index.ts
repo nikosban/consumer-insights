@@ -152,6 +152,7 @@ export type AIMessage = {
   audienceCard?: AudienceCardData;
   dataWidget?: DataWidgetCardData;
   messageType?: 'text' | 'audience_card' | 'clarify' | 'data_widget';
+  suggestedFollowUps?: string[];
 };
 
 export type AIConversation = {

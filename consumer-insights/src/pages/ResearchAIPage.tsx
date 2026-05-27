@@ -699,6 +699,25 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
   )
 }
 
+// ─── Follow-up suggestion chips ───────────────────────────────────────────────
+
+function FollowUpChips({ suggestions, onSend }: { suggestions: string[]; onSend: (q: string) => void }) {
+  return (
+    <div className="flex flex-wrap gap-2 mt-3">
+      {suggestions.map(q => (
+        <button
+          key={q}
+          onClick={() => onSend(q)}
+          className="flex items-center gap-1.5 text-xs text-primary border border-primary/25 bg-primary/5 rounded-full px-3 py-1.5 hover:bg-primary/10 hover:border-primary/40 transition-colors"
+        >
+          <ChevronRight size={11} className="shrink-0" />
+          {q}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 // ─── Message rendering ────────────────────────────────────────────────────────
 
 function renderMarkdown(text: string) {
@@ -709,8 +728,7 @@ function renderMarkdown(text: string) {
   )
 }
 
-function MessageBubble({ msg }: { msg: AIMessage }) {
-  const navigate = useNavigate()
+function MessageBubble({ msg, onSend }: { msg: AIMessage; onSend: (q: string) => void }) {
   const isUser = msg.role === 'user'
 
   if (isUser) {
@@ -736,7 +754,7 @@ function MessageBubble({ msg }: { msg: AIMessage }) {
       </div>
 
       <div className="max-w-xl mr-8 w-full">
-        {/* Text bubble — always shows (streaming cursor while loading, text when done) */}
+        {/* Text bubble */}
         <div className={cn(
           'rounded-2xl rounded-bl-sm px-4 py-3 text-sm leading-relaxed bg-muted text-foreground',
           !msg.isStreaming && (msg.audienceCard || msg.dataWidget) && 'mb-3'
@@ -761,6 +779,11 @@ function MessageBubble({ msg }: { msg: AIMessage }) {
         {/* Data widget card */}
         {!msg.isStreaming && msg.dataWidget && (
           <DataWidgetCardMessage card={msg.dataWidget} />
+        )}
+
+        {/* Follow-up suggestion chips */}
+        {!msg.isStreaming && msg.suggestedFollowUps && msg.suggestedFollowUps.length > 0 && (
+          <FollowUpChips suggestions={msg.suggestedFollowUps} onSend={onSend} />
         )}
 
         {/* Attribution */}
@@ -808,11 +831,12 @@ export default function ResearchAIPage() {
 
     addMessage({ id: `msg-${Date.now()}`, role: 'user', content: text })
 
-    // Check if the last assistant message was a clarifying question
+    // Detect context from last assistant message
     const lastAssistantMsg = conversation.messages
       .filter(m => m.role === 'assistant')
       .at(-1)
     const lastWasClarify = lastAssistantMsg?.messageType === 'clarify'
+    const lastHadAudienceCard = lastAssistantMsg?.messageType === 'audience_card'
 
     const assistantMsg: AIMessage = {
       id: `msg-${Date.now() + 1}`,
@@ -823,7 +847,7 @@ export default function ResearchAIPage() {
     addMessage(assistantMsg)
     setStreaming(true)
 
-    const scenario = getFakeAIResponse(text, { lastWasClarify })
+    const scenario = getFakeAIResponse(text, { lastWasClarify, lastHadAudienceCard })
 
     let charIndex = 0
     intervalRef.current = setInterval(() => {
@@ -838,6 +862,7 @@ export default function ResearchAIPage() {
           audienceCard: scenario.audienceCard,
           dataWidget: scenario.dataWidget,
           messageType: scenario.type,
+          suggestedFollowUps: scenario.suggestedFollowUps,
         })
         setStreaming(false)
       }
@@ -915,7 +940,7 @@ export default function ResearchAIPage() {
 
             <div ref={scrollRef} className="relative flex-1 overflow-y-auto px-6 py-6">
               <div className="max-w-3xl mx-auto">
-                {conversation.messages.map(msg => <MessageBubble key={msg.id} msg={msg} />)}
+                {conversation.messages.map(msg => <MessageBubble key={msg.id} msg={msg} onSend={handleSend} />)}
                 {isStreaming && conversation.messages.at(-1)?.role !== 'assistant' && <StreamingSkeleton />}
               </div>
             </div>

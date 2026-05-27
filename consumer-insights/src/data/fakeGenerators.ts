@@ -287,6 +287,7 @@ export type FakeAIResponse = {
   audienceCard?: AudienceCardData;
   dataWidget?: DataWidgetCardData;
   dataset?: string;
+  suggestedFollowUps?: string[];
 }
 
 function isAudienceQuery(q: string): boolean {
@@ -297,23 +298,69 @@ function hasRegion(q: string): boolean {
   return /germany|german|berlin|munich|münchen|united states|\bus\b|\buk\b|france|japan/i.test(q)
 }
 
+const NIKE_FOLLOW_UPS = [
+  "What's their purchase intent for premium footwear?",
+  "How do they respond to mobile ads?",
+]
+
+const HOME_FOLLOW_UPS = [
+  "What's their NPS trend over the last year?",
+  "Which channels drive the most conversions?",
+]
+
+const MILLENNIAL_FOLLOW_UPS = [
+  "What's their brand affinity for eco labels?",
+  "Which social platforms do they engage with most?",
+]
+
 export function getFakeAIResponse(
   query: string,
-  ctx: { lastWasClarify?: boolean } = {}
+  ctx: { lastWasClarify?: boolean; lastHadAudienceCard?: boolean } = {}
 ): FakeAIResponse {
   const q = query.toLowerCase()
 
-  // Follow-up after a clarifying question → always return the audience card
+  // Follow-up after a clarifying question → audience card + follow-up chips
   if (ctx.lastWasClarify) {
     return {
       type: 'audience_card',
       content: "Got it. Based on your context, here's an audience profile built from Consumer Insights data:",
       audienceCard: NIKE_GERMANY_CARD,
       dataset: DATASETS[5],
+      suggestedFollowUps: NIKE_FOLLOW_UPS,
     }
   }
 
-  // ── Data widget checks come first — they are more specific than audience queries ──
+  // ── Context-aware follow-ups: user already has an audience, now asking for insights ──
+
+  if (ctx.lastHadAudienceCard) {
+    // Purchase intent follow-up → scoped widget
+    if (/purchase.?intent|buying.?intent|intent.?data|intent/i.test(q)) {
+      return {
+        type: 'data_widget',
+        content: "Here's the purchase intent breakdown for this segment:",
+        dataWidget: {
+          ...PURCHASE_INTENT_WIDGET,
+          subtitle: 'Nike Premium Buyers — Germany • 2025',
+        },
+        dataset: DATASETS[5],
+      }
+    }
+
+    // Ad recall / mobile ads follow-up → scoped widget
+    if (/ad.?recall|mobile.?ad|respond.*ad|ads|advertising/i.test(q)) {
+      return {
+        type: 'data_widget',
+        content: "Here's how this segment responds to ads across devices:",
+        dataWidget: {
+          ...GEN_Z_AD_RECALL_WIDGET,
+          subtitle: 'Nike Premium Buyers — Germany vs. all-demographics benchmark',
+        },
+        dataset: DATASETS[1],
+      }
+    }
+  }
+
+  // ── Data widget checks — more specific than broad audience queries ──
 
   // Gen Z / ad recall / short-form video → inline widget
   if (/gen.?z|genz|ad.?recall|short.?form|video.*(recall|performance|engagement)/i.test(q)) {
@@ -344,6 +391,7 @@ export function getFakeAIResponse(
       content: "Here's an audience profile matching your brief, drawn from Consumer Insights data:",
       audienceCard: NIKE_GERMANY_CARD,
       dataset: DATASETS[5],
+      suggestedFollowUps: NIKE_FOLLOW_UPS,
     }
   }
 
@@ -362,6 +410,7 @@ export function getFakeAIResponse(
       content: "Here's an audience profile based on Consumer Insights data:",
       audienceCard: PREMIUM_HOME_IMPROVERS_CARD,
       dataset: DATASETS[2],
+      suggestedFollowUps: HOME_FOLLOW_UPS,
     }
   }
 
@@ -371,6 +420,7 @@ export function getFakeAIResponse(
     content: "Here's an audience profile matching your brief:",
     audienceCard: SUSTAINABLE_MILLENNIAL_CARD,
     dataset: DATASETS[0],
+    suggestedFollowUps: MILLENNIAL_FOLLOW_UPS,
   }
 }
 
