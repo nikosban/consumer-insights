@@ -276,22 +276,22 @@ function WidgetFilterChip({ label, value, options, isOverride, onSelect, onReset
   return (
     <div ref={ref} className="relative">
       <div className={cn(
-        'h-[22px] flex items-center rounded-full border text-[11px] transition-colors',
+        'h-7 flex items-center rounded-full border text-xs font-medium transition-colors',
         isOverride
-          ? 'bg-primary/8 border-primary/30 text-primary pr-1'
-          : 'bg-transparent border-border/60 text-muted-foreground pr-2',
+          ? 'bg-primary/8 border-primary/25 text-primary pr-1'
+          : 'bg-white border-border text-foreground pr-2.5 shadow-sm',
       )}>
         <button
           onClick={(e) => { e.stopPropagation(); setOpen(o => !o) }}
-          className="flex items-center gap-1 pl-2 h-full"
+          className="flex items-center gap-1 pl-3 h-full"
         >
-          <span className={cn('font-medium', !isOverride && 'font-normal')}>{value}</span>
-          <ChevronDown size={8} className="shrink-0 opacity-60" />
+          <span>{value}</span>
+          <ChevronDown size={9} className="shrink-0 opacity-50" />
         </button>
         {isOverride && onReset && (
           <button
             onClick={(e) => { e.stopPropagation(); onReset(); setOpen(false) }}
-            className="ml-0.5 h-4 w-4 flex items-center justify-center rounded-full hover:bg-primary/15 transition-colors"
+            className="ml-1 h-4 w-4 flex items-center justify-center rounded-full hover:bg-primary/15 transition-colors"
           >
             <X size={9} />
           </button>
@@ -348,7 +348,7 @@ function WidgetFilterRow({ widget, audiences, dashAudienceId, dashRegion, dashPe
   const audienceOptions = ['All audiences', ...audiences.map(a => a.name)]
 
   return (
-    <div className="flex items-center gap-1.5 px-3 py-1.5 border-b border-border/40 shrink-0 flex-wrap">
+    <div className="flex items-center gap-2 pb-2 flex-wrap">
       {/* Audience chip */}
       <WidgetFilterChip
         label="Audience"
@@ -441,20 +441,19 @@ const CHART_TYPES_STRIP = CHART_TYPES.filter(t => t.type !== 'text')
 
 function WidgetTypeStrip({ currentType, onChange }: { currentType: WidgetType; onChange: (t: WidgetType) => void }) {
   return (
-    <div className="flex items-center gap-1 px-3 py-2 border-b border-border/40 shrink-0" onClick={e => e.stopPropagation()}>
-      {CHART_TYPES_STRIP.map(({ type, label, Icon }) => (
+    <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-border/40 shrink-0" onClick={e => e.stopPropagation()}>
+      {CHART_TYPES_STRIP.map(({ type, label }) => (
         <button
           key={type}
           onClick={(e) => { e.stopPropagation(); onChange(type) }}
           className={cn(
-            'flex items-center gap-1 h-6 px-2 rounded text-[11px] font-medium transition-colors',
+            'h-7 px-3 rounded-full text-xs font-medium transition-colors border',
             type === currentType
-              ? 'bg-primary/10 text-primary border border-primary/25'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+              ? 'bg-foreground text-background border-foreground'
+              : 'bg-white text-muted-foreground border-border hover:text-foreground hover:border-foreground/30'
           )}
         >
-          <Icon className="h-3 w-3 shrink-0" />
-          <span>{label}</span>
+          {label}
         </button>
       ))}
     </div>
@@ -1380,6 +1379,8 @@ export default function DashboardBuilderPage() {
                 const summary = widgetSummaries[pw.widgetId]
                 const generatingSummary = summaryGenerating[pw.widgetId]
 
+                // Outer wrapper is transparent — filter chips sit above the card box,
+                // footer buttons sit below it. The card box itself is pure content.
                 return (
                   <div
                     key={pw.widgetId}
@@ -1395,33 +1396,9 @@ export default function DashboardBuilderPage() {
                       const qLabel = e.dataTransfer.getData('survey-question-label')
                       if (qId && qLabel) addCrossDimension(pw.widgetId, qId, qLabel)
                     } : undefined}
-                    className="group bg-background rounded-lg flex flex-col overflow-hidden transition-all"
-                    style={{ boxShadow: isDragTarget || isSelected ? 'var(--field-shadow-focus)' : 'var(--field-shadow)' }}
+                    className="group flex flex-col h-full"
                   >
-                    {/* ── Title row ── */}
-                    {!isText && (
-                      <div className="relative flex items-center gap-2 px-3 py-2 shrink-0 border-b border-border/40">
-                        {isEditMode && (
-                          <span
-                            className="drag-handle absolute left-1.5 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing text-muted-foreground/40 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <GripVertical className="h-4 w-4" />
-                          </span>
-                        )}
-                        <span className={cn('text-xs font-semibold truncate flex-1', isEditMode && 'group-hover:ml-4 transition-[margin-left] duration-150')}>{widget.title}</span>
-                        {widget.crossDimensionLabel && (
-                          <span className="text-[10px] text-muted-foreground hidden sm:inline truncate max-w-[80px]">× {widget.crossDimensionLabel}</span>
-                        )}
-                        {isEditMode && (
-                          <button onClick={(e) => { e.stopPropagation(); removeWidget(pw.widgetId) }}
-                            className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive shrink-0"
-                          ><X className="h-3.5 w-3.5" /></button>
-                        )}
-                      </div>
-                    )}
-
-                    {/* ── Filter row — always visible, both modes ── */}
+                    {/* ── Filter chips — ABOVE the card box ── */}
                     {!isText && (
                       <WidgetFilterRow
                         widget={widget}
@@ -1433,102 +1410,120 @@ export default function DashboardBuilderPage() {
                       />
                     )}
 
-                    {/* ── Key metrics strip ── */}
-                    {!isText && <KeyMetricsStrip type={widget.type} data={data} />}
-
-                    {/* ── AI summary ── */}
-                    {!isText && (
-                      <div className="px-3 shrink-0">
-                        {summary ? (
-                          <div className="flex items-start gap-1.5 py-2 border-b border-border/40">
-                            <Sparkles className="h-3 w-3 text-primary/50 shrink-0 mt-0.5" />
-                            <p className="text-[11px] text-muted-foreground leading-relaxed flex-1">{summary}</p>
-                            <button onClick={(e) => { e.stopPropagation(); setWidgetSummaries(p => { const n = { ...p }; delete n[pw.widgetId]; return n }) }}
-                              className="shrink-0 text-muted-foreground/40 hover:text-muted-foreground transition-colors"
-                            ><X className="h-3 w-3" /></button>
+                    {/* ── Card box — title + AI summary + type strip + chart ── */}
+                    <div
+                      className="flex-1 bg-background rounded-xl flex flex-col overflow-hidden min-h-0 transition-all"
+                      style={{ boxShadow: isDragTarget || isSelected ? 'var(--field-shadow-focus)' : 'var(--field-shadow)' }}
+                    >
+                      {isText ? (
+                        /* Text annotation */
+                        <div className="flex-1 p-4 relative" onClick={(e) => e.stopPropagation()}>
+                          {isEditMode && (
+                            <>
+                              <span className="drag-handle absolute left-1 top-1 cursor-grab active:cursor-grabbing text-muted-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <GripVertical className="h-3.5 w-3.5" />
+                              </span>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); removeWidget(pw.widgetId) }}
+                                className="absolute top-2 right-2 p-1 rounded text-muted-foreground/30 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                              ><X className="h-3.5 w-3.5" /></button>
+                            </>
+                          )}
+                          <textarea
+                            value={widget.title}
+                            onChange={(e) => updateWidget(widget.id, { title: e.target.value })}
+                            readOnly={!isEditMode}
+                            placeholder={isEditMode ? 'Click to add text…' : ''}
+                            className="w-full h-full resize-none bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/40 leading-relaxed"
+                          />
+                        </div>
+                      ) : (
+                        <>
+                          {/* Title */}
+                          <div className="relative flex items-center gap-2 px-4 py-3 shrink-0 border-b border-border/40">
+                            {isEditMode && (
+                              <span
+                                className="drag-handle absolute left-1.5 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing text-muted-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                onClick={(e) => e.stopPropagation()}
+                              ><GripVertical className="h-4 w-4" /></span>
+                            )}
+                            <span className={cn('text-sm font-semibold truncate flex-1', isEditMode && 'group-hover:ml-4 transition-[margin-left] duration-150')}>{widget.title}</span>
+                            {widget.crossDimensionLabel && (
+                              <span className="text-[10px] text-muted-foreground hidden sm:inline truncate max-w-[80px]">× {widget.crossDimensionLabel}</span>
+                            )}
+                            {isEditMode && (
+                              <button onClick={(e) => { e.stopPropagation(); removeWidget(pw.widgetId) }}
+                                className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive shrink-0"
+                              ><X className="h-3.5 w-3.5" /></button>
+                            )}
                           </div>
-                        ) : (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); generateAISummary(pw.widgetId) }}
-                            disabled={generatingSummary}
-                            className="flex items-center gap-1 py-1.5 text-[11px] text-muted-foreground/60 hover:text-primary transition-colors disabled:opacity-40"
-                          >
-                            {generatingSummary
-                              ? <><RefreshCw className="h-3 w-3 animate-spin" /><span>Generating…</span></>
-                              : <><Sparkles className="h-3 w-3" /><span>Add AI summary</span></>
-                            }
-                          </button>
-                        )}
-                      </div>
-                    )}
 
-                    {/* ── Chart type strip — between AI summary and chart ── */}
+                          {/* AI summary */}
+                          <div className="px-4 shrink-0 border-b border-border/40">
+                            {summary ? (
+                              <div className="flex items-start gap-2 py-2.5">
+                                <Sparkles className="h-3 w-3 text-primary/50 shrink-0 mt-0.5" />
+                                <p className="text-xs text-muted-foreground leading-relaxed flex-1">{summary}</p>
+                                <button onClick={(e) => { e.stopPropagation(); setWidgetSummaries(p => { const n = { ...p }; delete n[pw.widgetId]; return n }) }}
+                                  className="shrink-0 text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+                                ><X className="h-3 w-3" /></button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={(e) => { e.stopPropagation(); generateAISummary(pw.widgetId) }}
+                                disabled={generatingSummary}
+                                className="flex items-center gap-1.5 py-2 text-xs text-muted-foreground/50 hover:text-primary transition-colors disabled:opacity-40"
+                              >
+                                {generatingSummary
+                                  ? <><RefreshCw className="h-3 w-3 animate-spin" /><span>Generating…</span></>
+                                  : <><Sparkles className="h-3 w-3" /><span>Add AI summary</span></>
+                                }
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Chart type strip */}
+                          <WidgetTypeStrip
+                            currentType={widget.type}
+                            onChange={(t) => {
+                              updateWidget(widget.id, { type: t })
+                              setPlacedWidgets(prev => prev.map(p => p.widgetId === pw.widgetId ? { ...p, chartKey: Math.random() } : p))
+                            }}
+                          />
+
+                          {/* Chart */}
+                          <div className="flex-1 min-h-0 px-2 pb-2 relative">
+                            <ChartRenderer
+                              key={pw.chartKey}
+                              widget={widget}
+                              data={data}
+                              height={pw.position.h * ROW_HEIGHT - 140}
+                            />
+                            {isDragTarget && draggingQuestion && (
+                              <CrossDimensionPreview question={draggingQuestion} />
+                            )}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* ── Action buttons — BELOW the card box ── */}
                     {!isText && (
-                      <WidgetTypeStrip
-                        currentType={widget.type}
-                        onChange={(t) => {
-                          updateWidget(widget.id, { type: t })
-                          setPlacedWidgets(prev => prev.map(p => p.widgetId === pw.widgetId ? { ...p, chartKey: Math.random() } : p))
-                        }}
-                      />
-                    )}
-
-                    {/* ── Chart / Text content ── */}
-                    {isText ? (
-                      <div className="flex-1 p-3 relative" onClick={(e) => e.stopPropagation()}>
-                        {isEditMode && (
-                          <span className="drag-handle absolute left-1 top-1 cursor-grab active:cursor-grabbing text-muted-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <GripVertical className="h-3.5 w-3.5" />
-                          </span>
-                        )}
-                        <textarea
-                          value={widget.title}
-                          onChange={(e) => updateWidget(widget.id, { title: e.target.value })}
-                          readOnly={!isEditMode}
-                          placeholder={isEditMode ? 'Click to add text…' : ''}
-                          className="w-full h-full resize-none bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/40 leading-relaxed"
-                        />
-                        {isEditMode && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); removeWidget(pw.widgetId) }}
-                            className="absolute top-1 right-1 p-1 rounded text-muted-foreground/30 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                          ><X className="h-3.5 w-3.5" /></button>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="flex-1 min-h-0 p-2 relative">
-                        <ChartRenderer
-                          key={pw.chartKey}
-                          widget={widget}
-                          data={data}
-                          height={pw.position.h * ROW_HEIGHT - (widget.type === 'scorecard' ? 52 : 118)}
-                        />
-                        {isDragTarget && draggingQuestion && (
-                          <CrossDimensionPreview question={draggingQuestion} />
-                        )}
-                      </div>
-                    )}
-
-                    {/* ── Footer ── */}
-                    {!isText && (
-                      <div className="flex items-center gap-1 px-3 py-1.5 border-t border-border/40 shrink-0">
-                        <button className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors px-1.5 py-1 rounded hover:bg-muted/50">
-                          <Share2 className="h-3 w-3" />Share
-                        </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setExportOpen(true) }}
-                          className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors px-1.5 py-1 rounded hover:bg-muted/50"
-                        >
-                          <ExternalLink className="h-3 w-3" />Export
-                        </button>
+                      <div className="flex items-center justify-center gap-2 pt-2">
                         {isEditMode && (
                           <button
                             onClick={(e) => { e.stopPropagation(); setSelectedWidgetId(pw.widgetId) }}
-                            className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition-colors px-1.5 py-1 rounded hover:bg-primary/5 ml-auto"
-                          >
-                            <Pencil className="h-3 w-3" />Edit
-                          </button>
+                            className="h-7 px-3 rounded-full border border-border bg-background text-xs text-foreground hover:border-primary/40 hover:text-primary transition-colors"
+                          >Edit</button>
                         )}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setExportOpen(true) }}
+                          className="h-7 px-3 rounded-full border border-border bg-background text-xs text-foreground hover:border-primary/40 transition-colors"
+                        >Export</button>
+                        <button
+                          onClick={(e) => e.stopPropagation()}
+                          className="h-7 px-3 rounded-full border border-border bg-background text-xs text-foreground hover:border-primary/40 transition-colors"
+                        >Share</button>
                       </div>
                     )}
                   </div>
