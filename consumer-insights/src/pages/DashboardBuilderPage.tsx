@@ -1342,7 +1342,7 @@ export default function DashboardBuilderPage() {
           onDrop={isEditMode ? handleCanvasDrop : undefined}
         >
           {/* Dashboard title */}
-          <div className="px-6 pt-7 pb-4">
+          <div className="px-6 pt-7 pb-4 text-center">
             {editingTitle ? (
               <input
                 ref={pageTitleRef}
@@ -1350,7 +1350,7 @@ export default function DashboardBuilderPage() {
                 onChange={(e) => setName(e.target.value)}
                 onBlur={() => { setEditingTitle(false); handleNameBlur() }}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') { setEditingTitle(false); handleNameBlur() } }}
-                className="text-2xl font-bold w-full bg-transparent outline-none border-b-2 border-primary text-foreground leading-tight"
+                className="text-2xl font-bold w-full bg-transparent outline-none border-b-2 border-primary text-foreground leading-tight text-center"
                 autoFocus
               />
             ) : (
