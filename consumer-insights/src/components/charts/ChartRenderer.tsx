@@ -274,5 +274,8 @@ export default function ChartRenderer({ widget, data, height = 200 }: ChartRende
     )
   }
 
+  // 'text' widgets render their own content in the card — ChartRenderer is not needed
+  if (type === 'text') return null
+
   return null
 }

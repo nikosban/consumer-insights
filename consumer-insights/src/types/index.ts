@@ -26,7 +26,7 @@ export type Audience = {
 
 // ─── Widget ──────────────────────────────────────────────────────────────────
 
-export type WidgetType = 'bar' | 'line' | 'pie' | 'table' | 'scorecard';
+export type WidgetType = 'bar' | 'line' | 'pie' | 'table' | 'scorecard' | 'text';
 
 export type Widget = {
   id: string;
