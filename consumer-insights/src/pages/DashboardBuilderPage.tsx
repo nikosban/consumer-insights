@@ -1076,6 +1076,7 @@ export default function DashboardBuilderPage() {
   const [draggingQuestion, setDraggingQuestion] = useState<SurveyQuestion | null>(null)
   const [editingTitle, setEditingTitle] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
+  const pageTitleRef = useRef<HTMLInputElement>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -1271,29 +1272,16 @@ export default function DashboardBuilderPage() {
         {/* ── Three-section toolbar ── */}
         <div className="h-14 flex items-center px-4 gap-4 border-b border-border shrink-0 bg-background">
 
-          {/* Left: breadcrumb */}
+          {/* Left: breadcrumb (static — title is editable in the canvas below) */}
           <div className="flex items-center gap-1 text-sm min-w-0 shrink-0">
             <button
               onClick={() => navigate('/dashboards')}
               className="text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
             >Dashboards</button>
             <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
-            {editingTitle ? (
-              <input
-                ref={titleInputRef}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                onBlur={() => { setEditingTitle(false); handleNameBlur() }}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') { setEditingTitle(false); handleNameBlur() } }}
-                className="h-6 text-sm font-medium w-40 bg-transparent border-b border-primary outline-none"
-                autoFocus
-              />
-            ) : (
-              <span
-                onClick={isEditMode ? () => { setEditingTitle(true); setTimeout(() => titleInputRef.current?.select(), 0) } : undefined}
-                className={cn('text-sm font-medium truncate max-w-40', isEditMode && 'cursor-text hover:opacity-70')}
-              >{name || 'Untitled Dashboard'}</span>
-            )}
+            <span className="text-sm font-medium truncate max-w-40 text-foreground">
+              {name || 'Untitled Dashboard'}
+            </span>
           </div>
 
           {/* Centre: context chips */}
@@ -1346,20 +1334,45 @@ export default function DashboardBuilderPage() {
 
         {/* ── Grid canvas ── */}
         <div
-          className={cn('flex-1 overflow-auto pl-4 pt-4 pb-4 transition-colors', isDragOver && isEditMode ? 'bg-primary/5' : 'bg-muted/20')}
+          className={cn('flex-1 overflow-auto pb-4 transition-colors', isDragOver && isEditMode ? 'bg-primary/5' : 'bg-muted/20')}
           data-dashboard-canvas
           ref={canvasRef}
           onDragOver={isEditMode ? (e) => { e.preventDefault(); setIsDragOver(true) } : undefined}
           onDragLeave={isEditMode ? (e) => { if (!canvasRef.current?.contains(e.relatedTarget as Node)) setIsDragOver(false) } : undefined}
           onDrop={isEditMode ? handleCanvasDrop : undefined}
         >
+          {/* Dashboard title */}
+          <div className="px-6 pt-7 pb-4">
+            {editingTitle ? (
+              <input
+                ref={pageTitleRef}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onBlur={() => { setEditingTitle(false); handleNameBlur() }}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') { setEditingTitle(false); handleNameBlur() } }}
+                className="text-2xl font-bold w-full bg-transparent outline-none border-b-2 border-primary text-foreground leading-tight"
+                autoFocus
+              />
+            ) : (
+              <h1
+                onClick={isEditMode ? () => { setEditingTitle(true); setTimeout(() => pageTitleRef.current?.select(), 0) } : undefined}
+                className={cn(
+                  'text-2xl font-bold text-foreground leading-tight select-none',
+                  isEditMode && 'cursor-text hover:opacity-60 transition-opacity'
+                )}
+              >
+                {name || 'Untitled Dashboard'}
+              </h1>
+            )}
+          </div>
+
           {placedWidgets.length === 0 ? (
             <EmptyState
               title="Canvas is empty"
               description={isEditMode ? 'Click a question in the sidebar or type below to add a widget.' : 'Switch to Edit mode to add widgets.'}
             />
           ) : (
-            <>
+            <div className="px-4">
             <GridLayout
               layout={layout}
               gridConfig={{ cols: 12, rowHeight: ROW_HEIGHT, margin: [12, 12] }}
@@ -1549,7 +1562,7 @@ export default function DashboardBuilderPage() {
                 )}
               </div>
             )}
-            </>
+            </div>
           )}
         </div>
       </div>
