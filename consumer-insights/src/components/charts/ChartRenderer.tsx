@@ -72,7 +72,7 @@ export default function ChartRenderer({ widget, data, height = 200 }: ChartRende
       return row
     })
     return (
-      <ResponsiveContainer width="100%" height={height}>
+      <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData} margin={{ top: 4, right: 8, bottom: 4, left: -16 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={GRID_STROKE} vertical={false} />
           <XAxis dataKey="label" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
@@ -94,7 +94,7 @@ export default function ChartRenderer({ widget, data, height = 200 }: ChartRende
       return row
     })
     return (
-      <ResponsiveContainer width="100%" height={height}>
+      <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData} margin={{ top: 4, right: 8, bottom: 4, left: -16 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={GRID_STROKE} vertical={false} />
           <XAxis dataKey="label" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
@@ -123,7 +123,7 @@ export default function ChartRenderer({ widget, data, height = 200 }: ChartRende
       value: data.series[0]?.values[i] ?? 0,
     }))
     return (
-      <ResponsiveContainer width="100%" height={height}>
+      <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
             data={pieEntries}
@@ -150,13 +150,23 @@ export default function ChartRenderer({ widget, data, height = 200 }: ChartRende
     const value = data.series[0]?.values[0] ?? 0
     const benchmark = data.series[1]?.values[0]
     const diff = benchmark !== undefined ? value - benchmark : null
+    const compact = height < 90
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-1 py-4">
-        <span className="text-4xl font-bold text-foreground">{value}</span>
-        <span className="text-sm text-muted-foreground">{data.labels[0]}</span>
+      <div
+        className="flex flex-col items-center justify-center w-full overflow-hidden"
+        style={{ height, gap: compact ? 2 : 4 }}
+      >
+        <span className={compact ? 'text-2xl font-bold text-foreground' : 'text-4xl font-bold text-foreground'}>
+          {value}
+        </span>
+        <span className={compact ? 'text-[10px] text-muted-foreground' : 'text-sm text-muted-foreground'}>
+          {data.labels[0]}
+        </span>
         {diff !== null && (
-          <div className={`flex items-center gap-1 text-sm font-medium ${diff >= 0 ? 'text-green-600' : 'text-destructive'}`}>
-            {diff >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+          <div className={`flex items-center font-medium ${compact ? 'gap-0.5 text-[10px]' : 'gap-1 text-sm'} ${diff >= 0 ? 'text-green-600' : 'text-destructive'}`}>
+            {diff >= 0
+              ? <TrendingUp className={compact ? 'h-3 w-3' : 'h-4 w-4'} />
+              : <TrendingDown className={compact ? 'h-3 w-3' : 'h-4 w-4'} />}
             {diff >= 0 ? '+' : ''}{diff} vs benchmark
           </div>
         )}

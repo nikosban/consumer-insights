@@ -1396,7 +1396,7 @@ export default function DashboardBuilderPage() {
                       const qLabel = e.dataTransfer.getData('survey-question-label')
                       if (qId && qLabel) addCrossDimension(pw.widgetId, qId, qLabel)
                     } : undefined}
-                    className="group flex flex-col h-full"
+                    className="group flex flex-col h-full rounded-2xl bg-black/[0.04] p-2"
                   >
                     {/* ── Filter chips — ABOVE the card box ── */}
                     {!isText && (
@@ -1439,7 +1439,7 @@ export default function DashboardBuilderPage() {
                         </div>
                       ) : (
                         <>
-                          {/* Title */}
+                          {/* Title + inline actions */}
                           <div className="relative flex items-center gap-2 px-4 py-3 shrink-0 border-b border-border/40">
                             {isEditMode && (
                               <span
@@ -1447,15 +1447,29 @@ export default function DashboardBuilderPage() {
                                 onClick={(e) => e.stopPropagation()}
                               ><GripVertical className="h-4 w-4" /></span>
                             )}
-                            <span className={cn('text-sm font-semibold truncate flex-1', isEditMode && 'group-hover:ml-4 transition-[margin-left] duration-150')}>{widget.title}</span>
+                            <span className={cn('text-sm font-semibold truncate flex-1 min-w-0', isEditMode && 'group-hover:ml-4 transition-[margin-left] duration-150')}>{widget.title}</span>
                             {widget.crossDimensionLabel && (
                               <span className="text-[10px] text-muted-foreground hidden sm:inline truncate max-w-[80px]">× {widget.crossDimensionLabel}</span>
                             )}
-                            {isEditMode && (
-                              <button onClick={(e) => { e.stopPropagation(); removeWidget(pw.widgetId) }}
-                                className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive shrink-0"
-                              ><X className="h-3.5 w-3.5" /></button>
-                            )}
+                            {/* Actions — right side of title */}
+                            <div className="flex items-center gap-0.5 shrink-0" onClick={e => e.stopPropagation()}>
+                              {isEditMode && (
+                                <button onClick={() => setSelectedWidgetId(pw.widgetId)}
+                                  className="h-6 px-2 rounded text-[11px] text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors"
+                                >Edit</button>
+                              )}
+                              <button onClick={() => setExportOpen(true)}
+                                className="h-6 px-2 rounded text-[11px] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                              >Export</button>
+                              <button onClick={(e) => e.stopPropagation()}
+                                className="h-6 px-2 rounded text-[11px] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                              >Share</button>
+                              {isEditMode && (
+                                <button onClick={() => removeWidget(pw.widgetId)}
+                                  className="h-6 w-6 flex items-center justify-center rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors ml-1"
+                                ><X className="h-3.5 w-3.5" /></button>
+                              )}
+                            </div>
                           </div>
 
                           {/* AI summary */}
@@ -1491,13 +1505,13 @@ export default function DashboardBuilderPage() {
                             }}
                           />
 
-                          {/* Chart */}
-                          <div className="flex-1 min-h-0 px-2 pb-2 relative">
+                          {/* Chart — flex container so ResponsiveContainer fills 100% height */}
+                          <div className="flex-1 min-h-0 px-2 pb-2 relative flex flex-col">
                             <ChartRenderer
                               key={pw.chartKey}
                               widget={widget}
                               data={data}
-                              height={pw.position.h * ROW_HEIGHT - 140}
+                              height={Math.max(40, pw.position.h * ROW_HEIGHT - 155)}
                             />
                             {isDragTarget && draggingQuestion && (
                               <CrossDimensionPreview question={draggingQuestion} />
@@ -1507,25 +1521,6 @@ export default function DashboardBuilderPage() {
                       )}
                     </div>
 
-                    {/* ── Action buttons — BELOW the card box ── */}
-                    {!isText && (
-                      <div className="flex items-center justify-center gap-2 pt-2">
-                        {isEditMode && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); setSelectedWidgetId(pw.widgetId) }}
-                            className="h-7 px-3 rounded-full border border-border bg-background text-xs text-foreground hover:border-primary/40 hover:text-primary transition-colors"
-                          >Edit</button>
-                        )}
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setExportOpen(true) }}
-                          className="h-7 px-3 rounded-full border border-border bg-background text-xs text-foreground hover:border-primary/40 transition-colors"
-                        >Export</button>
-                        <button
-                          onClick={(e) => e.stopPropagation()}
-                          className="h-7 px-3 rounded-full border border-border bg-background text-xs text-foreground hover:border-primary/40 transition-colors"
-                        >Share</button>
-                      </div>
-                    )}
                   </div>
                 )
               })}
