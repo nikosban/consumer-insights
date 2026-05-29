@@ -251,6 +251,216 @@ function ChartTypeSwitcher({
   )
 }
 
+// ─── Widget filter row ────────────────────────────────────────────────────────
+
+function WidgetFilterChip({ label, value, options, isOverride, onSelect, onReset, renderPicker }: {
+  label: string
+  value: string
+  options?: string[]
+  isOverride: boolean
+  onSelect?: (v: string) => void
+  onReset?: () => void
+  renderPicker?: (close: () => void) => React.ReactNode
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function close(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', close)
+    return () => document.removeEventListener('mousedown', close)
+  }, [])
+
+  return (
+    <div ref={ref} className="relative">
+      <div className={cn(
+        'h-[22px] flex items-center rounded-full border text-[11px] transition-colors',
+        isOverride
+          ? 'bg-primary/8 border-primary/30 text-primary pr-1'
+          : 'bg-transparent border-border/60 text-muted-foreground pr-2',
+      )}>
+        <button
+          onClick={(e) => { e.stopPropagation(); setOpen(o => !o) }}
+          className="flex items-center gap-1 pl-2 h-full"
+        >
+          <span className={cn('font-medium', !isOverride && 'font-normal')}>{value}</span>
+          <ChevronDown size={8} className="shrink-0 opacity-60" />
+        </button>
+        {isOverride && onReset && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onReset(); setOpen(false) }}
+            className="ml-0.5 h-4 w-4 flex items-center justify-center rounded-full hover:bg-primary/15 transition-colors"
+          >
+            <X size={9} />
+          </button>
+        )}
+      </div>
+
+      {open && (
+        <div className="absolute top-full mt-1 left-0 z-50 bg-white border border-border rounded-xl shadow-lg py-1 min-w-[160px]" onClick={e => e.stopPropagation()}>
+          {renderPicker ? (
+            renderPicker(() => setOpen(false))
+          ) : (
+            <>
+              <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground tracking-wider">{label}</p>
+              {options?.map(opt => (
+                <button
+                  key={opt}
+                  onClick={() => { onSelect?.(opt); setOpen(false) }}
+                  className={cn('w-full text-left px-3 py-2 text-xs hover:bg-gray-50 transition-colors',
+                    opt === value ? 'text-primary font-medium' : 'text-gray-700'
+                  )}
+                >{opt}</button>
+              ))}
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function WidgetFilterRow({ widget, audiences, dashAudienceId, dashRegion, dashPeriod, onUpdate }: {
+  widget: Widget
+  audiences: Audience[]
+  dashAudienceId: string
+  dashRegion: string
+  dashPeriod: DashPeriod
+  onUpdate: (patch: Partial<Widget>) => void
+}) {
+  // Effective audience label
+  const dashAudienceName = dashAudienceId ? (audiences.find(a => a.id === dashAudienceId)?.name ?? 'All audiences') : 'All audiences'
+  const widgetAudienceName = widget.audienceId ? (audiences.find(a => a.id === widget.audienceId)?.name ?? 'All audiences') : 'All audiences'
+  const audienceIsOverride = !!(widget.audienceId && dashAudienceId && widget.audienceId !== dashAudienceId)
+  const audienceLabel = audienceIsOverride ? widgetAudienceName : dashAudienceName
+
+  // Effective region label
+  const regionIsOverride = !!(widget.country && widget.country !== dashRegion)
+  const regionLabel = regionIsOverride ? (widget.country ?? dashRegion) : dashRegion
+
+  // Effective period label
+  const widgetPeriod: DashPeriod = { year: widget.year ?? 'All', wave: 'All' }
+  const periodIsOverride = !!(widget.year && widget.year !== dashPeriod.year)
+  const periodLabel = periodIsOverride ? formatPeriod(widgetPeriod) : formatPeriod(dashPeriod)
+
+  const audienceOptions = ['All audiences', ...audiences.map(a => a.name)]
+
+  return (
+    <div className="flex items-center gap-1.5 px-3 py-1.5 border-b border-border/40 shrink-0 flex-wrap">
+      {/* Audience chip */}
+      <WidgetFilterChip
+        label="Audience"
+        value={audienceLabel}
+        options={audienceOptions}
+        isOverride={audienceIsOverride}
+        onSelect={v => {
+          const aud = audiences.find(a => a.name === v)
+          onUpdate({ audienceId: aud ? aud.id : '' })
+        }}
+        onReset={() => onUpdate({ audienceId: dashAudienceId || '' })}
+      />
+
+      {/* Region chip */}
+      <WidgetFilterChip
+        label="Region"
+        value={regionLabel}
+        options={DASH_REGIONS}
+        isOverride={regionIsOverride}
+        onSelect={v => onUpdate({ country: v === dashRegion ? undefined : v })}
+        onReset={() => onUpdate({ country: undefined })}
+      />
+
+      {/* Period chip */}
+      <WidgetFilterChip
+        label="Period"
+        value={periodLabel}
+        isOverride={periodIsOverride}
+        onReset={() => onUpdate({ year: undefined })}
+        renderPicker={(close) => (
+          <div className="p-3 min-w-[240px]">
+            <WidgetPeriodPicker
+              value={widgetPeriod}
+              onChange={p => { onUpdate({ year: p.year === 'All' ? undefined : p.year }); close() }}
+              onReset={() => { onUpdate({ year: undefined }); close() }}
+              dashDefault={dashPeriod}
+            />
+          </div>
+        )}
+      />
+    </div>
+  )
+}
+
+function WidgetPeriodPicker({ value, onChange, onReset, dashDefault }: {
+  value: DashPeriod
+  onChange: (p: DashPeriod) => void
+  onReset: () => void
+  dashDefault: DashPeriod
+}) {
+  const [draft, setDraft] = useState(value)
+  return (
+    <>
+      <p className="text-[10px] font-semibold text-muted-foreground tracking-wider mb-1.5">YEAR</p>
+      <div className="flex gap-1 mb-3 flex-wrap">
+        {['All', '2022', '2023', '2024', '2025'].map(y => (
+          <button key={y} onClick={() => setDraft(d => ({ ...d, year: y }))}
+            className={cn('h-6 px-2 rounded text-[11px] font-medium transition-colors',
+              draft.year === y ? 'bg-primary text-white' : 'bg-muted text-muted-foreground hover:bg-muted/70'
+            )}
+          >{y}</button>
+        ))}
+      </div>
+      <p className="text-[10px] font-semibold text-muted-foreground tracking-wider mb-1.5">WAVE</p>
+      <div className="flex gap-1 mb-3">
+        {['All', 'Q1', 'Q2', 'Q3', 'Q4'].map(w => (
+          <button key={w} onClick={() => setDraft(d => ({ ...d, wave: w }))}
+            className={cn('h-6 px-2 rounded text-[11px] font-medium transition-colors',
+              draft.wave === w ? 'bg-primary text-white' : 'bg-muted text-muted-foreground hover:bg-muted/70'
+            )}
+          >{w}</button>
+        ))}
+      </div>
+      <div className="flex items-center justify-between border-t border-border pt-2">
+        <button onClick={onReset} className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">
+          Reset to dashboard
+        </button>
+        <button
+          onClick={() => onChange(draft)}
+          className="h-6 px-3 rounded bg-primary text-white text-[11px] font-medium hover:bg-primary/90 transition-colors"
+        >Apply</button>
+      </div>
+    </>
+  )
+}
+
+// ─── Widget type strip ────────────────────────────────────────────────────────
+
+const CHART_TYPES_STRIP = CHART_TYPES.filter(t => t.type !== 'text')
+
+function WidgetTypeStrip({ currentType, onChange }: { currentType: WidgetType; onChange: (t: WidgetType) => void }) {
+  return (
+    <div className="flex items-center gap-1 px-3 py-2 border-b border-border/40 shrink-0" onClick={e => e.stopPropagation()}>
+      {CHART_TYPES_STRIP.map(({ type, label, Icon }) => (
+        <button
+          key={type}
+          onClick={(e) => { e.stopPropagation(); onChange(type) }}
+          className={cn(
+            'flex items-center gap-1 h-6 px-2 rounded text-[11px] font-medium transition-colors',
+            type === currentType
+              ? 'bg-primary/10 text-primary border border-primary/25'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+          )}
+        >
+          <Icon className="h-3 w-3 shrink-0" />
+          <span>{label}</span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
 // ─── Widget properties panel ──────────────────────────────────────────────────
 
 const YEARS = ['All years', '2022', '2023', '2024', '2025']
@@ -1170,14 +1380,6 @@ export default function DashboardBuilderPage() {
                 const summary = widgetSummaries[pw.widgetId]
                 const generatingSummary = summaryGenerating[pw.widgetId]
 
-                // Per-widget context overrides (show when differs from dash defaults)
-                const audienceOverride = widget.audienceId && dashAudienceId && widget.audienceId !== dashAudienceId
-                  ? audiences.find(a => a.id === widget.audienceId)?.name : null
-                const countryOverride = widget.country && widget.country !== dashRegion ? widget.country : null
-                const periodOverride = widget.year && (dashPeriod.year !== 'All' || dashPeriod.wave !== 'All') && widget.year !== dashPeriod.year
-                  ? widget.year : null
-                const hasOverride = !!(audienceOverride || countryOverride || periodOverride)
-
                 return (
                   <div
                     key={pw.widgetId}
@@ -1196,33 +1398,9 @@ export default function DashboardBuilderPage() {
                     className="group bg-background rounded-lg flex flex-col overflow-hidden transition-all"
                     style={{ boxShadow: isDragTarget || isSelected ? 'var(--field-shadow-focus)' : 'var(--field-shadow)' }}
                   >
-                    {/* ── Override strip ── */}
-                    {hasOverride && (
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 border-b border-border/50 bg-primary/3 shrink-0 flex-wrap">
-                        {audienceOverride && (
-                          <span className="inline-flex items-center gap-1 h-[20px] text-[10px] text-primary bg-primary/8 border border-primary/20 rounded-full px-2">
-                            {audienceOverride}
-                            {isEditMode && <button onClick={(e) => { e.stopPropagation(); updateWidget(widget.id, { audienceId: dashAudienceId || undefined }) }}><X className="h-2.5 w-2.5" /></button>}
-                          </span>
-                        )}
-                        {countryOverride && (
-                          <span className="inline-flex items-center gap-1 h-[20px] text-[10px] text-primary bg-primary/8 border border-primary/20 rounded-full px-2">
-                            {countryOverride}
-                            {isEditMode && <button onClick={(e) => { e.stopPropagation(); updateWidget(widget.id, { country: undefined }) }}><X className="h-2.5 w-2.5" /></button>}
-                          </span>
-                        )}
-                        {periodOverride && (
-                          <span className="inline-flex items-center gap-1 h-[20px] text-[10px] text-primary bg-primary/8 border border-primary/20 rounded-full px-2">
-                            {periodOverride}
-                            {isEditMode && <button onClick={(e) => { e.stopPropagation(); updateWidget(widget.id, { year: undefined }) }}><X className="h-2.5 w-2.5" /></button>}
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    {/* ── Title area ── */}
+                    {/* ── Title row ── */}
                     {!isText && (
-                      <div className={cn('relative flex items-center gap-2 px-3 py-2 shrink-0', widget.type === 'scorecard' && 'border-b border-border')}>
+                      <div className="relative flex items-center gap-2 px-3 py-2 shrink-0 border-b border-border/40">
                         {isEditMode && (
                           <span
                             className="drag-handle absolute left-1.5 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing text-muted-foreground/40 opacity-0 group-hover:opacity-100 transition-opacity z-10"
@@ -1233,21 +1411,26 @@ export default function DashboardBuilderPage() {
                         )}
                         <span className={cn('text-xs font-semibold truncate flex-1', isEditMode && 'group-hover:ml-4 transition-[margin-left] duration-150')}>{widget.title}</span>
                         {widget.crossDimensionLabel && (
-                          <span className="text-[10px] text-muted-foreground hidden sm:inline truncate max-w-[80px]">
-                            × {widget.crossDimensionLabel}
-                          </span>
+                          <span className="text-[10px] text-muted-foreground hidden sm:inline truncate max-w-[80px]">× {widget.crossDimensionLabel}</span>
                         )}
                         {isEditMode && (
-                          <>
-                            <ChartTypeSwitcher currentType={widget.type} onChange={(t) => updateWidget(widget.id, { type: t })} />
-                            <button onClick={(e) => { e.stopPropagation(); removeWidget(pw.widgetId) }}
-                              className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive shrink-0"
-                            >
-                              <X className="h-3.5 w-3.5" />
-                            </button>
-                          </>
+                          <button onClick={(e) => { e.stopPropagation(); removeWidget(pw.widgetId) }}
+                            className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive shrink-0"
+                          ><X className="h-3.5 w-3.5" /></button>
                         )}
                       </div>
+                    )}
+
+                    {/* ── Filter row — always visible, both modes ── */}
+                    {!isText && (
+                      <WidgetFilterRow
+                        widget={widget}
+                        audiences={audiences}
+                        dashAudienceId={dashAudienceId}
+                        dashRegion={dashRegion}
+                        dashPeriod={dashPeriod}
+                        onUpdate={(patch) => updateWidget(widget.id, patch)}
+                      />
                     )}
 
                     {/* ── Key metrics strip ── */}
@@ -1260,11 +1443,9 @@ export default function DashboardBuilderPage() {
                           <div className="flex items-start gap-1.5 py-2 border-b border-border/40">
                             <Sparkles className="h-3 w-3 text-primary/50 shrink-0 mt-0.5" />
                             <p className="text-[11px] text-muted-foreground leading-relaxed flex-1">{summary}</p>
-                            {isEditMode && (
-                              <button onClick={(e) => { e.stopPropagation(); setWidgetSummaries(p => { const n = { ...p }; delete n[pw.widgetId]; return n }) }}
-                                className="shrink-0 text-muted-foreground/40 hover:text-muted-foreground transition-colors"
-                              ><X className="h-3 w-3" /></button>
-                            )}
+                            <button onClick={(e) => { e.stopPropagation(); setWidgetSummaries(p => { const n = { ...p }; delete n[pw.widgetId]; return n }) }}
+                              className="shrink-0 text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+                            ><X className="h-3 w-3" /></button>
                           </div>
                         ) : (
                           <button
@@ -1281,12 +1462,20 @@ export default function DashboardBuilderPage() {
                       </div>
                     )}
 
+                    {/* ── Chart type strip — between AI summary and chart ── */}
+                    {!isText && (
+                      <WidgetTypeStrip
+                        currentType={widget.type}
+                        onChange={(t) => {
+                          updateWidget(widget.id, { type: t })
+                          setPlacedWidgets(prev => prev.map(p => p.widgetId === pw.widgetId ? { ...p, chartKey: Math.random() } : p))
+                        }}
+                      />
+                    )}
+
                     {/* ── Chart / Text content ── */}
                     {isText ? (
-                      <div
-                        className="flex-1 p-3 relative"
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                      <div className="flex-1 p-3 relative" onClick={(e) => e.stopPropagation()}>
                         {isEditMode && (
                           <span className="drag-handle absolute left-1 top-1 cursor-grab active:cursor-grabbing text-muted-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity">
                             <GripVertical className="h-3.5 w-3.5" />
@@ -1312,7 +1501,7 @@ export default function DashboardBuilderPage() {
                           key={pw.chartKey}
                           widget={widget}
                           data={data}
-                          height={pw.position.h * ROW_HEIGHT - (widget.type === 'scorecard' ? 52 : 100)}
+                          height={pw.position.h * ROW_HEIGHT - (widget.type === 'scorecard' ? 52 : 118)}
                         />
                         {isDragTarget && draggingQuestion && (
                           <CrossDimensionPreview question={draggingQuestion} />
