@@ -1311,8 +1311,10 @@ export default function DashboardBuilderPage() {
             >
               {isEditMode ? 'Done' : 'Edit'}
             </Button>
+            <Button variant="outline" size="default" className="text-xs h-8" onClick={handleRefresh}>
+              Refresh
+            </Button>
             <Button variant="outline" size="default" className="text-xs h-8" onClick={handleToggleShare}>
-              <Share2 className="h-3.5 w-3.5" />
               {isShared ? 'Shared' : 'Share'}
             </Button>
             <Button variant="outline" size="default" className="text-xs h-8" onClick={() => setExportOpen(true)}>

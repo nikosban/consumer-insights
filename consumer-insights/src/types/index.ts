@@ -45,6 +45,24 @@ export type Widget = {
   showTotalShare?: boolean;
 };
 
+export type CrossTabConfig = {
+  showTotal: boolean
+  showUniverse: boolean
+  showResponses: boolean
+  showPctCol: boolean
+  showPctRow: boolean
+  showIndex: boolean
+}
+
+export const DEFAULT_CROSSTAB_CONFIG: CrossTabConfig = {
+  showTotal: true,
+  showUniverse: true,
+  showResponses: true,
+  showPctCol: true,
+  showPctRow: true,
+  showIndex: true,
+}
+
 export type ChartSeries = {
   name: string;
   values: number[];       // percent

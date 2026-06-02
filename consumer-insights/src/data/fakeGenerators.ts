@@ -77,8 +77,8 @@ export const DIMENSION_VALUES: Record<string, string[]> = {
 
 const POP_SCALE = 22500 // respondents-to-population multiplier (fake)
 
-function crosstableData(dimensionLabel: string): ChartData {
-  const answers = SURVEY_ANSWERS.slice(0, 5)
+function crosstableData(dimensionLabel: string, rowLabels?: string[]): ChartData {
+  const answers = rowLabels ?? SURVEY_ANSWERS.slice(0, 5)
   const dimensions = DIMENSION_VALUES[dimensionLabel] ?? ['Group A', 'Group B', 'Group C']
 
   const TOTAL_N = 8599
@@ -119,6 +119,21 @@ function crosstableData(dimensionLabel: string): ChartData {
       baseN: TOTAL_N,
     },
   }
+}
+
+/** Generate a cross-tab section for an extra row attribute (uses its dimension values as row labels) */
+export function generateCrosstabRowData(rowAttr: string, colAttr: string): ChartData {
+  const rowLabels = DIMENSION_VALUES[rowAttr] ?? SURVEY_ANSWERS.slice(0, 5)
+  return crosstableData(colAttr, rowLabels)
+}
+
+/** Generate a simple (non-cross-tab) table for an extra row attribute */
+export function generateTableRowData(rowAttr: string): ChartData {
+  const labels = DIMENSION_VALUES[rowAttr] ?? SURVEY_ANSWERS.slice(0, 5)
+  const raw = labels.map(() => rand(5, 40))
+  const total = raw.reduce((s, v) => s + v, 0)
+  const percents = raw.map(v => Math.round((v / total) * 100))
+  return { labels, series: [{ name: 'Percent', values: percents }] }
 }
 
 export function generateChartData(type: WidgetType, hasBenchmark: boolean, crossDimensionLabel?: string): ChartData {

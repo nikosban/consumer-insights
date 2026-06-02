@@ -1,17 +1,11 @@
 import { NavLink, useNavigate, useLocation, useMatch } from 'react-router-dom'
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { useProjectStore } from '@/store/projectStore'
+import { useDashboardStore } from '@/store/dashboardStore'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { IconWrapper, ICON_SIZES } from '@/components/ui/IconWrapper'
 import { MessageSquare, Users, BarChart2, FlaskConical, Folder, LogOut, Plus, PanelLeftClose, PanelLeftOpen, Search, LayoutDashboard } from 'lucide-react'
 import { cn } from '@/lib/utils'
-
-const WORKSPACE_SUB_ITEMS = [
-  { key: 'dash-1', label: 'Dashboard 1', tab: 'dashboards' },
-  { key: 'dash-2', label: 'Dashboard 2', tab: 'dashboards' },
-  { key: 'anal-1', label: 'Analysis 1',  tab: 'analyses'   },
-  { key: 'anal-2', label: 'Analysis 2',  tab: 'analyses'   },
-]
 
 const MIN_WIDTH = 160
 const MAX_WIDTH = 320
@@ -60,6 +54,7 @@ export default function WorkspaceSidebar() {
   const activeTab = new URLSearchParams(location.search).get('tab') ?? 'dashboards'
 
   const { projects, add } = useProjectStore()
+  const { dashboards } = useDashboardStore()
   const [width, setWidth] = useState(DEFAULT_WIDTH)
   const [collapsed, setCollapsed] = useState(false)
   const isResizing = useRef(false)
@@ -219,23 +214,40 @@ export default function WorkspaceSidebar() {
 
                 {isExpanded && (
                   <div className="ml-5 mt-0.5 mb-1 border-l border-border pl-1.5 space-y-0.5">
-                    {WORKSPACE_SUB_ITEMS.map(({ key, label, tab }) => {
-                      const isActive = activeTab === tab
+                    {/* Dashboards */}
+                    {project.dashboardIds.map((dashId) => {
+                      const dash = dashboards.find((d) => d.id === dashId)
+                      if (!dash) return null
                       return (
                         <NavLink
-                          key={key}
-                          to={`/workspace/${project.id}?tab=${tab}`}
-                          className={cn(
+                          key={dashId}
+                          to={`/dashboard/${dashId}`}
+                          className={({ isActive }) => cn(
                             'flex items-center pl-3 pr-3 py-1.5 rounded-md text-sm transition-colors w-full',
                             isActive
                               ? 'bg-primary/8 text-primary font-semibold'
                               : 'text-muted-foreground hover:text-foreground hover:bg-white/70'
                           )}
                         >
-                          {label}
+                          {dash.name}
                         </NavLink>
                       )
                     })}
+                    {/* Analyses */}
+                    {project.savedAnalyses.map((analysis) => (
+                      <NavLink
+                        key={analysis.id}
+                        to={`/workspace/${project.id}?tab=analyses`}
+                        className={({ isActive }) => cn(
+                          'flex items-center pl-3 pr-3 py-1.5 rounded-md text-sm transition-colors w-full',
+                          isActive
+                            ? 'bg-primary/8 text-primary font-semibold'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-white/70'
+                        )}
+                      >
+                        {analysis.name}
+                      </NavLink>
+                    ))}
                   </div>
                 )}
               </div>

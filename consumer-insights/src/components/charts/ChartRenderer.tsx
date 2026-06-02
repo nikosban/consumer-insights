@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   BarChart,
   Bar,
@@ -14,13 +14,16 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts'
-import type { Widget, ChartData } from '@/types'
-import { TrendingUp, TrendingDown } from 'lucide-react'
+import type { Widget, ChartData, CrossTabConfig } from '@/types'
+import { TrendingUp, TrendingDown, ChevronRight, ChevronDown } from 'lucide-react'
 
 type ChartRendererProps = {
   widget: Widget
   data: ChartData
   height?: number
+  crossTabConfig?: CrossTabConfig
+  extraRowsData?: Array<{ label: string; data: ChartData }>
+  heatmap?: boolean
 }
 
 const BLUE_SHADES = [
@@ -62,8 +65,23 @@ function ChartTooltip({ active, payload, label }: {
   )
 }
 
-export default function ChartRenderer({ widget, data, height = 200 }: ChartRendererProps) {
+// Heatmap: map a 0–100 pct value to a blue background opacity
+function heatmapBg(pct: number): string {
+  const alpha = Math.round((pct / 100) * 0.35 * 100) / 100
+  return `rgba(6,102,229,${alpha})`
+}
+
+export default function ChartRenderer({ widget, data, height = 200, crossTabConfig, extraRowsData = [], heatmap = false }: ChartRendererProps) {
   const { type } = widget
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
+
+  function toggleGroup(name: string) {
+    setExpandedGroups(prev => {
+      const next = new Set(prev)
+      next.has(name) ? next.delete(name) : next.add(name)
+      return next
+    })
+  }
 
   if (type === 'bar') {
     const chartData = data.labels.map((label, i) => {
@@ -178,16 +196,46 @@ export default function ChartRenderer({ widget, data, height = 200 }: ChartRende
     const isCrosstable = !!widget.crossDimensionLabel
 
     if (isCrosstable) {
-      const showIndex = !!widget.showIndex
-      const showTotal = !!widget.showTotalShare
-      const colsPerGroup = 1 + (showIndex ? 1 : 0) // Percent [+ Index]
-      const totalColsPerGroup = 1 // just Percent for total
+      const cfg: CrossTabConfig = crossTabConfig ?? {
+        showTotal: true,
+        showUniverse: true,
+        showResponses: true,
+        showPctCol: true,
+        showPctRow: true,
+        showIndex: true,
+      }
+
+      // Sub-columns for data groups
+      const dataSubCols: Array<{ key: string; label: string }> = [
+        ...(cfg.showUniverse   ? [{ key: 'univ',    label: 'Univ.'  }] : []),
+        ...(cfg.showResponses  ? [{ key: 'resp',    label: 'Resp.'  }] : []),
+        ...(cfg.showPctCol     ? [{ key: 'pctcol',  label: '% Col'  }] : []),
+        ...(cfg.showPctRow     ? [{ key: 'pctrow',  label: '% Row'  }] : []),
+        ...(cfg.showIndex      ? [{ key: 'index',   label: 'Index'  }] : []),
+      ]
+      const colsPerGroup = dataSubCols.length || 1
+
+      // Sub-columns for Total group (no % Row or Index)
+      const totalSubCols: Array<{ key: string; label: string }> = [
+        ...(cfg.showUniverse   ? [{ key: 'univ',   label: 'Univ.'  }] : []),
+        ...(cfg.showResponses  ? [{ key: 'resp',   label: 'Resp.'  }] : []),
+        ...(cfg.showPctCol     ? [{ key: 'pctcol', label: '% Col'  }] : []),
+      ]
+      const totalColsPerGroup = totalSubCols.length || 1
 
       const thBase = 'py-1.5 px-2 font-medium text-muted-foreground border-b border-border text-right whitespace-nowrap'
       const tdBase = 'py-1.5 px-2 tabular-nums text-right'
 
+      // Compute row totals for % Row
+      const rowTotals: number[] = data.labels.map((_, i) =>
+        data.series.reduce((sum, s) => sum + (s.absolutes?.[i] ?? 0), 0)
+      )
+
+      const TOTAL_KEY = '__total__'
+      const isTotalExpanded = expandedGroups.has(TOTAL_KEY)
+
       return (
-        <div className="overflow-auto" style={{ maxHeight: height }}>
+        <div className="overflow-auto">
           <table className="w-full text-xs border-collapse">
             <thead>
               {/* Group name row */}
@@ -195,65 +243,202 @@ export default function ChartRenderer({ widget, data, height = 200 }: ChartRende
                 <th className="text-left py-1.5 px-2 font-medium text-muted-foreground border-b border-border sticky left-0 bg-muted/50 min-w-[140px]" rowSpan={2}>
                   Answers
                 </th>
-                {showTotal && (
-                  <th colSpan={totalColsPerGroup} className={`${thBase} border-l border-border`}>
-                    Total
+                {cfg.showTotal && (
+                  <th
+                    colSpan={isTotalExpanded ? totalColsPerGroup : 1}
+                    className={`${thBase} border-l border-border cursor-pointer hover:bg-muted/70 transition-colors select-none`}
+                    onClick={() => toggleGroup(TOTAL_KEY)}
+                  >
+                    <span className="inline-flex items-center gap-1 justify-end">
+                      {isTotalExpanded
+                        ? <ChevronDown className="h-3 w-3 shrink-0" />
+                        : <ChevronRight className="h-3 w-3 shrink-0" />}
+                      Total
+                    </span>
                   </th>
                 )}
-                {data.series.map((s) => (
-                  <th key={s.name} colSpan={colsPerGroup} className={`${thBase} border-l border-border`}>
-                    {s.name}
-                  </th>
-                ))}
+                {data.series.map((s) => {
+                  const isExp = expandedGroups.has(s.name)
+                  return (
+                    <th
+                      key={s.name}
+                      colSpan={isExp ? colsPerGroup : 1}
+                      className={`${thBase} border-l border-border cursor-pointer hover:bg-muted/70 transition-colors select-none`}
+                      onClick={() => toggleGroup(s.name)}
+                    >
+                      <span className="inline-flex items-center gap-1 justify-end">
+                        {isExp
+                          ? <ChevronDown className="h-3 w-3 shrink-0" />
+                          : <ChevronRight className="h-3 w-3 shrink-0" />}
+                        {s.name}
+                      </span>
+                    </th>
+                  )
+                })}
               </tr>
               {/* Sub-column row */}
               <tr className="bg-muted/30">
-                {showTotal && (
-                  <th className={`${thBase} border-l border-border font-normal text-[10px]`}>%</th>
-                )}
-                {data.series.map((s) => (
-                  <React.Fragment key={s.name}>
-                    <th className={`${thBase} border-l border-border font-normal text-[10px]`}>%</th>
-                    {showIndex && (
-                      <th className={`${thBase} font-normal text-[10px]`}>Index</th>
-                    )}
-                  </React.Fragment>
+                {cfg.showTotal && (isTotalExpanded ? totalSubCols : totalSubCols.filter(c => c.key === 'pctcol')).map((col, ci) => (
+                  <th key={col.key} className={`${thBase} font-normal text-[10px]${ci === 0 ? ' border-l border-border' : ''}`}>
+                    {col.label}
+                  </th>
                 ))}
+                {data.series.map((s) => {
+                  const isExp = expandedGroups.has(s.name)
+                  const visibleCols = isExp ? dataSubCols : dataSubCols.filter(c => c.key === 'pctcol')
+                  return (
+                    <React.Fragment key={s.name}>
+                      {visibleCols.map((col, ci) => (
+                        <th key={col.key} className={`${thBase} font-normal text-[10px]${ci === 0 ? ' border-l border-border' : ''}`}>
+                          {col.label}
+                        </th>
+                      ))}
+                    </React.Fragment>
+                  )
+                })}
               </tr>
             </thead>
             <tbody>
-              {data.labels.map((label, i) => (
-                <tr key={label} className="border-b border-border/40 last:border-0 hover:bg-muted/20 transition-colors">
-                  <td className="py-1.5 px-2 text-foreground sticky left-0 bg-background">{label}</td>
-                  {showTotal && (
-                    <td className={`${tdBase} text-muted-foreground border-l border-border/40`}>
-                      {data.totalSeries?.values[i] ?? 0}%
-                    </td>
-                  )}
-                  {data.series.map((s) => (
-                    <React.Fragment key={s.name}>
-                      <td className={`${tdBase} text-muted-foreground border-l border-border/40`}>
-                        {s.values[i]}%
-                      </td>
-                      {showIndex && (
-                        <td className={`${tdBase} font-medium`}
-                          style={{ color: (s.indexValues?.[i] ?? 100) >= 110 ? '#2563eb' : (s.indexValues?.[i] ?? 100) <= 90 ? '#9ca3af' : undefined }}>
-                          {s.indexValues?.[i] ?? 100}
-                        </td>
+              {/* Helper: render rows for a given dataset */}
+              {(() => {
+                const renderRows = (rowData: ChartData, groupLabel?: string) => {
+                  const rTotals: number[] = rowData.labels.map((_, i) =>
+                    rowData.series.reduce((sum, s) => sum + (s.absolutes?.[i] ?? 0), 0)
+                  )
+                  return (
+                    <React.Fragment key={groupLabel ?? '__primary__'}>
+                      {groupLabel && (
+                        <>
+                          <tr><td colSpan={999} className="h-3 bg-background p-0" /></tr>
+                          <tr className="bg-muted/40">
+                            <td
+                              colSpan={999}
+                              className="py-1 px-2 text-[10px] font-semibold text-muted-foreground tracking-wide border-y border-border"
+                            >
+                              {groupLabel}
+                            </td>
+                          </tr>
+                        </>
                       )}
+                      {rowData.labels.map((label, i) => (
+                        <tr key={`${groupLabel ?? ''}${label}`} className="border-b border-border/40 last:border-0 hover:bg-muted/20 transition-colors">
+                          <td className="py-1.5 px-2 text-foreground sticky left-0 bg-background">{label}</td>
+                          {cfg.showTotal && (isTotalExpanded ? totalSubCols : totalSubCols.filter(c => c.key === 'pctcol')).map((col, ci) => {
+                            let cellVal: string
+                            if (col.key === 'univ') {
+                              const pop = rowData.totalSeries?.populations?.[i] ?? 0
+                              cellVal = `${pop}m`
+                            } else if (col.key === 'resp') {
+                              cellVal = String(rowData.totalSeries?.absolutes?.[i] ?? 0)
+                            } else {
+                              cellVal = `${rowData.totalSeries?.values[i] ?? 0}%`
+                            }
+                            return (
+                              <td key={col.key} className={`${tdBase} text-muted-foreground${ci === 0 ? ' border-l border-border/40' : ''}`}>
+                                {cellVal}
+                              </td>
+                            )
+                          })}
+                          {rowData.series.map((s) => {
+                            const isExp = expandedGroups.has(s.name)
+                            const visibleCols = isExp ? dataSubCols : dataSubCols.filter(c => c.key === 'pctcol')
+                            return (
+                              <React.Fragment key={s.name}>
+                                {visibleCols.map((col, ci) => {
+                                  let cellContent: React.ReactNode
+                                  if (col.key === 'univ') {
+                                    cellContent = <span className="text-muted-foreground">{s.populations?.[i] ?? 0}m</span>
+                                  } else if (col.key === 'resp') {
+                                    cellContent = <span className="text-muted-foreground">{s.absolutes?.[i] ?? 0}</span>
+                                  } else if (col.key === 'pctcol') {
+                                    cellContent = <span className="text-muted-foreground">{s.values[i]}%</span>
+                                    if (heatmap) return (
+                                      <td key={col.key} className={`${tdBase}${ci === 0 ? ' border-l border-border/40' : ''}`}
+                                        style={{ background: heatmapBg(s.values[i]) }}>
+                                        {cellContent}
+                                      </td>
+                                    )
+                                  } else if (col.key === 'pctrow') {
+                                    const rt = rTotals[i]
+                                    const pctRow = rt > 0 ? Math.round((s.absolutes?.[i] ?? 0) / rt * 100) : 0
+                                    cellContent = <span className="text-muted-foreground">{pctRow}%</span>
+                                  } else {
+                                    const idx = s.indexValues?.[i] ?? 100
+                                    cellContent = (
+                                      <span className="font-medium" style={{ color: idx >= 110 ? '#2563eb' : idx <= 90 ? '#9ca3af' : undefined }}>
+                                        {idx}
+                                      </span>
+                                    )
+                                  }
+                                  return (
+                                    <td key={col.key} className={`${tdBase}${ci === 0 ? ' border-l border-border/40' : ''}`}>
+                                      {cellContent}
+                                    </td>
+                                  )
+                                })}
+                              </React.Fragment>
+                            )
+                          })}
+                        </tr>
+                      ))}
                     </React.Fragment>
-                  ))}
-                </tr>
-              ))}
+                  )
+                }
+
+                return (
+                  <>
+                    {/* Primary row section — show label only if extra rows exist */}
+                    {renderRows(data, extraRowsData.length > 0 ? widget.title : undefined)}
+                    {/* Extra row sections */}
+                    {extraRowsData.map(er => renderRows(er.data, er.label))}
+                  </>
+                )
+              })()}
             </tbody>
           </table>
         </div>
       )
     }
 
-    const maxVal = Math.max(...(data.series[0]?.values ?? [1]), 1)
+    const renderSimpleRows = (rowData: ChartData, groupLabel?: string) => {
+      const maxV = Math.max(...(rowData.series[0]?.values ?? [1]), 1)
+      return (
+        <React.Fragment key={groupLabel ?? '__primary__'}>
+          {groupLabel && (
+            <>
+              <tr><td colSpan={3} className="h-3 bg-background p-0" /></tr>
+              <tr className="bg-muted/40">
+                <td colSpan={3} className="py-1 px-3 text-[10px] font-semibold text-muted-foreground tracking-wide border-y border-border">
+                  {groupLabel}
+                </td>
+              </tr>
+            </>
+          )}
+          {rowData.labels.map((label, i) => {
+            const pct = rowData.series[0]?.values[i] ?? 0
+            const barPct = Math.round((pct / maxV) * 100)
+            return (
+              <tr key={`${groupLabel ?? ''}${label}`} className="border-b border-border/40 last:border-0 hover:bg-muted/20 transition-colors">
+                <td className="py-2 px-3 text-foreground">{label}</td>
+                <td className="text-right py-2 px-3 tabular-nums font-medium"
+                  style={heatmap ? { background: heatmapBg(pct) } : undefined}
+                >{pct}%</td>
+                <td className="py-2 px-3">
+                  {!heatmap && (
+                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div className="h-full bg-primary/50 rounded-full" style={{ width: `${barPct}%` }} />
+                    </div>
+                  )}
+                </td>
+              </tr>
+            )
+          })}
+        </React.Fragment>
+      )
+    }
+
     return (
-      <div className="overflow-auto" style={{ maxHeight: height }}>
+      <div className="overflow-auto">
         <table className="w-full text-xs border-collapse">
           <thead>
             <tr className="bg-muted/50">
@@ -263,21 +448,8 @@ export default function ChartRenderer({ widget, data, height = 200 }: ChartRende
             </tr>
           </thead>
           <tbody>
-            {data.labels.map((label, i) => {
-              const pct = data.series[0]?.values[i] ?? 0
-              const barPct = Math.round((pct / maxVal) * 100)
-              return (
-                <tr key={label} className="border-b border-border/40 last:border-0 hover:bg-muted/20 transition-colors">
-                  <td className="py-2 px-3 text-foreground">{label}</td>
-                  <td className="text-right py-2 px-3 tabular-nums font-medium">{pct}%</td>
-                  <td className="py-2 px-3">
-                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full bg-primary/50 rounded-full" style={{ width: `${barPct}%` }} />
-                    </div>
-                  </td>
-                </tr>
-              )
-            })}
+            {renderSimpleRows(data, extraRowsData.length > 0 ? widget.title : undefined)}
+            {extraRowsData.map(er => renderSimpleRows(er.data, er.label))}
           </tbody>
         </table>
       </div>
