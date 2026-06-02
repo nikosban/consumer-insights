@@ -2,16 +2,16 @@ import { useNavigate } from 'react-router-dom'
 import { useDashboardStore } from '@/store/dashboardStore'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ResourceCard, IconBtn, PageShell } from '@/components/app'
 import EmptyState from '@/components/EmptyState'
-import { Plus, LayoutDashboard } from 'lucide-react'
+import { Plus, LayoutDashboard, Pencil, Trash2 } from 'lucide-react'
 
 export default function DashboardsPage() {
   const navigate = useNavigate()
-  const { dashboards } = useDashboardStore()
+  const { dashboards, remove } = useDashboardStore()
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <PageShell className="max-w-5xl">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-bold text-foreground">Dashboards</h1>
@@ -31,34 +31,32 @@ export default function DashboardsPage() {
           onCta={() => navigate('/dashboards/new')}
         />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="flex flex-col gap-2">
           {dashboards.map((d) => (
-            <Card
+            <ResourceCard
               key={d.id}
-              className="cursor-pointer hover:shadow-md hover:border-primary/30 transition-all"
-              onClick={() => navigate(`/dashboards/${d.id}`)}
-            >
-              <CardHeader className="pb-2">
-                <div className="flex items-start gap-2">
-                  <LayoutDashboard className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <CardTitle className="text-sm truncate">{d.name}</CardTitle>
-                  </div>
+              icon={<LayoutDashboard className="h-4 w-4" />}
+              title={d.name}
+              meta={
+                <>
+                  {d.widgets.length} widget{d.widgets.length !== 1 ? 's' : ''}
                   {d.isShared && (
-                    <Badge className="text-xs bg-primary/10 text-primary border-0 shrink-0">Shared</Badge>
+                    <Badge className="ml-2 text-[10px] bg-primary/10 text-primary border-0 align-middle">Shared</Badge>
                   )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xs text-muted-foreground">
-                  {d.widgets.length} widget{d.widgets.length !== 1 ? 's' : ''} &nbsp;&bull;&nbsp;
-                  Updated {new Date(d.updatedAt).toLocaleDateString()}
-                </p>
-              </CardContent>
-            </Card>
+                </>
+              }
+              date={`Updated ${new Date(d.updatedAt).toLocaleDateString()}`}
+              actions={
+                <>
+                  <IconBtn icon={<Pencil className="h-3 w-3" />} label="Edit" onClick={() => navigate(`/dashboards/${d.id}`)} />
+                  <IconBtn icon={<Trash2 className="h-3 w-3" />} label="Delete" destructive onClick={() => remove(d.id)} />
+                </>
+              }
+              onClick={() => navigate(`/dashboards/${d.id}`)}
+            />
           ))}
         </div>
       )}
-    </div>
+    </PageShell>
   )
 }

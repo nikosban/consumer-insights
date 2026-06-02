@@ -1,10 +1,7 @@
-import { NavLink, useNavigate, useLocation, useMatch } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { useProjectStore } from '@/store/projectStore'
-import { useDashboardStore } from '@/store/dashboardStore'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { IconWrapper, ICON_SIZES } from '@/components/ui/IconWrapper'
-import { MessageSquare, Users, BarChart2, FlaskConical, Folder, LogOut, Plus, PanelLeftClose, PanelLeftOpen, Search, LayoutDashboard } from 'lucide-react'
+import { MessageSquare, Users, BarChart2, FlaskConical, LogOut, PanelLeftClose, PanelLeftOpen, Search, LayoutDashboard } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const MIN_WIDTH = 160
@@ -48,13 +45,6 @@ function NavItem({ to, icon, label, end, collapsed }: {
 
 export default function WorkspaceSidebar() {
   const navigate = useNavigate()
-  const location = useLocation()
-  const workspaceMatch = useMatch('/workspace/:projectId')
-  const activeProjectId = workspaceMatch?.params.projectId ?? null
-  const activeTab = new URLSearchParams(location.search).get('tab') ?? 'dashboards'
-
-  const { projects, add } = useProjectStore()
-  const { dashboards } = useDashboardStore()
   const [width, setWidth] = useState(DEFAULT_WIDTH)
   const [collapsed, setCollapsed] = useState(false)
   const isResizing = useRef(false)
@@ -74,12 +64,6 @@ export default function WorkspaceSidebar() {
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [])
-
-  function handleNewProject() {
-    const id = `proj-${Date.now()}`
-    add({ id, name: 'Untitled Project', savedAnalyses: [], notes: [], dashboardIds: [], createdAt: new Date().toISOString() })
-    navigate(`/workspace/${id}`)
-  }
 
   const startResize = useCallback((e: React.MouseEvent) => {
     if (collapsed) return
@@ -142,7 +126,7 @@ export default function WorkspaceSidebar() {
         </div>
       </div>
 
-      {/* Search bar — triggers global search modal */}
+      {/* Search bar */}
       <div className={cn('px-2 pt-3 pb-2 shrink-0', collapsed && 'hidden')}>
         <button
           onClick={() => document.dispatchEvent(new CustomEvent('open-search'))}
@@ -156,108 +140,13 @@ export default function WorkspaceSidebar() {
       </div>
 
       {/* Primary nav */}
-      <div className={cn('pt-1 pb-1 space-y-0.5 shrink-0', collapsed ? 'px-1.5 flex flex-col items-center' : 'px-2')}>
+      <div className={cn('pt-1 flex-1 space-y-0.5', collapsed ? 'px-1.5 flex flex-col items-center' : 'px-2')}>
         <NavItem to="/research-ai" icon={<MessageSquare    size={ICON_SIZES.body} />} label="Chat"       collapsed={collapsed} />
         <NavItem to="/audiences"   icon={<Users            size={ICON_SIZES.body} />} label="Audience"   collapsed={collapsed} />
         <NavItem to="/charts"      icon={<BarChart2        size={ICON_SIZES.body} />} label="Charts"     collapsed={collapsed} />
         <NavItem to="/dashboards"  icon={<LayoutDashboard  size={ICON_SIZES.body} />} label="Dashboards" collapsed={collapsed} />
         <NavItem to="/analyses"    icon={<FlaskConical     size={ICON_SIZES.body} />} label="Analysis"   collapsed={collapsed} />
       </div>
-
-      {/* Workspaces header — hidden when collapsed */}
-      {!collapsed && (
-        <div className="flex items-center justify-between px-3 pt-4 pb-1 shrink-0">
-          <span className="text-xs font-semibold text-muted-foreground tracking-wide">Workspaces</span>
-          <button
-            onClick={handleNewProject}
-            title="New workspace"
-            className="inline-flex items-center justify-center w-[22px] h-[22px] rounded border border-border bg-background text-gray-700 transition-colors hover:bg-accent hover:text-gray-900 active:bg-accent/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <IconWrapper><Plus size={ICON_SIZES.body} /></IconWrapper>
-          </button>
-        </div>
-      )}
-
-      {/* Workspace list */}
-      <ScrollArea className="flex-1 px-2">
-        <div className={cn('pb-2', collapsed ? 'flex flex-col items-center px-0 space-y-0.5' : 'space-y-0.5')}>
-          {projects.map((project) => {
-            const isExpanded = activeProjectId === project.id
-
-            if (collapsed) {
-              return (
-                <NavLink
-                  key={project.id}
-                  to={`/workspace/${project.id}`}
-                  title={project.name}
-                  className={({ isActive }) => iconOnlyCls(isActive)}
-                >
-                  <IconWrapper><Folder size={ICON_SIZES.body} /></IconWrapper>
-                </NavLink>
-              )
-            }
-
-            return (
-              <div key={project.id}>
-                <NavLink
-                  to={`/workspace/${project.id}`}
-                  className={({ isActive }) => cn(
-                    'flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors w-full',
-                    isActive
-                      ? 'text-gray-900 font-medium'
-                      : 'text-sidebar-foreground hover:bg-white/70'
-                  )}
-                >
-                  <IconWrapper><Folder size={ICON_SIZES.body} /></IconWrapper>
-                  <span className="truncate">{project.name}</span>
-                </NavLink>
-
-                {isExpanded && (
-                  <div className="ml-5 mt-0.5 mb-1 border-l border-border pl-1.5 space-y-0.5">
-                    {/* Dashboards */}
-                    {project.dashboardIds.map((dashId) => {
-                      const dash = dashboards.find((d) => d.id === dashId)
-                      if (!dash) return null
-                      return (
-                        <NavLink
-                          key={dashId}
-                          to={`/dashboard/${dashId}`}
-                          className={({ isActive }) => cn(
-                            'flex items-center pl-3 pr-3 py-1.5 rounded-md text-sm transition-colors w-full',
-                            isActive
-                              ? 'bg-primary/8 text-primary font-semibold'
-                              : 'text-muted-foreground hover:text-foreground hover:bg-white/70'
-                          )}
-                        >
-                          {dash.name}
-                        </NavLink>
-                      )
-                    })}
-                    {/* Analyses */}
-                    {project.savedAnalyses.map((analysis) => (
-                      <NavLink
-                        key={analysis.id}
-                        to={`/workspace/${project.id}?tab=analyses`}
-                        className={({ isActive }) => cn(
-                          'flex items-center pl-3 pr-3 py-1.5 rounded-md text-sm transition-colors w-full',
-                          isActive
-                            ? 'bg-primary/8 text-primary font-semibold'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-white/70'
-                        )}
-                      >
-                        {analysis.name}
-                      </NavLink>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )
-          })}
-          {!collapsed && projects.length === 0 && (
-            <p className="px-3 py-2 text-xs text-muted-foreground">No workspaces yet</p>
-          )}
-        </div>
-      </ScrollArea>
 
       {/* Bottom — logout */}
       <div className={cn('pb-3 pt-2 border-t border-sidebar-border shrink-0', collapsed ? 'px-1.5 flex justify-center' : 'px-2')}>
@@ -271,7 +160,7 @@ export default function WorkspaceSidebar() {
         </button>
       </div>
 
-      {/* Resize handle — expanded only */}
+      {/* Resize handle */}
       {!collapsed && (
         <div
           onMouseDown={startResize}

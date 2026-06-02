@@ -223,7 +223,7 @@ function ChartSidebar({
                 <span className="truncate">{chart.title}</span>
               </button>
             ))}
-            <div className="mx-3 my-1 border-t border-border/50" />
+            <div className="mx-3 my-1 border-t border-border" />
           </div>
         )}
 
@@ -523,7 +523,7 @@ function PropertiesPanel({
                   type="checkbox"
                   checked={heatmap}
                   onChange={e => setHeatmap(e.target.checked)}
-                  className="accent-primary h-3 w-3"
+                  className="h-3.5 w-3.5 accent-primary cursor-pointer"
                 />
                 <span className="text-xs text-foreground">Heatmap</span>
               </label>
@@ -750,8 +750,8 @@ export default function ChartsPage() {
                 {selected.id.startsWith('saved-') && (
                   <Button
                     variant="outline"
-                    size="default"
-                    className="text-xs h-8 text-destructive hover:bg-destructive/10 hover:border-destructive/40"
+                    size="toolbar"
+                    className="text-destructive hover:bg-destructive/10 hover:border-destructive/40"
                     onClick={() => {
                       removeWidget(selected.id)
                       setSelected(null)
@@ -761,18 +761,17 @@ export default function ChartsPage() {
                     Delete
                   </Button>
                 )}
-                <Button variant="outline" size="default" className="text-xs h-8">
+                <Button variant="outline" size="toolbar">
                   <Share2 className="h-3.5 w-3.5" />
                   Share
                 </Button>
-                <Button variant="outline" size="default" className="text-xs h-8" onClick={() => setSaveOpen(true)}>
+                <Button variant="outline" size="toolbar" onClick={() => setSaveOpen(true)}>
                   <BookmarkPlus className="h-3.5 w-3.5" />
                   Save
                 </Button>
                 <div className="relative" ref={addToDashRef}>
                   <Button
-                    size="default"
-                    className="text-xs h-8"
+                    size="toolbar"
                     onClick={() => setDashMenuOpen(o => !o)}
                   >
                     <LayoutDashboard className="h-3.5 w-3.5" />

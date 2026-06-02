@@ -1,21 +1,20 @@
 import { useNavigate } from 'react-router-dom'
 import { useProjectStore } from '@/store/projectStore'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ResourceCard, PageShell } from '@/components/app'
 import EmptyState from '@/components/EmptyState'
-import { Plus, BarChart2, LayoutDashboard } from 'lucide-react'
+import { Plus, Folder } from 'lucide-react'
 
 export default function WorkspacePage() {
   const navigate = useNavigate()
   const { projects, add } = useProjectStore()
 
-  function handleNewProject() {
+  function handleNewWorkspace() {
     const id = `proj-${Date.now()}`
     add({
       id,
       name: 'Untitled Project',
       savedAnalyses: [],
-      notes: [],
       dashboardIds: [],
       createdAt: new Date().toISOString(),
     })
@@ -23,15 +22,15 @@ export default function WorkspacePage() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <PageShell className="max-w-5xl">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Your Workspace</h1>
-          <p className="text-sm text-muted-foreground">Manage projects, analyses, and dashboards</p>
+          <h1 className="text-xl font-bold text-foreground">Workspaces</h1>
+          <p className="text-sm text-muted-foreground">Organise your dashboards and analyses into folders</p>
         </div>
-        <Button onClick={handleNewProject}>
+        <Button onClick={handleNewWorkspace}>
           <Plus className="h-4 w-4 mr-1" />
-          New Project
+          New Workspace
         </Button>
       </div>
 
@@ -40,38 +39,22 @@ export default function WorkspacePage() {
           title="No projects yet"
           description="Create your first project to start organising your research, analyses, and dashboards."
           ctaLabel="Create your first project"
-          onCta={handleNewProject}
+          onCta={handleNewWorkspace}
         />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="flex flex-col gap-2">
           {projects.map((project) => (
-            <Card
+            <ResourceCard
               key={project.id}
-              className="cursor-pointer hover:shadow-md hover:border-primary/30 transition-all"
+              icon={<Folder className="h-4 w-4" />}
+              title={project.name}
+              meta={`${project.savedAnalyses.length} ${project.savedAnalyses.length === 1 ? 'analysis' : 'analyses'} · ${project.dashboardIds.length} ${project.dashboardIds.length === 1 ? 'dashboard' : 'dashboards'}`}
+              date={`Created ${new Date(project.createdAt).toLocaleDateString()}`}
               onClick={() => navigate(`/workspace/${project.id}`)}
-            >
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-semibold">{project.name}</CardTitle>
-                <p className="text-xs text-muted-foreground">
-                  Created {new Date(project.createdAt).toLocaleDateString()}
-                </p>
-              </CardHeader>
-              <CardContent>
-                <div className="flex gap-4 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <BarChart2 className="h-3.5 w-3.5" />
-                    {project.savedAnalyses.length} {project.savedAnalyses.length === 1 ? 'analysis' : 'analyses'}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <LayoutDashboard className="h-3.5 w-3.5" />
-                    {project.dashboardIds.length} {project.dashboardIds.length === 1 ? 'dashboard' : 'dashboards'}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
+            />
           ))}
         </div>
       )}
-    </div>
+    </PageShell>
   )
 }

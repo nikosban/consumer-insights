@@ -26,42 +26,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Dashboard, Analysis, Widget, ChartData, WidgetType } from '@/types'
-
-function DashboardRow({ dashboard, onOpen, onDelete }: {
-  dashboard: Dashboard
-  onOpen: () => void
-  onDelete: () => void
-}) {
-  return (
-    <div
-      className="group flex items-center gap-3 py-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer -mx-3 px-3"
-      onClick={onOpen}
-    >
-      <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/8 text-primary shrink-0">
-        <LayoutDashboard className="h-3.5 w-3.5" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-gray-900">{dashboard.name}</p>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          {dashboard.widgets.length} widget{dashboard.widgets.length !== 1 ? 's' : ''} &nbsp;·&nbsp;
-          Updated {new Date(dashboard.updatedAt).toLocaleDateString()}
-        </p>
-      </div>
-      <button
-        type="button"
-        title="Remove from project"
-        onClick={e => { e.stopPropagation(); onDelete() }}
-        className={cn(
-          'opacity-0 group-hover:opacity-100 transition-opacity',
-          'inline-flex items-center justify-center w-7 h-7 rounded border border-border bg-background',
-          'text-gray-400 hover:bg-red-50 hover:border-red-200 hover:text-destructive'
-        )}
-      >
-        <Trash2 className="h-3 w-3" />
-      </button>
-    </div>
-  )
-}
+import { ResourceCard, IconBtn, PageShell } from '@/components/app'
 
 function AnalysesTab({
   project,
@@ -326,9 +291,9 @@ function AnalysesTab({
 
   if (mode.type === 'list') {
     return (
-      <div className="space-y-4">
+      <div>
         {dashboards.length === 0 && (
-          <p className="text-xs text-muted-foreground bg-gray-50 rounded-lg px-4 py-3">
+          <p className="text-xs text-muted-foreground bg-gray-50 rounded-lg px-4 py-3 mb-4">
             Link a dashboard to this project first, then generate an analysis from it.
           </p>
         )}
@@ -343,46 +308,57 @@ function AnalysesTab({
             }
           />
         ) : (
-          <div className="space-y-2">
-            {project.savedAnalyses.map((analysis) => (
-              <div
-                key={analysis.id}
-                className="group flex items-center gap-3 py-3 rounded-xl hover:bg-gray-50 transition-colors -mx-3 px-3 cursor-pointer"
-                onClick={() => goToDetail(analysis.id)}
-              >
-                <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/8 text-primary shrink-0">
-                  <FileText className="h-3.5 w-3.5" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900">{analysis.name}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {analysis.sections?.length ?? 0} section{(analysis.sections?.length ?? 0) !== 1 ? 's' : ''} &nbsp;·&nbsp;
-                    {new Date(analysis.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                <button
-                  type="button"
-                  title="Delete analysis"
-                  onClick={(e) => { e.stopPropagation(); removeAnalysis(project.id, analysis.id) }}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center justify-center w-7 h-7 rounded border border-border bg-background text-gray-400 hover:bg-red-50 hover:border-red-200 hover:text-destructive"
-                >
-                  <Trash2 className="h-3 w-3" />
-                </button>
+          <>
+            {/* List header */}
+            {project.savedAnalyses.length > 0 && (
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs font-semibold text-muted-foreground tracking-wide">
+                  {project.savedAnalyses.length} {project.savedAnalyses.length === 1 ? 'analysis' : 'analyses'}
+                </p>
               </div>
-            ))}
-          </div>
-        )}
-        {dashboards.length > 0 && (
-          <Button
-            variant="outline"
-            onClick={() =>
-              changeMode({ type: 'create', dashboardId: dashboards[0]?.id ?? '', template: 'summary', generating: false })
-            }
-          >
-            <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-            New Analysis
-          </Button>
+            )}
+
+            {/* Rows */}
+            <div className="flex flex-col gap-2">
+              {project.savedAnalyses.map((analysis) => {
+                const linkedDash = dashboards.find(d => d.id === analysis.dashboardId)
+                return (
+                  <ResourceCard
+                    key={analysis.id}
+                    icon={<FileText className="h-4 w-4" />}
+                    title={analysis.name}
+                    meta={[
+                      `${analysis.sections?.length ?? 0} section${(analysis.sections?.length ?? 0) !== 1 ? 's' : ''}`,
+                      linkedDash?.name,
+                    ].filter(Boolean).join(' · ')}
+                    date={new Date(analysis.createdAt).toLocaleDateString()}
+                    actions={
+                      <>
+                        <IconBtn icon={<ChevronRight className="h-3.5 w-3.5" />} label="Open" onClick={() => goToDetail(analysis.id)} />
+                        <IconBtn icon={<Trash2 className="h-3 w-3" />} label="Delete" destructive onClick={() => removeAnalysis(project.id, analysis.id)} />
+                      </>
+                    }
+                    onClick={() => goToDetail(analysis.id)}
+                  />
+                )
+              })}
+            </div>
+
+            {/* New analysis CTA */}
+            {dashboards.length > 0 && (
+              <div className="mt-4">
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    changeMode({ type: 'create', dashboardId: dashboards[0]?.id ?? '', template: 'summary', generating: false })
+                  }
+                >
+                  <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                  New Analysis
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </div>
     )
@@ -694,7 +670,7 @@ function AnalysesTab({
 export default function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const navigate = useNavigate()
-  const { projects, addNote, updateNote, removeNote, unlinkDashboard } = useProjectStore()
+  const { projects, unlinkDashboard } = useProjectStore()
   const { audiences } = useAudienceStore()
   const { dashboards } = useDashboardStore()
 
@@ -710,9 +686,6 @@ export default function ProjectDetailPage() {
   }, [])
 
   const [analysesSubView, setAnalysesSubView] = useState(!!newFrom)
-  const [noteText, setNoteText] = useState('')
-  const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
-  const [editingContent, setEditingContent] = useState('')
 
   // suppress unused warning — audiences is used elsewhere in the app via this store
   void audiences
@@ -729,24 +702,8 @@ export default function ProjectDetailPage() {
   const proj = project
   const projectDashboards = dashboards.filter((d) => proj.dashboardIds.includes(d.id))
 
-  function handleAddNote() {
-    const trimmed = noteText.trim()
-    if (!trimmed) return
-    addNote(proj.id, {
-      id: `note-${Date.now()}`,
-      content: trimmed,
-      createdAt: new Date().toISOString(),
-    })
-    setNoteText('')
-  }
-
-  function handleSaveEdit(noteId: string) {
-    updateNote(proj.id, noteId, editingContent)
-    setEditingNoteId(null)
-  }
-
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <PageShell>
       <div className="mb-6">
         <button
           onClick={() => navigate('/workspace')}
@@ -763,7 +720,6 @@ export default function ProjectDetailPage() {
           <TabsList>
             <TabsTrigger value="dashboards">Dashboards</TabsTrigger>
             <TabsTrigger value="analyses">Analyses</TabsTrigger>
-            <TabsTrigger value="notes">Notes</TabsTrigger>
           </TabsList>
         )}
 
@@ -782,88 +738,25 @@ export default function ProjectDetailPage() {
               onCta={() => navigate('/dashboards/new')}
             />
           ) : (
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-2">
               {projectDashboards.map((d) => (
-                <DashboardRow
+                <ResourceCard
                   key={d.id}
-                  dashboard={d}
-                  onOpen={() => navigate(`/dashboards/${d.id}`)}
-                  onDelete={() => unlinkDashboard(proj.id, d.id)}
+                  icon={<LayoutDashboard className="h-4 w-4" />}
+                  title={d.name}
+                  meta={`${d.widgets.length} widget${d.widgets.length !== 1 ? 's' : ''}`}
+                  date={`Updated ${new Date(d.updatedAt).toLocaleDateString()}`}
+                  actions={
+                    <IconBtn icon={<Trash2 className="h-3 w-3" />} label="Remove from project" destructive onClick={() => unlinkDashboard(proj.id, d.id)} />
+                  }
+                  onClick={() => navigate(`/dashboards/${d.id}`)}
                 />
               ))}
             </div>
           )}
         </TabsContent>
 
-        {/* Notes */}
-        <TabsContent value="notes" className="mt-4 space-y-4">
-          <div className="flex gap-2">
-            <Textarea
-              placeholder="Add a note…"
-              className="resize-none text-sm"
-              rows={2}
-              value={noteText}
-              onChange={(e) => setNoteText(e.target.value)}
-            />
-            <Button onClick={handleAddNote} disabled={!noteText.trim()}>
-              Save
-            </Button>
-          </div>
-
-          {proj.notes.length === 0 ? (
-            <EmptyState
-              title="No notes yet"
-              description="Add your first note to capture insights, follow-ups, or observations."
-            />
-          ) : (
-            <div className="space-y-2">
-              {proj.notes.map((note) => (
-                <Card key={note.id}>
-                  <CardContent className="pt-4 pb-3">
-                    {editingNoteId === note.id ? (
-                      <div className="space-y-2">
-                        <Textarea
-                          value={editingContent}
-                          onChange={(e) => setEditingContent(e.target.value)}
-                          rows={2}
-                          className="text-sm resize-none"
-                        />
-                        <div className="flex gap-2">
-                          <Button size="sm" onClick={() => handleSaveEdit(note.id)}>
-                            <Check className="h-3.5 w-3.5 mr-1" /> Save
-                          </Button>
-                          <Button size="sm" variant="ghost" onClick={() => setEditingNoteId(null)}>
-                            <X className="h-3.5 w-3.5 mr-1" /> Cancel
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-start gap-3">
-                        <p className="text-sm flex-1 whitespace-pre-wrap">{note.content}</p>
-                        <div className="flex gap-1 shrink-0">
-                          <button
-                            onClick={() => { setEditingNoteId(note.id); setEditingContent(note.content) }}
-                            className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground"
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={() => removeNote(proj.id, note.id)}
-                            className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                    <p className="text-xs text-muted-foreground mt-1">{new Date(note.createdAt).toLocaleDateString()}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
       </Tabs>
-    </div>
+    </PageShell>
   )
 }

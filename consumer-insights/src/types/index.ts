@@ -118,17 +118,10 @@ export type Analysis = {
   createdAt: string;
 };
 
-export type Note = {
-  id: string;
-  content: string;
-  createdAt: string;
-};
-
 export type Project = {
   id: string;
   name: string;
   savedAnalyses: Analysis[];
-  notes: Note[];
   dashboardIds: string[];
   createdAt: string;
 };

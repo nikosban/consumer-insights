@@ -5,7 +5,6 @@ import type { LayoutItem, Layout } from 'react-grid-layout'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 import { useDashboardStore } from '@/store/dashboardStore'
-import { useProjectStore } from '@/store/projectStore'
 import { useWidgetStore } from '@/store/widgetStore'
 import { useAudienceStore } from '@/store/audienceStore'
 import { Button } from '@/components/ui/button'
@@ -1046,7 +1045,6 @@ export default function DashboardBuilderPage() {
   const { dashboards, add, update, updateLayout, toggleShare } = useDashboardStore()
   const { widgets, add: addWidget, update: updateWidget } = useWidgetStore()
   const { audiences } = useAudienceStore()
-  const { projects } = useProjectStore()
 
   const existing = id ? dashboards.find((d) => d.id === id) : null
   const isNew = !existing
@@ -1305,28 +1303,23 @@ export default function DashboardBuilderPage() {
           <div className="flex items-center gap-2 shrink-0">
             <Button
               variant={isEditMode ? 'default' : 'outline'}
-              size="default"
-              className="text-xs h-8"
+              size="toolbar"
               onClick={() => setIsEditMode(e => !e)}
             >
               {isEditMode ? 'Done' : 'Edit'}
             </Button>
-            <Button variant="outline" size="default" className="text-xs h-8" onClick={handleRefresh}>
+            <Button variant="outline" size="toolbar" onClick={handleRefresh}>
               Refresh
             </Button>
-            <Button variant="outline" size="default" className="text-xs h-8" onClick={handleToggleShare}>
+            <Button variant="outline" size="toolbar" onClick={handleToggleShare}>
               {isShared ? 'Shared' : 'Share'}
             </Button>
-            <Button variant="outline" size="default" className="text-xs h-8" onClick={() => setExportOpen(true)}>
+            <Button variant="outline" size="toolbar" onClick={() => setExportOpen(true)}>
               Export
             </Button>
             <Button
-              size="default"
-              className="text-xs h-8"
-              onClick={() => {
-                const project = projects.find(p => p.dashboardIds.includes(dashId))
-                navigate(project ? `/workspace/${project.id}?tab=analyses&newFrom=${dashId}` : `/workspace?newFrom=${dashId}`)
-              }}
+              size="toolbar"
+              onClick={() => navigate('/analyses')}
             >
               <Sparkles className="h-3.5 w-3.5" />
               Generate

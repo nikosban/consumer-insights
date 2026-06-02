@@ -151,13 +151,6 @@ export const seedProjects: Project[] = [
         ],
       },
     ],
-    notes: [
-      {
-        id: 'note-1',
-        content: 'Millennial shoppers show strong purchase intent for sustainability-focused brands. Follow up with Gen Z comparison.',
-        createdAt: '2025-03-15T11:30:00Z',
-      },
-    ],
     dashboardIds: ['dash-1'],
     createdAt: '2025-03-01T08:00:00Z',
   },

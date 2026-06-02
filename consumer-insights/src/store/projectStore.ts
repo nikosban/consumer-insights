@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Project, Analysis, Note } from '@/types';
+import type { Project, Analysis } from '@/types';
 import { seedProjects } from '@/data/seed';
 
 type ProjectStore = {
@@ -11,9 +11,6 @@ type ProjectStore = {
   addAnalysis: (projectId: string, analysis: Analysis) => void;
   updateAnalysis: (projectId: string, analysisId: string, patch: Partial<Analysis>) => void;
   removeAnalysis: (projectId: string, analysisId: string) => void;
-  addNote: (projectId: string, note: Note) => void;
-  updateNote: (projectId: string, noteId: string, content: string) => void;
-  removeNote: (projectId: string, noteId: string) => void;
   linkDashboard: (projectId: string, dashboardId: string) => void;
   unlinkDashboard: (projectId: string, dashboardId: string) => void;
 };
@@ -54,29 +51,6 @@ export const useProjectStore = create<ProjectStore>()(
         p.id === projectId
           ? { ...p, savedAnalyses: p.savedAnalyses.filter((a) => a.id !== analysisId) }
           : p
-      ),
-    })),
-
-  addNote: (projectId, note) =>
-    set((s) => ({
-      projects: s.projects.map((p) =>
-        p.id === projectId ? { ...p, notes: [...p.notes, note] } : p
-      ),
-    })),
-
-  updateNote: (projectId, noteId, content) =>
-    set((s) => ({
-      projects: s.projects.map((p) =>
-        p.id === projectId
-          ? { ...p, notes: p.notes.map((n) => (n.id === noteId ? { ...n, content } : n)) }
-          : p
-      ),
-    })),
-
-  removeNote: (projectId, noteId) =>
-    set((s) => ({
-      projects: s.projects.map((p) =>
-        p.id === projectId ? { ...p, notes: p.notes.filter((n) => n.id !== noteId) } : p
       ),
     })),
 
