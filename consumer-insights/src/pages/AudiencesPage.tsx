@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAudienceStore } from '@/store/audienceStore'
 import { Button } from '@/components/ui/button'
 import EmptyState from '@/components/EmptyState'
-import { Plus, Pencil, Copy, Trash2 } from 'lucide-react'
+import { Plus, Users, Pencil, Copy, Trash2 } from 'lucide-react'
 import { ResourceCard, IconBtn, PageShell } from '@/components/app'
 
 export default function AudiencesPage() {
@@ -10,10 +10,16 @@ export default function AudiencesPage() {
   const { audiences, remove, duplicate } = useAudienceStore()
 
   return (
-    <PageShell>
-      <div className="mb-8">
-        <h1 className="text-[24px] leading-[36px] font-bold text-gray-900">Audiences</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Define and manage audience segments</p>
+    <PageShell className="max-w-5xl">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">Audiences</h1>
+          <p className="text-sm text-muted-foreground">Define and manage audience segments</p>
+        </div>
+        <Button onClick={() => navigate('/audiences/new')}>
+          <Plus className="h-4 w-4 mr-1" />
+          New Audience
+        </Button>
       </div>
 
       {audiences.length === 0 ? (
@@ -29,6 +35,7 @@ export default function AudiencesPage() {
             {audiences.map((audience) => (
               <ResourceCard
                 key={audience.id}
+                icon={<Users className="h-4 w-4" />}
                 title={audience.name}
                 meta={[audience.region, audience.isShared ? 'Shared' : null, audience.description].filter(Boolean).join(' · ') || undefined}
                 date={undefined}
@@ -42,12 +49,6 @@ export default function AudiencesPage() {
                 onClick={() => navigate(`/audiences/${audience.id}/edit`)}
               />
             ))}
-          </div>
-          <div className="mt-4">
-            <Button variant="outline" onClick={() => navigate('/audiences/new')}>
-              <Plus className="h-3.5 w-3.5 mr-1.5" />
-              New Audience
-            </Button>
           </div>
         </>
       )}
