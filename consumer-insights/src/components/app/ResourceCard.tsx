@@ -29,7 +29,7 @@ export function ResourceCard({ icon, title, meta, date, actions, onClick, classN
       <div className="flex items-center gap-3 p-2 bg-white rounded-[6px] shadow-[0_0_0_1px_hsla(0,0%,0%,0.08),0_2px_2px_0_hsla(0,0%,0%,0.06)]">
         {/* Icon */}
         {icon !== undefined && (
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/8 text-primary shrink-0">
+          <div className="flex items-center justify-center w-6 h-6 rounded-md bg-primary/8 text-primary shrink-0 [&>svg]:h-2.5 [&>svg]:w-2.5">
             {icon}
           </div>
         )}
