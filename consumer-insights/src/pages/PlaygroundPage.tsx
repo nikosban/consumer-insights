@@ -27,7 +27,6 @@ import { SectionLabel } from '@/components/app/SectionLabel'
 import { FieldGroup } from '@/components/app/FieldGroup'
 import { Toolbar, ToolbarActions, ResourceCard, IconBtn } from '@/components/app'
 import EmptyState from '@/components/EmptyState'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   LayoutDashboard, FileText, Users, BarChart2, Trash2,
   Pencil, Copy, Plus, Share2, BookmarkPlus, RefreshCw,
@@ -140,44 +139,6 @@ function WidgetDragRow() {
         <p className="text-[10px] text-muted-foreground">Bar chart</p>
       </div>
     </div>
-  )
-}
-
-// ─── 9. Card patterns ─────────────────────────────────────────────────────────
-
-function DashboardCard() {
-  return (
-    <Card className="cursor-pointer hover:shadow-md hover:border-primary/30 transition-all w-48">
-      <CardHeader className="pb-2">
-        <div className="flex items-start gap-2">
-          <LayoutDashboard className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-          <div className="flex-1 min-w-0">
-            <CardTitle className="text-sm truncate">Q1 Audience Overview</CardTitle>
-          </div>
-          <Badge className="text-xs bg-primary/10 text-primary border-0 shrink-0">Shared</Badge>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <p className="text-xs text-muted-foreground">3 widgets &nbsp;·&nbsp; Updated 3/15/2025</p>
-      </CardContent>
-    </Card>
-  )
-}
-
-function WorkspaceCard() {
-  return (
-    <Card className="cursor-pointer hover:shadow-md hover:border-primary/30 transition-all w-48">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold">Q1 Consumer Research</CardTitle>
-        <p className="text-xs text-muted-foreground">Created 3/1/2025</p>
-      </CardHeader>
-      <CardContent>
-        <div className="flex gap-4 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1"><BarChart2 className="h-3.5 w-3.5" /> 2 analyses</span>
-          <span className="flex items-center gap-1"><LayoutDashboard className="h-3.5 w-3.5" /> 1 dashboard</span>
-        </div>
-      </CardContent>
-    </Card>
   )
 }
 

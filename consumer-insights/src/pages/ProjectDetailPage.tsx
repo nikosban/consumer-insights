@@ -25,7 +25,7 @@ import {
   Upload,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { Dashboard, Analysis, Widget, ChartData, WidgetType } from '@/types'
+import type { Analysis, Widget, ChartData, WidgetType } from '@/types'
 import { ResourceCard, IconBtn, PageShell } from '@/components/app'
 
 function AnalysesTab({

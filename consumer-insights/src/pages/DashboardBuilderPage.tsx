@@ -14,26 +14,24 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from '@/components/ui/select'
 import ExportModal from '@/components/ExportModal'
 import ChartRenderer from '@/components/charts/ChartRenderer'
 import EmptyState from '@/components/EmptyState'
 import { generateChartData, DIMENSION_VALUES } from '@/data/fakeGenerators'
-import { SURVEY_CATALOG, SURVEY_TYPES, SURVEY_COUNTRIES } from '@/data/surveyData'
+import { SURVEY_CATALOG, SURVEY_COUNTRIES } from '@/data/surveyData'
 import type { SurveyQuestion } from '@/data/surveyData'
-import type { DashboardWidget, Widget, WidgetType, ChartData } from '@/types'
+import type { DashboardWidget, Widget, WidgetType } from '@/types'
 import {
-  Share2, RefreshCw, X, GripVertical,
+  RefreshCw, X, GripVertical,
   Search, ChevronRight, Plus,
   Table2, BarChart2, TrendingUp, PieChart, Hash,
-  Sparkles, Send, ChevronDown, FileText, Pencil,
-  ExternalLink,
+  Sparkles, Send, ChevronDown, FileText,
 } from 'lucide-react'
 import type { Audience } from '@/types'
 import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Chip, FieldGroup, SectionLabel, Toolbar, ToolbarActions } from '@/components/app'
+import { Chip, FieldGroup, SectionLabel } from '@/components/app'
 
 // ─── Dashboard-level context types ───────────────────────────────────────────
 
@@ -201,55 +199,6 @@ const CHART_TYPES: { type: WidgetType; label: string; Icon: LucideIcon }[] = [
   { type: 'text',      label: 'Text block', Icon: FileText },
 ]
 
-function ChartTypeSwitcher({
-  currentType,
-  onChange,
-}: {
-  currentType: WidgetType
-  onChange: (t: WidgetType) => void
-}) {
-  const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-  const current = CHART_TYPES.find((t) => t.type === currentType)
-  const CurrentIcon = current?.Icon ?? Table2
-
-  useEffect(() => {
-    function close(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    if (open) document.addEventListener('mousedown', close)
-    return () => document.removeEventListener('mousedown', close)
-  }, [open])
-
-  return (
-    <div ref={ref} className="relative shrink-0">
-      <button
-        onClick={(e) => { e.stopPropagation(); setOpen((o) => !o) }}
-        title={current?.label}
-        className="p-1 rounded text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-      >
-        <CurrentIcon className="h-3.5 w-3.5" />
-      </button>
-      {open && (
-        <div className="absolute right-0 top-full mt-1 z-50 bg-background border border-border rounded-lg shadow-lg py-1 min-w-[120px]">
-          {CHART_TYPES.map(({ type, label, Icon }) => (
-            <button
-              key={type}
-              onClick={(e) => { e.stopPropagation(); onChange(type); setOpen(false) }}
-              className={`w-full flex items-center gap-2.5 px-3 py-1.5 text-xs transition-colors hover:bg-accent ${
-                type === currentType ? 'text-primary font-medium' : 'text-foreground'
-              }`}
-            >
-              <Icon className="h-3.5 w-3.5 shrink-0" />
-              {label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
-
 // ─── Widget filter row ────────────────────────────────────────────────────────
 
 function WidgetFilterChip({ label, value, options, isOverride, onSelect, onReset, renderPicker }: {
@@ -392,7 +341,7 @@ function WidgetFilterRow({ widget, audiences, dashAudienceId, dashRegion, dashPe
   )
 }
 
-function WidgetPeriodPicker({ value, onChange, onReset, dashDefault }: {
+function WidgetPeriodPicker({ value, onChange, onReset, dashDefault: _ }: {
   value: DashPeriod
   onChange: (p: DashPeriod) => void
   onReset: () => void
@@ -686,7 +635,6 @@ function WidgetPropertiesPanel({
 
 // ─── Survey browser sidebar ───────────────────────────────────────────────────
 
-const SURVEY_YEARS = ['All years', '2022', '2023', '2024', '2025']
 
 // Design token: subtle inset-bottom shadow + hairline border, matching the Paper design spec
 
@@ -876,65 +824,6 @@ function CrossDimensionPreview({ question }: { question: SurveyQuestion }) {
   )
 }
 
-// ─── Key metrics strip ────────────────────────────────────────────────────────
-
-function KeyMetricsStrip({ type, data }: { type: WidgetType; data: ChartData }) {
-  if (type === 'scorecard') return null
-
-  let primary = ''
-  let primaryLabel = ''
-  let secondary = ''
-  let secondaryLabel = ''
-
-  if (type === 'bar') {
-    const max = Math.max(...data.series.flatMap((s) => s.values))
-    const min = Math.min(...data.series.flatMap((s) => s.values))
-    primary = `${max}%`
-    primaryLabel = 'Peak'
-    secondary = `${min}%`
-    secondaryLabel = 'Min'
-  } else if (type === 'line') {
-    const vals = data.series[0]?.values ?? []
-    const last = vals[vals.length - 1] ?? 0
-    const first = vals[0] ?? last
-    const delta = last - first
-    primary = `${last}%`
-    primaryLabel = 'Latest'
-    secondary = `${delta >= 0 ? '+' : ''}${delta}%`
-    secondaryLabel = 'vs start'
-  } else if (type === 'pie') {
-    const vals = data.series[0]?.values ?? []
-    const total = vals.reduce((a, b) => a + b, 0) || 1
-    const maxIdx = vals.indexOf(Math.max(...vals))
-    primary = data.labels[maxIdx] ?? ''
-    primaryLabel = 'Top segment'
-    secondary = `${Math.round((vals[maxIdx] / total) * 100)}%`
-    secondaryLabel = 'share'
-  } else if (type === 'table') {
-    primary = `${data.labels.length}`
-    primaryLabel = 'Answers'
-    const vals = data.series[0]?.values ?? []
-    const maxIdx = vals.indexOf(Math.max(...vals))
-    secondary = (data.labels[maxIdx] ?? '').slice(0, 14)
-    secondaryLabel = 'top answer'
-  }
-
-  return (
-    <div className="flex items-center gap-5 px-3 py-1.5 border-b border-border/40 bg-muted/10 shrink-0">
-      <div className="flex items-baseline gap-1.5">
-        <span className="text-sm font-semibold text-foreground">{primary}</span>
-        <span className="text-[10px] text-muted-foreground">{primaryLabel}</span>
-      </div>
-      {secondary && (
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-xs font-medium text-foreground/70">{secondary}</span>
-          <span className="text-[10px] text-muted-foreground">{secondaryLabel}</span>
-        </div>
-      )}
-    </div>
-  )
-}
-
 // ─── AI prompt card ───────────────────────────────────────────────────────────
 
 function DotGrid() {
@@ -1073,7 +962,6 @@ export default function DashboardBuilderPage() {
   const [aiCardVisible, setAiCardVisible] = useState(false)
   const [draggingQuestion, setDraggingQuestion] = useState<SurveyQuestion | null>(null)
   const [editingTitle, setEditingTitle] = useState(false)
-  const titleInputRef = useRef<HTMLInputElement>(null)
   const pageTitleRef = useRef<HTMLInputElement>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)

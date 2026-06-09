@@ -144,6 +144,7 @@ export function generateChartData(type: WidgetType, hasBenchmark: boolean, cross
     case 'pie': return pieData();
     case 'scorecard': return scorecardData(hasBenchmark);
     case 'table': return surveyTableData();
+    default: return surveyTableData();
   }
 }
 

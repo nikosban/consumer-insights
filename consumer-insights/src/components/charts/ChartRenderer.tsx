@@ -226,11 +226,6 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
       const thBase = 'py-1.5 px-2 font-medium text-muted-foreground border-b border-border text-right whitespace-nowrap'
       const tdBase = 'py-1.5 px-2 tabular-nums text-right'
 
-      // Compute row totals for % Row
-      const rowTotals: number[] = data.labels.map((_, i) =>
-        data.series.reduce((sum, s) => sum + (s.absolutes?.[i] ?? 0), 0)
-      )
-
       const TOTAL_KEY = '__total__'
       const isTotalExpanded = expandedGroups.has(TOTAL_KEY)
 
