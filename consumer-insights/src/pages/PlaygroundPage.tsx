@@ -287,12 +287,12 @@ export default function PlaygroundPage() {
           <p className="text-[10px] text-amber-600 font-medium">⚠ Used in toolbar — differs from size="sm"</p>
         </Row>
         <Row label="Icon-only (7×7)">
-          {[<Trash2 />, <Pencil />, <Copy />, <Settings />, <Plus />].map((icon, i) => (
-            <button key={i} className="inline-flex items-center justify-center w-7 h-7 rounded border border-border bg-background text-gray-400 hover:bg-accent hover:text-gray-900 transition-colors">
-              {icon}
-            </button>
-          ))}
-          <p className="text-[10px] text-amber-600 font-medium">⚠ Hand-rolled — not using Button component</p>
+          <IconBtn icon={<Trash2 className="h-3 w-3" />} label="Delete" destructive onClick={() => {}} />
+          <IconBtn icon={<Pencil className="h-3 w-3" />} label="Edit" onClick={() => {}} />
+          <IconBtn icon={<Copy className="h-3 w-3" />} label="Duplicate" onClick={() => {}} />
+          <IconBtn icon={<Settings className="h-3 w-3" />} label="Settings" onClick={() => {}} />
+          <IconBtn icon={<Plus className="h-3 w-3" />} label="Add" onClick={() => {}} />
+          <p className="text-[10px] text-green-600 font-medium">✓ Using IconBtn component</p>
         </Row>
       </Block>
 
@@ -309,16 +309,12 @@ export default function PlaygroundPage() {
           <Badge variant="secondary" className="text-xs">Bar</Badge>
         </Row>
         <Row label="Type colours">
-          {[
-            ['bar', 'bg-blue-50 text-blue-600'],
-            ['line', 'bg-emerald-50 text-emerald-700'],
-            ['pie', 'bg-purple-50 text-purple-600'],
-            ['table', 'bg-orange-50 text-orange-600'],
-            ['scorecard', 'bg-amber-50 text-amber-600'],
-          ].map(([label, cls]) => (
-            <span key={label} className={cn('inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium', cls)}>{label}</span>
-          ))}
-          <p className="text-[10px] text-amber-600 font-medium">⚠ Hand-rolled — not using Badge component</p>
+          <Badge className="bg-blue-50 text-blue-600 border-0">bar</Badge>
+          <Badge className="bg-emerald-50 text-emerald-700 border-0">line</Badge>
+          <Badge className="bg-purple-50 text-purple-600 border-0">pie</Badge>
+          <Badge className="bg-orange-50 text-orange-600 border-0">table</Badge>
+          <Badge className="bg-amber-50 text-amber-600 border-0">scorecard</Badge>
+          <p className="text-[10px] text-green-600 font-medium">✓ Using Badge component</p>
         </Row>
       </Block>
 
@@ -474,7 +470,7 @@ export default function PlaygroundPage() {
         <Row label="Dashboard">
           <div className="w-full max-w-lg">
             <ResourceCard
-              icon={<LayoutDashboard className="h-4 w-4" />}
+              icon={<LayoutDashboard />}
               title="Q1 Audience Overview"
               meta="3 widgets"
               date="Updated 3/15/2025"
@@ -491,13 +487,13 @@ export default function PlaygroundPage() {
         <Row label="Analysis">
           <div className="w-full max-w-lg">
             <ResourceCard
-              icon={<FileText className="h-4 w-4" />}
+              icon={<FileText />}
               title="Q1 Audience Overview — Summary"
               meta="3 sections · Q1 Audience Overview"
               date="3/15/2025"
               actions={
                 <>
-                  <IconBtn icon={<ChevronRight className="h-3.5 w-3.5" />} label="Open" onClick={() => {}} />
+                  <IconBtn icon={<ChevronRight className="h-3 w-3" />} label="Open" onClick={() => {}} />
                   <IconBtn icon={<Trash2 className="h-3 w-3" />} label="Delete" destructive onClick={() => {}} />
                 </>
               }
@@ -508,7 +504,7 @@ export default function PlaygroundPage() {
         <Row label="No actions">
           <div className="w-full max-w-lg">
             <ResourceCard
-              icon={<Users className="h-4 w-4" />}
+              icon={<Users />}
               title="Millennials 25–34 DE"
               meta="Germany · 2.4M universe"
               date="Created 1/3/2025"

@@ -334,7 +334,7 @@ function AnalysesTab({
                     date={new Date(analysis.createdAt).toLocaleDateString()}
                     actions={
                       <>
-                        <IconBtn icon={<ChevronRight className="h-3.5 w-3.5" />} label="Open" onClick={() => goToDetail(analysis.id)} />
+                        <IconBtn icon={<ChevronRight className="h-3 w-3" />} label="Open" onClick={() => goToDetail(analysis.id)} />
                         <IconBtn icon={<Trash2 className="h-3 w-3" />} label="Delete" destructive onClick={() => removeAnalysis(project.id, analysis.id)} />
                       </>
                     }

@@ -87,6 +87,7 @@ export function IconBtn({ icon, label, onClick, destructive = false, className }
         'inline-flex items-center justify-center w-7 h-7 rounded border border-border bg-background',
         'text-gray-400 transition-colors',
         'opacity-0 group-hover:opacity-100',
+        '[&>svg]:h-3 [&>svg]:w-3',
         destructive
           ? 'hover:bg-red-50 hover:border-red-200 hover:text-destructive'
           : 'hover:bg-accent hover:text-gray-900',
