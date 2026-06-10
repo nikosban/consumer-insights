@@ -216,7 +216,7 @@ export default function LandingPage() {
         </header>
 
         {/* Content area with subtle side borders */}
-        <div className="relative mx-auto max-w-[1136px] border-x border-white/[0.08] flex flex-col items-center pt-8 gap-10 overflow-hidden">
+        <div className="relative mx-auto max-w-[1136px] h-[826px] border-x border-white/[0.08] flex flex-col items-center pt-8 gap-10 overflow-hidden">
 
           {/* Tile watermark — real Statista symbol, contained within the 1156px column */}
           <WatermarkBackground />
