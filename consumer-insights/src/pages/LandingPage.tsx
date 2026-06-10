@@ -231,8 +231,8 @@ export default function LandingPage() {
             </div>
 
             {/* Headline */}
-            <h1 className="mt-6 text-[clamp(2.5rem,5vw,4rem)] leading-[1.05] font-semibold text-white">
-              The consumer intelligence system to own your market.
+            <h1 className="mt-6 text-[48px] leading-[56px] font-semibold text-white">
+              The consumer intelligence system<br />to own your market.
             </h1>
 
             {/* Subtitle */}
