@@ -271,8 +271,7 @@ export default function LandingPage() {
               <img
                 src={APP_SCREENSHOT_URL}
                 alt="Consumer Insights dashboard"
-                className="absolute left-0 w-full"
-                style={{ height: '106%', top: '-6%' }}
+                className="absolute left-0 top-0 w-full"
               />
             </div>
 
