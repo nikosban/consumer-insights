@@ -33,6 +33,9 @@ pnpm-debug.log*
 .claude/settings.local.json
 .claude/memory/
 
+# ── Demo / planning docs (local only) ────────────────────────────────────────
+DEMO_FLOW.md
+
 # ── Editor ────────────────────────────────────────────────────────────────────
 .vscode/*
 !.vscode/extensions.json
