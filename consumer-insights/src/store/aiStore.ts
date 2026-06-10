@@ -75,6 +75,7 @@ export const useAIStore = create<AIStore>((set) => ({
       : s.history
     return {
       conversation: { ...initialConversation, id: `conv-${Date.now()}` },
+      isStreaming: false,
       pendingHandoff: null,
       history: newHistory,
     }

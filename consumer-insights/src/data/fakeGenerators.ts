@@ -1,4 +1,4 @@
-import type { ChartData, WidgetType, AudienceCardData, DataWidgetCardData } from '@/types';
+import type { ChartData, WidgetType, AudienceCardData, DataWidgetCardData, ProcessingStep, BenchmarkPanelData, AudienceDraftData } from '@/types';
 
 // ─── Audience size ────────────────────────────────────────────────────────────
 
@@ -147,6 +147,134 @@ export function generateChartData(type: WidgetType, hasBenchmark: boolean, cross
     default: return surveyTableData();
   }
 }
+
+// ─── EV Demo scenario ─────────────────────────────────────────────────────────
+
+export function isEVTrigger(text: string): boolean {
+  return /\bev\b|electric.?vehicle|electric.?car|who.*buy.*germany|ev.*germany|germany.*ev/i.test(text)
+}
+
+export const EV_PROCESSING_STEPS: Omit<ProcessingStep, 'status'>[] = [
+  { label: 'Parsing intent',       value: '"Who intends to buy EVs in Germany?"' },
+  { label: 'Topic',                value: 'Automotive · Electric Vehicles' },
+  { label: 'Region',               value: 'Germany (DE)' },
+  { label: 'Location scope',       value: 'National' },
+  { label: 'Survey waves',         value: 'Jan 2025 · Apr 2025 · Jul 2025 · Oct 2025 · Jan 2026' },
+  { label: 'Respondents',          value: 'n = 4,187 (internet users 18–64)' },
+  { label: 'Demographics',         value: 'Age · Gender · Income · Education · HH size' },
+  { label: 'Metric',               value: 'Purchase intent — "plan to buy an EV in next 12 months"' },
+  { label: 'Intent threshold',     value: '> 20% to qualify segment' },
+  { label: 'Identifying segments', value: 'Scanning 40+ demographic cuts…' },
+  { label: 'Segments found',       value: '3 audience groups above threshold' },
+  { label: 'Benchmarking',         value: 'Scoring segments on intent × reach × ability to pay…' },
+  { label: 'Best match selected',  value: 'Urban Tech Professionals (score: 91/100)' },
+]
+
+export const EV_AI_TEXT =
+  'Based on Consumer Insights data for Germany (2025–2026, n = 4,187), three audience segments show meaningful EV purchase intent. The strongest signal comes from **Urban Tech Professionals** — they index highest on both intent and ability to pay, making them the most actionable starting point.'
+
+export const EV_BENCHMARK_PANEL: BenchmarkPanelData = {
+  nudge: 'Want to activate this audience? I can pre-fill it from the benchmark data.',
+  segments: [
+    {
+      name: 'Urban Tech Professionals',
+      ageRange: '25–40',
+      descriptor: 'High-income urban, early adopter mindset',
+      intentScore: 64,
+      universe: '2.1M',
+      isBestMatch: true,
+    },
+    {
+      name: 'Eco-Conscious Families',
+      ageRange: '35–52',
+      descriptor: 'Suburban, sustainability-driven, mid-high income',
+      intentScore: 41,
+      universe: '3.8M',
+      isBestMatch: false,
+    },
+    {
+      name: 'Green Premium Buyers',
+      ageRange: '45–60',
+      descriptor: 'High income, sustainability & status motivated',
+      intentScore: 38,
+      universe: '1.4M',
+      isBestMatch: false,
+    },
+  ],
+}
+
+export const EV_WIDGET_CLUSTER: DataWidgetCardData[] = [
+  {
+    title: 'EV Purchase Intent by Segment',
+    subtitle: 'Germany · Consumer Insights 2025–2026',
+    chartType: 'bar',
+    chartData: {
+      labels: ['Urban Tech Pros', 'Eco-Conscious Families', 'Green Premium Buyers'],
+      series: [
+        { name: 'Purchase intent %', values: [64, 41, 38] },
+        { name: 'DE Market avg', values: [18, 18, 18] },
+      ],
+    },
+    metric: 'Purchase intent',
+    source: 'Consumer Insights Global 2026 · Germany · n=4,187',
+  },
+  {
+    title: 'EV Intent Trend — Urban Tech Professionals',
+    subtitle: 'Jan 2025 → Jan 2026 · 5 survey waves',
+    chartType: 'line',
+    chartData: {
+      labels: ['Jan 2025', 'Apr 2025', 'Jul 2025', 'Oct 2025', 'Jan 2026'],
+      series: [{ name: 'Purchase intent %', values: [48, 52, 57, 61, 64] }],
+    },
+    metric: 'Intent trend',
+    source: 'Consumer Insights Global 2026 · Germany · n=4,187',
+  },
+  {
+    title: 'Addressable Audience',
+    subtitle: 'Urban Tech Professionals · Germany',
+    chartType: 'scorecard',
+    chartData: {
+      labels: ['Addressable audience', 'Urban Tech Professionals · High intent'],
+      series: [{ name: 'Addressable universe', values: [2100000] }],
+    },
+    metric: 'Addressable universe',
+    source: 'Consumer Insights Global 2026 · Germany',
+  },
+]
+
+export const EV_AUDIENCE_DRAFT: AudienceDraftData = {
+  name: 'EV Intent Audience — Germany',
+  inheritedFrom: 'Urban Tech Professionals',
+  filters: [
+    { label: 'Country',         value: 'Germany' },
+    { label: 'Age range',       value: '25–40' },
+    { label: 'Income',          value: 'High (top 30%)' },
+    { label: 'Interest',        value: 'Automotive / Electric Vehicles' },
+    { label: 'Intent signal',   value: 'EV purchase intent > 50%' },
+    { label: 'Universe',        value: '~2.1M' },
+  ],
+  prefill: {
+    name: 'EV Intent Audience — Germany',
+    description: 'Urban tech professionals in Germany with high EV purchase intent',
+    region: 'Germany',
+    isShared: false,
+    filters: {
+      id: 'fg-ev-germany',
+      operator: 'AND',
+      conditions: [
+        { id: 'c1', attribute: 'Country',        operator: 'eq',  value: 'Germany' },
+        { id: 'c2', attribute: 'Age (basic)',     operator: 'in',  value: ['25-34', '35-44'] },
+        { id: 'c3', attribute: 'Income bracket',  operator: 'in',  value: ['$75k–$100k', '$100k–$150k', '$150k+'] },
+      ],
+    },
+  },
+}
+
+export const EV_FOLLOW_UPS = [
+  'How does EV intent vary by income bracket?',
+  'What motivates Urban Tech Professionals to consider an EV?',
+  'Show me the same analysis for the United Kingdom',
+]
 
 // ─── Fake AI responses ────────────────────────────────────────────────────────
 
@@ -298,7 +426,7 @@ export const NIKE_GERMANY_CARD: AudienceCardData = {
 // ─── New unified response type ────────────────────────────────────────────────
 
 export type FakeAIResponse = {
-  type: 'text' | 'audience_card' | 'clarify' | 'data_widget';
+  type: 'text' | 'audience_card' | 'clarify' | 'data_widget' | 'ev_demo';
   content: string;
   audienceCard?: AudienceCardData;
   dataWidget?: DataWidgetCardData;
@@ -334,6 +462,11 @@ export function getFakeAIResponse(
   ctx: { lastWasClarify?: boolean; lastHadAudienceCard?: boolean } = {}
 ): FakeAIResponse {
   const q = query.toLowerCase()
+
+  // EV demo scenario — handled with multi-phase flow in the page component
+  if (isEVTrigger(q)) {
+    return { type: 'ev_demo', content: '' }
+  }
 
   // Follow-up after a clarifying question → audience card + follow-up chips
   if (ctx.lastWasClarify) {

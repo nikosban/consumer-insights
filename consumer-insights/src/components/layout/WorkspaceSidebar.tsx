@@ -49,14 +49,14 @@ export default function WorkspaceSidebar() {
   const [collapsed, setCollapsed] = useState(false)
   const isResizing = useRef(false)
 
-  // ⌘S / Ctrl+S toggles the sidebar; ⌘R / Ctrl+R opens global search
+  // ⌘D / Ctrl+D toggles the sidebar; ⌘S / Ctrl+S opens global search
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
-      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'd') {
         e.preventDefault()
         setCollapsed(c => !c)
       }
-      if ((e.metaKey || e.ctrlKey) && e.key === 'r') {
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
         e.preventDefault()
         document.dispatchEvent(new CustomEvent('open-search'))
       }
@@ -115,7 +115,7 @@ export default function WorkspaceSidebar() {
         <div className={cn('shrink-0', collapsed && 'flex-1 flex justify-center')}>
           <button
             onClick={() => setCollapsed(c => !c)}
-            title={collapsed ? 'Expand sidebar (⌘S)' : 'Collapse sidebar (⌘S)'}
+            title={collapsed ? 'Expand sidebar (⌘D)' : 'Collapse sidebar (⌘D)'}
             className="inline-flex items-center justify-center w-7 h-7 rounded text-muted-foreground hover:bg-accent hover:text-gray-900 transition-colors"
           >
             {collapsed
@@ -135,7 +135,7 @@ export default function WorkspaceSidebar() {
         >
           <Search className="h-3.5 w-3.5 shrink-0" />
           <span className="flex-1 text-left text-xs">Search</span>
-          <kbd className="text-[10px] text-muted-foreground/60 font-mono">⌘R</kbd>
+          <kbd className="text-[10px] text-muted-foreground/60 font-mono">⌘S</kbd>
         </button>
       </div>
 

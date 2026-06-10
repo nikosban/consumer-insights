@@ -153,6 +153,35 @@ export type DataWidgetCardData = {
   source: string;
 };
 
+// ─── EV Demo types ───────────────────────────────────────────────────────────
+
+export type ProcessingStep = {
+  label: string;
+  value: string;
+  status: 'done' | 'active' | 'pending';
+};
+
+export type SegmentCard = {
+  name: string;
+  ageRange: string;
+  descriptor: string;
+  intentScore: number;
+  universe: string;
+  isBestMatch: boolean;
+};
+
+export type BenchmarkPanelData = {
+  segments: SegmentCard[];
+  nudge: string;
+};
+
+export type AudienceDraftData = {
+  name: string;
+  filters: Array<{ label: string; value: string }>;
+  inheritedFrom: string;
+  prefill: Partial<Audience>;
+};
+
 export type AIMessage = {
   id: string;
   role: 'user' | 'assistant';
@@ -162,8 +191,13 @@ export type AIMessage = {
   isStreaming?: boolean;
   audienceCard?: AudienceCardData;
   dataWidget?: DataWidgetCardData;
-  messageType?: 'text' | 'audience_card' | 'clarify' | 'data_widget';
+  messageType?: 'text' | 'audience_card' | 'clarify' | 'data_widget' | 'ev_demo' | 'audience_draft';
   suggestedFollowUps?: string[];
+  // EV demo
+  processingSteps?: ProcessingStep[];
+  benchmarkPanel?: BenchmarkPanelData;
+  widgetCluster?: DataWidgetCardData[];
+  audienceDraft?: AudienceDraftData;
 };
 
 export type AIConversation = {

@@ -5,13 +5,21 @@ import { useAudienceStore } from '@/store/audienceStore'
 import { useDashboardStore } from '@/store/dashboardStore'
 import type { ChatHistoryEntry } from '@/store/aiStore'
 import { Skeleton } from '@/components/ui/skeleton'
-import { getFakeAIResponse } from '@/data/fakeGenerators'
+import {
+  getFakeAIResponse, isEVTrigger,
+  EV_PROCESSING_STEPS, EV_AI_TEXT, EV_BENCHMARK_PANEL,
+  EV_WIDGET_CLUSTER, EV_AUDIENCE_DRAFT, EV_FOLLOW_UPS,
+} from '@/data/fakeGenerators'
 import ChartRenderer from '@/components/charts/ChartRenderer'
-import type { AudienceCardData, DataWidgetCardData, Audience, AIMessage, Widget } from '@/types'
+import type {
+  AudienceCardData, DataWidgetCardData, Audience, AIMessage, Widget,
+  ProcessingStep, BenchmarkPanelData, AudienceDraftData,
+} from '@/types'
 import {
   Send, Sparkles, RotateCcw, ChevronDown,
   Users, Globe, TrendingUp, SquarePen, MessageSquare, BarChart2,
   Check, LayoutDashboard, ExternalLink, ChevronRight, ArrowUpRight,
+  Crown, Plus,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -622,7 +630,7 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
       </div>
 
       {/* ── Chart ── */}
-      <div className="px-3 pt-3 pb-1">
+      <div className="px-3 pt-3 pb-1" style={{ height: 150 }}>
         <ChartRenderer widget={fakeWidget} data={card.chartData} height={150} />
       </div>
 
@@ -718,6 +726,376 @@ function FollowUpChips({ suggestions, onSend }: { suggestions: string[]; onSend:
   )
 }
 
+// ─── EV Demo: Processing Steps ───────────────────────────────────────────────
+
+function ProcessingStepsDisplay({ steps }: { steps: ProcessingStep[] }) {
+  return (
+    <div className="mt-3 rounded-xl border border-border bg-white overflow-hidden">
+      {/* header */}
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-border bg-muted/40">
+        <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+        <span className="text-[11px] font-semibold text-muted-foreground tracking-wider">PROCESSING</span>
+      </div>
+      <div className="px-3 py-2 space-y-1.5">
+        {steps.map((step, i) => (
+          <div key={i} className={cn('flex items-center gap-2 text-xs transition-opacity duration-300', step.status === 'pending' ? 'opacity-30' : 'opacity-100')}>
+            {/* status icon */}
+            <div className="shrink-0 w-4 h-4 flex items-center justify-center">
+              {step.status === 'done' && <Check size={11} className="text-green-600" />}
+              {step.status === 'active' && (
+                <svg className="animate-spin h-3 w-3 text-primary" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              )}
+              {step.status === 'pending' && <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" />}
+            </div>
+            <span className={cn('shrink-0 font-medium w-36', step.status === 'done' ? 'text-muted-foreground' : step.status === 'active' ? 'text-foreground' : 'text-muted-foreground')}>
+              {step.label}
+            </span>
+            <span className={cn('truncate', step.status === 'active' ? 'text-primary' : 'text-muted-foreground')}>
+              {step.value}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ─── EV Demo: Benchmark Panel ─────────────────────────────────────────────────
+
+function BenchmarkPanel({ panel, onCreateDraft }: { panel: BenchmarkPanelData; onCreateDraft: () => void }) {
+  const maxIntent = Math.max(...panel.segments.map(s => s.intentScore))
+
+  return (
+    <div className="mt-3 rounded-xl border border-border bg-white overflow-hidden">
+      {/* header */}
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border bg-muted/40">
+        <span className="text-[11px] font-semibold text-muted-foreground tracking-wider">AUDIENCE SEGMENTS</span>
+      </div>
+
+      {/* segment cards */}
+      <div className="grid grid-cols-3 divide-x divide-border">
+        {panel.segments.map(seg => (
+          <div
+            key={seg.name}
+            className={cn(
+              'p-3 flex flex-col gap-2',
+              seg.isBestMatch && 'bg-primary/3'
+            )}
+          >
+            {/* name + best match badge */}
+            <div className="flex items-start justify-between gap-1 min-h-[32px]">
+              <span className={cn('text-xs font-semibold leading-tight', seg.isBestMatch ? 'text-primary' : 'text-foreground')}>
+                {seg.name}
+              </span>
+              {seg.isBestMatch && (
+                <span className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-1.5 py-0.5 leading-none">
+                  <Crown size={8} />
+                  Best
+                </span>
+              )}
+            </div>
+
+            {/* age + descriptor */}
+            <div>
+              <p className="text-[11px] text-muted-foreground">{seg.ageRange}</p>
+              <p className="text-[10px] text-muted-foreground/70 leading-snug mt-0.5">{seg.descriptor}</p>
+            </div>
+
+            {/* intent score */}
+            <div>
+              <div className="flex items-baseline justify-between mb-1">
+                <span className="text-[10px] text-muted-foreground">Intent</span>
+                <span className={cn('text-sm font-bold', seg.isBestMatch ? 'text-primary' : 'text-foreground')}>
+                  {seg.intentScore}%
+                </span>
+              </div>
+              {/* bar */}
+              <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                <div
+                  className={cn('h-full rounded-full transition-all duration-700', seg.isBestMatch ? 'bg-primary' : 'bg-muted-foreground/40')}
+                  style={{ width: `${(seg.intentScore / maxIntent) * 100}%` }}
+                />
+              </div>
+            </div>
+
+            {/* universe */}
+            <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+              <Users size={9} />
+              {seg.universe}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* nudge + CTA */}
+      <div className="px-4 py-3 border-t border-border bg-muted/20">
+        <p className="text-xs text-muted-foreground mb-2">{panel.nudge}</p>
+        <button
+          onClick={onCreateDraft}
+          className="flex items-center gap-1.5 h-8 px-4 rounded-lg bg-primary text-white text-xs font-medium hover:bg-primary/90 transition-colors active:scale-[0.98]"
+        >
+          <Plus size={11} />
+          Create Audience Draft
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ─── EV Demo: Widget Cluster ──────────────────────────────────────────────────
+
+function WidgetCluster({ widgets }: { widgets: DataWidgetCardData[] }) {
+  const navigate = useNavigate()
+  const { dashboards } = useDashboardStore()
+  const [dashPickerOpen, setDashPickerOpen] = useState<'all' | number | null>(null)
+  const [added, setAdded] = useState<Record<string | number, { id: string; name: string }>>({})
+  const dashRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function close(e: MouseEvent) {
+      if (dashRef.current && !dashRef.current.contains(e.target as Node)) setDashPickerOpen(null)
+    }
+    document.addEventListener('mousedown', close)
+    return () => document.removeEventListener('mousedown', close)
+  }, [])
+
+  function handleAdd(key: 'all' | number, dashId: string, dashName: string) {
+    setDashPickerOpen(null)
+    if (key === 'all') {
+      const next: Record<string | number, { id: string; name: string }> = {}
+      widgets.forEach((_, i) => { next[i] = { id: dashId, name: dashName } })
+      next['all'] = { id: dashId, name: dashName }
+      setAdded(next)
+    } else {
+      setAdded(prev => ({ ...prev, [key]: { id: dashId, name: dashName } }))
+    }
+  }
+
+  const allAdded = widgets.every((_, i) => added[i])
+
+  return (
+    <div className="mt-3 rounded-xl border border-border bg-white overflow-hidden">
+      {/* cluster header */}
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-muted/40">
+        <div className="flex items-center gap-2">
+          <BarChart2 size={12} className="text-muted-foreground" />
+          <span className="text-[11px] font-semibold text-muted-foreground tracking-wider">
+            {widgets.length} CHARTS · EV INTENT GERMANY
+          </span>
+        </div>
+
+        {/* Add all button */}
+        <div ref={dashRef} className="relative">
+          <button
+            onClick={() => !allAdded && setDashPickerOpen(prev => prev === 'all' ? null : 'all')}
+            className={cn(
+              'flex items-center gap-1 h-6 px-2 rounded-md text-[11px] font-medium transition-colors',
+              allAdded
+                ? 'bg-green-50 text-green-700 border border-green-200 cursor-default'
+                : 'bg-primary/8 text-primary hover:bg-primary/15 border border-primary/20'
+            )}
+          >
+            {allAdded ? <Check size={9} /> : <Plus size={9} />}
+            {allAdded ? 'Added' : 'Add all'}
+          </button>
+
+          {/* Picker for "add all" */}
+          {dashPickerOpen === 'all' && (
+            <DashboardPickerDropdown
+              dashboards={dashboards}
+              onSelect={(id, name) => handleAdd('all', id, name)}
+              label={`Adding all ${widgets.length} widgets`}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* widgets row */}
+      <div className="divide-y divide-border">
+        {widgets.map((widget, i) => {
+          const fakeWidget: Widget = {
+            id: `cluster-widget-${i}`,
+            type: widget.chartType,
+            title: widget.title,
+            audienceId: '',
+            metric: widget.metric,
+            createdAt: new Date().toISOString(),
+          }
+          return (
+            <div key={i} className="px-4 pt-3 pb-3">
+              {/* widget header */}
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <div className="min-w-0">
+                  <h4 className="text-xs font-semibold text-gray-900 leading-tight">{widget.title}</h4>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{widget.subtitle}</p>
+                </div>
+                <div className="relative shrink-0">
+                  <button
+                    onClick={() => !added[i] && setDashPickerOpen(prev => prev === i ? null : i)}
+                    className={cn(
+                      'flex items-center gap-1 h-6 px-2 rounded-md text-[11px] font-medium transition-colors',
+                      added[i]
+                        ? 'bg-green-50 text-green-700 border border-green-200 cursor-default'
+                        : 'bg-muted text-muted-foreground hover:bg-primary/8 hover:text-primary border border-border'
+                    )}
+                  >
+                    {added[i] ? <Check size={9} /> : <Plus size={9} />}
+                    {added[i] ? 'Added' : 'Add'}
+                  </button>
+
+                  {dashPickerOpen === i && (
+                    <DashboardPickerDropdown
+                      dashboards={dashboards}
+                      onSelect={(id, name) => handleAdd(i, id, name)}
+                      label="Add to dashboard"
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* chart */}
+              <div style={{ height: 130 }}>
+                <ChartRenderer widget={fakeWidget} data={widget.chartData} height={130} />
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* add-all success strip */}
+      {allAdded && added['all'] && (
+        <div className="flex items-center justify-between gap-2 bg-green-50 border-t border-green-200 px-4 py-2">
+          <span className="text-xs text-green-800">
+            {widgets.length} charts added to <span className="font-medium">{added['all'].name}</span>
+          </span>
+          <button
+            onClick={() => navigate(`/dashboards/${added['all']!.id}`)}
+            className="flex items-center gap-1 text-xs font-medium text-green-700 hover:text-green-900 transition-colors"
+          >
+            View dashboard <ExternalLink size={10} />
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// shared tiny component used by WidgetCluster
+function DashboardPickerDropdown({ dashboards, onSelect, label }: {
+  dashboards: { id: string; name: string }[]
+  onSelect: (id: string, name: string) => void
+  label: string
+}) {
+  return (
+    <div className="absolute top-full right-0 mt-1 z-20 bg-white border border-border rounded-xl shadow-lg py-1 min-w-[180px]">
+      <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground tracking-wider">{label}</p>
+      {dashboards.length === 0 && (
+        <p className="px-3 py-2 text-xs text-muted-foreground">No dashboards yet</p>
+      )}
+      {dashboards.map(d => (
+        <button
+          key={d.id}
+          onClick={() => onSelect(d.id, d.name)}
+          className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-between gap-2"
+        >
+          <span className="truncate">{d.name}</span>
+          <ChevronRight size={11} className="shrink-0 text-muted-foreground" />
+        </button>
+      ))}
+    </div>
+  )
+}
+
+// ─── EV Demo: Audience Draft Card ─────────────────────────────────────────────
+
+function AudienceDraftCard({ draft }: { draft: AudienceDraftData }) {
+  const navigate = useNavigate()
+  const { add: addAudience } = useAudienceStore()
+  const [saved, setSaved] = useState(false)
+
+  function handleSave() {
+    if (saved) return
+    const aud: Audience = {
+      id: `aud-${Date.now()}`,
+      name: draft.name,
+      filters: draft.prefill.filters ?? { id: 'fg-empty', operator: 'AND', conditions: [] },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      isShared: false,
+    }
+    addAudience(aud)
+    setSaved(true)
+  }
+
+  function handleOpenBuilder() {
+    navigate('/audiences/new', { state: { prefill: draft.prefill } })
+  }
+
+  return (
+    <div className="mt-3 max-w-[480px] w-full rounded-2xl rounded-bl-sm border border-primary/30 bg-white shadow-sm overflow-hidden">
+      {/* header */}
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-primary/4">
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-bold text-primary tracking-wider">AUDIENCE DRAFT</span>
+        </div>
+        <button
+          onClick={handleOpenBuilder}
+          className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition-colors"
+        >
+          <SquarePen size={10} />
+          Edit
+        </button>
+      </div>
+
+      {/* name */}
+      <div className="px-4 pt-3 pb-2">
+        <h3 className="text-sm font-semibold text-gray-900">{draft.name}</h3>
+        <p className="text-[11px] text-muted-foreground mt-0.5">
+          ← Inherited from: <span className="font-medium text-foreground">{draft.inheritedFrom}</span>
+        </p>
+      </div>
+
+      {/* filters */}
+      <div className="px-4 pb-3">
+        <div className="space-y-1.5">
+          {draft.filters.map(f => (
+            <div key={f.label} className="flex items-baseline justify-between gap-2">
+              <span className="text-[11px] text-muted-foreground shrink-0">{f.label}</span>
+              <span className="text-[11px] font-medium text-gray-900 text-right">{f.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* CTAs */}
+      <div className="px-4 py-3 border-t border-border flex items-center gap-2">
+        <button
+          onClick={handleOpenBuilder}
+          className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg border border-border text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+        >
+          Open in Audience Builder
+          <ArrowUpRight size={10} />
+        </button>
+        <button
+          onClick={handleSave}
+          className={cn(
+            'flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-colors',
+            saved
+              ? 'bg-green-50 text-green-700 border border-green-200 cursor-default'
+              : 'bg-primary text-white hover:bg-primary/90 active:scale-[0.98]'
+          )}
+        >
+          {saved ? <Check size={11} /> : <Users size={11} />}
+          {saved ? 'Saved' : 'Save to My Audiences'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ─── Message rendering ────────────────────────────────────────────────────────
 
 function renderMarkdown(text: string) {
@@ -728,7 +1106,11 @@ function renderMarkdown(text: string) {
   )
 }
 
-function MessageBubble({ msg, onSend }: { msg: AIMessage; onSend: (q: string) => void }) {
+function MessageBubble({ msg, onSend, onCreateDraft }: {
+  msg: AIMessage
+  onSend: (q: string) => void
+  onCreateDraft: () => void
+}) {
   const isUser = msg.role === 'user'
 
   if (isUser) {
@@ -754,22 +1136,45 @@ function MessageBubble({ msg, onSend }: { msg: AIMessage; onSend: (q: string) =>
       </div>
 
       <div className="max-w-xl mr-8 w-full">
-        {/* Text bubble */}
-        <div className={cn(
-          'rounded-2xl rounded-bl-sm px-4 py-3 text-sm leading-relaxed bg-muted text-foreground',
-          !msg.isStreaming && (msg.audienceCard || msg.dataWidget) && 'mb-3'
-        )}>
-          {msg.isStreaming ? (
-            <span>
-              {renderMarkdown(msg.content)}
-              <span className="inline-block w-1.5 h-4 bg-current ml-0.5 animate-pulse rounded-sm" />
-            </span>
-          ) : (
-            msg.content.split('\n').map((line, i, arr) => (
-              <span key={i}>{renderMarkdown(line)}{i < arr.length - 1 && <br />}</span>
-            ))
-          )}
-        </div>
+        {/* Processing steps (EV demo) */}
+        {msg.processingSteps && msg.processingSteps.length > 0 && (
+          <ProcessingStepsDisplay steps={msg.processingSteps} />
+        )}
+
+        {/* Text bubble — only show if there's content OR if not an ev_demo with only steps visible */}
+        {(msg.content || (!msg.processingSteps && !msg.audienceDraft)) && (
+          <div className={cn(
+            'rounded-2xl rounded-bl-sm px-4 py-3 text-sm leading-relaxed bg-muted text-foreground mt-3',
+            !msg.isStreaming && (msg.audienceCard || msg.dataWidget) && 'mb-3',
+            !msg.content && 'hidden'
+          )}>
+            {msg.isStreaming ? (
+              <span>
+                {renderMarkdown(msg.content)}
+                <span className="inline-block w-1.5 h-4 bg-current ml-0.5 animate-pulse rounded-sm" />
+              </span>
+            ) : (
+              msg.content.split('\n').map((line, i, arr) => (
+                <span key={i}>{renderMarkdown(line)}{i < arr.length - 1 && <br />}</span>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* Benchmark panel (EV demo) */}
+        {!msg.isStreaming && msg.benchmarkPanel && (
+          <BenchmarkPanel panel={msg.benchmarkPanel} onCreateDraft={onCreateDraft} />
+        )}
+
+        {/* Widget cluster (EV demo) */}
+        {!msg.isStreaming && msg.widgetCluster && msg.widgetCluster.length > 0 && (
+          <WidgetCluster widgets={msg.widgetCluster} />
+        )}
+
+        {/* Audience draft card (EV demo step 6) */}
+        {msg.audienceDraft && (
+          <AudienceDraftCard draft={msg.audienceDraft} />
+        )}
 
         {/* Audience card */}
         {!msg.isStreaming && msg.audienceCard && (
@@ -824,6 +1229,16 @@ export default function ResearchAIPage() {
 
   useEffect(() => { return () => { if (intervalRef.current) clearInterval(intervalRef.current) } }, [])
 
+  function handleCreateDraft() {
+    addMessage({
+      id: `msg-${Date.now()}`,
+      role: 'assistant',
+      content: "Here's your pre-filled audience draft, inherited from the Urban Tech Professionals benchmark:",
+      messageType: 'audience_draft',
+      audienceDraft: EV_AUDIENCE_DRAFT,
+    })
+  }
+
   function handleSend(override?: string) {
     const text = (override ?? input).trim()
     if (!text || isStreaming) return
@@ -831,6 +1246,64 @@ export default function ResearchAIPage() {
 
     addMessage({ id: `msg-${Date.now()}`, role: 'user', content: text })
 
+    // ── EV demo path ──────────────────────────────────────────────────────────
+    if (isEVTrigger(text)) {
+      const initialSteps: ProcessingStep[] = EV_PROCESSING_STEPS.map((s, i) => ({
+        ...s,
+        status: i === 0 ? 'active' : 'pending',
+      }))
+
+      addMessage({
+        id: `msg-${Date.now() + 1}`,
+        role: 'assistant',
+        content: '',
+        isStreaming: true,
+        messageType: 'ev_demo',
+        processingSteps: initialSteps,
+      })
+      setStreaming(true)
+
+      // Advance steps sequentially; steps at index 8 ("Identifying") and 10 ("Benchmarking") are slower
+      const SLOW = new Set([8, 10])
+      let cumulativeDelay = 0
+
+      EV_PROCESSING_STEPS.forEach((_, i) => {
+        cumulativeDelay += SLOW.has(i) ? 1200 : 380
+        const delay = cumulativeDelay
+        setTimeout(() => {
+          const updatedSteps: ProcessingStep[] = EV_PROCESSING_STEPS.map((s, j) => ({
+            ...s,
+            status: j <= i ? 'done' : j === i + 1 ? 'active' : 'pending',
+          }))
+          updateLastAssistantMessage({ processingSteps: updatedSteps })
+        }, delay)
+      })
+
+      // After all steps: stream the AI response text
+      const textStartDelay = cumulativeDelay + 500
+      setTimeout(() => {
+        let charIndex = 0
+        intervalRef.current = setInterval(() => {
+          charIndex++
+          updateLastAssistantMessage({ content: EV_AI_TEXT.slice(0, charIndex) })
+          if (charIndex >= EV_AI_TEXT.length) {
+            clearInterval(intervalRef.current!)
+            updateLastAssistantMessage({
+              content: EV_AI_TEXT,
+              isStreaming: false,
+              benchmarkPanel: EV_BENCHMARK_PANEL,
+              widgetCluster: EV_WIDGET_CLUSTER,
+              suggestedFollowUps: EV_FOLLOW_UPS,
+            })
+            setStreaming(false)
+          }
+        }, 18)
+      }, textStartDelay)
+
+      return
+    }
+
+    // ── Generic path ──────────────────────────────────────────────────────────
     // Detect context from last assistant message
     const lastAssistantMsg = conversation.messages
       .filter(m => m.role === 'assistant')
@@ -940,7 +1413,7 @@ export default function ResearchAIPage() {
 
             <div ref={scrollRef} className="relative flex-1 min-h-0 overflow-y-auto px-6 py-6">
               <div className="max-w-3xl mx-auto">
-                {conversation.messages.map(msg => <MessageBubble key={msg.id} msg={msg} onSend={handleSend} />)}
+                {conversation.messages.map(msg => <MessageBubble key={msg.id} msg={msg} onSend={handleSend} onCreateDraft={handleCreateDraft} />)}
                 {isStreaming && conversation.messages.at(-1)?.role !== 'assistant' && <StreamingSkeleton />}
               </div>
             </div>

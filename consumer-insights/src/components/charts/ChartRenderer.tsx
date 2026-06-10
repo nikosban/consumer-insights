@@ -165,10 +165,16 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
   }
 
   if (type === 'scorecard') {
-    const value = data.series[0]?.values[0] ?? 0
+    const raw = data.series[0]?.values[0] ?? 0
     const benchmark = data.series[1]?.values[0]
-    const diff = benchmark !== undefined ? value - benchmark : null
+    const diff = benchmark !== undefined ? raw - benchmark : null
     const compact = height < 90
+    // Format large numbers: 1000000 → 1M, 1000 → 1K
+    const value = raw >= 1_000_000
+      ? `${(raw / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 1 })}M`
+      : raw >= 1_000
+        ? `${(raw / 1_000).toLocaleString(undefined, { maximumFractionDigits: 1 })}K`
+        : raw
     return (
       <div
         className="flex flex-col items-center justify-center w-full overflow-hidden"
@@ -180,6 +186,11 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
         <span className={compact ? 'text-[10px] text-muted-foreground' : 'text-sm text-muted-foreground'}>
           {data.labels[0]}
         </span>
+        {data.labels[1] && (
+          <span className={compact ? 'text-[10px] text-muted-foreground/60' : 'text-xs text-muted-foreground/60'}>
+            {data.labels[1]}
+          </span>
+        )}
         {diff !== null && (
           <div className={`flex items-center font-medium ${compact ? 'gap-0.5 text-[10px]' : 'gap-1 text-sm'} ${diff >= 0 ? 'text-green-600' : 'text-destructive'}`}>
             {diff >= 0
