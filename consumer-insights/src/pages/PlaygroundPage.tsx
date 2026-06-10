@@ -48,6 +48,17 @@ function Block({ title, hint, children }: { title: string; hint?: string; childr
   )
 }
 
+function ColorRow({ swatch, token, value, usage }: { swatch: string; token: string; value: string; usage: string }) {
+  return (
+    <div className="flex items-center gap-4 py-1.5 border-b border-border/20 last:border-0">
+      <div className={cn('w-6 h-6 rounded shrink-0 border border-black/[0.06]', swatch)} />
+      <code className="text-[11px] text-foreground font-medium w-44 shrink-0 truncate">{token}</code>
+      <span className="text-[11px] text-muted-foreground font-mono w-48 shrink-0 truncate">{value}</span>
+      <span className="text-[11px] text-muted-foreground flex-1">{usage}</span>
+    </div>
+  )
+}
+
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-start gap-6 mb-4">
@@ -256,8 +267,82 @@ export default function PlaygroundPage() {
         ))}
       </Block>
 
-      {/* ── 2. Buttons ── */}
-      <Block title="2. Buttons" hint="All variants × sizes currently used">
+      {/* ── 2. Colors ── */}
+      <Block title="2. Colors" hint="All colors used across the app and landing page — scanned from source">
+
+        {/* Column headers */}
+        <div className="flex items-center gap-4 mb-2 pb-1 border-b border-border/40 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+          <span className="w-6 shrink-0" />
+          <span className="w-44 shrink-0">Token / Class</span>
+          <span className="w-48 shrink-0">Raw value</span>
+          <span className="flex-1">Usage</span>
+        </div>
+
+        {/* ── Brand / Primary ── */}
+        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">Brand / Primary</p>
+        {[
+          { swatch: 'bg-primary',      token: '--primary',         value: 'oklch(0.47 0.243 264) ≈ #0666e5', usage: 'Buttons, active nav, links, chart primary series, hero background' },
+          { swatch: 'bg-primary/10',   token: 'primary / 10%',     value: 'primary at 10% opacity',           usage: 'Badge backgrounds (Shared), icon badge bg (primary/8), chip bg' },
+          { swatch: 'bg-primary/5',    token: 'primary / 5%',      value: 'primary at 5% opacity',            usage: 'Widget drag-row hover, context chip resting state' },
+          { swatch: 'bg-[#3384EA]',    token: '--chart-2',         value: '#3384EA',                          usage: 'Chart series 2 (bar/line)' },
+          { swatch: 'bg-[#66A3EF]',    token: '--chart-3',         value: '#66A3EF',                          usage: 'Chart series 3' },
+          { swatch: 'bg-[#99C1F4]',    token: '--chart-4',         value: '#99C1F4',                          usage: 'Chart series 4' },
+          { swatch: 'bg-[#CCE0FA]',    token: '--chart-5',         value: '#CCE0FA',                          usage: 'Chart series 5 (lightest)' },
+        ].map(r => <ColorRow key={r.token} {...r} />)}
+
+        {/* ── Neutral scale ── */}
+        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">Neutral scale (H = 220 cool gray)</p>
+        {[
+          { swatch: 'bg-[oklch(0.982_0.003_220)]', token: '--color-25',  value: 'oklch(0.982 0.003 220)', usage: 'Sidebar bg, ResourceCard body bg (--color-25), page shell bg' },
+          { swatch: 'bg-[oklch(0.970_0.005_220)]', token: '--color-50',  value: 'oklch(0.970 0.005 220)', usage: 'Muted bg, secondary bg' },
+          { swatch: 'bg-[oklch(0.958_0.007_220)]', token: '--color-75',  value: 'oklch(0.958 0.007 220)', usage: 'Accent bg, hover states' },
+          { swatch: 'bg-[oklch(0.938_0.009_220)]', token: '--color-100', value: 'oklch(0.938 0.009 220)', usage: 'Borders, input borders' },
+          { swatch: 'bg-[oklch(0.648_0.022_220)]', token: '--color-400', value: 'oklch(0.648 0.022 220)', usage: 'Muted foreground text, placeholder text, labels' },
+          { swatch: 'bg-[oklch(0.417_0.024_220)]', token: '--color-600', value: 'oklch(0.417 0.024 220)', usage: 'Sidebar text, secondary foreground, accent foreground' },
+          { swatch: 'bg-[oklch(0.127_0.008_220)]', token: '--color-950', value: 'oklch(0.127 0.008 220)', usage: 'Primary foreground text (headings, body)' },
+        ].map(r => <ColorRow key={r.token} {...r} />)}
+
+        {/* ── Semantic roles ── */}
+        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">Semantic roles</p>
+        {[
+          { swatch: 'bg-background border border-border', token: '--background',        value: 'oklch(1 0 0) — white',       usage: 'Main content area, card header rows, popovers' },
+          { swatch: 'bg-foreground',                      token: '--foreground',         value: 'var(--color-950)',            usage: 'Primary text: headings, body, row titles' },
+          { swatch: 'bg-muted',                           token: '--muted',              value: 'var(--color-50)',             usage: 'Subtle section backgrounds, tag bg' },
+          { swatch: 'bg-muted-foreground',                token: '--muted-foreground',   value: 'var(--color-400)',            usage: 'Secondary text, meta rows, descriptions, date labels' },
+          { swatch: 'bg-accent',                          token: '--accent',             value: 'var(--color-75)',             usage: 'Hover backgrounds on buttons, list rows' },
+          { swatch: 'bg-border',                          token: '--border',             value: 'var(--color-100)',            usage: 'All dividers, card outlines, input borders' },
+          { swatch: 'bg-sidebar',                         token: '--sidebar',            value: 'var(--color-25)',             usage: 'Left nav sidebar background' },
+          { swatch: 'bg-destructive',                     token: '--destructive',        value: 'oklch(0.577 0.245 27.3)',     usage: 'Delete buttons, error states, destructive badge text' },
+          { swatch: 'bg-destructive/10',                  token: 'destructive / 10%',    value: 'destructive at 10% opacity', usage: 'Destructive button hover bg, error badge bg' },
+        ].map(r => <ColorRow key={r.token} {...r} />)}
+
+        {/* ── Type badge colors ── */}
+        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">Chart-type badge colors</p>
+        {[
+          { swatch: 'bg-blue-50',    token: 'blue-50 / blue-600',     value: '#eff6ff / #2563eb', usage: 'Bar chart type badge' },
+          { swatch: 'bg-emerald-50', token: 'emerald-50 / emerald-700', value: '#ecfdf5 / #047857', usage: 'Line chart type badge' },
+          { swatch: 'bg-purple-50',  token: 'purple-50 / purple-600',  value: '#faf5ff / #9333ea', usage: 'Pie chart type badge' },
+          { swatch: 'bg-orange-50',  token: 'orange-50 / orange-600',  value: '#fff7ed / #ea580c', usage: 'Table chart type badge' },
+          { swatch: 'bg-amber-50',   token: 'amber-50 / amber-600',    value: '#fffbeb / #d97706', usage: 'Scorecard chart type badge' },
+        ].map(r => <ColorRow key={r.token} {...r} />)}
+
+        {/* ── Landing page & special ── */}
+        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">Landing page & special contexts</p>
+        {[
+          { swatch: 'bg-[#0666e5]',  token: '#0666e5',   value: '#0666e5',           usage: 'Landing hero band background, SVG logo fill, gradient endpoints' },
+          { swatch: 'bg-[#003eaa]',  token: '#003eaa',   value: '#003eaa',           usage: 'Landing hero gradient dark endpoint' },
+          { swatch: 'bg-[#F97316]',  token: '#F97316',   value: 'orange-500',        usage: 'Research AI — Audience Profiler use-case tile' },
+          { swatch: 'bg-[#22C55E]',  token: '#22C55E',   value: 'green-500',         usage: 'Research AI — Geomarket Brief use-case tile' },
+          { swatch: 'bg-[#A855F7]',  token: '#A855F7',   value: 'purple-500',        usage: 'Research AI — Brand Position use-case tile' },
+          { swatch: 'bg-[#4F46E5]',  token: '#4F46E5',   value: 'indigo-600',        usage: 'Widget creator color picker preset' },
+          { swatch: 'bg-[#DC2626]',  token: '#DC2626',   value: 'red-600',           usage: 'Widget creator color picker preset' },
+          { swatch: 'bg-[#16A34A]',  token: '#16A34A',   value: 'green-600',         usage: 'Widget creator color picker preset' },
+        ].map(r => <ColorRow key={r.token} {...r} />)}
+
+      </Block>
+
+      {/* ── 3. Buttons ── */}
+      <Block title="3. Buttons" hint="All variants × sizes currently used">
         <Row label="Default">
           <Button size="default">Default</Button>
           <Button size="default"><Sparkles className="h-3.5 w-3.5" /> With icon</Button>
@@ -297,7 +382,7 @@ export default function PlaygroundPage() {
       </Block>
 
       {/* ── 3. Badges ── */}
-      <Block title="3. Badges">
+      <Block title="4. Badges">
         <Row label="Default">
           <Badge>Default</Badge>
           <Badge className="bg-primary/10 text-primary border-0">Shared</Badge>
@@ -319,7 +404,7 @@ export default function PlaygroundPage() {
       </Block>
 
       {/* ── 4. Chips ── */}
-      <Block title="4. Chips" hint="app/Chip.tsx — 3 variants">
+      <Block title="5. Chips" hint="app/Chip.tsx — 3 variants">
         <Row label="default">
           <Chip label="Country of residence" />
           <Chip label="Removable" onRemove={() => {}} />
@@ -340,7 +425,7 @@ export default function PlaygroundPage() {
       </Block>
 
       {/* ── 5. Form controls ── */}
-      <Block title="5. Form controls">
+      <Block title="6. Form controls">
         <Row label="Input">
           <Input placeholder="Search…" className="w-48" />
           <Input placeholder="h-7 small" className="h-7 text-xs w-36" />
@@ -376,7 +461,7 @@ export default function PlaygroundPage() {
       </Block>
 
       {/* ── 6. Section labels & field groups ── */}
-      <Block title="6. Section labels & field groups" hint="app/SectionLabel.tsx, app/FieldGroup.tsx">
+      <Block title="7. Section labels & field groups" hint="app/SectionLabel.tsx, app/FieldGroup.tsx">
         <Row label="SectionLabel">
           <div>
             <SectionLabel>Rows</SectionLabel>
@@ -399,7 +484,7 @@ export default function PlaygroundPage() {
       </Block>
 
       {/* ── 7. Toolbar ── */}
-      <Block title="7. Toolbar" hint="app/Toolbar.tsx + ToolbarActions">
+      <Block title="8. Toolbar" hint="app/Toolbar.tsx + ToolbarActions">
         <div className="border border-border rounded-lg overflow-hidden">
           <Toolbar>
             <div className="flex flex-col min-w-0">
@@ -417,7 +502,7 @@ export default function PlaygroundPage() {
       </Block>
 
       {/* ── 8. List rows ── */}
-      <Block title="8. List rows" hint="Historical — replaced by ResourceCard. Kept for reference.">
+      <Block title="9. List rows" hint="Historical — replaced by ResourceCard. Kept for reference.">
         <Row label="Audience row">
           <div className="w-full max-w-lg border border-border rounded-lg overflow-hidden px-3">
             <AudienceStyleRow />
@@ -466,7 +551,7 @@ export default function PlaygroundPage() {
       </Block>
 
       {/* ── 9. Cards ── */}
-      <Block title="9. Cards" hint="ResourceCard — unified base component with icon · title · actions + meta row">
+      <Block title="10. Cards" hint="ResourceCard — unified base component with icon · title · actions + meta row">
         <Row label="Dashboard">
           <div className="w-full max-w-lg">
             <ResourceCard
@@ -516,7 +601,7 @@ export default function PlaygroundPage() {
       </Block>
 
       {/* ── 10. Empty states ── */}
-      <Block title="10. Empty states" hint="EmptyState.tsx — one component, consistent">
+      <Block title="11. Empty states" hint="EmptyState.tsx — one component, consistent">
         <div className="border border-border rounded-lg overflow-hidden">
           <EmptyState
             title="No dashboards yet"
@@ -535,7 +620,7 @@ export default function PlaygroundPage() {
       </Block>
 
       {/* ── 11. Layout primitives ── */}
-      <Block title="11. Layout primitives" hint="Page shells, section headers, dividers">
+      <Block title="12. Layout primitives" hint="Page shells, section headers, dividers">
         <Row label="Page shell">
           <div className="text-xs text-muted-foreground space-y-1">
             <p><code className="bg-muted px-1 rounded">p-6 max-w-5xl mx-auto</code> — DashboardsPage, WorkspacePage</p>
