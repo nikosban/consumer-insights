@@ -79,8 +79,8 @@ function PageHeader({ title, description }: { title: string; description?: strin
 
 function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
-    <section className="mb-10">
-      <div className="flex items-baseline gap-3 mb-4 pb-2 border-b border-border">
+    <section className="mb-14">
+      <div className="flex items-baseline gap-3 mb-5 pb-3 border-b border-border">
         <h2 className="text-sm font-semibold text-foreground">{title}</h2>
         {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
       </div>
@@ -226,7 +226,7 @@ function TypographyPage() {
 
       {/* ── Core scale ── */}
       <Section title="Core size scale" hint="32 → 24 → 20 → 16 → 14 → 12">
-        <p className="text-sm text-muted-foreground mb-4">
+        <p className="text-sm text-foreground mb-4">
           Use only these six steps. <code className="font-mono">14px / 20px</code> is the default application text.
           <code className="font-mono"> 14px / 18px</code> is for dense contexts. Do not reduce primary values below <code className="font-mono">14px</code>.
         </p>
@@ -243,7 +243,7 @@ function TypographyPage() {
             { token: '--type-compact',       px: '14', rem: '0.875',  lh: '18px · 1.125rem',usage: 'Dense body text' },
             { token: '--type-supporting',    px: '12', rem: '0.75',   lh: '16px · 1rem',    usage: 'Labels, meta, helper text, chart axes' },
           ].map(({ token, px, rem, lh, usage }) => (
-            <div key={token} className="grid grid-cols-[180px_48px_52px_110px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+            <div key={token} className="grid grid-cols-[180px_48px_52px_110px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors py-3">
               <code className="text-xs text-foreground font-medium">{token}</code>
               <span className="text-xs text-muted-foreground tabular-nums">{px}</span>
               <span className="text-xs text-muted-foreground tabular-nums">{rem}</span>
@@ -266,7 +266,7 @@ function TypographyPage() {
             { token: 'font-semibold', value: '600', sample: <span className="text-sm font-semibold text-foreground">The quick brown fox</span>, usage: 'Page titles, section headings, important KPI values, strong selected states' },
             { token: 'font-bold',     value: '700', sample: <span className="text-sm font-bold text-foreground line-through opacity-40">The quick brown fox</span>, usage: 'Do not use — not part of the type scale' },
           ].map(({ token, value, sample, usage }) => (
-            <div key={token} className="grid grid-cols-[140px_48px_1fr_1fr] gap-4 px-4 py-3 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+            <div key={token} className="grid grid-cols-[140px_48px_1fr_1fr] gap-4 px-4 py-3 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors py-3">
               <code className="text-xs text-foreground font-medium">{token}</code>
               <span className="text-xs text-muted-foreground tabular-nums">{value}</span>
               <div>{sample}</div>
@@ -283,7 +283,7 @@ function TypographyPage() {
           <div className="grid grid-cols-[180px_1fr_200px] gap-4 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
             <span>Typeface</span><span>Sample</span><span>Role</span>
           </div>
-          <div className="grid grid-cols-[180px_1fr_200px] gap-4 px-4 py-3 border-b border-border/40 items-center hover:bg-muted/20 transition-colors">
+          <div className="grid grid-cols-[180px_1fr_200px] gap-4 px-4 py-3 border-b border-border/40 items-center hover:bg-muted/20 transition-colors py-3">
             <div>
               <code className="text-xs text-foreground font-medium">font-sans</code>
               <p className="text-xs text-muted-foreground mt-0.5">Instrument Sans</p>
@@ -291,7 +291,7 @@ function TypographyPage() {
             <span className="text-sm text-foreground">The quick brown fox jumps</span>
             <span className="text-xs text-foreground">Primary — all UI by default</span>
           </div>
-          <div className="grid grid-cols-[180px_1fr_200px] gap-4 px-4 py-3 items-center hover:bg-muted/20 transition-colors">
+          <div className="grid grid-cols-[180px_1fr_200px] gap-4 px-4 py-3 items-center hover:bg-muted/20 transition-colors py-3">
             <div>
               <code className="text-xs text-foreground font-medium">font-mono</code>
               <p className="text-xs text-muted-foreground mt-0.5">IBM Plex Mono</p>
@@ -303,7 +303,7 @@ function TypographyPage() {
         <div className="grid grid-cols-2 gap-4">
           <div className="rounded-lg border border-border p-4">
             <p className="text-xs font-medium text-foreground mb-2">Use Instrument Sans for</p>
-            <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+            <ul className="text-sm text-foreground space-y-1 list-disc list-inside leading-relaxed">
               <li>Navigation, buttons, form controls</li>
               <li>Table headers and cells</li>
               <li>KPI values, chart axes, legends</li>
@@ -314,7 +314,7 @@ function TypographyPage() {
           </div>
           <div className="rounded-lg border border-border p-4">
             <p className="text-xs font-medium text-foreground mb-2">Use IBM Plex Mono for</p>
-            <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+            <ul className="text-sm text-foreground space-y-1 list-disc list-inside leading-relaxed">
               <li>Dataset and record identifiers</li>
               <li>Country, currency, market codes</li>
               <li>Machine-formatted timestamps</li>
@@ -344,7 +344,7 @@ function TypographyPage() {
             { el: 'Secondary cell text', spec: '12px / 16px, weight 400' },
             { el: 'Dataset identifiers', spec: '12px / 16px, IBM Plex Mono, weight 400' },
           ].map(({ el, spec }) => (
-            <div key={el} className="grid grid-cols-[180px_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+            <div key={el} className="grid grid-cols-[180px_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors py-3">
               <span className="text-xs text-foreground">{el}</span>
               <span className="text-xs text-foreground">{spec}</span>
             </div>
@@ -366,13 +366,13 @@ function TypographyPage() {
             { el: 'Tooltip values',spec: '14px / 18px' },
             { el: 'Tooltip labels',spec: '12px / 16px' },
           ].map(({ el, spec }) => (
-            <div key={el} className="grid grid-cols-[180px_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+            <div key={el} className="grid grid-cols-[180px_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors py-3">
               <span className="text-xs text-foreground">{el}</span>
               <span className="text-xs text-foreground">{spec}</span>
             </div>
           ))}
         </div>
-        <p className="text-sm text-muted-foreground mb-2">Do not render chart text below 12px. When labels do not fit: reduce tick frequency, abbreviate values, increase chart dimensions, or move secondary detail into a tooltip. Do not solve overcrowding by shrinking type.</p>
+        <p className="text-sm text-foreground mb-2">Do not render chart text below 12px. When labels do not fit: reduce tick frequency, abbreviate values, increase chart dimensions, or move secondary detail into a tooltip. Do not solve overcrowding by shrinking type.</p>
       </Section>
 
       {/* ── Context: controls ── */}
@@ -391,7 +391,7 @@ function TypographyPage() {
             { el: 'Menu item',         spec: '14px / 20px, weight 400 or 500' },
             { el: 'Compact menu item', spec: '14px / 18px, weight 400 or 500' },
           ].map(({ el, spec }) => (
-            <div key={el} className="grid grid-cols-[180px_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+            <div key={el} className="grid grid-cols-[180px_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors py-3">
               <span className="text-xs text-foreground">{el}</span>
               <span className="text-xs text-foreground">{spec}</span>
             </div>
@@ -406,7 +406,7 @@ function TypographyPage() {
           <div className="grid grid-cols-[220px_1fr] gap-4 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
             <span>Approach</span><span>When to use</span>
           </div>
-          <div className="grid grid-cols-[220px_1fr] gap-4 px-4 py-3 border-b border-border/40 items-start hover:bg-muted/20 transition-colors">
+          <div className="grid grid-cols-[220px_1fr] gap-4 px-4 py-3 border-b border-border/40 items-start hover:bg-muted/20 transition-colors py-3">
             <div>
               <p className="text-xs font-medium text-foreground">Tabular lining figures</p>
               <code className="text-xs font-mono text-foreground">tabular-nums lining-nums</code>
@@ -414,7 +414,7 @@ function TypographyPage() {
             </div>
             <p className="text-xs text-foreground">Numeric table columns, financial values, percentages, rankings, KPI values, dynamic values, values compared vertically, chart values</p>
           </div>
-          <div className="grid grid-cols-[220px_1fr] gap-4 px-4 py-3 items-start hover:bg-muted/20 transition-colors">
+          <div className="grid grid-cols-[220px_1fr] gap-4 px-4 py-3 items-start hover:bg-muted/20 transition-colors py-3">
             <div>
               <p className="text-xs font-medium text-foreground">Proportional figures</p>
               <code className="text-xs font-mono text-foreground">default (no override)</code>
@@ -428,7 +428,7 @@ function TypographyPage() {
 
       {/* ── Semantic tokens ── */}
       <Section title="Semantic tokens">
-        <p className="text-sm text-muted-foreground mb-3">Components consume these tokens rather than raw utility sizes. When a role is missing, map to the closest existing token before creating a new one.</p>
+        <p className="text-sm text-foreground mb-3">Components consume these tokens rather than raw utility sizes. When a role is missing, map to the closest existing token before creating a new one.</p>
         <div className="rounded-xl border border-border overflow-hidden mb-3 pb-px">
           <div className="grid grid-cols-[220px_60px_1fr] gap-3 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
             <span>Token pair</span><span>px</span><span>Line height token</span>
@@ -442,7 +442,7 @@ function TypographyPage() {
             { size: '--type-compact-size',       px: '14', line: '--type-compact-line: 1.125rem' },
             { size: '--type-supporting-size',    px: '12', line: '--type-supporting-line: 1rem' },
           ].map(({ size, px, line }) => (
-            <div key={size} className="grid grid-cols-[220px_60px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+            <div key={size} className="grid grid-cols-[220px_60px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors py-3">
               <code className="text-xs font-mono text-foreground">{size}</code>
               <span className="text-xs text-muted-foreground tabular-nums">{px}px</span>
               <code className="text-xs font-mono text-foreground">{line}</code>
@@ -453,7 +453,7 @@ function TypographyPage() {
 
       {/* ── Letter spacing ── */}
       <Section title="Letter spacing">
-        <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+        <ul className="text-sm text-foreground space-y-1 list-disc list-inside leading-relaxed">
           <li>Use the typeface's default letter spacing unless a semantic token specifies otherwise</li>
           <li>Do not add tracking to ordinary body text</li>
           <li>Do not use negative tracking for small labels</li>
@@ -474,7 +474,7 @@ function IconsPage() {
       <PageHeader title="Icons" description="Sizing, weight, and pairing rules for Tabler Icons." />
 
       <Section title="Icon library">
-        <p className="text-sm text-muted-foreground mb-3">Use <strong className="font-medium text-foreground">Tabler Icons</strong> exclusively. Do not mix icons from multiple libraries.</p>
+        <p className="text-sm text-foreground mb-3">Use <strong className="font-medium text-foreground">Tabler Icons</strong> exclusively. Do not mix icons from multiple libraries.</p>
       </Section>
 
       <Section title="Stroke weight">
@@ -487,7 +487,7 @@ function IconsPage() {
             { ctx: 'Light', sw: '1.75', note: 'When a lighter treatment is needed alongside regular-weight text' },
             { ctx: 'Heavy', sw: '> 2', note: 'Do not use unless explicitly defined and visually tested' },
           ].map(({ ctx, sw, note }) => (
-            <div key={ctx} className="grid grid-cols-[160px_80px_1fr] gap-4 px-4 py-3 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+            <div key={ctx} className="grid grid-cols-[160px_80px_1fr] gap-4 px-4 py-3 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors py-3">
               <span className="text-xs text-foreground">{ctx}</span>
               <code className="text-xs font-mono text-foreground">{sw}</code>
               <span className="text-xs text-foreground">{note}</span>
@@ -508,14 +508,14 @@ function IconsPage() {
             { container: '20px container', size: '12–14px', note: 'Dense toolbars, tables, filters' },
             { container: 'Paired with text', size: '1.25cap', note: 'Default for text-paired icons — matches cap height of adjacent type' },
           ].map(({ container, size, note }) => (
-            <div key={container} className="grid grid-cols-[140px_100px_1fr] gap-4 px-4 py-3 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+            <div key={container} className="grid grid-cols-[140px_100px_1fr] gap-4 px-4 py-3 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors py-3">
               <span className="text-xs text-foreground">{container}</span>
               <code className="text-xs font-mono text-foreground">{size}</code>
               <span className="text-xs text-foreground">{note}</span>
             </div>
           ))}
         </div>
-        <p className="text-sm text-muted-foreground mb-2">Use <code className="font-mono">12px</code> only for simple glyphs (chevrons, arrows, sort indicators, close marks). Do not render detailed Tabler icons at 12px.</p>
+        <p className="text-sm text-foreground mb-2">Use <code className="font-mono">12px</code> only for simple glyphs (chevrons, arrows, sort indicators, close marks). Do not render detailed Tabler icons at 12px.</p>
         <p className="text-xs text-foreground">Do not introduce arbitrary sizes outside this scale.</p>
       </Section>
 
@@ -572,7 +572,7 @@ function ColorPage() {
 
       {/* ── Core principles ── */}
       <Section title="Core principles">
-        <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+        <ul className="text-sm text-foreground space-y-1 list-disc list-inside leading-relaxed">
           <li>Neutral colors dominate the interface — use color only when it communicates meaning</li>
           <li>Use semantic tokens in components — never raw palette values directly</li>
           <li>Keep saturated color visually scarce so it retains meaning</li>
@@ -596,7 +596,7 @@ function ColorPage() {
             { family: 'Red', role: 'Danger — errors, failed states, destructive actions', shades: '50 · 300 · 600 · 700' },
             { family: 'Chart palette', role: 'Data visualization only — not for UI controls', shades: 'violet · cyan · orange · fuchsia · teal · indigo · lime' },
           ].map(({ family, role, shades }) => (
-            <div key={family} className="grid grid-cols-[120px_1fr_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-start hover:bg-muted/20 transition-colors">
+            <div key={family} className="grid grid-cols-[120px_1fr_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-start hover:bg-muted/20 transition-colors py-3">
               <span className="text-xs font-medium text-foreground">{family}</span>
               <span className="text-xs text-foreground">{role}</span>
               <span className="text-xs font-mono text-foreground">{shades}</span>
@@ -625,7 +625,7 @@ function ColorPage() {
                 { sw: 'bg-destructive/10', token: 'background.danger.subtle', ref: 'red.50', usage: 'Destructive hover, error notice background' },
                 { sw: 'bg-destructive', token: 'background.danger.bold', ref: 'red.600', usage: 'Destructive button fill' },
               ].map(({ sw, token, ref, usage }) => (
-                <div key={token} className="grid grid-cols-[24px_180px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+                <div key={token} className="grid grid-cols-[24px_180px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors py-3">
                   <div className={cn('w-4 h-4 rounded shrink-0 border border-black/[0.06]', sw)} />
                   <code className="text-xs text-foreground">{token}</code>
                   <span className="text-xs font-mono text-foreground">{ref}</span>
@@ -651,7 +651,7 @@ function ColorPage() {
                 { sw: 'bg-emerald-700',         token: 'text.success',    ref: 'emerald.700', usage: 'Success messages, positive confirmations' },
                 { sw: 'bg-amber-800',           token: 'text.warning',    ref: 'amber.800', usage: 'Warning messages, attention states' },
               ].map(({ sw, token, ref, usage }) => (
-                <div key={token} className="grid grid-cols-[24px_160px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+                <div key={token} className="grid grid-cols-[24px_160px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors py-3">
                   <div className={cn('w-4 h-4 rounded shrink-0 border border-black/[0.06]', sw)} />
                   <code className="text-xs text-foreground">{token}</code>
                   <span className="text-xs font-mono text-foreground">{ref}</span>
@@ -675,7 +675,7 @@ function ColorPage() {
                 { sw: 'border-2 border-primary',      token: 'border.brand',    ref: 'brand.600',        usage: 'Focus rings, selected inputs, active filters' },
                 { sw: 'border-2 border-destructive',  token: 'border.danger',   ref: 'red.300',          usage: 'Invalid input, error state borders' },
               ].map(({ sw, token, ref, usage }) => (
-                <div key={token} className="grid grid-cols-[24px_160px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+                <div key={token} className="grid grid-cols-[24px_160px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors py-3">
                   <div className={cn('w-4 h-4 rounded shrink-0', sw)} />
                   <code className="text-xs text-foreground">{token}</code>
                   <span className="text-xs font-mono text-foreground">{ref}</span>
@@ -689,7 +689,7 @@ function ColorPage() {
 
       {/* ── Chart categorical palette ── */}
       <Section title="Chart categorical palette">
-        <p className="text-sm text-muted-foreground mb-3">8 distinct hues for unordered categorical series. Brand blue is always series 1. Assign the same category the same color across related views. Group minor categories into "Other" (zinc.500).</p>
+        <p className="text-sm text-foreground mb-3">8 distinct hues for unordered categorical series. Brand blue is always series 1. Assign the same category the same color across related views. Group minor categories into "Other" (zinc.500).</p>
         <div className="rounded-xl border border-border overflow-hidden mb-4 pb-px">
           <div className="grid grid-cols-[24px_80px_120px_1fr] gap-3 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
             <span /><span>Series</span><span>Value</span><span>Hue</span>
@@ -705,7 +705,7 @@ function ColorPage() {
             { hex: '#65A30D', series: 'cat.8', hue: 'Lime' },
             { hex: '#a1a1aa', series: 'other', hue: 'Zinc.400 — grouped "Other"' },
           ].map(({ hex, series, hue }) => (
-            <div key={series} className="grid grid-cols-[24px_80px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+            <div key={series} className="grid grid-cols-[24px_80px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors py-3">
               <div className="w-4 h-4 rounded shrink-0" style={{ background: hex }} />
               <code className="text-xs text-foreground">{series}</code>
               <code className="text-xs font-mono text-foreground">{hex}</code>
@@ -740,7 +740,7 @@ function ColorPage() {
 
       {/* ── Decision rule ── */}
       <Section title="Decision rule">
-        <p className="text-sm text-muted-foreground mb-3">Before applying a non-neutral color, identify its exact meaning:</p>
+        <p className="text-sm text-foreground mb-3">Before applying a non-neutral color, identify its exact meaning:</p>
         <div className="flex flex-wrap gap-2">
           {['Brand or interaction', 'Selection', 'Information', 'Success', 'Warning', 'Danger', 'Data meaning', 'Meaningful grouping'].map((m, i) => (
             <span key={m} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border text-xs text-muted-foreground">
@@ -753,7 +753,7 @@ function ColorPage() {
 
       {/* ── Prohibited ── */}
       <Section title="Prohibited">
-        <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+        <ul className="text-sm text-foreground space-y-1 list-disc list-inside leading-relaxed">
           <li>Raw palette values in components — always use semantic tokens</li>
           <li>Color without semantic purpose</li>
           <li>Colored background on every card</li>
@@ -776,7 +776,7 @@ function DataVizPage() {
       <PageHeader title="Data Visualization" description="Chart selection, color roles, axes, labels, and prohibited patterns." />
 
       <Section title="Intent first">
-        <p className="text-sm text-muted-foreground mb-3">Before selecting a chart, identify:</p>
+        <p className="text-sm text-foreground mb-3">Before selecting a chart, identify:</p>
         <div className="grid grid-cols-2 gap-2 mb-3">
           {['The question being answered', 'The primary metric', 'The comparison or dimension', 'The relevant time period', 'The intended audience', 'The decision or action this supports'].map(q => (
             <div key={q} className="flex items-start gap-2 text-xs text-muted-foreground">
@@ -804,7 +804,7 @@ function DataVizPage() {
             { type: 'Pie / Donut', use: 'Few categories, approximate proportion, one meaningful whole', avoid: '>5 categories; similar values; ranking matters; comparison over time' },
             { type: 'Map', use: 'Geography is part of the analytical question', avoid: 'Decorative alternative to ranked table or bar chart' },
           ].map(({ type, use, avoid }) => (
-            <div key={type} className="grid grid-cols-[120px_1fr_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-start hover:bg-muted/20 transition-colors">
+            <div key={type} className="grid grid-cols-[120px_1fr_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-start hover:bg-muted/20 transition-colors py-3">
               <span className="text-xs font-medium text-foreground">{type}</span>
               <span className="text-xs text-foreground">{use}</span>
               <span className="text-xs text-foreground">{avoid}</span>
@@ -826,7 +826,7 @@ function DataVizPage() {
             { role: 'Semantic (threshold)', rule: 'Emerald/Amber/Red only when data genuinely represents success/warning/danger. Never auto-encode increase=green or decrease=red.' },
             { role: 'Contextual / Inactive', rule: 'Zinc neutrals for grid lines, axes, inactive series, reference ranges.' },
           ].map(({ role, rule }) => (
-            <div key={role} className="grid grid-cols-[140px_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-start hover:bg-muted/20 transition-colors">
+            <div key={role} className="grid grid-cols-[140px_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-start hover:bg-muted/20 transition-colors py-3">
               <span className="text-xs font-medium text-foreground">{role}</span>
               <span className="text-xs text-foreground">{rule}</span>
             </div>
@@ -836,7 +836,7 @@ function DataVizPage() {
       </Section>
 
       <Section title="Axes, scales, and labels">
-        <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+        <ul className="text-sm text-foreground space-y-1 list-disc list-inside leading-relaxed">
           <li>Label axes when the measure or unit is not obvious</li>
           <li>Use zero baselines for bars and area charts — do not truncate to exaggerate differences</li>
           <li>Line chart axes need not start at zero, but the visible range must not distort the trend</li>
@@ -852,7 +852,7 @@ function DataVizPage() {
       </Section>
 
       <Section title="Numbers and formatting">
-        <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+        <ul className="text-sm text-foreground space-y-1 list-disc list-inside leading-relaxed">
           <li>Use tabular lining figures where numerical alignment matters</li>
           <li>Use Instrument Sans for chart values; IBM Plex Mono only for identifiers or fixed-format values</li>
           <li>Use consistent decimal precision — do not show more than source data supports</li>
@@ -865,11 +865,11 @@ function DataVizPage() {
       </Section>
 
       <Section title="Tooltips">
-        <p className="text-sm text-muted-foreground mb-2">Include only relevant information: category or timestamp, exact value, unit, comparison or delta, series name. Use the same formatting and names as the chart. Do not place controls or essential actions inside hover-only tooltips.</p>
+        <p className="text-sm text-foreground mb-2">Include only relevant information: category or timestamp, exact value, unit, comparison or delta, series name. Use the same formatting and names as the chart. Do not place controls or essential actions inside hover-only tooltips.</p>
       </Section>
 
       <Section title="Empty, loading, and error states">
-        <p className="text-sm text-muted-foreground mb-2">A visualization must distinguish between:</p>
+        <p className="text-sm text-foreground mb-2">A visualization must distinguish between:</p>
         <div className="flex flex-wrap gap-2">
           {['Loading', 'No results', 'All values are zero', 'Missing data', 'Filtered-out data', 'Query error', 'Insufficient permissions'].map(s => (
             <span key={s} className="px-2.5 py-1 rounded-full border border-border text-xs text-muted-foreground">{s}</span>
@@ -879,8 +879,8 @@ function DataVizPage() {
       </Section>
 
       <Section title="Automated / LLM-generated visualizations">
-        <p className="text-sm text-muted-foreground mb-2">When generating a visualization automatically:</p>
-        <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
+        <p className="text-sm text-foreground mb-2">When generating a visualization automatically:</p>
+        <ol className="text-sm text-foreground space-y-1 list-decimal list-inside leading-relaxed">
           <li>Infer the user's analytical intent</li>
           <li>Classify fields as temporal, categorical, quantitative, ordinal, or identifier</li>
           <li>Identify metric, dimension, aggregation, filters, and time range</li>
@@ -894,8 +894,8 @@ function DataVizPage() {
       </Section>
 
       <Section title="Decision checklist">
-        <p className="text-sm text-muted-foreground mb-2">Before adding or changing a visualization, verify:</p>
-        <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
+        <p className="text-sm text-foreground mb-2">Before adding or changing a visualization, verify:</p>
+        <ol className="text-sm text-foreground space-y-1 list-decimal list-inside leading-relaxed">
           <li>What exact question does it answer?</li>
           <li>Is a chart more useful than a table or single value?</li>
           <li>Is the chosen encoding accurate for the data type?</li>
@@ -910,7 +910,7 @@ function DataVizPage() {
       </Section>
 
       <Section title="Prohibited">
-        <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+        <ul className="text-sm text-foreground space-y-1 list-disc list-inside leading-relaxed">
           <li>Choosing a chart before identifying the question</li>
           <li>Using a chart when a table is clearer</li>
           <li>Three-dimensional charts, decorative gradients, glows</li>
@@ -947,7 +947,7 @@ function ElevationPage() {
       <PageHeader title="Elevation" description="Controlled strokes, compact shadows, and inset highlights. Crisp and dimensional — not flat, not fluffy." />
 
       <Section title="Surface anatomy">
-        <p className="text-sm text-muted-foreground mb-4">A raised component may use up to three visual layers. Not every component needs all three.</p>
+        <p className="text-sm text-foreground mb-4">A raised component may use up to three visual layers. Not every component needs all three.</p>
         <div className="rounded-xl border border-border overflow-hidden mb-4 pb-px">
           <div className="grid grid-cols-[28px_160px_1fr] gap-3 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
             <span>#</span><span>Layer</span><span>Purpose</span>
@@ -1051,7 +1051,7 @@ function ElevationPage() {
             { comp: 'Dialog',           stroke: 'Subtle',          inset: 'None',             shadow: 'Overlay' },
             { comp: 'Sticky header',    stroke: 'Separator',       inset: 'None',             shadow: 'None or 1px contact' },
           ].map(({ comp, stroke, inset, shadow }) => (
-            <div key={comp} className="grid grid-cols-[140px_100px_130px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+            <div key={comp} className="grid grid-cols-[140px_100px_130px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors py-3">
               <span className="text-xs text-foreground">{comp}</span>
               <span className="text-xs text-foreground">{stroke}</span>
               <span className="text-xs text-foreground">{inset}</span>
@@ -1081,7 +1081,7 @@ function ElevationPage() {
       </Section>
 
       <Section title="Prohibited">
-        <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+        <ul className="text-sm text-foreground space-y-1 list-disc list-inside leading-relaxed">
           <li>Shadows on every card</li>
           <li>Large soft shadows below small controls</li>
           <li>Inner depth shadows on resting cards</li>
@@ -1096,7 +1096,7 @@ function ElevationPage() {
       </Section>
 
       <Section title="Shadow limits">
-        <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+        <ul className="text-sm text-foreground space-y-1 list-disc list-inside leading-relaxed">
           <li>No more than two external shadow layers per component</li>
           <li>Keep vertical offset small and downward-biased</li>
           <li>Control blur ≤ ~5px; menu/popover blur ≤ ~16px</li>
@@ -1489,30 +1489,24 @@ export default function PlaygroundPage() {
     <div className="flex h-full overflow-hidden">
 
       {/* Left nav */}
-      <nav className="w-48 shrink-0 border-r border-border bg-sidebar flex flex-col overflow-y-auto">
-        <div className="px-4 h-12 flex items-center shrink-0 border-b border-border">
-          <p className="text-sm font-semibold text-foreground">Design System</p>
-        </div>
+      <nav className="w-52 shrink-0 border-r border-border bg-sidebar flex flex-col overflow-y-auto pt-5 pb-4">
+        <p className="px-4 mb-4 text-sm font-semibold text-foreground">Design System</p>
         {NAV.map(({ group, items }, gi) => (
-          <div key={group} className={cn('py-2', gi > 0 && 'border-t border-border')}>
-            <p className="px-4 pb-1 pt-1 text-xs font-medium text-foreground">{group}</p>
+          <div key={group} className={cn(gi > 0 && 'mt-4')}>
+            <p className="px-4 mb-1 text-xs font-medium text-muted-foreground">{group}</p>
             {items.map(({ id, label }) => (
-              <div key={id} className="relative">
-                {active === id && (
-                  <span className="absolute left-0 top-1 bottom-1 w-0.5 bg-primary rounded-r-sm" />
+              <button
+                key={id}
+                onClick={() => setActive(id)}
+                className={cn(
+                  'w-full text-left px-4 py-1.5 text-sm transition-colors',
+                  active === id
+                    ? 'text-primary font-medium bg-primary/10'
+                    : 'text-foreground hover:bg-accent'
                 )}
-                <button
-                  onClick={() => setActive(id)}
-                  className={cn(
-                    'w-full text-left px-4 py-1.5 text-sm transition-colors',
-                    active === id
-                      ? 'text-primary font-medium bg-primary/10'
-                      : 'text-foreground hover:bg-accent'
-                  )}
-                >
-                  {label}
-                </button>
-              </div>
+              >
+                {label}
+              </button>
             ))}
           </div>
         ))}
@@ -1520,7 +1514,7 @@ export default function PlaygroundPage() {
 
       {/* Content */}
       <main className="flex-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto px-10 py-10">
+        <div className="max-w-3xl mx-auto px-12 py-12">
           {PAGES[active]}
         </div>
       </main>
