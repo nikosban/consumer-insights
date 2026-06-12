@@ -92,7 +92,7 @@ function Section({ title, hint, children }: { title: string; hint?: string; chil
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-start gap-6 mb-4">
-      <span className="text-xs text-muted-foreground w-32 shrink-0 pt-1">{label}</span>
+      <span className="text-xs text-foreground w-32 shrink-0 pt-1">{label}</span>
       <div className="flex flex-wrap items-center gap-3">{children}</div>
     </div>
   )
@@ -150,7 +150,7 @@ function WidgetDragRow() {
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-xs font-medium text-foreground truncate">Purchase Intent by Brand</p>
-        <p className="text-xs text-muted-foreground">Bar chart</p>
+        <p className="text-xs text-foreground">Bar chart</p>
       </div>
     </div>
   )
@@ -205,7 +205,7 @@ function OverviewPage() {
               <div className={cn('w-1.5 h-1.5 rounded-full shrink-0', dot[item.status])} />
               <code className={cn('text-xs font-medium', label[item.status])}>{item.name}</code>
             </div>
-            <span className="text-xs text-muted-foreground">{item.note}</span>
+            <span className="text-xs text-foreground">{item.note}</span>
           </div>
         ))}
       </div>
@@ -247,8 +247,8 @@ function TypographyPage() {
               <code className="text-xs text-foreground font-medium">{token}</code>
               <span className="text-xs text-muted-foreground tabular-nums">{px}</span>
               <span className="text-xs text-muted-foreground tabular-nums">{rem}</span>
-              <span className="text-xs text-muted-foreground">{lh}</span>
-              <span className="text-xs text-muted-foreground">{usage}</span>
+              <span className="text-xs text-foreground">{lh}</span>
+              <span className="text-xs text-foreground">{usage}</span>
             </div>
           ))}
         </div>
@@ -256,7 +256,7 @@ function TypographyPage() {
 
       {/* ── Font weight ── */}
       <Section title="Font weight">
-        <div className="rounded-xl border border-border overflow-hidden mb-3">
+        <div className="rounded-xl border border-border overflow-hidden mb-3 pb-px">
           <div className="grid grid-cols-[140px_48px_1fr_1fr] gap-4 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
             <span>Token</span><span>Value</span><span>Sample</span><span>Usage</span>
           </div>
@@ -270,16 +270,16 @@ function TypographyPage() {
               <code className="text-xs text-foreground font-medium">{token}</code>
               <span className="text-xs text-muted-foreground tabular-nums">{value}</span>
               <div>{sample}</div>
-              <span className="text-xs text-muted-foreground">{usage}</span>
+              <span className="text-xs text-foreground">{usage}</span>
             </div>
           ))}
         </div>
-        <p className="text-xs text-muted-foreground">Dense interfaces should remain predominantly Regular (400). Use Medium and Semibold selectively.</p>
+        <p className="text-xs text-foreground">Dense interfaces should remain predominantly Regular (400). Use Medium and Semibold selectively.</p>
       </Section>
 
       {/* ── Font family ── */}
       <Section title="Font family">
-        <div className="rounded-xl border border-border overflow-hidden mb-4">
+        <div className="rounded-xl border border-border overflow-hidden mb-4 pb-px">
           <div className="grid grid-cols-[180px_1fr_200px] gap-4 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
             <span>Typeface</span><span>Sample</span><span>Role</span>
           </div>
@@ -289,7 +289,7 @@ function TypographyPage() {
               <p className="text-xs text-muted-foreground mt-0.5">Instrument Sans</p>
             </div>
             <span className="text-sm text-foreground">The quick brown fox jumps</span>
-            <span className="text-xs text-muted-foreground">Primary — all UI by default</span>
+            <span className="text-xs text-foreground">Primary — all UI by default</span>
           </div>
           <div className="grid grid-cols-[180px_1fr_200px] gap-4 px-4 py-3 items-center hover:bg-muted/20 transition-colors">
             <div>
@@ -297,7 +297,7 @@ function TypographyPage() {
               <p className="text-xs text-muted-foreground mt-0.5">IBM Plex Mono</p>
             </div>
             <span className="text-sm font-mono text-foreground">DS-10482 · 2026-06-12</span>
-            <span className="text-xs text-muted-foreground">Secondary — machine-readable only</span>
+            <span className="text-xs text-foreground">Secondary — machine-readable only</span>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
@@ -324,7 +324,7 @@ function TypographyPage() {
             </ul>
             <div className="mt-3 pt-3 border-t border-border/40 space-y-1">
               {['DS-10482', 'DE-BE', 'EUR', '2026-06-12 14:07:32', 'v2.14.0'].map(ex => (
-                <code key={ex} className="block text-xs font-mono text-muted-foreground">{ex}</code>
+                <code key={ex} className="block text-xs font-mono text-foreground">{ex}</code>
               ))}
             </div>
           </div>
@@ -333,7 +333,7 @@ function TypographyPage() {
 
       {/* ── Context: table ── */}
       <Section title="Table typography">
-        <div className="rounded-xl border border-border overflow-hidden mb-3">
+        <div className="rounded-xl border border-border overflow-hidden mb-3 pb-px">
           <div className="grid grid-cols-[180px_1fr] gap-4 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
             <span>Element</span><span>Typography</span>
           </div>
@@ -346,16 +346,16 @@ function TypographyPage() {
           ].map(({ el, spec }) => (
             <div key={el} className="grid grid-cols-[180px_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
               <span className="text-xs text-foreground">{el}</span>
-              <span className="text-xs text-muted-foreground">{spec}</span>
+              <span className="text-xs text-foreground">{spec}</span>
             </div>
           ))}
         </div>
-        <p className="text-xs text-muted-foreground">Use 12px headers when labels are short and secondary. Use 14px for longer human-readable labels. Do not place entire tables in IBM Plex Mono.</p>
+        <p className="text-xs text-foreground">Use 12px headers when labels are short and secondary. Use 14px for longer human-readable labels. Do not place entire tables in IBM Plex Mono.</p>
       </Section>
 
       {/* ── Context: chart ── */}
       <Section title="Chart typography">
-        <div className="rounded-xl border border-border overflow-hidden mb-3">
+        <div className="rounded-xl border border-border overflow-hidden mb-3 pb-px">
           <div className="grid grid-cols-[180px_1fr] gap-4 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
             <span>Element</span><span>Typography</span>
           </div>
@@ -368,7 +368,7 @@ function TypographyPage() {
           ].map(({ el, spec }) => (
             <div key={el} className="grid grid-cols-[180px_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
               <span className="text-xs text-foreground">{el}</span>
-              <span className="text-xs text-muted-foreground">{spec}</span>
+              <span className="text-xs text-foreground">{spec}</span>
             </div>
           ))}
         </div>
@@ -377,7 +377,7 @@ function TypographyPage() {
 
       {/* ── Context: controls ── */}
       <Section title="Control typography">
-        <div className="rounded-xl border border-border overflow-hidden mb-3">
+        <div className="rounded-xl border border-border overflow-hidden mb-3 pb-px">
           <div className="grid grid-cols-[180px_1fr] gap-4 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
             <span>Control</span><span>Typography</span>
           </div>
@@ -393,43 +393,43 @@ function TypographyPage() {
           ].map(({ el, spec }) => (
             <div key={el} className="grid grid-cols-[180px_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
               <span className="text-xs text-foreground">{el}</span>
-              <span className="text-xs text-muted-foreground">{spec}</span>
+              <span className="text-xs text-foreground">{spec}</span>
             </div>
           ))}
         </div>
-        <p className="text-xs text-muted-foreground">Do not use 16px for ordinary desktop controls unless intentionally prominent.</p>
+        <p className="text-xs text-foreground">Do not use 16px for ordinary desktop controls unless intentionally prominent.</p>
       </Section>
 
       {/* ── Numeric typography ── */}
       <Section title="Numeric typography">
-        <div className="rounded-xl border border-border overflow-hidden mb-3">
+        <div className="rounded-xl border border-border overflow-hidden mb-3 pb-px">
           <div className="grid grid-cols-[220px_1fr] gap-4 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
             <span>Approach</span><span>When to use</span>
           </div>
           <div className="grid grid-cols-[220px_1fr] gap-4 px-4 py-3 border-b border-border/40 items-start hover:bg-muted/20 transition-colors">
             <div>
               <p className="text-xs font-medium text-foreground">Tabular lining figures</p>
-              <code className="text-xs font-mono text-muted-foreground">tabular-nums lining-nums</code>
+              <code className="text-xs font-mono text-foreground">tabular-nums lining-nums</code>
               <p className="text-sm font-normal text-foreground mt-2 tabular-nums">1,234,567.89</p>
             </div>
-            <p className="text-xs text-muted-foreground">Numeric table columns, financial values, percentages, rankings, KPI values, dynamic values, values compared vertically, chart values</p>
+            <p className="text-xs text-foreground">Numeric table columns, financial values, percentages, rankings, KPI values, dynamic values, values compared vertically, chart values</p>
           </div>
           <div className="grid grid-cols-[220px_1fr] gap-4 px-4 py-3 items-start hover:bg-muted/20 transition-colors">
             <div>
               <p className="text-xs font-medium text-foreground">Proportional figures</p>
-              <code className="text-xs font-mono text-muted-foreground">default (no override)</code>
+              <code className="text-xs font-mono text-foreground">default (no override)</code>
               <p className="text-sm font-normal text-foreground mt-2">Insight 3 of 12</p>
             </div>
-            <p className="text-xs text-muted-foreground">Ordinary prose when alignment is not required</p>
+            <p className="text-xs text-foreground">Ordinary prose when alignment is not required</p>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground">Do not use IBM Plex Mono to get equal-width numerals. Prefer <code className="font-mono">tabular-nums</code> in Instrument Sans.</p>
+        <p className="text-xs text-foreground">Do not use IBM Plex Mono to get equal-width numerals. Prefer <code className="font-mono">tabular-nums</code> in Instrument Sans.</p>
       </Section>
 
       {/* ── Semantic tokens ── */}
       <Section title="Semantic tokens">
         <p className="text-sm text-muted-foreground mb-3">Components consume these tokens rather than raw utility sizes. When a role is missing, map to the closest existing token before creating a new one.</p>
-        <div className="rounded-xl border border-border overflow-hidden mb-3">
+        <div className="rounded-xl border border-border overflow-hidden mb-3 pb-px">
           <div className="grid grid-cols-[220px_60px_1fr] gap-3 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
             <span>Token pair</span><span>px</span><span>Line height token</span>
           </div>
@@ -445,7 +445,7 @@ function TypographyPage() {
             <div key={size} className="grid grid-cols-[220px_60px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
               <code className="text-xs font-mono text-foreground">{size}</code>
               <span className="text-xs text-muted-foreground tabular-nums">{px}px</span>
-              <code className="text-xs font-mono text-muted-foreground">{line}</code>
+              <code className="text-xs font-mono text-foreground">{line}</code>
             </div>
           ))}
         </div>
@@ -478,7 +478,7 @@ function IconsPage() {
       </Section>
 
       <Section title="Stroke weight">
-        <div className="rounded-xl border border-border overflow-hidden mb-4">
+        <div className="rounded-xl border border-border overflow-hidden mb-4 pb-px">
           <div className="grid grid-cols-[160px_80px_1fr] gap-4 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
             <span>Context</span><span>stroke-width</span><span>When to use</span>
           </div>
@@ -489,16 +489,16 @@ function IconsPage() {
           ].map(({ ctx, sw, note }) => (
             <div key={ctx} className="grid grid-cols-[160px_80px_1fr] gap-4 px-4 py-3 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
               <span className="text-xs text-foreground">{ctx}</span>
-              <code className="text-xs font-mono text-muted-foreground">{sw}</code>
-              <span className="text-xs text-muted-foreground">{note}</span>
+              <code className="text-xs font-mono text-foreground">{sw}</code>
+              <span className="text-xs text-foreground">{note}</span>
             </div>
           ))}
         </div>
-        <p className="text-xs text-muted-foreground">Match icon visual weight to the text it accompanies. Do not map font-weight values directly to SVG stroke widths.</p>
+        <p className="text-xs text-foreground">Match icon visual weight to the text it accompanies. Do not map font-weight values directly to SVG stroke widths.</p>
       </Section>
 
       <Section title="Size scale">
-        <div className="rounded-xl border border-border overflow-hidden mb-4">
+        <div className="rounded-xl border border-border overflow-hidden mb-4 pb-px">
           <div className="grid grid-cols-[140px_100px_1fr] gap-4 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
             <span>Container</span><span>Icon size</span><span>Context</span>
           </div>
@@ -510,13 +510,13 @@ function IconsPage() {
           ].map(({ container, size, note }) => (
             <div key={container} className="grid grid-cols-[140px_100px_1fr] gap-4 px-4 py-3 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
               <span className="text-xs text-foreground">{container}</span>
-              <code className="text-xs font-mono text-muted-foreground">{size}</code>
-              <span className="text-xs text-muted-foreground">{note}</span>
+              <code className="text-xs font-mono text-foreground">{size}</code>
+              <span className="text-xs text-foreground">{note}</span>
             </div>
           ))}
         </div>
         <p className="text-sm text-muted-foreground mb-2">Use <code className="font-mono">12px</code> only for simple glyphs (chevrons, arrows, sort indicators, close marks). Do not render detailed Tabler icons at 12px.</p>
-        <p className="text-xs text-muted-foreground">Do not introduce arbitrary sizes outside this scale.</p>
+        <p className="text-xs text-foreground">Do not introduce arbitrary sizes outside this scale.</p>
       </Section>
 
       <Section title="Pairing icons with text">
@@ -533,7 +533,7 @@ function IconsPage() {
               </div>
               <div>
                 <p className="text-xs font-medium text-foreground">{label}</p>
-                <p className="text-xs text-muted-foreground">{note}</p>
+                <p className="text-xs text-foreground">{note}</p>
               </div>
             </div>
           ))}
@@ -583,7 +583,7 @@ function ColorPage() {
 
       {/* ── Palette ── */}
       <Section title="Palette foundations">
-        <div className="rounded-xl border border-border overflow-hidden mb-4">
+        <div className="rounded-xl border border-border overflow-hidden mb-4 pb-px">
           <div className="grid grid-cols-[120px_1fr_1fr] gap-4 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
             <span>Family</span><span>Role</span><span>Key shades in use</span>
           </div>
@@ -598,12 +598,12 @@ function ColorPage() {
           ].map(({ family, role, shades }) => (
             <div key={family} className="grid grid-cols-[120px_1fr_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-start hover:bg-muted/20 transition-colors">
               <span className="text-xs font-medium text-foreground">{family}</span>
-              <span className="text-xs text-muted-foreground">{role}</span>
-              <span className="text-xs font-mono text-muted-foreground">{shades}</span>
+              <span className="text-xs text-foreground">{role}</span>
+              <span className="text-xs font-mono text-foreground">{shades}</span>
             </div>
           ))}
         </div>
-        <p className="text-xs text-muted-foreground">Extend the palette only when an existing raw value cannot support the required semantic role. Do not mix Zinc and Gray as competing neutral foundations.</p>
+        <p className="text-xs text-foreground">Extend the palette only when an existing raw value cannot support the required semantic role. Do not mix Zinc and Gray as competing neutral foundations.</p>
       </Section>
 
       {/* ── Semantic tokens ── */}
@@ -628,8 +628,8 @@ function ColorPage() {
                 <div key={token} className="grid grid-cols-[24px_180px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
                   <div className={cn('w-4 h-4 rounded shrink-0 border border-black/[0.06]', sw)} />
                   <code className="text-xs text-foreground">{token}</code>
-                  <span className="text-xs font-mono text-muted-foreground">{ref}</span>
-                  <span className="text-xs text-muted-foreground">{usage}</span>
+                  <span className="text-xs font-mono text-foreground">{ref}</span>
+                  <span className="text-xs text-foreground">{usage}</span>
                 </div>
               ))}
             </div>
@@ -654,8 +654,8 @@ function ColorPage() {
                 <div key={token} className="grid grid-cols-[24px_160px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
                   <div className={cn('w-4 h-4 rounded shrink-0 border border-black/[0.06]', sw)} />
                   <code className="text-xs text-foreground">{token}</code>
-                  <span className="text-xs font-mono text-muted-foreground">{ref}</span>
-                  <span className="text-xs text-muted-foreground">{usage}</span>
+                  <span className="text-xs font-mono text-foreground">{ref}</span>
+                  <span className="text-xs text-foreground">{usage}</span>
                 </div>
               ))}
             </div>
@@ -678,8 +678,8 @@ function ColorPage() {
                 <div key={token} className="grid grid-cols-[24px_160px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
                   <div className={cn('w-4 h-4 rounded shrink-0', sw)} />
                   <code className="text-xs text-foreground">{token}</code>
-                  <span className="text-xs font-mono text-muted-foreground">{ref}</span>
-                  <span className="text-xs text-muted-foreground">{usage}</span>
+                  <span className="text-xs font-mono text-foreground">{ref}</span>
+                  <span className="text-xs text-foreground">{usage}</span>
                 </div>
               ))}
             </div>
@@ -690,7 +690,7 @@ function ColorPage() {
       {/* ── Chart categorical palette ── */}
       <Section title="Chart categorical palette">
         <p className="text-sm text-muted-foreground mb-3">8 distinct hues for unordered categorical series. Brand blue is always series 1. Assign the same category the same color across related views. Group minor categories into "Other" (zinc.500).</p>
-        <div className="rounded-xl border border-border overflow-hidden mb-4">
+        <div className="rounded-xl border border-border overflow-hidden mb-4 pb-px">
           <div className="grid grid-cols-[24px_80px_120px_1fr] gap-3 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
             <span /><span>Series</span><span>Value</span><span>Hue</span>
           </div>
@@ -708,12 +708,12 @@ function ColorPage() {
             <div key={series} className="grid grid-cols-[24px_80px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
               <div className="w-4 h-4 rounded shrink-0" style={{ background: hex }} />
               <code className="text-xs text-foreground">{series}</code>
-              <code className="text-xs font-mono text-muted-foreground">{hex}</code>
-              <span className="text-xs text-muted-foreground">{hue}</span>
+              <code className="text-xs font-mono text-foreground">{hex}</code>
+              <span className="text-xs text-foreground">{hue}</span>
             </div>
           ))}
         </div>
-        <p className="text-xs text-muted-foreground">Avoid assigning Emerald, Amber, or Red to neutral categories — users interpret these as success, warning, and danger.</p>
+        <p className="text-xs text-foreground">Avoid assigning Emerald, Amber, or Red to neutral categories — users interpret these as success, warning, and danger.</p>
       </Section>
 
       {/* ── Semantic color usage ── */}
@@ -730,7 +730,7 @@ function ColorPage() {
               <div className={cn('w-3 h-3 rounded-full mt-0.5 shrink-0', color)} />
               <div>
                 <p className="text-xs font-medium text-foreground mb-0.5">{label}</p>
-                <p className="text-xs text-muted-foreground">{usage}</p>
+                <p className="text-xs text-foreground">{usage}</p>
               </div>
             </div>
           ))}
@@ -784,7 +784,7 @@ function DataVizPage() {
             </div>
           ))}
         </div>
-        <p className="text-xs text-muted-foreground">If the task is unclear, use a table or request clarification rather than choosing a decorative chart.</p>
+        <p className="text-xs text-foreground">If the task is unclear, use a table or request clarification rather than choosing a decorative chart.</p>
       </Section>
 
       <Section title="Chart selection">
@@ -806,15 +806,15 @@ function DataVizPage() {
           ].map(({ type, use, avoid }) => (
             <div key={type} className="grid grid-cols-[120px_1fr_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-start hover:bg-muted/20 transition-colors">
               <span className="text-xs font-medium text-foreground">{type}</span>
-              <span className="text-xs text-muted-foreground">{use}</span>
-              <span className="text-xs text-muted-foreground">{avoid}</span>
+              <span className="text-xs text-foreground">{use}</span>
+              <span className="text-xs text-foreground">{avoid}</span>
             </div>
           ))}
         </div>
       </Section>
 
       <Section title="Color roles">
-        <div className="rounded-xl border border-border overflow-hidden mb-3">
+        <div className="rounded-xl border border-border overflow-hidden mb-3 pb-px">
           <div className="grid grid-cols-[140px_1fr] gap-4 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
             <span>Role</span><span>Rule</span>
           </div>
@@ -828,11 +828,11 @@ function DataVizPage() {
           ].map(({ role, rule }) => (
             <div key={role} className="grid grid-cols-[140px_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-start hover:bg-muted/20 transition-colors">
               <span className="text-xs font-medium text-foreground">{role}</span>
-              <span className="text-xs text-muted-foreground">{rule}</span>
+              <span className="text-xs text-foreground">{rule}</span>
             </div>
           ))}
         </div>
-        <p className="text-xs text-muted-foreground">When one series is highlighted, reduce emphasis on contextual series rather than increasing saturation everywhere. Do not use glow, gradients, or 3D as series emphasis.</p>
+        <p className="text-xs text-foreground">When one series is highlighted, reduce emphasis on contextual series rather than increasing saturation everywhere. Do not use glow, gradients, or 3D as series emphasis.</p>
       </Section>
 
       <Section title="Axes, scales, and labels">
@@ -934,8 +934,8 @@ function ElevSurface({ label, style, description, code }: { label: string; style
       <div className="shrink-0 w-20 h-14 rounded-lg bg-background" style={style} />
       <div className="min-w-0 pt-1">
         <p className="text-xs font-medium text-foreground mb-0.5">{label}</p>
-        <code className="block text-xs font-mono text-muted-foreground mb-1 whitespace-pre-wrap leading-relaxed">{code}</code>
-        <p className="text-xs text-muted-foreground">{description}</p>
+        <code className="block text-xs font-mono text-foreground mb-1 whitespace-pre-wrap leading-relaxed">{code}</code>
+        <p className="text-xs text-foreground">{description}</p>
       </div>
     </div>
   )
@@ -948,7 +948,7 @@ function ElevationPage() {
 
       <Section title="Surface anatomy">
         <p className="text-sm text-muted-foreground mb-4">A raised component may use up to three visual layers. Not every component needs all three.</p>
-        <div className="rounded-xl border border-border overflow-hidden mb-4">
+        <div className="rounded-xl border border-border overflow-hidden mb-4 pb-px">
           <div className="grid grid-cols-[28px_160px_1fr] gap-3 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
             <span>#</span><span>Layer</span><span>Purpose</span>
           </div>
@@ -960,11 +960,11 @@ function ElevationPage() {
             <div key={n} className="grid grid-cols-[28px_160px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center">
               <span className="text-xs text-muted-foreground tabular-nums">{n}</span>
               <span className="text-xs text-foreground">{layer}</span>
-              <span className="text-xs text-muted-foreground">{desc}</span>
+              <span className="text-xs text-foreground">{desc}</span>
             </div>
           ))}
         </div>
-        <p className="text-xs text-muted-foreground">Do not add additional visual layers without a clear purpose. A component is not elevated simply because it has a background or border radius.</p>
+        <p className="text-xs text-foreground">Do not add additional visual layers without a clear purpose. A component is not elevated simply because it has a background or border radius.</p>
       </Section>
 
       <Section title="Surface treatments">
@@ -1053,9 +1053,9 @@ function ElevationPage() {
           ].map(({ comp, stroke, inset, shadow }) => (
             <div key={comp} className="grid grid-cols-[140px_100px_130px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
               <span className="text-xs text-foreground">{comp}</span>
-              <span className="text-xs text-muted-foreground">{stroke}</span>
-              <span className="text-xs text-muted-foreground">{inset}</span>
-              <span className="text-xs text-muted-foreground">{shadow}</span>
+              <span className="text-xs text-foreground">{stroke}</span>
+              <span className="text-xs text-foreground">{inset}</span>
+              <span className="text-xs text-foreground">{shadow}</span>
             </div>
           ))}
         </div>
@@ -1072,7 +1072,7 @@ function ElevationPage() {
           ].map(({ trigger, treatment }) => (
             <div key={trigger} className="flex items-start gap-3 rounded-lg border border-border p-3">
               <div className="flex-1">
-                <p className="text-xs text-muted-foreground">If: {trigger}</p>
+                <p className="text-xs text-foreground">If: {trigger}</p>
                 <p className="text-xs font-medium text-foreground mt-0.5">→ {treatment}</p>
               </div>
             </div>
@@ -1434,7 +1434,7 @@ function LayoutPage() {
             <Button><Plus className="h-4 w-4 mr-1" /> New</Button>
           </div>
           <div className="flex items-center justify-between pt-2 border-t border-border">
-            <p className="text-xs text-muted-foreground">2 dashboards</p>
+            <p className="text-xs text-foreground">2 dashboards</p>
           </div>
         </div>
       </Section>
@@ -1489,24 +1489,30 @@ export default function PlaygroundPage() {
     <div className="flex h-full overflow-hidden">
 
       {/* Left nav */}
-      <nav className="w-48 shrink-0 border-r border-border bg-sidebar flex flex-col overflow-y-auto py-4">
-        <p className="px-4 mb-3 text-xs font-semibold text-foreground">Design System</p>
-        {NAV.map(({ group, items }) => (
-          <div key={group} className="mb-4">
-            <p className="px-4 mb-1 text-xs font-medium text-muted-foreground">{group}</p>
+      <nav className="w-48 shrink-0 border-r border-border bg-sidebar flex flex-col overflow-y-auto">
+        <div className="px-4 h-12 flex items-center shrink-0 border-b border-border">
+          <p className="text-sm font-semibold text-foreground">Design System</p>
+        </div>
+        {NAV.map(({ group, items }, gi) => (
+          <div key={group} className={cn('py-2', gi > 0 && 'border-t border-border')}>
+            <p className="px-4 pb-1 pt-1 text-xs font-medium text-foreground">{group}</p>
             {items.map(({ id, label }) => (
-              <button
-                key={id}
-                onClick={() => setActive(id)}
-                className={cn(
-                  'w-full text-left pl-4 pr-4 py-2 text-sm transition-colors border-l-2',
-                  active === id
-                    ? 'border-primary text-primary font-medium bg-primary/10'
-                    : 'border-transparent text-sidebar-foreground hover:text-foreground hover:bg-accent'
+              <div key={id} className="relative">
+                {active === id && (
+                  <span className="absolute left-0 top-1 bottom-1 w-0.5 bg-primary rounded-r-sm" />
                 )}
-              >
-                {label}
-              </button>
+                <button
+                  onClick={() => setActive(id)}
+                  className={cn(
+                    'w-full text-left px-4 py-1.5 text-sm transition-colors',
+                    active === id
+                      ? 'text-primary font-medium bg-primary/10'
+                      : 'text-foreground hover:bg-accent'
+                  )}
+                >
+                  {label}
+                </button>
+              </div>
             ))}
           </div>
         ))}
