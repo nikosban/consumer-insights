@@ -235,7 +235,60 @@ function OverviewPage() {
 function TypographyPage() {
   return (
     <>
-      <PageHeader title="Typography" description="Font families, sizes, weights, and usage rules." />
+      <PageHeader title="Typography" description="Font families, semantic tokens, size scale, and context-specific usage rules." />
+
+      {/* ── Core scale ── */}
+      <Section title="Core size scale" hint="32 → 24 → 20 → 16 → 14 → 12">
+        <p className="text-[11px] text-muted-foreground mb-4">
+          Use only these six steps. <code className="font-mono">14px / 20px</code> is the default application text.
+          <code className="font-mono"> 14px / 18px</code> is for dense contexts. Do not reduce primary values below <code className="font-mono">14px</code>.
+        </p>
+        <div className="rounded-xl border border-border overflow-hidden">
+          <div className="grid grid-cols-[180px_48px_52px_110px_1fr] gap-3 text-[11px] font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+            <span>Semantic token</span><span>px</span><span>rem</span><span>Line height</span><span>Usage</span>
+          </div>
+          {[
+            { token: '--type-title-major',   px: '32', rem: '2',      lh: '40px · 2.5rem',  usage: 'Hero and marketing titles' },
+            { token: '--type-title-page',    px: '24', rem: '1.5',    lh: '32px · 2rem',    usage: 'Page titles (h1)' },
+            { token: '--type-title-section', px: '20', rem: '1.25',   lh: '28px · 1.75rem', usage: 'Section titles (h2)' },
+            { token: '--type-title-compact', px: '16', rem: '1',      lh: '24px · 1.5rem',  usage: 'Nav items, prominent labels' },
+            { token: '--type-body',          px: '14', rem: '0.875',  lh: '20px · 1.25rem', usage: 'Default body, buttons, inputs, row text' },
+            { token: '--type-compact',       px: '14', rem: '0.875',  lh: '18px · 1.125rem',usage: 'Dense body text' },
+            { token: '--type-supporting',    px: '12', rem: '0.75',   lh: '16px · 1rem',    usage: 'Labels, meta, helper text, chart axes' },
+          ].map(({ token, px, rem, lh, usage }) => (
+            <div key={token} className="grid grid-cols-[180px_48px_52px_110px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+              <code className="text-[11px] text-foreground font-medium">{token}</code>
+              <span className="text-[11px] text-muted-foreground tabular-nums">{px}</span>
+              <span className="text-[11px] text-muted-foreground tabular-nums">{rem}</span>
+              <span className="text-[11px] text-muted-foreground">{lh}</span>
+              <span className="text-[11px] text-muted-foreground">{usage}</span>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* ── Font weight ── */}
+      <Section title="Font weight">
+        <div className="rounded-xl border border-border overflow-hidden mb-3">
+          <div className="grid grid-cols-[140px_48px_1fr_1fr] gap-4 text-[11px] font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+            <span>Token</span><span>Value</span><span>Sample</span><span>Usage</span>
+          </div>
+          {[
+            { token: 'font-normal',   value: '400', sample: <span className="text-sm font-normal text-foreground">The quick brown fox</span>, usage: 'Body text, table values, chart labels, descriptions, input values, mono values' },
+            { token: 'font-medium',   value: '500', sample: <span className="text-sm font-medium text-foreground">The quick brown fox</span>, usage: 'Buttons, navigation, table headers, form labels, tabs, filters' },
+            { token: 'font-semibold', value: '600', sample: <span className="text-sm font-semibold text-foreground">The quick brown fox</span>, usage: 'Page titles, section headings, important KPI values, strong selected states' },
+            { token: 'font-bold',     value: '700', sample: <span className="text-sm font-bold text-foreground line-through opacity-40">The quick brown fox</span>, usage: 'Do not use — not part of the type scale' },
+          ].map(({ token, value, sample, usage }) => (
+            <div key={token} className="grid grid-cols-[140px_48px_1fr_1fr] gap-4 px-4 py-3 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+              <code className="text-[11px] text-foreground font-medium">{token}</code>
+              <span className="text-[11px] text-muted-foreground tabular-nums">{value}</span>
+              <div>{sample}</div>
+              <span className="text-[11px] text-muted-foreground">{usage}</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-[11px] text-muted-foreground">Dense interfaces should remain predominantly Regular (400). Use Medium and Semibold selectively.</p>
+      </Section>
 
       {/* ── Font family ── */}
       <Section title="Font family">
@@ -260,8 +313,7 @@ function TypographyPage() {
             <span className="text-[11px] text-muted-foreground">Secondary — machine-readable only</span>
           </div>
         </div>
-
-        <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-2 gap-4">
           <div className="rounded-lg border border-border p-4">
             <p className="text-[11px] font-medium text-foreground mb-2">Use Instrument Sans for</p>
             <ul className="text-[11px] text-muted-foreground space-y-1 list-disc list-inside">
@@ -279,9 +331,9 @@ function TypographyPage() {
               <li>Dataset and record identifiers</li>
               <li>Country, currency, market codes</li>
               <li>Machine-formatted timestamps</li>
-              <li>Version numbers, query syntax</li>
-              <li>Code, formulas, file hashes</li>
-              <li>API keys, fixed-format metadata</li>
+              <li>Version numbers, query syntax, code</li>
+              <li>Formulas, file hashes, API keys</li>
+              <li>Fixed-format metadata values</li>
             </ul>
             <div className="mt-3 pt-3 border-t border-border/40 space-y-1">
               {['DS-10482', 'DE-BE', 'EUR', '2026-06-12 14:07:32', 'v2.14.0'].map(ex => (
@@ -292,94 +344,138 @@ function TypographyPage() {
         </div>
       </Section>
 
-      {/* ── Font size / line height ── */}
-      <Section title="Font size &amp; line height">
-        <div className="rounded-xl border border-border overflow-hidden">
-          <div className="grid grid-cols-[140px_48px_60px_90px_1fr] gap-4 text-[11px] font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
-            <span>Token</span><span>px</span><span>rem</span><span>Line height</span><span>Usage</span>
+      {/* ── Context: table ── */}
+      <Section title="Table typography">
+        <div className="rounded-xl border border-border overflow-hidden mb-3">
+          <div className="grid grid-cols-[180px_1fr] gap-4 text-[11px] font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+            <span>Element</span><span>Typography</span>
           </div>
           {[
-            { token: 'text-2xl',    px: '24',  rem: '1.5',    lh: '1.5 · 36px',  usage: 'Page titles (h1)' },
-            { token: 'text-xl',     px: '20',  rem: '1.25',   lh: '1.75 · 28px', usage: 'Section titles (h2)' },
-            { token: 'text-lg',     px: '18',  rem: '1.125',  lh: '1.75 · 28px', usage: 'Large headings' },
-            { token: 'text-base',   px: '16',  rem: '1',      lh: '1.5 · 24px',  usage: 'Nav items, prominent labels' },
-            { token: 'text-sm',     px: '14',  rem: '0.875',  lh: '1.25 · 20px', usage: 'Body, card titles, row text' },
-            { token: 'text-xs',     px: '12',  rem: '0.75',   lh: '1 · 16px',    usage: 'Meta, secondary text, field labels' },
-            { token: 'text-[11px]', px: '11',  rem: '0.6875', lh: '—',           usage: 'Table cells, dense data' },
-            { token: 'text-[10px]', px: '10',  rem: '0.625',  lh: '—',           usage: 'Micro labels (use sparingly)' },
-          ].map(({ token, px, rem, lh, usage }) => (
-            <div key={token} className="grid grid-cols-[140px_48px_60px_90px_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
-              <code className="text-[11px] text-foreground font-medium">{token}</code>
-              <span className="text-[11px] text-muted-foreground tabular-nums">{px}</span>
-              <span className="text-[11px] text-muted-foreground tabular-nums">{rem}</span>
-              <span className="text-[11px] text-muted-foreground">{lh}</span>
-              <span className="text-[11px] text-muted-foreground">{usage}</span>
+            { el: 'Table cells',         spec: '14px / 18px, weight 400' },
+            { el: 'Numeric cells',       spec: '14px / 18px, weight 400, tabular-nums lining-nums' },
+            { el: 'Table headers',       spec: '12px / 16px or 14px / 18px, weight 500' },
+            { el: 'Secondary cell text', spec: '12px / 16px, weight 400' },
+            { el: 'Dataset identifiers', spec: '12px / 16px, IBM Plex Mono, weight 400' },
+          ].map(({ el, spec }) => (
+            <div key={el} className="grid grid-cols-[180px_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+              <span className="text-[11px] text-foreground">{el}</span>
+              <span className="text-[11px] text-muted-foreground">{spec}</span>
             </div>
           ))}
         </div>
+        <p className="text-[11px] text-muted-foreground">Use 12px headers when labels are short and secondary. Use 14px for longer human-readable labels. Do not place entire tables in IBM Plex Mono.</p>
       </Section>
 
-      {/* ── Font weight ── */}
-      <Section title="Font weight">
-        <div className="rounded-xl border border-border overflow-hidden mb-4">
-          <div className="grid grid-cols-[140px_48px_1fr_1fr] gap-4 text-[11px] font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
-            <span>Token</span><span>Value</span><span>Sample</span><span>Usage</span>
+      {/* ── Context: chart ── */}
+      <Section title="Chart typography">
+        <div className="rounded-xl border border-border overflow-hidden mb-3">
+          <div className="grid grid-cols-[180px_1fr] gap-4 text-[11px] font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+            <span>Element</span><span>Typography</span>
           </div>
           {[
-            { token: 'font-normal',   value: '400', sample: <span className="text-sm font-normal text-foreground">The quick brown fox</span>, usage: 'Body text, table values, chart labels, descriptions, input values' },
-            { token: 'font-medium',   value: '500', sample: <span className="text-sm font-medium text-foreground">The quick brown fox</span>, usage: 'Buttons, navigation, table headers, form labels, tabs, filters' },
-            { token: 'font-semibold', value: '600', sample: <span className="text-sm font-semibold text-foreground">The quick brown fox</span>, usage: 'Page titles, section headings, important KPI values, strong selected states' },
-            { token: 'font-bold',     value: '700', sample: <span className="text-sm font-bold text-foreground line-through opacity-40">The quick brown fox</span>, usage: 'Do not use — not part of the type scale' },
-          ].map(({ token, value, sample, usage }) => (
-            <div key={token} className="grid grid-cols-[140px_48px_1fr_1fr] gap-4 px-4 py-3 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
-              <code className="text-[11px] text-foreground font-medium">{token}</code>
-              <span className="text-[11px] text-muted-foreground tabular-nums">{value}</span>
-              <div>{sample}</div>
-              <span className="text-[11px] text-muted-foreground">{usage}</span>
+            { el: 'Chart title',    spec: '14px / 20px or 16px / 24px' },
+            { el: 'Legend',        spec: '12px / 16px' },
+            { el: 'Axis labels',   spec: '12px / 16px' },
+            { el: 'Tooltip values',spec: '14px / 18px' },
+            { el: 'Tooltip labels',spec: '12px / 16px' },
+          ].map(({ el, spec }) => (
+            <div key={el} className="grid grid-cols-[180px_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+              <span className="text-[11px] text-foreground">{el}</span>
+              <span className="text-[11px] text-muted-foreground">{spec}</span>
             </div>
           ))}
         </div>
-        <p className="text-[11px] text-muted-foreground">Dense interfaces should remain predominantly Regular (400). Use Medium and Semibold selectively — when everything is emphasised, nothing is.</p>
+        <p className="text-[11px] text-muted-foreground mb-2">Do not render chart text below 12px. When labels do not fit: reduce tick frequency, abbreviate values, increase chart dimensions, or move secondary detail into a tooltip. Do not solve overcrowding by shrinking type.</p>
+      </Section>
+
+      {/* ── Context: controls ── */}
+      <Section title="Control typography">
+        <div className="rounded-xl border border-border overflow-hidden mb-3">
+          <div className="grid grid-cols-[180px_1fr] gap-4 text-[11px] font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+            <span>Control</span><span>Typography</span>
+          </div>
+          {[
+            { el: 'Default button',    spec: '14px / 20px, weight 500' },
+            { el: 'Compact button',    spec: '14px / 18px, weight 500' },
+            { el: 'Default input',     spec: '14px / 20px, weight 400' },
+            { el: 'Compact input',     spec: '14px / 18px, weight 400' },
+            { el: 'Form label',        spec: '12px / 16px or 14px / 18px, weight 500' },
+            { el: 'Helper text',       spec: '12px / 16px, weight 400' },
+            { el: 'Menu item',         spec: '14px / 20px, weight 400 or 500' },
+            { el: 'Compact menu item', spec: '14px / 18px, weight 400 or 500' },
+          ].map(({ el, spec }) => (
+            <div key={el} className="grid grid-cols-[180px_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+              <span className="text-[11px] text-foreground">{el}</span>
+              <span className="text-[11px] text-muted-foreground">{spec}</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-[11px] text-muted-foreground">Do not use 16px for ordinary desktop controls unless intentionally prominent.</p>
       </Section>
 
       {/* ── Numeric typography ── */}
       <Section title="Numeric typography">
-        <div className="rounded-xl border border-border overflow-hidden mb-4">
-          <div className="grid grid-cols-[200px_1fr] gap-4 text-[11px] font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+        <div className="rounded-xl border border-border overflow-hidden mb-3">
+          <div className="grid grid-cols-[220px_1fr] gap-4 text-[11px] font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
             <span>Approach</span><span>When to use</span>
           </div>
-          <div className="grid grid-cols-[200px_1fr] gap-4 px-4 py-3 border-b border-border/40 items-start hover:bg-muted/20 transition-colors">
+          <div className="grid grid-cols-[220px_1fr] gap-4 px-4 py-3 border-b border-border/40 items-start hover:bg-muted/20 transition-colors">
             <div>
               <p className="text-[11px] font-medium text-foreground">Tabular lining figures</p>
-              <code className="text-[10px] text-muted-foreground font-mono">font-variant-numeric: tabular-nums lining-nums</code>
+              <code className="text-[10px] font-mono text-muted-foreground">tabular-nums lining-nums</code>
               <p className="text-sm font-normal text-foreground mt-2 tabular-nums">1,234,567.89</p>
             </div>
             <p className="text-[11px] text-muted-foreground">Numeric table columns, financial values, percentages, rankings, KPI values, dynamic values, values compared vertically, chart values</p>
           </div>
-          <div className="grid grid-cols-[200px_1fr] gap-4 px-4 py-3 items-start hover:bg-muted/20 transition-colors">
+          <div className="grid grid-cols-[220px_1fr] gap-4 px-4 py-3 items-start hover:bg-muted/20 transition-colors">
             <div>
               <p className="text-[11px] font-medium text-foreground">Proportional figures</p>
-              <code className="text-[10px] text-muted-foreground font-mono">default (no override)</code>
+              <code className="text-[10px] font-mono text-muted-foreground">default (no override)</code>
               <p className="text-sm font-normal text-foreground mt-2">Insight 3 of 12</p>
             </div>
             <p className="text-[11px] text-muted-foreground">Ordinary prose when alignment is not required</p>
           </div>
         </div>
-        <p className="text-[11px] text-muted-foreground">Do not use IBM Plex Mono merely to get equal-width numerals. Prefer <code className="font-mono">tabular-nums</code> in Instrument Sans.</p>
+        <p className="text-[11px] text-muted-foreground">Do not use IBM Plex Mono to get equal-width numerals. Prefer <code className="font-mono">tabular-nums</code> in Instrument Sans.</p>
+      </Section>
+
+      {/* ── Semantic tokens ── */}
+      <Section title="Semantic tokens">
+        <p className="text-[11px] text-muted-foreground mb-3">Components consume these tokens rather than raw utility sizes. When a role is missing, map to the closest existing token before creating a new one.</p>
+        <div className="rounded-xl border border-border overflow-hidden mb-3">
+          <div className="grid grid-cols-[220px_60px_1fr] gap-3 text-[11px] font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+            <span>Token pair</span><span>px</span><span>Line height token</span>
+          </div>
+          {[
+            { size: '--type-title-major-size',   px: '32', line: '--type-title-major-line: 2.5rem' },
+            { size: '--type-title-page-size',    px: '24', line: '--type-title-page-line: 2rem' },
+            { size: '--type-title-section-size', px: '20', line: '--type-title-section-line: 1.75rem' },
+            { size: '--type-title-compact-size', px: '16', line: '--type-title-compact-line: 1.5rem' },
+            { size: '--type-body-size',          px: '14', line: '--type-body-line: 1.25rem' },
+            { size: '--type-compact-size',       px: '14', line: '--type-compact-line: 1.125rem' },
+            { size: '--type-supporting-size',    px: '12', line: '--type-supporting-line: 1rem' },
+          ].map(({ size, px, line }) => (
+            <div key={size} className="grid grid-cols-[220px_60px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+              <code className="text-[11px] font-mono text-foreground">{size}</code>
+              <span className="text-[11px] text-muted-foreground tabular-nums">{px}px</span>
+              <code className="text-[11px] font-mono text-muted-foreground">{line}</code>
+            </div>
+          ))}
+        </div>
       </Section>
 
       {/* ── Letter spacing ── */}
       <Section title="Letter spacing">
-        <div className="space-y-2 text-[11px] text-muted-foreground">
-          <p>Use the font's default letter spacing unless a defined token specifies otherwise.</p>
-          <ul className="list-disc list-inside space-y-1">
-            <li>Do not add tracking to ordinary body text</li>
-            <li>Do not use negative tracking for small labels</li>
-            <li>Avoid uppercase labels in dense interfaces</li>
-            <li>When uppercase is necessary for a short code or category, use brief restrained positive tracking</li>
-            <li>Do not apply decorative tracking to numeric values</li>
-          </ul>
-        </div>
+        <ul className="text-[11px] text-muted-foreground space-y-1 list-disc list-inside">
+          <li>Use the typeface's default letter spacing unless a semantic token specifies otherwise</li>
+          <li>Do not add tracking to ordinary body text</li>
+          <li>Do not use negative tracking for small labels</li>
+          <li>Avoid uppercase labels in dense interfaces</li>
+          <li>Do not apply decorative tracking to numbers</li>
+          <li>Do not increase IBM Plex Mono letter spacing by default</li>
+          <li>Do not tighten small text to create more horizontal space</li>
+          <li>Large titles may receive a small, globally defined tracking adjustment after visual testing — not per component</li>
+        </ul>
       </Section>
     </>
   )

@@ -52,11 +52,26 @@
     --radius-4xl: calc(var(--radius) * 2.6);
     /* Statista brand blue */
     --color-brand: #0666e5;
-    /* PRD type scale */
-    --text-body: 14px;
-    --leading-body: 20px;
-    --text-support: 12px;
-    --leading-support: 16px;
+    /* Semantic type scale */
+    --type-title-major-size: 2rem;
+    --type-title-major-line: 2.5rem;
+    --type-title-page-size: 1.5rem;
+    --type-title-page-line: 2rem;
+    --type-title-section-size: 1.25rem;
+    --type-title-section-line: 1.75rem;
+    --type-title-compact-size: 1rem;
+    --type-title-compact-line: 1.5rem;
+    --type-body-size: 0.875rem;
+    --type-body-line: 1.25rem;
+    --type-compact-size: 0.875rem;
+    --type-compact-line: 1.125rem;
+    --type-supporting-size: 0.75rem;
+    --type-supporting-line: 1rem;
+    /* Legacy aliases */
+    --text-body: var(--type-body-size);
+    --leading-body: var(--type-body-line);
+    --text-support: var(--type-supporting-size);
+    --leading-support: var(--type-supporting-line);
     /* Paper field shadows */
     --shadow-field: var(--field-shadow);
     --shadow-field-focus: var(--field-shadow-focus);
