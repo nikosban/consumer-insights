@@ -31,6 +31,7 @@ type PageId =
   | 'icons'
   | 'color'
   | 'elevation'
+  | 'data-viz'
   | 'button'
   | 'badge'
   | 'input'
@@ -48,6 +49,7 @@ const NAV: { group: string; items: { id: PageId; label: string }[] }[] = [
       { id: 'icons',       label: 'Icons'       },
       { id: 'color',       label: 'Color'       },
       { id: 'elevation',   label: 'Elevation'   },
+      { id: 'data-viz',    label: 'Data Viz'    },
     ],
   },
   {
@@ -96,22 +98,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   )
 }
 
-function ColorSwatch({ swatch, token, value, usage }: { swatch: string; token: string; value: string; usage: string }) {
-  return (
-    <div className="flex items-center gap-4 py-1.5 border-b border-border/20 last:border-0">
-      <div className={cn('w-6 h-6 rounded shrink-0 border border-black/[0.06]', swatch)} />
-      <code className="text-xs text-foreground font-medium w-44 shrink-0 truncate">{token}</code>
-      <span className="text-xs text-muted-foreground font-mono w-48 shrink-0 truncate">{value}</span>
-      <span className="text-xs text-muted-foreground flex-1">{usage}</span>
-    </div>
-  )
-}
 
-function ColorGroupLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="text-xs font-medium text-muted-foreground mt-4 mb-2">{children}</p>
-  )
-}
 
 // ─── List row patterns (used on Card page) ────────────────────────────────────
 
@@ -581,70 +568,362 @@ function IconsPage() {
 function ColorPage() {
   return (
     <>
-      <PageHeader title="Color" description="All colors used across the app and landing page — scanned from source." />
+      <PageHeader title="Color" description="Semantic token system, palette, usage rules, and prohibited patterns." />
 
-      <div className="flex items-center gap-4 mb-2 pb-1 border-b border-border/40 text-xs font-medium text-muted-foreground">
-        <span className="w-6 shrink-0" />
-        <span className="w-44 shrink-0">Token / Class</span>
-        <span className="w-48 shrink-0">Raw value</span>
-        <span className="flex-1">Usage</span>
-      </div>
+      {/* ── Core principles ── */}
+      <Section title="Core principles">
+        <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+          <li>Neutral colors dominate the interface — use color only when it communicates meaning</li>
+          <li>Use semantic tokens in components — never raw palette values directly</li>
+          <li>Keep saturated color visually scarce so it retains meaning</li>
+          <li>Do not communicate status, selection, or category through color alone</li>
+          <li>Blue text implies interaction — do not use it for passive labels</li>
+        </ul>
+      </Section>
 
-      <ColorGroupLabel>Brand / Primary</ColorGroupLabel>
-      {[
-        { swatch: 'bg-primary',    token: '--primary',      value: 'oklch(0.47 0.243 264) ≈ #0666e5', usage: 'Buttons, active nav, links, chart primary, hero bg' },
-        { swatch: 'bg-primary/10', token: 'primary / 10%', value: 'primary at 10% opacity',           usage: 'Badge backgrounds, icon badge bg, chip bg' },
-        { swatch: 'bg-primary/5',  token: 'primary / 5%',  value: 'primary at 5% opacity',            usage: 'Widget drag-row hover, context chip resting' },
-        { swatch: 'bg-[#3384EA]',  token: '--chart-2',     value: '#3384EA',                          usage: 'Chart series 2 (bar / line)' },
-        { swatch: 'bg-[#66A3EF]',  token: '--chart-3',     value: '#66A3EF',                          usage: 'Chart series 3' },
-        { swatch: 'bg-[#99C1F4]',  token: '--chart-4',     value: '#99C1F4',                          usage: 'Chart series 4' },
-        { swatch: 'bg-[#CCE0FA]',  token: '--chart-5',     value: '#CCE0FA',                          usage: 'Chart series 5 (lightest)' },
-      ].map(r => <ColorSwatch key={r.token} {...r} />)}
+      {/* ── Palette ── */}
+      <Section title="Palette foundations">
+        <div className="rounded-xl border border-border overflow-hidden mb-4">
+          <div className="grid grid-cols-[120px_1fr_1fr] gap-4 text-xs font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+            <span>Family</span><span>Role</span><span>Key shades in use</span>
+          </div>
+          {[
+            { family: 'Zinc', role: 'Neutral foundation — all surfaces, text, borders, icons', shades: '50 · 100 · 200 · 400 · 600 · 950' },
+            { family: 'Brand blue', role: 'Primary interaction, links, focus, selected states', shades: '500 (#1A72E7) · 600 (#0666E5) · 700 · 800' },
+            { family: 'Blue', role: 'Informational states (separate token from brand)', shades: '50 · 100 · 300 · 600 · 700' },
+            { family: 'Emerald', role: 'Success — healthy status, valid, confirmed positive', shades: '50 · 300 · 600 · 700' },
+            { family: 'Amber', role: 'Warning — non-blocking risk, attention, partial', shades: '50 · 300 · 600 · 800' },
+            { family: 'Red', role: 'Danger — errors, failed states, destructive actions', shades: '50 · 300 · 600 · 700' },
+            { family: 'Chart palette', role: 'Data visualization only — not for UI controls', shades: 'violet · cyan · orange · fuchsia · teal · indigo · lime' },
+          ].map(({ family, role, shades }) => (
+            <div key={family} className="grid grid-cols-[120px_1fr_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-start hover:bg-muted/20 transition-colors">
+              <span className="text-xs font-medium text-foreground">{family}</span>
+              <span className="text-xs text-muted-foreground">{role}</span>
+              <span className="text-xs font-mono text-muted-foreground">{shades}</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground">Extend the palette only when an existing raw value cannot support the required semantic role. Do not mix Zinc and Gray as competing neutral foundations.</p>
+      </Section>
 
-      <ColorGroupLabel>Neutral scale (H = 220 cool gray)</ColorGroupLabel>
-      {[
-        { swatch: 'bg-[oklch(0.982_0.003_220)]', token: '--color-25',  value: 'oklch(0.982 0.003 220)', usage: 'Sidebar bg, ResourceCard body bg, page shell bg' },
-        { swatch: 'bg-[oklch(0.970_0.005_220)]', token: '--color-50',  value: 'oklch(0.970 0.005 220)', usage: 'Muted bg, secondary bg' },
-        { swatch: 'bg-[oklch(0.958_0.007_220)]', token: '--color-75',  value: 'oklch(0.958 0.007 220)', usage: 'Accent bg, hover states' },
-        { swatch: 'bg-[oklch(0.938_0.009_220)]', token: '--color-100', value: 'oklch(0.938 0.009 220)', usage: 'Borders, input borders' },
-        { swatch: 'bg-[oklch(0.648_0.022_220)]', token: '--color-400', value: 'oklch(0.648 0.022 220)', usage: 'Muted foreground text, placeholder, labels' },
-        { swatch: 'bg-[oklch(0.417_0.024_220)]', token: '--color-600', value: 'oklch(0.417 0.024 220)', usage: 'Sidebar text, secondary foreground, accent foreground' },
-        { swatch: 'bg-[oklch(0.127_0.008_220)]', token: '--color-950', value: 'oklch(0.127 0.008 220)', usage: 'Primary foreground text (headings, body)' },
-      ].map(r => <ColorSwatch key={r.token} {...r} />)}
+      {/* ── Semantic tokens ── */}
+      <Section title="Semantic tokens — light theme">
+        <div className="space-y-6">
+          {/* Background */}
+          <div>
+            <p className="text-xs font-medium text-foreground mb-2">Background</p>
+            <div className="rounded-xl border border-border overflow-hidden">
+              <div className="grid grid-cols-[24px_180px_120px_1fr] gap-3 text-xs font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+                <span />  <span>Token</span><span>Palette ref</span><span>Usage</span>
+              </div>
+              {[
+                { sw: 'bg-background border border-border', token: 'background.default', ref: 'white', usage: 'Main content, cards, popovers' },
+                { sw: 'bg-muted', token: 'background.submerged', ref: 'zinc.50', usage: 'Sidebar, table headers, filter areas, inspector panels' },
+                { sw: 'bg-accent', token: 'background.neutral.subtle-hovered', ref: 'zinc.100', usage: 'Hover states on rows, menu items, buttons' },
+                { sw: 'bg-primary/10', token: 'background.brand.subtle', ref: 'blue.50', usage: 'Selected rows, active nav tint, chip background' },
+                { sw: 'bg-primary', token: 'background.brand.bold', ref: 'brand.600', usage: 'Primary buttons, checked controls, active badges' },
+                { sw: 'bg-destructive/10', token: 'background.danger.subtle', ref: 'red.50', usage: 'Destructive hover, error notice background' },
+                { sw: 'bg-destructive', token: 'background.danger.bold', ref: 'red.600', usage: 'Destructive button fill' },
+              ].map(({ sw, token, ref, usage }) => (
+                <div key={token} className="grid grid-cols-[24px_180px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+                  <div className={cn('w-4 h-4 rounded shrink-0 border border-black/[0.06]', sw)} />
+                  <code className="text-xs text-foreground">{token}</code>
+                  <span className="text-xs font-mono text-muted-foreground">{ref}</span>
+                  <span className="text-xs text-muted-foreground">{usage}</span>
+                </div>
+              ))}
+            </div>
+          </div>
 
-      <ColorGroupLabel>Semantic roles</ColorGroupLabel>
-      {[
-        { swatch: 'bg-background border border-border', token: '--background',      value: 'oklch(1 0 0) — white',       usage: 'Main content area, cards, popovers' },
-        { swatch: 'bg-foreground',                      token: '--foreground',       value: 'var(--color-950)',            usage: 'Primary text: headings, body, row titles' },
-        { swatch: 'bg-muted',                           token: '--muted',            value: 'var(--color-50)',             usage: 'Subtle section backgrounds, tag bg' },
-        { swatch: 'bg-muted-foreground',                token: '--muted-foreground', value: 'var(--color-400)',            usage: 'Secondary text, meta rows, descriptions' },
-        { swatch: 'bg-accent',                          token: '--accent',           value: 'var(--color-75)',             usage: 'Hover backgrounds on buttons and list rows' },
-        { swatch: 'bg-border',                          token: '--border',           value: 'var(--color-100)',            usage: 'All dividers, card outlines, input borders' },
-        { swatch: 'bg-sidebar',                         token: '--sidebar',          value: 'var(--color-25)',             usage: 'Left nav sidebar background' },
-        { swatch: 'bg-destructive',                     token: '--destructive',      value: 'oklch(0.577 0.245 27.3)',     usage: 'Delete buttons, error states' },
-        { swatch: 'bg-destructive/10',                  token: 'destructive / 10%',  value: 'destructive at 10% opacity', usage: 'Destructive hover bg, error badge bg' },
-      ].map(r => <ColorSwatch key={r.token} {...r} />)}
+          {/* Text */}
+          <div>
+            <p className="text-xs font-medium text-foreground mb-2">Text</p>
+            <div className="rounded-xl border border-border overflow-hidden">
+              <div className="grid grid-cols-[24px_160px_120px_1fr] gap-3 text-xs font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+                <span /><span>Token</span><span>Palette ref</span><span>Usage</span>
+              </div>
+              {[
+                { sw: 'bg-foreground',          token: 'text.default',    ref: 'zinc.950', usage: 'Headings, body, row titles, primary labels' },
+                { sw: 'bg-zinc-600',            token: 'text.subtle',     ref: 'zinc.600', usage: 'Secondary descriptions, sidebar nav' },
+                { sw: 'bg-muted-foreground',    token: 'text.subtlest',   ref: 'zinc.400', usage: 'Placeholders, meta, helper text, disabled labels' },
+                { sw: 'bg-primary',             token: 'text.brand/link', ref: 'brand.600', usage: 'Links, interactive labels — implies clickable' },
+                { sw: 'bg-destructive',         token: 'text.danger',     ref: 'red.700',  usage: 'Error messages, destructive confirmations' },
+                { sw: 'bg-emerald-700',         token: 'text.success',    ref: 'emerald.700', usage: 'Success messages, positive confirmations' },
+                { sw: 'bg-amber-800',           token: 'text.warning',    ref: 'amber.800', usage: 'Warning messages, attention states' },
+              ].map(({ sw, token, ref, usage }) => (
+                <div key={token} className="grid grid-cols-[24px_160px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+                  <div className={cn('w-4 h-4 rounded shrink-0 border border-black/[0.06]', sw)} />
+                  <code className="text-xs text-foreground">{token}</code>
+                  <span className="text-xs font-mono text-muted-foreground">{ref}</span>
+                  <span className="text-xs text-muted-foreground">{usage}</span>
+                </div>
+              ))}
+            </div>
+          </div>
 
-      <ColorGroupLabel>Chart-type badge colors</ColorGroupLabel>
-      {[
-        { swatch: 'bg-blue-50',    token: 'blue-50 / blue-600',       value: '#eff6ff / #2563eb', usage: 'Bar chart badge' },
-        { swatch: 'bg-emerald-50', token: 'emerald-50 / emerald-700', value: '#ecfdf5 / #047857', usage: 'Line chart badge' },
-        { swatch: 'bg-purple-50',  token: 'purple-50 / purple-600',   value: '#faf5ff / #9333ea', usage: 'Pie chart badge' },
-        { swatch: 'bg-orange-50',  token: 'orange-50 / orange-600',   value: '#fff7ed / #ea580c', usage: 'Table chart badge' },
-        { swatch: 'bg-amber-50',   token: 'amber-50 / amber-600',     value: '#fffbeb / #d97706', usage: 'Scorecard badge' },
-      ].map(r => <ColorSwatch key={r.token} {...r} />)}
+          {/* Border */}
+          <div>
+            <p className="text-xs font-medium text-foreground mb-2">Border</p>
+            <div className="rounded-xl border border-border overflow-hidden">
+              <div className="grid grid-cols-[24px_160px_120px_1fr] gap-3 text-xs font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+                <span /><span>Token</span><span>Palette ref</span><span>Usage</span>
+              </div>
+              {[
+                { sw: 'border-2 border-black/[0.06]', token: 'border.subtle',   ref: 'alpha.black.8',   usage: 'Sidebar, floating surface edges' },
+                { sw: 'border-2 border-black/[0.12]', token: 'border.default',  ref: 'alpha.black.12',  usage: 'Cards, inputs, dividers — standard use' },
+                { sw: 'border-2 border-black/[0.18]', token: 'border.strong',   ref: 'alpha.black.18',  usage: 'Emphasized boundaries' },
+                { sw: 'border-2 border-primary',      token: 'border.brand',    ref: 'brand.600',        usage: 'Focus rings, selected inputs, active filters' },
+                { sw: 'border-2 border-destructive',  token: 'border.danger',   ref: 'red.300',          usage: 'Invalid input, error state borders' },
+              ].map(({ sw, token, ref, usage }) => (
+                <div key={token} className="grid grid-cols-[24px_160px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+                  <div className={cn('w-4 h-4 rounded shrink-0', sw)} />
+                  <code className="text-xs text-foreground">{token}</code>
+                  <span className="text-xs font-mono text-muted-foreground">{ref}</span>
+                  <span className="text-xs text-muted-foreground">{usage}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Section>
 
-      <ColorGroupLabel>Landing page & special contexts</ColorGroupLabel>
-      {[
-        { swatch: 'bg-[#0666e5]', token: '#0666e5',  value: '#0666e5',    usage: 'Landing hero bg, SVG logo fill, gradient start' },
-        { swatch: 'bg-[#003eaa]', token: '#003eaa',  value: '#003eaa',    usage: 'Landing hero gradient dark endpoint' },
-        { swatch: 'bg-[#F97316]', token: '#F97316',  value: 'orange-500', usage: 'Research AI — Audience Profiler tile' },
-        { swatch: 'bg-[#22C55E]', token: '#22C55E',  value: 'green-500',  usage: 'Research AI — Geomarket Brief tile' },
-        { swatch: 'bg-[#A855F7]', token: '#A855F7',  value: 'purple-500', usage: 'Research AI — Brand Position tile' },
-        { swatch: 'bg-[#4F46E5]', token: '#4F46E5',  value: 'indigo-600', usage: 'Widget creator color picker preset' },
-        { swatch: 'bg-[#DC2626]', token: '#DC2626',  value: 'red-600',    usage: 'Widget creator color picker preset' },
-        { swatch: 'bg-[#16A34A]', token: '#16A34A',  value: 'green-600',  usage: 'Widget creator color picker preset' },
-      ].map(r => <ColorSwatch key={r.token} {...r} />)}
+      {/* ── Chart categorical palette ── */}
+      <Section title="Chart categorical palette">
+        <p className="text-xs text-muted-foreground mb-3">8 distinct hues for unordered categorical series. Brand blue is always series 1. Assign the same category the same color across related views. Group minor categories into "Other" (zinc.500).</p>
+        <div className="rounded-xl border border-border overflow-hidden mb-4">
+          <div className="grid grid-cols-[24px_80px_120px_1fr] gap-3 text-xs font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+            <span /><span>Series</span><span>Value</span><span>Hue</span>
+          </div>
+          {[
+            { hex: '#0666E5', series: 'cat.1', hue: 'Brand blue' },
+            { hex: '#7C3AED', series: 'cat.2', hue: 'Violet' },
+            { hex: '#0891B2', series: 'cat.3', hue: 'Cyan' },
+            { hex: '#EA580C', series: 'cat.4', hue: 'Orange' },
+            { hex: '#C026D3', series: 'cat.5', hue: 'Fuchsia' },
+            { hex: '#0D9488', series: 'cat.6', hue: 'Teal' },
+            { hex: '#4F46E5', series: 'cat.7', hue: 'Indigo' },
+            { hex: '#65A30D', series: 'cat.8', hue: 'Lime' },
+            { hex: '#a1a1aa', series: 'other', hue: 'Zinc.400 — grouped "Other"' },
+          ].map(({ hex, series, hue }) => (
+            <div key={series} className="grid grid-cols-[24px_80px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+              <div className="w-4 h-4 rounded shrink-0" style={{ background: hex }} />
+              <code className="text-xs text-foreground">{series}</code>
+              <code className="text-xs font-mono text-muted-foreground">{hex}</code>
+              <span className="text-xs text-muted-foreground">{hue}</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground">Avoid assigning Emerald, Amber, or Red to neutral categories — users interpret these as success, warning, and danger.</p>
+      </Section>
+
+      {/* ── Semantic color usage ── */}
+      <Section title="Semantic color usage">
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { label: 'Brand / Interaction', color: 'bg-primary', usage: 'Primary actions, links, focus, checked controls, active filters, active navigation' },
+            { label: 'Information', color: 'bg-blue-600', usage: 'Neutral notices, explanatory alerts, informational system states — separate token from brand' },
+            { label: 'Success', color: 'bg-emerald-600', usage: 'Successful completion, healthy status, valid input, confirmed positive outcomes' },
+            { label: 'Warning', color: 'bg-amber-500', usage: 'Non-blocking risk, attention-required states, partial completion' },
+            { label: 'Danger', color: 'bg-destructive', usage: 'Errors, failed states, invalid input, destructive actions, critical problems' },
+          ].map(({ label, color, usage }) => (
+            <div key={label} className="flex items-start gap-3 rounded-lg border border-border p-3">
+              <div className={cn('w-3 h-3 rounded-full mt-0.5 shrink-0', color)} />
+              <div>
+                <p className="text-xs font-medium text-foreground mb-0.5">{label}</p>
+                <p className="text-xs text-muted-foreground">{usage}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground mt-3">Every semantic color must be accompanied by text, a label, icon, or shape. Do not rely on color alone.</p>
+      </Section>
+
+      {/* ── Decision rule ── */}
+      <Section title="Decision rule">
+        <p className="text-xs text-muted-foreground mb-3">Before applying a non-neutral color, identify its exact meaning:</p>
+        <div className="flex flex-wrap gap-2">
+          {['Brand or interaction', 'Selection', 'Information', 'Success', 'Warning', 'Danger', 'Data meaning', 'Meaningful grouping'].map((m, i) => (
+            <span key={m} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border text-xs text-muted-foreground">
+              <span className="text-xs font-medium text-foreground tabular-nums">{i + 1}.</span> {m}
+            </span>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground mt-3">If none apply, use a neutral token.</p>
+      </Section>
+
+      {/* ── Prohibited ── */}
+      <Section title="Prohibited">
+        <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+          <li>Raw palette values in components — always use semantic tokens</li>
+          <li>Color without semantic purpose</li>
+          <li>Colored background on every card</li>
+          <li>Brand blue on passive labels, passive borders, or ordinary metadata</li>
+          <li>Semantic status colors without genuine semantic meaning</li>
+          <li>Visualization colors on UI controls</li>
+          <li>Multiple unrelated accent hues in the main interface</li>
+          <li>Large saturated surfaces without a strong reason</li>
+          <li>Colored outer glows</li>
+          <li>Category colors that conflict with success, warning, or danger meanings</li>
+        </ul>
+      </Section>
+    </>
+  )
+}
+
+function DataVizPage() {
+  return (
+    <>
+      <PageHeader title="Data Visualization" description="Chart selection, color roles, axes, labels, and prohibited patterns." />
+
+      <Section title="Intent first">
+        <p className="text-xs text-muted-foreground mb-3">Before selecting a chart, identify:</p>
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          {['The question being answered', 'The primary metric', 'The comparison or dimension', 'The relevant time period', 'The intended audience', 'The decision or action this supports'].map(q => (
+            <div key={q} className="flex items-start gap-2 text-xs text-muted-foreground">
+              <span className="text-foreground mt-0.5">→</span> {q}
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground">If the task is unclear, use a table or request clarification rather than choosing a decorative chart.</p>
+      </Section>
+
+      <Section title="Chart selection">
+        <div className="rounded-xl border border-border overflow-hidden">
+          <div className="grid grid-cols-[120px_1fr_1fr] gap-4 text-xs font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+            <span>Chart type</span><span>Use when</span><span>Avoid when</span>
+          </div>
+          {[
+            { type: 'KPI / Scorecard', use: 'One important value with context (period, target, delta)', avoid: 'Many equally prominent KPIs; delta without comparison period' },
+            { type: 'Table', use: 'Exact values, many attributes, sort/filter, identifiers, export', avoid: 'Pattern recognition is the goal; too few rows to need a table' },
+            { type: 'Bar', use: 'Compare categories, rank items, discrete quantities', avoid: 'Time series with many points; rounded/3D bars' },
+            { type: 'Line', use: 'Time series, ordered trends, rates over time', avoid: 'Unordered categories; more series than users can distinguish' },
+            { type: 'Area', use: 'Total volume over time; part-to-whole change; bounded range', avoid: 'Overlapping opaque fills; decorative line enrichment' },
+            { type: 'Stacked bar/area', use: 'Both total and composition matter', avoid: 'Precise per-series comparison is the main task; many small segments' },
+            { type: 'Scatter', use: 'Relationship between two quantitative variables, clusters, outliers', avoid: 'Implying causation from correlation' },
+            { type: 'Heatmap', use: 'Magnitude across two dimensions; cohort retention; time-of-day', avoid: 'When exact values are needed without tooltip' },
+            { type: 'Pie / Donut', use: 'Few categories, approximate proportion, one meaningful whole', avoid: '>5 categories; similar values; ranking matters; comparison over time' },
+            { type: 'Map', use: 'Geography is part of the analytical question', avoid: 'Decorative alternative to ranked table or bar chart' },
+          ].map(({ type, use, avoid }) => (
+            <div key={type} className="grid grid-cols-[120px_1fr_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-start hover:bg-muted/20 transition-colors">
+              <span className="text-xs font-medium text-foreground">{type}</span>
+              <span className="text-xs text-muted-foreground">{use}</span>
+              <span className="text-xs text-muted-foreground">{avoid}</span>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Color roles">
+        <div className="rounded-xl border border-border overflow-hidden mb-3">
+          <div className="grid grid-cols-[140px_1fr] gap-4 text-xs font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+            <span>Role</span><span>Rule</span>
+          </div>
+          {[
+            { role: 'Primary / Selected', rule: 'Brand blue (#0666E5). Main series, selected series, user\'s dataset, highlighted points.' },
+            { role: 'Categorical', rule: '8-hue palette from color tokens. Assign same category same color across views. Group minor categories into "Other" (zinc).' },
+            { role: 'Sequential', rule: 'Lightness changes for magnitude (volume, density, intensity). Do not use rainbow scales.' },
+            { role: 'Diverging', rule: 'Only when data has a meaningful midpoint (zero, target, average). Restrained neutral at midpoint, stronger color at both ends.' },
+            { role: 'Semantic (threshold)', rule: 'Emerald/Amber/Red only when data genuinely represents success/warning/danger. Never auto-encode increase=green or decrease=red.' },
+            { role: 'Contextual / Inactive', rule: 'Zinc neutrals for grid lines, axes, inactive series, reference ranges.' },
+          ].map(({ role, rule }) => (
+            <div key={role} className="grid grid-cols-[140px_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-start hover:bg-muted/20 transition-colors">
+              <span className="text-xs font-medium text-foreground">{role}</span>
+              <span className="text-xs text-muted-foreground">{rule}</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground">When one series is highlighted, reduce emphasis on contextual series rather than increasing saturation everywhere. Do not use glow, gradients, or 3D as series emphasis.</p>
+      </Section>
+
+      <Section title="Axes, scales, and labels">
+        <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+          <li>Label axes when the measure or unit is not obvious</li>
+          <li>Use zero baselines for bars and area charts — do not truncate to exaggerate differences</li>
+          <li>Line chart axes need not start at zero, but the visible range must not distort the trend</li>
+          <li>Keep time axes chronological (left to right)</li>
+          <li>Use linear scales by default; logarithmic only when range requires it — always labeled</li>
+          <li>Keep grid lines subtle and subordinate to the data</li>
+          <li>Prefer direct labels when they reduce lookup effort and do not create clutter</li>
+          <li>Include units in the axis, title, label, or tooltip — not inferred</li>
+          <li>Avoid dual-axis charts; prefer separate aligned charts or indexed values</li>
+          <li>Do not rotate labels unless shortening, wrapping, or changing orientation would be worse</li>
+          <li>Do not truncate category names that carry the primary meaning of the visualization</li>
+        </ul>
+      </Section>
+
+      <Section title="Numbers and formatting">
+        <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+          <li>Use tabular lining figures where numerical alignment matters</li>
+          <li>Use Instrument Sans for chart values; IBM Plex Mono only for identifiers or fixed-format values</li>
+          <li>Use consistent decimal precision — do not show more than source data supports</li>
+          <li>Abbreviate large values when it improves scanning; expose precise value in tooltip</li>
+          <li>Use locale-aware separators and formats</li>
+          <li>Distinguish percentages from percentage-point change explicitly</li>
+          <li>Display units and currencies explicitly</li>
+          <li>Do not mix abbreviated and full values on the same axis without a clear reason</li>
+        </ul>
+      </Section>
+
+      <Section title="Tooltips">
+        <p className="text-xs text-muted-foreground mb-2">Include only relevant information: category or timestamp, exact value, unit, comparison or delta, series name. Use the same formatting and names as the chart. Do not place controls or essential actions inside hover-only tooltips.</p>
+      </Section>
+
+      <Section title="Empty, loading, and error states">
+        <p className="text-xs text-muted-foreground mb-2">A visualization must distinguish between:</p>
+        <div className="flex flex-wrap gap-2">
+          {['Loading', 'No results', 'All values are zero', 'Missing data', 'Filtered-out data', 'Query error', 'Insufficient permissions'].map(s => (
+            <span key={s} className="px-2.5 py-1 rounded-full border border-border text-xs text-muted-foreground">{s}</span>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground mt-3">Do not display an empty chart frame when there is no data. Do not interpret missing values as zero unless explicitly defined by the data model.</p>
+      </Section>
+
+      <Section title="Automated / LLM-generated visualizations">
+        <p className="text-xs text-muted-foreground mb-2">When generating a visualization automatically:</p>
+        <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+          <li>Infer the user's analytical intent</li>
+          <li>Classify fields as temporal, categorical, quantitative, ordinal, or identifier</li>
+          <li>Identify metric, dimension, aggregation, filters, and time range</li>
+          <li>Check category cardinality and missing values</li>
+          <li>Select the simplest valid representation</li>
+          <li>Apply meaningful ordering and number formatting</li>
+          <li>State important assumptions</li>
+          <li>Allow the user to change chart type, axes, aggregation, or time granularity</li>
+          <li>Fall back to a table when no chart remains clear</li>
+        </ol>
+      </Section>
+
+      <Section title="Decision checklist">
+        <p className="text-xs text-muted-foreground mb-2">Before adding or changing a visualization, verify:</p>
+        <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+          <li>What exact question does it answer?</li>
+          <li>Is a chart more useful than a table or single value?</li>
+          <li>Is the chosen encoding accurate for the data type?</li>
+          <li>Is the primary comparison immediately visible?</li>
+          <li>Are ordering, scale, units, and time range clear?</li>
+          <li>Does color have a defined meaning?</li>
+          <li>Can the result be understood without color or hover?</li>
+          <li>Can users inspect the underlying data?</li>
+          <li>Does the visualization remain legible in light and dark mode?</li>
+          <li>Is every visible element necessary?</li>
+        </ol>
+      </Section>
+
+      <Section title="Prohibited">
+        <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+          <li>Choosing a chart before identifying the question</li>
+          <li>Using a chart when a table is clearer</li>
+          <li>Three-dimensional charts, decorative gradients, glows</li>
+          <li>Rainbow scales for ordered data</li>
+          <li>Semantic status colors for neutral categories</li>
+          <li>More simultaneous series than users can distinguish</li>
+          <li>Essential values hidden behind hover only</li>
+          <li>Unlabeled dual axes; truncated axes</li>
+          <li>Sorting time alphabetically</li>
+          <li>Treating missing values as zero without justification</li>
+          <li>Continuous animation unrelated to an active process</li>
+        </ul>
+      </Section>
     </>
   )
 }
@@ -1190,6 +1469,7 @@ const PAGES: Record<PageId, React.ReactNode> = {
   'typography':  <TypographyPage />,
   'icons':       <IconsPage />,
   'color':       <ColorPage />,
+  'data-viz':    <DataVizPage />,
   'elevation':   <ElevationPage />,
   'button':      <ButtonPage />,
   'badge':       <BadgePage />,

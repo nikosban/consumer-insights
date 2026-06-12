@@ -7,7 +7,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* #0666E5 in oklch ≈ oklch(0.47 0.243 264) */
 @theme inline {
     --font-heading: 'Instrument Sans Variable', 'Instrument Sans', system-ui, sans-serif;
     --font-sans: 'Instrument Sans Variable', 'Instrument Sans', system-ui, sans-serif;
@@ -20,6 +19,9 @@
     --color-sidebar-primary: var(--sidebar-primary);
     --color-sidebar-foreground: var(--sidebar-foreground);
     --color-sidebar: var(--sidebar);
+    --color-chart-8: var(--chart-8);
+    --color-chart-7: var(--chart-7);
+    --color-chart-6: var(--chart-6);
     --color-chart-5: var(--chart-5);
     --color-chart-4: var(--chart-4);
     --color-chart-3: var(--chart-3);
@@ -50,8 +52,7 @@
     --radius-2xl: calc(var(--radius) * 1.8);
     --radius-3xl: calc(var(--radius) * 2.2);
     --radius-4xl: calc(var(--radius) * 2.6);
-    /* Statista brand blue */
-    --color-brand: #0666e5;
+    --color-brand: var(--brand-600);
     /* Semantic type scale */
     --type-title-major-size: 2rem;
     --type-title-major-line: 2.5rem;
@@ -78,67 +79,143 @@
 }
 
 :root {
-    /* Cool-tinted gray scale (H=220) */
-    --color-25:  oklch(0.982 0.003 220);
-    --color-50:  oklch(0.970 0.005 220);
-    --color-75:  oklch(0.958 0.007 220);
-    --color-100: oklch(0.938 0.009 220);
-    --color-200: oklch(0.904 0.012 220);
-    --color-300: oklch(0.784 0.018 220);
-    --color-400: oklch(0.648 0.022 220);
-    --color-500: oklch(0.524 0.025 220);
-    --color-600: oklch(0.417 0.024 220);
-    --color-700: oklch(0.325 0.020 220);
-    --color-800: oklch(0.236 0.015 220);
-    --color-900: oklch(0.178 0.011 220);
-    --color-950: oklch(0.127 0.008 220);
-    /* Paper field shadows */
+    /* ── Zinc palette — Tailwind v4 official OKLCH values ── */
+    --zinc-50:  oklch(98.5% 0 0);
+    --zinc-100: oklch(96.7% 0.001 286.375);
+    --zinc-200: oklch(92%   0.004 286.32);
+    --zinc-300: oklch(87.1% 0.006 286.286);
+    --zinc-400: oklch(70.5% 0.015 286.067);
+    --zinc-500: oklch(55.2% 0.016 285.938);
+    --zinc-600: oklch(44.2% 0.017 285.786);
+    --zinc-700: oklch(37%   0.013 285.805);
+    --zinc-800: oklch(27.4% 0.006 286.033);
+    --zinc-900: oklch(21%   0.006 285.885);
+    --zinc-950: oklch(14.1% 0.005 285.823);
+
+    /* ── Brand palette ── */
+    --brand-500: #1A72E7;
+    --brand-600: #0666E5;
+    --brand-700: #055BCC;
+    --brand-800: #0550B3;
+
+    /* ── Chart categorical palette (light — .600 shades) ── */
+    --chart-cat-1: var(--brand-600);     /* blue       */
+    --chart-cat-2: #7C3AED;             /* violet-600 */
+    --chart-cat-3: #0891B2;             /* cyan-600   */
+    --chart-cat-4: #EA580C;             /* orange-600 */
+    --chart-cat-5: #C026D3;             /* fuchsia-600 */
+    --chart-cat-6: #0D9488;             /* teal-600   */
+    --chart-cat-7: #4F46E5;             /* indigo-600 */
+    --chart-cat-8: #65A30D;             /* lime-600   */
+
+    /* ── Legacy aliases (backward compat — point to zinc equivalents) ── */
+    --color-25:  var(--zinc-50);
+    --color-50:  var(--zinc-50);
+    --color-75:  var(--zinc-100);
+    --color-100: var(--zinc-200);
+    --color-200: var(--zinc-200);
+    --color-300: var(--zinc-300);
+    --color-400: var(--zinc-400);
+    --color-500: var(--zinc-500);
+    --color-600: var(--zinc-600);
+    --color-700: var(--zinc-700);
+    --color-800: var(--zinc-800);
+    --color-900: var(--zinc-900);
+    --color-950: var(--zinc-950);
+
+    /* ── Paper shadows ── */
     --field-shadow: rgba(0,0,0,0.08) 0px -2px 0px inset, rgba(0,0,0,0.12) 0px 0px 0px 1px;
-    /* Paper primary button */
+    --field-shadow-focus: rgba(0,0,0,0.08) 0px -2px 0px inset, rgba(61,156,243,0.12) 0px 0px 0px 3px, #1F7BE1 0px 0px 0px 1px;
     --btn-primary-bg: linear-gradient(in oklab 180deg, oklab(57.3% -0.024 -0.233) 0%, oklab(47% -0.025 -0.241) 100%);
     --btn-primary-shadow: rgba(255,255,255,0.12) 0px 1px 0px inset;
-    /* Paper white button (used on dark/colored backgrounds) */
     --btn-white-shadow: inset 0px -3.5px 0px 0px rgba(0,0,0,0.08), inset 0px 0px 0px 1px rgba(49,60,73,0.12), inset 0px 1px 1px 0px rgba(255,255,255,0.88);
-    /* Toolbar */
-    --toolbar-item-h: 2rem; /* 32px — enforced on all toolbar children */
-    --field-shadow-focus: rgba(0,0,0,0.08) 0px -2px 0px inset, rgba(61,156,243,0.12) 0px 0px 0px 3px, #1F7BE1 0px 0px 0px 1px;
-    --background: oklch(1 0 0);
-    --foreground: var(--color-950);
-    --card: oklch(1 0 0);
-    --card-foreground: var(--color-950);
-    --popover: oklch(1 0 0);
-    --popover-foreground: var(--color-950);
-    /* Statista blue — unchanged */
-    --primary: oklch(0.47 0.243 264);
-    --primary-foreground: oklch(1 0 0);
-    --secondary: var(--color-50);
-    --secondary-foreground: var(--color-600);
-    --muted: var(--color-50);
-    --muted-foreground: var(--color-400);
-    --accent: var(--color-75);
-    --accent-foreground: var(--color-600);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: var(--color-100);
-    --input: var(--color-100);
-    --ring: oklch(0.47 0.243 264);
-    /* Charts — unchanged */
-    --chart-1: oklch(0.47 0.243 264);
-    --chart-2: oklch(0.6 0.15 264);
-    --chart-3: oklch(0.75 0.08 264);
-    --chart-4: oklch(0.85 0.04 264);
-    --chart-5: oklch(0.922 0 0);
+    --toolbar-item-h: 2rem;
+
+    /* ── Shadcn semantic tokens — light theme ── */
+    --background: oklch(100% 0 0);
+    --foreground: var(--zinc-950);
+    --card: oklch(100% 0 0);
+    --card-foreground: var(--zinc-950);
+    --popover: oklch(100% 0 0);
+    --popover-foreground: var(--zinc-950);
+    --primary: var(--brand-600);
+    --primary-foreground: oklch(100% 0 0);
+    --secondary: var(--zinc-50);
+    --secondary-foreground: var(--zinc-600);
+    --muted: var(--zinc-50);
+    --muted-foreground: var(--zinc-400);
+    --accent: var(--zinc-100);
+    --accent-foreground: var(--zinc-600);
+    --destructive: oklch(57.7% 0.245 27.325);
+    --border: oklch(0% 0 0 / 12%);
+    --input: oklch(0% 0 0 / 12%);
+    --ring: var(--brand-600);
+
+    /* ── Chart tokens — categorical (light) ── */
+    --chart-1: var(--chart-cat-1);
+    --chart-2: var(--chart-cat-2);
+    --chart-3: var(--chart-cat-3);
+    --chart-4: var(--chart-cat-4);
+    --chart-5: var(--chart-cat-5);
+    --chart-6: var(--chart-cat-6);
+    --chart-7: var(--chart-cat-7);
+    --chart-8: var(--chart-cat-8);
+
     --radius: 0.5rem;
-    --sidebar: var(--color-25);
-    --sidebar-foreground: var(--color-600);
-    --sidebar-primary: oklch(0.47 0.243 264);
-    --sidebar-primary-foreground: oklch(1 0 0);
-    --sidebar-accent: var(--color-75);
-    --sidebar-accent-foreground: var(--color-600);
-    --sidebar-border: var(--color-100);
-    --sidebar-ring: oklch(0.47 0.243 264);
+
+    /* ── Sidebar ── */
+    --sidebar: var(--zinc-50);
+    --sidebar-foreground: var(--zinc-600);
+    --sidebar-primary: var(--brand-600);
+    --sidebar-primary-foreground: oklch(100% 0 0);
+    --sidebar-accent: var(--zinc-100);
+    --sidebar-accent-foreground: var(--zinc-600);
+    --sidebar-border: oklch(0% 0 0 / 8%);
+    --sidebar-ring: var(--brand-600);
 }
 
-/* Toolbar: enforce consistent item height so component-level size drift is caught */
+/* ── Dark theme (tokens registered; no toggle wired yet) ── */
+.dark {
+    --background: var(--zinc-900);
+    --foreground: var(--zinc-50);
+    --card: var(--zinc-900);
+    --card-foreground: var(--zinc-50);
+    --popover: var(--zinc-800);
+    --popover-foreground: var(--zinc-50);
+    --primary: var(--brand-600);
+    --primary-foreground: oklch(100% 0 0);
+    --secondary: var(--zinc-800);
+    --secondary-foreground: var(--zinc-300);
+    --muted: var(--zinc-800);
+    --muted-foreground: var(--zinc-400);
+    --accent: var(--zinc-800);
+    --accent-foreground: var(--zinc-300);
+    --destructive: oklch(63.7% 0.237 25.331);
+    --border: oklch(100% 0 0 / 10%);
+    --input: oklch(100% 0 0 / 10%);
+    --ring: var(--brand-500);
+
+    /* Chart tokens — categorical (dark — .400 shades, brighter for dark surfaces) */
+    --chart-1: var(--brand-500);
+    --chart-2: #8B5CF6;  /* violet-500 */
+    --chart-3: #22D3EE;  /* cyan-400   */
+    --chart-4: #FB923C;  /* orange-400 */
+    --chart-5: #E879F9;  /* fuchsia-400 */
+    --chart-6: #2DD4BF;  /* teal-400   */
+    --chart-7: #818CF8;  /* indigo-400 */
+    --chart-8: #A3E635;  /* lime-400   */
+
+    --sidebar: var(--zinc-950);
+    --sidebar-foreground: var(--zinc-300);
+    --sidebar-primary: var(--brand-500);
+    --sidebar-primary-foreground: oklch(100% 0 0);
+    --sidebar-accent: var(--zinc-800);
+    --sidebar-accent-foreground: var(--zinc-300);
+    --sidebar-border: oklch(100% 0 0 / 7%);
+    --sidebar-ring: var(--brand-500);
+}
+
+/* Toolbar: enforce consistent item height */
 [data-toolbar] > * {
   height: var(--toolbar-item-h);
 }
@@ -149,20 +226,20 @@
   50%       { transform: scale(1);    opacity: 1;    }
 }
 
-/* AI card dot-grid ripple — ripple propagates outward from center */
+/* AI card dot-grid ripple */
 @keyframes dotGridPulse {
   0%, 100% { opacity: 0.08; transform: scale(0.5); }
   50%       { opacity: 0.65; transform: scale(1.2); }
 }
 
-/* Sine-wave gradient animation — used for the name highlight in Research AI */
+/* Sine-wave gradient animation */
 @keyframes sineGradient {
   0%   { background-position: 0%   50% }
   50%  { background-position: 100% 50% }
   100% { background-position: 0%   50% }
 }
 
-/* Logo marquee — scrolls left to right, one full set = 1/3 of total width */
+/* Logo marquee */
 @keyframes marquee-ltr {
   from { transform: translateX(0); }
   to   { transform: translateX(-33.333%); }
@@ -183,7 +260,6 @@
   button, [role="button"] {
     @apply cursor-pointer;
   }
-  /* Preserve intrinsic aspect ratio on all brand logos — never distort */
   img[data-logo] {
     width: auto;
     object-fit: contain;

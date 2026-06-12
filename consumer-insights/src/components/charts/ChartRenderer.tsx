@@ -26,16 +26,21 @@ type ChartRendererProps = {
   heatmap?: boolean
 }
 
-const BLUE_SHADES = [
-  '#0666E5',
-  '#3384EA',
-  '#66A3EF',
-  '#99C1F4',
-  '#CCE0FA',
+// Categorical palette — matches color.tokens.json chart.categorical (light .600 shades)
+const CATEGORICAL_COLORS = [
+  '#0666E5', // brand-600   (series 1 — primary)
+  '#7C3AED', // violet-600  (series 2)
+  '#0891B2', // cyan-600    (series 3)
+  '#EA580C', // orange-600  (series 4)
+  '#C026D3', // fuchsia-600 (series 5)
+  '#0D9488', // teal-600    (series 6)
+  '#4F46E5', // indigo-600  (series 7)
+  '#65A30D', // lime-600    (series 8)
 ]
 
-const GRID_STROKE = '#e9eaec'
-const AXIS_STYLE = { fontSize: 11, fill: '#8c8c8c', fontFamily: 'Open Sans, sans-serif' }
+const GRID_STROKE = 'oklch(92% 0.004 286.32)' // zinc-200
+const SANS = "'Instrument Sans Variable', 'Instrument Sans', system-ui, sans-serif"
+const AXIS_STYLE = { fontSize: 12, fill: '#71717a', fontFamily: SANS }
 
 function ChartTooltip({ active, payload, label }: {
   active?: boolean
@@ -49,8 +54,8 @@ function ChartTooltip({ active, payload, label }: {
       border: '1px solid #e9eaec',
       borderRadius: 6,
       padding: '6px 10px',
-      fontSize: 11,
-      fontFamily: 'Open Sans, sans-serif',
+      fontSize: 12,
+      fontFamily: SANS,
       boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
       lineHeight: '18px',
     }}>
@@ -96,9 +101,9 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
           <XAxis dataKey="label" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
           <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} />
           <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(6,102,229,0.04)' }} />
-          {data.series.length > 1 && <Legend iconSize={8} wrapperStyle={{ fontSize: 11, fontFamily: 'Open Sans, sans-serif' }} />}
+          {data.series.length > 1 && <Legend iconSize={8} wrapperStyle={{ fontSize: 12, fontFamily: SANS }} />}
           {data.series.map((s, idx) => (
-            <Bar key={s.name} dataKey={s.name} fill={BLUE_SHADES[idx % BLUE_SHADES.length]} radius={[3, 3, 0, 0]} maxBarSize={40} />
+            <Bar key={s.name} dataKey={s.name} fill={CATEGORICAL_COLORS[idx % CATEGORICAL_COLORS.length]} radius={[3, 3, 0, 0]} maxBarSize={40} />
           ))}
         </BarChart>
       </ResponsiveContainer>
@@ -118,15 +123,15 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
           <XAxis dataKey="label" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
           <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} />
           <Tooltip content={<ChartTooltip />} />
-          {data.series.length > 1 && <Legend iconSize={8} wrapperStyle={{ fontSize: 11, fontFamily: 'Open Sans, sans-serif' }} />}
+          {data.series.length > 1 && <Legend iconSize={8} wrapperStyle={{ fontSize: 12, fontFamily: SANS }} />}
           {data.series.map((s, idx) => (
             <Line
               key={s.name}
               type="monotone"
               dataKey={s.name}
-              stroke={BLUE_SHADES[idx % BLUE_SHADES.length]}
+              stroke={CATEGORICAL_COLORS[idx % CATEGORICAL_COLORS.length]}
               strokeWidth={2}
-              dot={{ r: 3, fill: BLUE_SHADES[idx % BLUE_SHADES.length], strokeWidth: 0 }}
+              dot={{ r: 3, fill: CATEGORICAL_COLORS[idx % CATEGORICAL_COLORS.length], strokeWidth: 0 }}
               activeDot={{ r: 4, strokeWidth: 0 }}
             />
           ))}
@@ -154,11 +159,11 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
             strokeWidth={0}
           >
             {pieEntries.map((_, idx) => (
-              <Cell key={idx} fill={BLUE_SHADES[idx % BLUE_SHADES.length]} />
+              <Cell key={idx} fill={CATEGORICAL_COLORS[idx % CATEGORICAL_COLORS.length]} />
             ))}
           </Pie>
           <Tooltip content={<ChartTooltip />} />
-          <Legend iconSize={8} iconType="circle" wrapperStyle={{ fontSize: 11, fontFamily: 'Open Sans, sans-serif' }} />
+          <Legend iconSize={8} iconType="circle" wrapperStyle={{ fontSize: 12, fontFamily: SANS }} />
         </PieChart>
       </ResponsiveContainer>
     )
@@ -180,19 +185,19 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
         className="flex flex-col items-center justify-center w-full overflow-hidden"
         style={{ height, gap: compact ? 2 : 4 }}
       >
-        <span className={compact ? 'text-2xl font-bold text-foreground' : 'text-4xl font-bold text-foreground'}>
+        <span className={compact ? 'text-2xl font-semibold text-foreground' : 'text-4xl font-semibold text-foreground'}>
           {value}
         </span>
-        <span className={compact ? 'text-[10px] text-muted-foreground' : 'text-sm text-muted-foreground'}>
+        <span className={compact ? 'text-xs text-muted-foreground' : 'text-sm text-muted-foreground'}>
           {data.labels[0]}
         </span>
         {data.labels[1] && (
-          <span className={compact ? 'text-[10px] text-muted-foreground/60' : 'text-xs text-muted-foreground/60'}>
+          <span className={compact ? 'text-xs text-muted-foreground/60' : 'text-xs text-muted-foreground/60'}>
             {data.labels[1]}
           </span>
         )}
         {diff !== null && (
-          <div className={`flex items-center font-medium ${compact ? 'gap-0.5 text-[10px]' : 'gap-1 text-sm'} ${diff >= 0 ? 'text-green-600' : 'text-destructive'}`}>
+          <div className={`flex items-center font-medium ${compact ? 'gap-0.5 text-xs' : 'gap-1 text-sm'} ${diff >= 0 ? 'text-green-600' : 'text-destructive'}`}>
             {diff >= 0
               ? <TrendingUp className={compact ? 'h-3 w-3' : 'h-4 w-4'} />
               : <TrendingDown className={compact ? 'h-3 w-3' : 'h-4 w-4'} />}
@@ -285,7 +290,7 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
               {/* Sub-column row */}
               <tr className="bg-muted/30">
                 {cfg.showTotal && (isTotalExpanded ? totalSubCols : totalSubCols.filter(c => c.key === 'pctcol')).map((col, ci) => (
-                  <th key={col.key} className={`${thBase} font-normal text-[10px]${ci === 0 ? ' border-l border-border' : ''}`}>
+                  <th key={col.key} className={`${thBase} font-normal text-xs${ci === 0 ? ' border-l border-border' : ''}`}>
                     {col.label}
                   </th>
                 ))}
@@ -295,7 +300,7 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
                   return (
                     <React.Fragment key={s.name}>
                       {visibleCols.map((col, ci) => (
-                        <th key={col.key} className={`${thBase} font-normal text-[10px]${ci === 0 ? ' border-l border-border' : ''}`}>
+                        <th key={col.key} className={`${thBase} font-normal text-xs${ci === 0 ? ' border-l border-border' : ''}`}>
                           {col.label}
                         </th>
                       ))}
@@ -319,7 +324,7 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
                           <tr className="bg-muted/40">
                             <td
                               colSpan={999}
-                              className="py-1 px-2 text-[10px] font-semibold text-muted-foreground tracking-wide border-y border-border"
+                              className="py-1 px-2 text-xs font-semibold text-muted-foreground tracking-wide border-y border-border"
                             >
                               {groupLabel}
                             </td>
@@ -414,7 +419,7 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
             <>
               <tr><td colSpan={3} className="h-3 bg-background p-0" /></tr>
               <tr className="bg-muted/40">
-                <td colSpan={3} className="py-1 px-3 text-[10px] font-semibold text-muted-foreground tracking-wide border-y border-border">
+                <td colSpan={3} className="py-1 px-3 text-xs font-semibold text-muted-foreground tracking-wide border-y border-border">
                   {groupLabel}
                 </td>
               </tr>
