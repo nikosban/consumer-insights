@@ -20,8 +20,9 @@ import {
   Send, Sparkles, RotateCcw, ChevronDown,
   Users, Globe, TrendingUp, SquarePen, MessageSquare, BarChart2,
   Check, LayoutDashboard, ExternalLink, ChevronRight, ArrowUpRight,
-  Crown, Plus,
+  Crown, Plus, Download, Copy, LineChart, Table2, BarChart3,
 } from 'lucide-react'
+import type { WidgetType } from '@/types'
 import { cn } from '@/lib/utils'
 
 // ─── Gradient styles ──────────────────────────────────────────────────────────
@@ -400,7 +401,9 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
   const [saved, setSaved] = useState(false)
   const [dashPickerOpen, setDashPickerOpen] = useState(false)
   const [addedToDash, setAddedToDash] = useState<{ id: string; name: string } | null>(null)
+  const [copied, setCopied] = useState(false)
   const dashRef = useRef<HTMLDivElement>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     function close(e: MouseEvent) {
@@ -449,8 +452,20 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
     setAddedToDash({ id: dashId, name: dashName })
   }
 
+  async function handleCopy() {
+    if (!cardRef.current) return
+    const { default: html2canvas } = await import('html2canvas')
+    const canvas = await html2canvas(cardRef.current, { scale: 2, useCORS: true })
+    canvas.toBlob(blob => {
+      if (!blob) return
+      navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).catch(() => {})
+    })
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
+
   return (
-    <div className="max-w-[480px] w-full rounded-2xl rounded-bl-sm border border-border bg-white shadow-sm overflow-hidden">
+    <div ref={cardRef} className="max-w-[480px] w-full rounded-2xl rounded-bl-sm border border-border bg-white shadow-sm overflow-hidden">
 
       {/* ── Header ── */}
       <div className="px-4 pt-4 pb-3 border-b border-border">
@@ -459,10 +474,19 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
             <h3 className="text-sm font-semibold text-gray-900 leading-tight">{card.name}</h3>
             <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{card.subtitle}</p>
           </div>
-          {/* Confidence badge */}
-          <span className="shrink-0 text-[11px] font-medium text-primary bg-primary/8 rounded-full px-2 py-0.5 leading-5">
-            {card.confidence}% match
-          </span>
+          <div className="flex items-center gap-1 shrink-0">
+            <span className="text-[11px] font-medium text-primary bg-primary/8 rounded-full px-2 py-0.5 leading-5">
+              {card.confidence}% match
+            </span>
+            <button title="Export PNG" onClick={() => cardRef.current && exportElAsPng(cardRef.current, card.name)}
+              className="w-6 h-6 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
+              <Download size={12} />
+            </button>
+            <button title={copied ? 'Copied!' : 'Copy image'} onClick={handleCopy}
+              className={cn('w-6 h-6 flex items-center justify-center rounded transition-colors', copied ? 'text-green-600' : 'hover:bg-muted text-muted-foreground hover:text-foreground')}>
+              {copied ? <Check size={12} /> : <Copy size={12} />}
+            </button>
+          </div>
         </div>
 
         {/* Stats chips */}
@@ -581,6 +605,45 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
   )
 }
 
+// ─── Viz type switcher ────────────────────────────────────────────────────────
+
+const VIZ_TYPES: { type: WidgetType; Icon: React.ElementType; label: string }[] = [
+  { type: 'bar',   Icon: BarChart3,  label: 'Bar'   },
+  { type: 'line',  Icon: LineChart,  label: 'Line'  },
+  { type: 'table', Icon: Table2,     label: 'Table' },
+]
+
+function VizSwitcher({ value, onChange }: { value: WidgetType; onChange: (t: WidgetType) => void }) {
+  return (
+    <div className="flex items-center gap-0.5 bg-muted rounded-md p-0.5">
+      {VIZ_TYPES.map(({ type, Icon, label }) => (
+        <button
+          key={type}
+          title={label}
+          onClick={() => onChange(type)}
+          className={cn(
+            'flex items-center justify-center w-6 h-6 rounded transition-colors',
+            value === type ? 'bg-white shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'
+          )}
+        >
+          <Icon size={12} />
+        </button>
+      ))}
+    </div>
+  )
+}
+
+// ─── Export helpers ───────────────────────────────────────────────────────────
+
+async function exportElAsPng(el: HTMLElement, filename: string) {
+  const { default: html2canvas } = await import('html2canvas')
+  const canvas = await html2canvas(el, { scale: 2, useCORS: true })
+  const a = document.createElement('a')
+  a.href = canvas.toDataURL('image/png')
+  a.download = filename
+  a.click()
+}
+
 // ─── Data Widget Card message ─────────────────────────────────────────────────
 
 function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
@@ -589,7 +652,10 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
   const { add: addWidget } = useWidgetStore()
   const [dashPickerOpen, setDashPickerOpen] = useState(false)
   const [addedToDash, setAddedToDash] = useState<{ id: string; name: string } | null>(null)
+  const [vizType, setVizType] = useState<WidgetType>(card.chartType)
+  const [copied, setCopied] = useState(false)
   const dashRef = useRef<HTMLDivElement>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     function close(e: MouseEvent) {
@@ -599,10 +665,9 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
     return () => document.removeEventListener('mousedown', close)
   }, [])
 
-  // Minimal Widget shell — ChartRenderer only needs type + id
   const fakeWidget: Widget = {
     id: 'chat-widget-preview',
-    type: card.chartType,
+    type: vizType,
     title: card.title,
     audienceId: '',
     metric: card.metric,
@@ -612,15 +677,7 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
   function handleAddToDashboard(dashId: string, dashName: string) {
     setDashPickerOpen(false)
     const widgetId = `widget-${Date.now()}`
-    const newWidget: Widget = {
-      id: widgetId,
-      type: card.chartType,
-      title: card.title,
-      audienceId: '',
-      metric: card.metric,
-      createdAt: new Date().toISOString(),
-    }
-    addWidget(newWidget)
+    addWidget({ id: widgetId, type: vizType, title: card.title, audienceId: '', metric: card.metric, createdAt: new Date().toISOString() })
     const dash = dashboards.find(d => d.id === dashId)
     const existing = dash?.widgets ?? []
     const y = existing.reduce((max, w) => Math.max(max, w.position.y + w.position.h), 0)
@@ -628,8 +685,20 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
     setAddedToDash({ id: dashId, name: dashName })
   }
 
+  async function handleCopy() {
+    if (!cardRef.current) return
+    const { default: html2canvas } = await import('html2canvas')
+    const canvas = await html2canvas(cardRef.current, { scale: 2, useCORS: true })
+    canvas.toBlob(blob => {
+      if (!blob) return
+      navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).catch(() => {})
+    })
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
+
   return (
-    <div className="max-w-[480px] w-full rounded-2xl rounded-bl-sm border border-border bg-white shadow-sm overflow-hidden">
+    <div ref={cardRef} className="max-w-[480px] w-full rounded-2xl rounded-bl-sm border border-border bg-white shadow-sm overflow-hidden">
 
       {/* ── Header ── */}
       <div className="px-4 pt-4 pb-3 border-b border-border">
@@ -638,9 +707,17 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
             <h3 className="text-sm font-semibold text-gray-900 leading-tight">{card.title}</h3>
             <p className="text-xs text-muted-foreground mt-0.5">{card.subtitle}</p>
           </div>
-          <span className="shrink-0 text-[11px] font-medium text-muted-foreground bg-muted rounded-full px-2 py-0.5 leading-5 whitespace-nowrap">
-            {card.metric}
-          </span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <VizSwitcher value={vizType} onChange={setVizType} />
+            <button title="Export PNG" onClick={() => cardRef.current && exportElAsPng(cardRef.current, card.title)}
+              className="w-6 h-6 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
+              <Download size={12} />
+            </button>
+            <button title={copied ? 'Copied!' : 'Copy image'} onClick={handleCopy}
+              className={cn('w-6 h-6 flex items-center justify-center rounded transition-colors', copied ? 'text-green-600' : 'hover:bg-muted text-muted-foreground hover:text-foreground')}>
+              {copied ? <Check size={12} /> : <Copy size={12} />}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -657,8 +734,6 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
       {/* ── CTAs ── */}
       <div className="px-4 py-3 border-t border-border space-y-2">
         <div className="flex items-center gap-2">
-
-          {/* Add to Dashboard (primary) */}
           <div ref={dashRef} className="relative flex-1">
             <button
               onClick={() => !addedToDash && setDashPickerOpen(o => !o)}
@@ -672,13 +747,10 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
               {addedToDash ? <Check size={11} /> : <LayoutDashboard size={11} />}
               {addedToDash ? 'Added to Dashboard' : 'Add to Dashboard'}
             </button>
-
             {dashPickerOpen && (
               <DashboardPickerDropdown dashboards={dashboards} onSelect={(id, name) => { setDashPickerOpen(false); handleAddToDashboard(id, name) }} label="Select dashboard" direction="up" />
             )}
           </div>
-
-          {/* Refine */}
           <button
             onClick={() => document.dispatchEvent(new CustomEvent('focus-chat-input'))}
             className="flex items-center justify-center gap-1 h-8 px-3 rounded-lg border border-border bg-white text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors"
@@ -686,17 +758,11 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
             Refine
           </button>
         </div>
-
-        {/* Go to Dashboard strip */}
         {addedToDash && (
           <div className="flex items-center justify-between gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-            <span className="text-xs text-green-800">
-              Added to <span className="font-medium">{addedToDash.name}</span>
-            </span>
-            <button
-              onClick={() => navigate(`/dashboards/${addedToDash.id}`)}
-              className="flex items-center gap-1 text-xs font-medium text-green-700 hover:text-green-900 transition-colors shrink-0"
-            >
+            <span className="text-xs text-green-800">Added to <span className="font-medium">{addedToDash.name}</span></span>
+            <button onClick={() => navigate(`/dashboards/${addedToDash.id}`)}
+              className="flex items-center gap-1 text-xs font-medium text-green-700 hover:text-green-900 transition-colors shrink-0">
               Go there <ExternalLink size={10} />
             </button>
           </div>
@@ -728,36 +794,59 @@ function FollowUpChips({ suggestions, onSend }: { suggestions: string[]; onSend:
 // ─── EV Demo: Processing Steps ───────────────────────────────────────────────
 
 function ProcessingStepsDisplay({ steps }: { steps: ProcessingStep[] }) {
+  const [expanded, setExpanded] = useState(false)
+  const allDone = steps.every(s => s.status === 'done')
+  const activeStep = steps.find(s => s.status === 'active')
+  const doneCount = steps.filter(s => s.status === 'done').length
+
   return (
     <div className="mt-3 rounded-xl border border-border bg-white overflow-hidden">
-      {/* header */}
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-border bg-muted/40">
-        <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-        <span className="text-[11px] font-semibold text-muted-foreground tracking-wider">PROCESSING</span>
-      </div>
-      <div className="px-3 py-2 space-y-1.5">
-        {steps.map((step, i) => (
-          <div key={i} className={cn('flex items-center gap-2 text-xs transition-opacity duration-300', step.status === 'pending' ? 'opacity-30' : 'opacity-100')}>
-            {/* status icon */}
-            <div className="shrink-0 w-4 h-4 flex items-center justify-center">
-              {step.status === 'done' && <Check size={11} className="text-green-600" />}
-              {step.status === 'active' && (
-                <svg className="animate-spin h-3 w-3 text-primary" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-              )}
-              {step.status === 'pending' && <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" />}
+      {/* header — always visible, click to toggle */}
+      <button
+        type="button"
+        onClick={() => setExpanded(o => !o)}
+        className="w-full flex items-center gap-2 px-3 py-2 bg-muted/40 hover:bg-muted/60 transition-colors text-left"
+      >
+        {allDone
+          ? <Check size={11} className="text-green-600 shrink-0" />
+          : <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shrink-0" />
+        }
+        <span className="text-[11px] font-semibold text-muted-foreground tracking-wider flex-1">
+          {allDone
+            ? `${doneCount} steps completed`
+            : activeStep
+              ? activeStep.label
+              : 'PROCESSING'
+          }
+        </span>
+        <ChevronDown size={12} className={cn('text-muted-foreground transition-transform shrink-0', expanded && 'rotate-180')} />
+      </button>
+
+      {/* expandable body */}
+      {expanded && (
+        <div className="px-3 py-2 space-y-1.5 border-t border-border">
+          {steps.map((step, i) => (
+            <div key={i} className={cn('flex items-center gap-2 text-xs transition-opacity duration-300', step.status === 'pending' ? 'opacity-30' : 'opacity-100')}>
+              <div className="shrink-0 w-4 h-4 flex items-center justify-center">
+                {step.status === 'done' && <Check size={11} className="text-green-600" />}
+                {step.status === 'active' && (
+                  <svg className="animate-spin h-3 w-3 text-primary" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                )}
+                {step.status === 'pending' && <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" />}
+              </div>
+              <span className={cn('shrink-0 font-medium w-36', step.status === 'done' ? 'text-muted-foreground' : step.status === 'active' ? 'text-foreground' : 'text-muted-foreground')}>
+                {step.label}
+              </span>
+              <span className={cn('truncate', step.status === 'active' ? 'text-primary' : 'text-muted-foreground')}>
+                {step.value}
+              </span>
             </div>
-            <span className={cn('shrink-0 font-medium w-36', step.status === 'done' ? 'text-muted-foreground' : step.status === 'active' ? 'text-foreground' : 'text-muted-foreground')}>
-              {step.label}
-            </span>
-            <span className={cn('truncate', step.status === 'active' ? 'text-primary' : 'text-muted-foreground')}>
-              {step.value}
-            </span>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -845,156 +934,128 @@ function BenchmarkPanel({ panel, onCreateDraft }: { panel: BenchmarkPanelData; o
 }
 
 // ─── EV Demo: Widget Cluster ──────────────────────────────────────────────────
+// Renders each widget as its own card so they're visually separate.
 
-function WidgetCluster({ widgets }: { widgets: DataWidgetCardData[] }) {
+function WidgetClusterCard({ card, index }: { card: DataWidgetCardData; index: number }) {
   const navigate = useNavigate()
   const { dashboards, updateLayout } = useDashboardStore()
   const { add: addWidget } = useWidgetStore()
-  const [dashPickerOpen, setDashPickerOpen] = useState<'all' | number | null>(null)
-  const [added, setAdded] = useState<Record<string | number, { id: string; name: string }>>({})
+  const [dashPickerOpen, setDashPickerOpen] = useState(false)
+  const [addedToDash, setAddedToDash] = useState<{ id: string; name: string } | null>(null)
+  const [vizType, setVizType] = useState<WidgetType>(card.chartType)
+  const [copied, setCopied] = useState(false)
   const dashRef = useRef<HTMLDivElement>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     function close(e: MouseEvent) {
-      if (dashRef.current && !dashRef.current.contains(e.target as Node)) setDashPickerOpen(null)
+      if (dashRef.current && !dashRef.current.contains(e.target as Node)) setDashPickerOpen(false)
     }
     document.addEventListener('mousedown', close)
     return () => document.removeEventListener('mousedown', close)
   }, [])
 
-  function persistWidgets(toAdd: DataWidgetCardData[], dashId: string) {
+  const fakeWidget: Widget = {
+    id: `cluster-widget-${index}`,
+    type: vizType,
+    title: card.title,
+    audienceId: '',
+    metric: card.metric,
+    createdAt: new Date().toISOString(),
+  }
+
+  function handleAdd(dashId: string, dashName: string) {
+    setDashPickerOpen(false)
+    const widgetId = `widget-${Date.now()}`
+    addWidget({ id: widgetId, type: vizType, title: card.title, audienceId: '', metric: card.metric, createdAt: new Date().toISOString() })
     const dash = dashboards.find(d => d.id === dashId)
     const existing = dash?.widgets ?? []
-    let y = existing.reduce((max, w) => Math.max(max, w.position.y + w.position.h), 0)
-    const newDashWidgets = toAdd.map(card => {
-      const widgetId = `widget-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
-      addWidget({ id: widgetId, type: card.chartType, title: card.title, audienceId: '', metric: card.metric, createdAt: new Date().toISOString() })
-      const entry = { widgetId, position: { x: 0, y, w: 6, h: 4 } }
-      y += 4
-      return entry
+    const y = existing.reduce((max, w) => Math.max(max, w.position.y + w.position.h), 0)
+    updateLayout(dashId, [...existing, { widgetId, position: { x: 0, y, w: 6, h: 4 } }])
+    setAddedToDash({ id: dashId, name: dashName })
+  }
+
+  async function handleCopy() {
+    if (!cardRef.current) return
+    const { default: html2canvas } = await import('html2canvas')
+    const canvas = await html2canvas(cardRef.current, { scale: 2, useCORS: true })
+    canvas.toBlob(blob => {
+      if (!blob) return
+      navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).catch(() => {})
     })
-    updateLayout(dashId, [...existing, ...newDashWidgets])
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
   }
-
-  function handleAdd(key: 'all' | number, dashId: string, dashName: string) {
-    setDashPickerOpen(null)
-    if (key === 'all') {
-      persistWidgets(widgets, dashId)
-      const next: Record<string | number, { id: string; name: string }> = {}
-      widgets.forEach((_, i) => { next[i] = { id: dashId, name: dashName } })
-      next['all'] = { id: dashId, name: dashName }
-      setAdded(next)
-    } else {
-      persistWidgets([widgets[key as number]], dashId)
-      setAdded(prev => ({ ...prev, [key]: { id: dashId, name: dashName } }))
-    }
-  }
-
-  const allAdded = widgets.every((_, i) => added[i])
 
   return (
-    <div className="mt-3 rounded-xl border border-border bg-white overflow-hidden">
-      {/* cluster header */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-muted/40">
-        <div className="flex items-center gap-2">
-          <BarChart2 size={12} className="text-muted-foreground" />
-          <span className="text-[11px] font-semibold text-muted-foreground tracking-wider">
-            {widgets.length} CHARTS · EV INTENT GERMANY
-          </span>
+    <div ref={cardRef} className="w-full rounded-2xl rounded-bl-sm border border-border bg-white shadow-sm overflow-hidden">
+      {/* header */}
+      <div className="px-4 pt-3 pb-2.5 border-b border-border">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h4 className="text-sm font-semibold text-gray-900 leading-tight">{card.title}</h4>
+            <p className="text-[11px] text-muted-foreground mt-0.5">{card.subtitle}</p>
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <VizSwitcher value={vizType} onChange={setVizType} />
+            <button title="Export PNG" onClick={() => cardRef.current && exportElAsPng(cardRef.current, card.title)}
+              className="w-6 h-6 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
+              <Download size={12} />
+            </button>
+            <button title={copied ? 'Copied!' : 'Copy image'} onClick={handleCopy}
+              className={cn('w-6 h-6 flex items-center justify-center rounded transition-colors', copied ? 'text-green-600' : 'hover:bg-muted text-muted-foreground hover:text-foreground')}>
+              {copied ? <Check size={12} /> : <Copy size={12} />}
+            </button>
+          </div>
         </div>
+      </div>
 
-        {/* Add all button */}
+      {/* chart */}
+      <div className="px-3 pt-3 pb-1" style={{ height: 140 }}>
+        <ChartRenderer widget={fakeWidget} data={card.chartData} height={140} />
+      </div>
+
+      {/* source */}
+      <div className="px-4 pb-2">
+        <span className="text-[10px] text-muted-foreground">Source: {card.source}</span>
+      </div>
+
+      {/* add to dashboard */}
+      <div className="px-4 py-2.5 border-t border-border">
         <div ref={dashRef} className="relative">
           <button
-            onClick={() => !allAdded && setDashPickerOpen(prev => prev === 'all' ? null : 'all')}
+            onClick={() => !addedToDash && setDashPickerOpen(o => !o)}
             className={cn(
-              'flex items-center gap-1 h-6 px-2 rounded-md text-[11px] font-medium transition-colors',
-              allAdded
-                ? 'bg-green-50 text-green-700 border border-green-200 cursor-default'
-                : 'bg-primary/8 text-primary hover:bg-primary/15 border border-primary/20'
+              'w-full flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-colors',
+              addedToDash
+                ? 'border border-green-200 bg-green-50 text-green-700 cursor-default'
+                : 'bg-primary text-white hover:bg-primary/90 active:scale-[0.98]'
             )}
           >
-            {allAdded ? <Check size={9} /> : <Plus size={9} />}
-            {allAdded ? 'Added' : 'Add all'}
+            {addedToDash ? <Check size={11} /> : <LayoutDashboard size={11} />}
+            {addedToDash ? `Added to ${addedToDash.name}` : 'Add to Dashboard'}
           </button>
-
-          {/* Picker for "add all" */}
-          {dashPickerOpen === 'all' && (
-            <DashboardPickerDropdown
-              dashboards={dashboards}
-              onSelect={(id, name) => handleAdd('all', id, name)}
-              label={`Adding all ${widgets.length} widgets`}
-            />
+          {dashPickerOpen && (
+            <DashboardPickerDropdown dashboards={dashboards} onSelect={handleAdd} label="Select dashboard" direction="up" />
           )}
         </div>
-      </div>
-
-      {/* widgets row */}
-      <div className="divide-y divide-border">
-        {widgets.map((widget, i) => {
-          const fakeWidget: Widget = {
-            id: `cluster-widget-${i}`,
-            type: widget.chartType,
-            title: widget.title,
-            audienceId: '',
-            metric: widget.metric,
-            createdAt: new Date().toISOString(),
-          }
-          return (
-            <div key={i} className="px-4 pt-3 pb-3">
-              {/* widget header */}
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <div className="min-w-0">
-                  <h4 className="text-xs font-semibold text-gray-900 leading-tight">{widget.title}</h4>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">{widget.subtitle}</p>
-                </div>
-                <div className="relative shrink-0">
-                  <button
-                    onClick={() => !added[i] && setDashPickerOpen(prev => prev === i ? null : i)}
-                    className={cn(
-                      'flex items-center gap-1 h-6 px-2 rounded-md text-[11px] font-medium transition-colors',
-                      added[i]
-                        ? 'bg-green-50 text-green-700 border border-green-200 cursor-default'
-                        : 'bg-muted text-muted-foreground hover:bg-primary/8 hover:text-primary border border-border'
-                    )}
-                  >
-                    {added[i] ? <Check size={9} /> : <Plus size={9} />}
-                    {added[i] ? 'Added' : 'Add'}
-                  </button>
-
-                  {dashPickerOpen === i && (
-                    <DashboardPickerDropdown
-                      dashboards={dashboards}
-                      onSelect={(id, name) => handleAdd(i, id, name)}
-                      label="Add to dashboard"
-                    />
-                  )}
-                </div>
-              </div>
-
-              {/* chart */}
-              <div style={{ height: 130 }}>
-                <ChartRenderer widget={fakeWidget} data={widget.chartData} height={130} />
-              </div>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* add-all success strip */}
-      {allAdded && added['all'] && (
-        <div className="flex items-center justify-between gap-2 bg-green-50 border-t border-green-200 px-4 py-2">
-          <span className="text-xs text-green-800">
-            {widgets.length} charts added to <span className="font-medium">{added['all'].name}</span>
-          </span>
-          <button
-            onClick={() => navigate(`/dashboards/${added['all']!.id}`)}
-            className="flex items-center gap-1 text-xs font-medium text-green-700 hover:text-green-900 transition-colors"
-          >
+        {addedToDash && (
+          <button onClick={() => navigate(`/dashboards/${addedToDash.id}`)}
+            className="mt-1.5 w-full flex items-center justify-center gap-1 text-xs text-green-700 hover:text-green-900 transition-colors">
             View dashboard <ExternalLink size={10} />
           </button>
-        </div>
-      )}
+        )}
+      </div>
+    </div>
+  )
+}
+
+function WidgetCluster({ widgets }: { widgets: DataWidgetCardData[] }) {
+  return (
+    <div className="mt-3 flex flex-col gap-3">
+      {widgets.map((card, i) => (
+        <WidgetClusterCard key={i} card={card} index={i} />
+      ))}
     </div>
   )
 }
