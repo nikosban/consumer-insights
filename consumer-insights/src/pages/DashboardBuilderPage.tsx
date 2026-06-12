@@ -79,12 +79,17 @@ function PeriodChip({ value, onChange, size = 'md' }: {
   }, [])
 
   const h = size === 'sm' ? 'h-[22px] text-[11px] px-2' : 'h-[26px] text-xs px-2.5'
+  const isDefault = value.year === 'All' && value.wave === 'All'
 
   return (
     <div ref={ref} className="relative">
       <button
         onClick={() => { setDraft(value); setOpen(o => !o) }}
-        className={cn(h, 'rounded-[6px] border border-border bg-sidebar flex items-center gap-1 text-muted-foreground hover:border-primary/40 transition-colors')}
+        className={cn(h, 'rounded-[6px] border flex items-center gap-1 transition-colors',
+          isDefault
+            ? 'border-border bg-sidebar text-muted-foreground hover:border-primary/40'
+            : 'border-primary/30 bg-primary/5 text-primary'
+        )}
       >
         <span>{formatPeriod(value)}</span>
         <ChevronDown size={9} className="shrink-0" />
@@ -846,8 +851,8 @@ function DitherCanvas() {
     let rafId: number
 
     function render() {
-      const W = canvas.width
-      const H = canvas.height
+      const W = canvas!.width
+      const H = canvas!.height
       const cols = Math.ceil(W / BLOCK)
       const rows = Math.ceil(H / BLOCK)
       ctx.clearRect(0, 0, W, H)
@@ -962,7 +967,7 @@ function AIPromptCard({
 export default function DashboardBuilderPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { dashboards, add, update, updateLayout, toggleShare } = useDashboardStore()
+  const { dashboards, add, update, updateLayout } = useDashboardStore()
   const { widgets, add: addWidget, update: updateWidget } = useWidgetStore()
   const { audiences } = useAudienceStore()
   const { projects, addAnalysis } = useProjectStore()
@@ -972,7 +977,7 @@ export default function DashboardBuilderPage() {
 
   const [dashId] = useState(existing?.id ?? `dash-${Date.now()}`)
   const [name, setName] = useState(existing?.name ?? 'Untitled Dashboard')
-  const [isShared, setIsShared] = useState(existing?.isShared ?? false)
+  const [isShared] = useState(existing?.isShared ?? false)
   const [placedWidgets, setPlacedWidgets] = useState<PlacedWidget[]>(
     (existing?.widgets ?? []).map((w) => ({ ...w, chartKey: Math.random() }))
   )
@@ -1131,12 +1136,6 @@ export default function DashboardBuilderPage() {
 
   function handleRefresh() {
     setPlacedWidgets((prev) => prev.map((pw) => ({ ...pw, chartKey: Math.random() })))
-  }
-
-  function handleToggleShare() {
-    const next = !isShared
-    setIsShared(next)
-    if (!isNew) toggleShare(dashId)
   }
 
   function handleNameBlur() {
@@ -1430,10 +1429,24 @@ export default function DashboardBuilderPage() {
                                   className="h-6 px-2 rounded text-[11px] text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors"
                                 >Edit</button>
                               )}
-                              <button onClick={() => setExportOpen(true)}
+                              <button onClick={async (e) => {
+                                e.stopPropagation()
+                                const el = document.querySelector(`[data-widget-id="${pw.widgetId}"]`) as HTMLElement | null
+                                if (!el) return
+                                const { default: html2canvas } = await import('html2canvas')
+                                const img = await html2canvas(el, { scale: 2, useCORS: true })
+                                const a = document.createElement('a')
+                                a.href = img.toDataURL('image/png')
+                                a.download = `${widget?.title ?? pw.widgetId}.png`
+                                a.click()
+                              }}
                                 className="h-6 px-2 rounded text-[11px] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
                               >Export</button>
-                              <button onClick={(e) => e.stopPropagation()}
+                              <button onClick={(e) => {
+                                e.stopPropagation()
+                                const url = `${window.location.origin}/dashboards/${dashId}?widget=${pw.widgetId}`
+                                navigator.clipboard.writeText(url).catch(() => {})
+                              }}
                                 className="h-6 px-2 rounded text-[11px] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
                               >Share</button>
                               {isEditMode && (

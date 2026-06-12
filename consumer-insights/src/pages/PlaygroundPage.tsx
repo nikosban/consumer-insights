@@ -230,16 +230,6 @@ function OverviewPage() {
   )
 }
 
-function TypographyTable({ cols, children }: { cols: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-xl border border-border overflow-hidden mb-8">
-      <div className={`grid ${cols} gap-4 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider bg-muted/50 px-4 py-2 border-b border-border`}>
-        {children}
-      </div>
-    </div>
-  )
-}
-
 function TypographyPage() {
   return (
     <>

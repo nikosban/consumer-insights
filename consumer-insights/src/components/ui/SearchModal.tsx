@@ -141,7 +141,7 @@ export default function SearchModal() {
                   <div className="px-4 py-1.5 text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'oklch(0.524 0.025 220)' }}>
                     {group}
                   </div>
-                  {results.filter(r => r.group === group).map((r, i) => {
+                  {results.filter(r => r.group === group).map((r) => {
                     const flatIdx = results.indexOf(r)
                     return (
                       <button

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type { AIConversation, AIMessage, CIHandoff } from '@/types';
 
 export type ChatHistoryEntry = {
@@ -39,7 +40,9 @@ const MOCK_HISTORY: ChatHistoryEntry[] = [
   { id: 'h-8', firstMessage: 'What are the key differences between Millennial and Gen Z shoppers?', createdAt: daysAgo(28) },
 ]
 
-export const useAIStore = create<AIStore>((set) => ({
+export const useAIStore = create<AIStore>()(
+  persist(
+    (set) => ({
   conversation: initialConversation,
   isStreaming: false,
   pendingHandoff: null,
@@ -79,5 +82,7 @@ export const useAIStore = create<AIStore>((set) => ({
       pendingHandoff: null,
       history: newHistory,
     }
+    }),
   }),
-}))
+  { name: 'ci-ai', partialize: (s) => ({ history: s.history }) }
+))
