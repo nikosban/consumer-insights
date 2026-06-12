@@ -324,12 +324,20 @@ function InputBox({
   const [audience, setAudience] = useState('All Audiences')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  // Listen for "focus-chat-input" custom event (dispatched by AudienceCard "Refine in chat")
   useEffect(() => {
     function onFocus() { textareaRef.current?.focus() }
+    function onSet(e: Event) {
+      const text = (e as CustomEvent<string>).detail
+      setInput(text)
+      setTimeout(() => textareaRef.current?.focus(), 0)
+    }
     document.addEventListener('focus-chat-input', onFocus)
-    return () => document.removeEventListener('focus-chat-input', onFocus)
-  }, [])
+    document.addEventListener('set-chat-input', onSet)
+    return () => {
+      document.removeEventListener('focus-chat-input', onFocus)
+      document.removeEventListener('set-chat-input', onSet)
+    }
+  }, [setInput])
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onSend() }
@@ -506,7 +514,7 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
       <div className="grid grid-cols-2 divide-x divide-border">
         {/* Demographics */}
         <div className="px-4 py-3">
-          <p className="text-[10px] font-semibold text-muted-foreground tracking-wider mb-2">DEMOGRAPHICS</p>
+          <p className="text-[10px] font-semibold text-muted-foreground mb-2">Demographics</p>
           <div className="space-y-2">
             {card.demographics.map(d => (
               <div key={d.label} className="flex items-baseline justify-between gap-2">
@@ -519,7 +527,7 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
 
         {/* Behaviors */}
         <div className="px-4 py-3">
-          <p className="text-[10px] font-semibold text-muted-foreground tracking-wider mb-2">BEHAVIORS</p>
+          <p className="text-[10px] font-semibold text-muted-foreground mb-2">Behaviors</p>
           <div className="space-y-2">
             {card.behaviors.map(b => (
               <div key={b.label} className="flex items-baseline justify-between gap-2">
@@ -741,7 +749,7 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
                 'w-full flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-colors',
                 addedToDash
                   ? 'border border-green-200 bg-green-50 text-green-700 cursor-default'
-                  : 'bg-primary text-white hover:bg-primary/90 active:scale-[0.98]'
+                  : 'border border-border bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-300'
               )}
             >
               {addedToDash ? <Check size={11} /> : <LayoutDashboard size={11} />}
@@ -768,6 +776,40 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+// ─── Message action bar (copy / edit) ────────────────────────────────────────
+
+function MessageActions({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false)
+
+  function handleCopy() {
+    navigator.clipboard.writeText(text).catch(() => {})
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
+
+  return (
+    <div className="flex items-center gap-0.5 mt-1 pl-1">
+      <button
+        title={copied ? 'Copied!' : 'Copy response'}
+        onClick={handleCopy}
+        className={cn('flex items-center gap-1 h-6 px-1.5 rounded text-[11px] transition-colors',
+          copied ? 'text-green-600' : 'text-muted-foreground hover:text-foreground hover:bg-muted')}
+      >
+        {copied ? <Check size={11} /> : <Copy size={11} />}
+        {copied ? 'Copied' : 'Copy'}
+      </button>
+      <button
+        title="Edit and resend"
+        onClick={() => document.dispatchEvent(new CustomEvent('set-chat-input', { detail: text }))}
+        className="flex items-center gap-1 h-6 px-1.5 rounded text-[11px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+      >
+        <SquarePen size={11} />
+        Edit
+      </button>
     </div>
   )
 }
@@ -800,23 +842,19 @@ function ProcessingStepsDisplay({ steps }: { steps: ProcessingStep[] }) {
   const doneCount = steps.filter(s => s.status === 'done').length
 
   return (
-    <div className="mt-3 rounded-xl border border-border bg-white overflow-hidden">
+    <div className="rounded-xl border border-border bg-white overflow-hidden">
       {/* header — always visible, click to toggle */}
       <button
         type="button"
         onClick={() => setExpanded(o => !o)}
         className="w-full flex items-center gap-2 px-3 py-2 bg-muted/40 hover:bg-muted/60 transition-colors text-left"
       >
-        {allDone
-          ? <Check size={11} className="text-green-600 shrink-0" />
-          : <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shrink-0" />
-        }
-        <span className="text-[11px] font-semibold text-muted-foreground tracking-wider flex-1">
+        <span className="text-[11px] font-semibold text-muted-foreground flex-1">
           {allDone
             ? `${doneCount} steps completed`
             : activeStep
               ? activeStep.label
-              : 'PROCESSING'
+              : 'Processing'
           }
         </span>
         <ChevronDown size={12} className={cn('text-muted-foreground transition-transform shrink-0', expanded && 'rotate-180')} />
@@ -860,7 +898,7 @@ function BenchmarkPanel({ panel, onCreateDraft }: { panel: BenchmarkPanelData; o
     <div className="mt-3 rounded-xl border border-border bg-white overflow-hidden">
       {/* header */}
       <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border bg-muted/40">
-        <span className="text-[11px] font-semibold text-muted-foreground tracking-wider">AUDIENCE SEGMENTS</span>
+        <span className="text-[11px] font-semibold text-muted-foreground">Audience segments</span>
       </div>
 
       {/* segment cards */}
@@ -1029,7 +1067,7 @@ function WidgetClusterCard({ card, index }: { card: DataWidgetCardData; index: n
               'w-full flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-colors',
               addedToDash
                 ? 'border border-green-200 bg-green-50 text-green-700 cursor-default'
-                : 'bg-primary text-white hover:bg-primary/90 active:scale-[0.98]'
+                : 'border border-border bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-300'
             )}
           >
             {addedToDash ? <Check size={11} /> : <LayoutDashboard size={11} />}
@@ -1162,7 +1200,7 @@ function AudienceDraftCard({ draft }: { draft: AudienceDraftData }) {
       {/* header */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-primary/4">
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-bold text-primary tracking-wider">AUDIENCE DRAFT</span>
+          <span className="text-[10px] font-bold text-primary">Audience draft</span>
         </div>
         <button
           onClick={handleOpenBuilder}
@@ -1266,20 +1304,24 @@ function MessageBubble({ msg, onSend, onCreateDraft }: {
 
         {/* Text bubble — only show if there's content OR if not an ev_demo with only steps visible */}
         {(msg.content || (!msg.processingSteps && !msg.audienceDraft)) && (
-          <div className={cn(
-            'rounded-2xl rounded-bl-sm px-4 py-3 text-sm leading-relaxed bg-muted text-foreground mt-3',
-            !msg.isStreaming && (msg.audienceCard || msg.dataWidget) && 'mb-3',
-            !msg.content && 'hidden'
-          )}>
-            {msg.isStreaming ? (
-              <span>
-                {renderMarkdown(msg.content)}
-                <span className="inline-block w-1.5 h-4 bg-current ml-0.5 animate-pulse rounded-sm" />
-              </span>
-            ) : (
-              msg.content.split('\n').map((line, i, arr) => (
-                <span key={i}>{renderMarkdown(line)}{i < arr.length - 1 && <br />}</span>
-              ))
+          <div className={cn('mt-3', !msg.content && 'hidden')}>
+            <div className={cn(
+              'rounded-2xl rounded-bl-sm px-4 py-3 text-sm leading-relaxed bg-muted text-foreground',
+              !msg.isStreaming && (msg.audienceCard || msg.dataWidget) && 'mb-3',
+            )}>
+              {msg.isStreaming ? (
+                <span>
+                  {renderMarkdown(msg.content)}
+                  <span className="inline-block w-1.5 h-4 bg-current ml-0.5 animate-pulse rounded-sm" />
+                </span>
+              ) : (
+                msg.content.split('\n').map((line, i, arr) => (
+                  <span key={i}>{renderMarkdown(line)}{i < arr.length - 1 && <br />}</span>
+                ))
+              )}
+            </div>
+            {!msg.isStreaming && msg.content && (
+              <MessageActions text={msg.content} />
             )}
           </div>
         )}
