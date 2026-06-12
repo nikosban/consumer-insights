@@ -28,6 +28,7 @@ import { cn } from '@/lib/utils'
 type PageId =
   | 'overview'
   | 'typography'
+  | 'icons'
   | 'color'
   | 'elevation'
   | 'button'
@@ -44,6 +45,7 @@ const NAV: { group: string; items: { id: PageId; label: string }[] }[] = [
     items: [
       { id: 'overview',    label: 'Overview'    },
       { id: 'typography',  label: 'Typography'  },
+      { id: 'icons',       label: 'Icons'       },
       { id: 'color',       label: 'Color'       },
       { id: 'elevation',   label: 'Elevation'   },
     ],
@@ -67,7 +69,7 @@ const NAV: { group: string; items: { id: PageId; label: string }[] }[] = [
 function PageHeader({ title, description }: { title: string; description?: string }) {
   return (
     <div className="mb-8 pb-6 border-b border-border">
-      <h1 className="text-xl font-bold text-foreground">{title}</h1>
+      <h1 className="text-xl font-semibold text-foreground">{title}</h1>
       {description && <p className="text-sm text-muted-foreground mt-1">{description}</p>}
     </div>
   )
@@ -77,7 +79,7 @@ function Section({ title, hint, children }: { title: string; hint?: string; chil
   return (
     <section className="mb-10">
       <div className="flex items-baseline gap-3 mb-4 pb-2 border-b border-border">
-        <h2 className="text-sm font-bold text-foreground">{title}</h2>
+        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
         {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
       </div>
       {children}
@@ -88,7 +90,7 @@ function Section({ title, hint, children }: { title: string; hint?: string; chil
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-start gap-6 mb-4">
-      <span className="text-[10px] font-semibold text-muted-foreground tracking-wide uppercase w-32 shrink-0 pt-1">{label}</span>
+      <span className="text-xs text-muted-foreground w-32 shrink-0 pt-1">{label}</span>
       <div className="flex flex-wrap items-center gap-3">{children}</div>
     </div>
   )
@@ -233,72 +235,249 @@ function OverviewPage() {
 function TypographyPage() {
   return (
     <>
-      <PageHeader title="Typography" description="Design tokens for font family, size, and weight." />
+      <PageHeader title="Typography" description="Font families, sizes, weights, and usage rules." />
 
       {/* ── Font family ── */}
-      <p className="text-xs font-semibold text-foreground mb-3">Font family</p>
-      <div className="rounded-xl border border-border overflow-hidden mb-8">
-        <div className="grid grid-cols-[160px_1fr_160px] gap-4 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider bg-muted/50 px-4 py-2 border-b border-border">
-          <span>Token</span><span>Sample</span><span>Usage</span>
-        </div>
-        {[
-          { token: 'font-sans (Open Sans)', sample: <span className="text-sm font-sans text-foreground">The quick brown fox</span>, usage: 'All body, labels, UI' },
-          { token: 'font-mono',             sample: <span className="text-sm font-mono text-foreground">border: 1px solid</span>,  usage: 'Code snippets, token values' },
-        ].map(({ token, sample, usage }) => (
-          <div key={token} className="grid grid-cols-[160px_1fr_160px] gap-4 px-4 py-3 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
-            <code className="text-[11px] text-foreground font-medium">{token}</code>
-            <div>{sample}</div>
-            <span className="text-[11px] text-muted-foreground">{usage}</span>
+      <Section title="Font family">
+        <div className="rounded-xl border border-border overflow-hidden mb-4">
+          <div className="grid grid-cols-[180px_1fr_200px] gap-4 text-[11px] font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+            <span>Typeface</span><span>Sample</span><span>Role</span>
           </div>
-        ))}
-      </div>
+          <div className="grid grid-cols-[180px_1fr_200px] gap-4 px-4 py-3 border-b border-border/40 items-center hover:bg-muted/20 transition-colors">
+            <div>
+              <code className="text-[11px] text-foreground font-medium">font-sans</code>
+              <p className="text-[10px] text-muted-foreground mt-0.5">Instrument Sans</p>
+            </div>
+            <span className="text-sm text-foreground">The quick brown fox jumps</span>
+            <span className="text-[11px] text-muted-foreground">Primary — all UI by default</span>
+          </div>
+          <div className="grid grid-cols-[180px_1fr_200px] gap-4 px-4 py-3 items-center hover:bg-muted/20 transition-colors">
+            <div>
+              <code className="text-[11px] text-foreground font-medium">font-mono</code>
+              <p className="text-[10px] text-muted-foreground mt-0.5">IBM Plex Mono</p>
+            </div>
+            <span className="text-sm font-mono text-foreground">DS-10482 · 2026-06-12</span>
+            <span className="text-[11px] text-muted-foreground">Secondary — machine-readable only</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="rounded-lg border border-border p-4">
+            <p className="text-[11px] font-medium text-foreground mb-2">Use Instrument Sans for</p>
+            <ul className="text-[11px] text-muted-foreground space-y-1 list-disc list-inside">
+              <li>Navigation, buttons, form controls</li>
+              <li>Table headers and cells</li>
+              <li>KPI values, chart axes, legends</li>
+              <li>Percentages, currency, rankings</li>
+              <li>Descriptions and long-form text</li>
+              <li>Human-readable dates</li>
+            </ul>
+          </div>
+          <div className="rounded-lg border border-border p-4">
+            <p className="text-[11px] font-medium text-foreground mb-2">Use IBM Plex Mono for</p>
+            <ul className="text-[11px] text-muted-foreground space-y-1 list-disc list-inside">
+              <li>Dataset and record identifiers</li>
+              <li>Country, currency, market codes</li>
+              <li>Machine-formatted timestamps</li>
+              <li>Version numbers, query syntax</li>
+              <li>Code, formulas, file hashes</li>
+              <li>API keys, fixed-format metadata</li>
+            </ul>
+            <div className="mt-3 pt-3 border-t border-border/40 space-y-1">
+              {['DS-10482', 'DE-BE', 'EUR', '2026-06-12 14:07:32', 'v2.14.0'].map(ex => (
+                <code key={ex} className="block text-[11px] font-mono text-muted-foreground">{ex}</code>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Section>
 
       {/* ── Font size / line height ── */}
-      <p className="text-xs font-semibold text-foreground mb-3">Font size &amp; line height</p>
-      <div className="rounded-xl border border-border overflow-hidden mb-8">
-        <div className="grid grid-cols-[140px_60px_60px_80px_1fr] gap-4 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider bg-muted/50 px-4 py-2 border-b border-border">
-          <span>Token</span><span>px</span><span>rem</span><span>Line height</span><span>Usage</span>
-        </div>
-        {[
-          { token: 'text-2xl',    px: '24',  rem: '1.5',    lh: '1.5 (36px)',   usage: 'Page titles (h1)' },
-          { token: 'text-xl',     px: '20',  rem: '1.25',   lh: '1.75 (28px)',  usage: 'Section titles (h2)' },
-          { token: 'text-lg',     px: '18',  rem: '1.125',  lh: '1.75 (28px)',  usage: 'Large headings (landing)' },
-          { token: 'text-base',   px: '16',  rem: '1',      lh: '1.5 (24px)',   usage: 'Nav items, prominent labels' },
-          { token: 'text-sm',     px: '14',  rem: '0.875',  lh: '1.25 (20px)',  usage: 'Body, card titles, row text' },
-          { token: 'text-xs',     px: '12',  rem: '0.75',   lh: '1 (16px)',     usage: 'Meta, secondary text, field labels' },
-          { token: 'text-[11px]', px: '11',  rem: '0.6875', lh: '—',            usage: 'Table cells, dense data' },
-          { token: 'text-[10px]', px: '10',  rem: '0.625',  lh: '—',            usage: 'Caps labels, badges, micro text' },
-        ].map(({ token, px, rem, lh, usage }) => (
-          <div key={token} className="grid grid-cols-[140px_60px_60px_80px_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
-            <code className="text-[11px] text-foreground font-medium">{token}</code>
-            <span className="text-[11px] text-muted-foreground tabular-nums">{px}</span>
-            <span className="text-[11px] text-muted-foreground tabular-nums">{rem}</span>
-            <span className="text-[11px] text-muted-foreground tabular-nums">{lh}</span>
-            <span className="text-[11px] text-muted-foreground">{usage}</span>
+      <Section title="Font size &amp; line height">
+        <div className="rounded-xl border border-border overflow-hidden">
+          <div className="grid grid-cols-[140px_48px_60px_90px_1fr] gap-4 text-[11px] font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+            <span>Token</span><span>px</span><span>rem</span><span>Line height</span><span>Usage</span>
           </div>
-        ))}
-      </div>
+          {[
+            { token: 'text-2xl',    px: '24',  rem: '1.5',    lh: '1.5 · 36px',  usage: 'Page titles (h1)' },
+            { token: 'text-xl',     px: '20',  rem: '1.25',   lh: '1.75 · 28px', usage: 'Section titles (h2)' },
+            { token: 'text-lg',     px: '18',  rem: '1.125',  lh: '1.75 · 28px', usage: 'Large headings' },
+            { token: 'text-base',   px: '16',  rem: '1',      lh: '1.5 · 24px',  usage: 'Nav items, prominent labels' },
+            { token: 'text-sm',     px: '14',  rem: '0.875',  lh: '1.25 · 20px', usage: 'Body, card titles, row text' },
+            { token: 'text-xs',     px: '12',  rem: '0.75',   lh: '1 · 16px',    usage: 'Meta, secondary text, field labels' },
+            { token: 'text-[11px]', px: '11',  rem: '0.6875', lh: '—',           usage: 'Table cells, dense data' },
+            { token: 'text-[10px]', px: '10',  rem: '0.625',  lh: '—',           usage: 'Micro labels (use sparingly)' },
+          ].map(({ token, px, rem, lh, usage }) => (
+            <div key={token} className="grid grid-cols-[140px_48px_60px_90px_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+              <code className="text-[11px] text-foreground font-medium">{token}</code>
+              <span className="text-[11px] text-muted-foreground tabular-nums">{px}</span>
+              <span className="text-[11px] text-muted-foreground tabular-nums">{rem}</span>
+              <span className="text-[11px] text-muted-foreground">{lh}</span>
+              <span className="text-[11px] text-muted-foreground">{usage}</span>
+            </div>
+          ))}
+        </div>
+      </Section>
 
       {/* ── Font weight ── */}
-      <p className="text-xs font-semibold text-foreground mb-3">Font weight</p>
-      <div className="rounded-xl border border-border overflow-hidden mb-8">
-        <div className="grid grid-cols-[140px_60px_1fr_1fr] gap-4 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider bg-muted/50 px-4 py-2 border-b border-border">
-          <span>Token</span><span>Value</span><span>Sample</span><span>Usage</span>
-        </div>
-        {[
-          { token: 'font-normal',   value: '400', sample: <span className="text-sm font-normal text-foreground">The quick brown fox</span>, usage: 'Body text, descriptions, meta' },
-          { token: 'font-medium',   value: '500', sample: <span className="text-sm font-medium text-foreground">The quick brown fox</span>, usage: 'Field labels, toolbar buttons, chips' },
-          { token: 'font-semibold', value: '600', sample: <span className="text-sm font-semibold text-foreground">The quick brown fox</span>, usage: 'Card titles, row titles, nav items, caps labels' },
-          { token: 'font-bold',     value: '700', sample: <span className="text-sm font-bold text-foreground">The quick brown fox</span>,    usage: 'Page titles, section headings' },
-        ].map(({ token, value, sample, usage }) => (
-          <div key={token} className="grid grid-cols-[140px_60px_1fr_1fr] gap-4 px-4 py-3 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
-            <code className="text-[11px] text-foreground font-medium">{token}</code>
-            <span className="text-[11px] text-muted-foreground tabular-nums">{value}</span>
-            <div>{sample}</div>
-            <span className="text-[11px] text-muted-foreground">{usage}</span>
+      <Section title="Font weight">
+        <div className="rounded-xl border border-border overflow-hidden mb-4">
+          <div className="grid grid-cols-[140px_48px_1fr_1fr] gap-4 text-[11px] font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+            <span>Token</span><span>Value</span><span>Sample</span><span>Usage</span>
           </div>
-        ))}
-      </div>
+          {[
+            { token: 'font-normal',   value: '400', sample: <span className="text-sm font-normal text-foreground">The quick brown fox</span>, usage: 'Body text, table values, chart labels, descriptions, input values' },
+            { token: 'font-medium',   value: '500', sample: <span className="text-sm font-medium text-foreground">The quick brown fox</span>, usage: 'Buttons, navigation, table headers, form labels, tabs, filters' },
+            { token: 'font-semibold', value: '600', sample: <span className="text-sm font-semibold text-foreground">The quick brown fox</span>, usage: 'Page titles, section headings, important KPI values, strong selected states' },
+            { token: 'font-bold',     value: '700', sample: <span className="text-sm font-bold text-foreground line-through opacity-40">The quick brown fox</span>, usage: 'Do not use — not part of the type scale' },
+          ].map(({ token, value, sample, usage }) => (
+            <div key={token} className="grid grid-cols-[140px_48px_1fr_1fr] gap-4 px-4 py-3 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+              <code className="text-[11px] text-foreground font-medium">{token}</code>
+              <span className="text-[11px] text-muted-foreground tabular-nums">{value}</span>
+              <div>{sample}</div>
+              <span className="text-[11px] text-muted-foreground">{usage}</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-[11px] text-muted-foreground">Dense interfaces should remain predominantly Regular (400). Use Medium and Semibold selectively — when everything is emphasised, nothing is.</p>
+      </Section>
+
+      {/* ── Numeric typography ── */}
+      <Section title="Numeric typography">
+        <div className="rounded-xl border border-border overflow-hidden mb-4">
+          <div className="grid grid-cols-[200px_1fr] gap-4 text-[11px] font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+            <span>Approach</span><span>When to use</span>
+          </div>
+          <div className="grid grid-cols-[200px_1fr] gap-4 px-4 py-3 border-b border-border/40 items-start hover:bg-muted/20 transition-colors">
+            <div>
+              <p className="text-[11px] font-medium text-foreground">Tabular lining figures</p>
+              <code className="text-[10px] text-muted-foreground font-mono">font-variant-numeric: tabular-nums lining-nums</code>
+              <p className="text-sm font-normal text-foreground mt-2 tabular-nums">1,234,567.89</p>
+            </div>
+            <p className="text-[11px] text-muted-foreground">Numeric table columns, financial values, percentages, rankings, KPI values, dynamic values, values compared vertically, chart values</p>
+          </div>
+          <div className="grid grid-cols-[200px_1fr] gap-4 px-4 py-3 items-start hover:bg-muted/20 transition-colors">
+            <div>
+              <p className="text-[11px] font-medium text-foreground">Proportional figures</p>
+              <code className="text-[10px] text-muted-foreground font-mono">default (no override)</code>
+              <p className="text-sm font-normal text-foreground mt-2">Insight 3 of 12</p>
+            </div>
+            <p className="text-[11px] text-muted-foreground">Ordinary prose when alignment is not required</p>
+          </div>
+        </div>
+        <p className="text-[11px] text-muted-foreground">Do not use IBM Plex Mono merely to get equal-width numerals. Prefer <code className="font-mono">tabular-nums</code> in Instrument Sans.</p>
+      </Section>
+
+      {/* ── Letter spacing ── */}
+      <Section title="Letter spacing">
+        <div className="space-y-2 text-[11px] text-muted-foreground">
+          <p>Use the font's default letter spacing unless a defined token specifies otherwise.</p>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Do not add tracking to ordinary body text</li>
+            <li>Do not use negative tracking for small labels</li>
+            <li>Avoid uppercase labels in dense interfaces</li>
+            <li>When uppercase is necessary for a short code or category, use brief restrained positive tracking</li>
+            <li>Do not apply decorative tracking to numeric values</li>
+          </ul>
+        </div>
+      </Section>
+    </>
+  )
+}
+
+function IconsPage() {
+  return (
+    <>
+      <PageHeader title="Icons" description="Sizing, weight, and pairing rules for Tabler Icons." />
+
+      <Section title="Icon library">
+        <p className="text-[11px] text-muted-foreground mb-3">Use <strong className="font-medium text-foreground">Tabler Icons</strong> exclusively. Do not mix icons from multiple libraries.</p>
+      </Section>
+
+      <Section title="Stroke weight">
+        <div className="rounded-xl border border-border overflow-hidden mb-4">
+          <div className="grid grid-cols-[160px_80px_1fr] gap-4 text-[11px] font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+            <span>Context</span><span>stroke-width</span><span>When to use</span>
+          </div>
+          {[
+            { ctx: 'Default', sw: '2', note: 'Icon-only controls and icons paired with medium/semibold text' },
+            { ctx: 'Light', sw: '1.75', note: 'When a lighter treatment is needed alongside regular-weight text' },
+            { ctx: 'Heavy', sw: '> 2', note: 'Do not use unless explicitly defined and visually tested' },
+          ].map(({ ctx, sw, note }) => (
+            <div key={ctx} className="grid grid-cols-[160px_80px_1fr] gap-4 px-4 py-3 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+              <span className="text-[11px] text-foreground">{ctx}</span>
+              <code className="text-[11px] font-mono text-muted-foreground">{sw}</code>
+              <span className="text-[11px] text-muted-foreground">{note}</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-[11px] text-muted-foreground">Match icon visual weight to the text it accompanies. Do not map font-weight values directly to SVG stroke widths.</p>
+      </Section>
+
+      <Section title="Size scale">
+        <div className="rounded-xl border border-border overflow-hidden mb-4">
+          <div className="grid grid-cols-[140px_100px_1fr] gap-4 text-[11px] font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+            <span>Container</span><span>Icon size</span><span>Context</span>
+          </div>
+          {[
+            { container: '32px container', size: '18–20px', note: 'Standard icon buttons' },
+            { container: '24px container', size: '16px',    note: 'Compact toolbars, secondary actions' },
+            { container: '20px container', size: '12–14px', note: 'Dense toolbars, tables, filters' },
+            { container: 'Paired with text', size: '1.25cap', note: 'Default for text-paired icons — matches cap height of adjacent type' },
+          ].map(({ container, size, note }) => (
+            <div key={container} className="grid grid-cols-[140px_100px_1fr] gap-4 px-4 py-3 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+              <span className="text-[11px] text-foreground">{container}</span>
+              <code className="text-[11px] font-mono text-muted-foreground">{size}</code>
+              <span className="text-[11px] text-muted-foreground">{note}</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-[11px] text-muted-foreground mb-2">Use <code className="font-mono">12px</code> only for simple glyphs (chevrons, arrows, sort indicators, close marks). Do not render detailed Tabler icons at 12px.</p>
+        <p className="text-[11px] text-muted-foreground">Do not introduce arbitrary sizes outside this scale.</p>
+      </Section>
+
+      <Section title="Pairing icons with text">
+        <div className="space-y-3 mb-4">
+          {[
+            { label: 'Default paired size', cls: 'flex items-center gap-2 text-sm text-foreground', iconCls: 'shrink-0 [&>svg]:w-[1.25cap] [&>svg]:h-[1.25cap]', note: '1.25cap · flex + items-center' },
+          ].map(({ label, cls, iconCls, note }) => (
+            <div key={label} className="flex items-start gap-6">
+              <div className={cls}>
+                <span className={iconCls}>
+                  <LayoutDashboard />
+                </span>
+                Dashboard
+              </div>
+              <div>
+                <p className="text-[11px] font-medium text-foreground">{label}</p>
+                <p className="text-[10px] text-muted-foreground">{note}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="rounded-lg bg-muted/40 border border-border p-4 text-[11px] space-y-1">
+          <p className="font-medium text-foreground mb-2">Rules</p>
+          <ul className="text-muted-foreground space-y-1 list-disc list-inside">
+            <li>Size icon relative to cap height (<code className="font-mono">1.25cap</code> default), not fixed px</li>
+            <li>Keep icon square — same value for width and height</li>
+            <li>Align with flexbox, not manual top offsets</li>
+            <li>Apply <code className="font-mono">flex-shrink: 0</code> to prevent distortion</li>
+            <li>Do not stretch, crop, or distort icons</li>
+          </ul>
+        </div>
+      </Section>
+
+      <Section title="Interactive targets">
+        <div className="space-y-3 text-[11px] text-muted-foreground">
+          <p>The visual container and the interactive target are separate concepts.</p>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Icon buttons must have a minimum tap target of <strong className="font-medium text-foreground">32×32px</strong></li>
+            <li>A 20px or 24px visual icon may sit inside a larger clickable area</li>
+            <li>Do not make the SVG element itself the only clickable region</li>
+          </ul>
+          <p>Use the same icon size and stroke for controls at the same hierarchy level.</p>
+        </div>
+      </Section>
     </>
   )
 }
@@ -778,6 +957,7 @@ function LayoutPage() {
 const PAGES: Record<PageId, React.ReactNode> = {
   'overview':    <OverviewPage />,
   'typography':  <TypographyPage />,
+  'icons':       <IconsPage />,
   'color':       <ColorPage />,
   'elevation':   <ElevationPage />,
   'button':      <ButtonPage />,
