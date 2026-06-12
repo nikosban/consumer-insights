@@ -7,6 +7,7 @@ import 'react-resizable/css/styles.css'
 import { useDashboardStore } from '@/store/dashboardStore'
 import { useWidgetStore } from '@/store/widgetStore'
 import { useAudienceStore } from '@/store/audienceStore'
+import { useProjectStore } from '@/store/projectStore'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -16,6 +17,7 @@ import {
   SelectTrigger,
 } from '@/components/ui/select'
 import ExportModal from '@/components/ExportModal'
+import ShareModal from '@/components/ShareModal'
 import ChartRenderer from '@/components/charts/ChartRenderer'
 import EmptyState from '@/components/EmptyState'
 import { generateChartData, DIMENSION_VALUES } from '@/data/fakeGenerators'
@@ -24,7 +26,7 @@ import type { SurveyQuestion } from '@/data/surveyData'
 import type { DashboardWidget, Widget, WidgetType } from '@/types'
 import {
   RefreshCw, X, GripVertical,
-  Search, ChevronRight, Plus,
+  Search, ChevronRight, Plus, LayoutDashboard,
   Table2, BarChart2, TrendingUp, PieChart, Hash,
   Sparkles, Send, ChevronDown, FileText,
 } from 'lucide-react'
@@ -826,42 +828,62 @@ function CrossDimensionPreview({ question }: { question: SurveyQuestion }) {
 
 // ─── AI prompt card ───────────────────────────────────────────────────────────
 
-function DotGrid() {
-  const COLS = 22
-  const ROWS = 10
-  const dots: { key: string; delay: number }[] = []
-  for (let row = 0; row < ROWS; row++) {
-    for (let col = 0; col < COLS; col++) {
-      const cx = col / (COLS - 1) - 0.5
-      const cy = row / (ROWS - 1) - 0.5
-      const dist = Math.sqrt(cx * cx + cy * cy)
-      dots.push({ key: `${row}-${col}`, delay: dist * 700 })
+function DitherCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')!
+    const bayer: number[][] = [
+      [ 0/16,  8/16,  2/16, 10/16],
+      [12/16,  4/16, 14/16,  6/16],
+      [ 3/16, 11/16,  1/16,  9/16],
+      [15/16,  7/16, 13/16,  5/16],
+    ]
+    const BLOCK = 4
+    let frame = 0
+    let rafId: number
+
+    function render() {
+      const W = canvas.width
+      const H = canvas.height
+      const cols = Math.ceil(W / BLOCK)
+      const rows = Math.ceil(H / BLOCK)
+      ctx.clearRect(0, 0, W, H)
+      const t = frame * 0.012
+      // Pulse a base gray level between 0.25 and 0.65
+      const pulse = 0.45 + 0.2 * Math.sin(t * 0.7)
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const nx = c / cols
+          const ny = r / rows
+          // Gradient: fade from pulse brightness at top to 0 (black) at bottom
+          const gradient = pulse * Math.pow(1 - ny, 0.7)
+          // Add subtle horizontal wave texture
+          const v = gradient + 0.08 * Math.sin(nx * 6 + t) * Math.cos(ny * 2 - t * 0.5)
+          if (v > bayer[r % 4][c % 4]) {
+            ctx.fillStyle = 'rgba(255,255,255,0.18)'
+            ctx.fillRect(c * BLOCK, r * BLOCK, BLOCK, BLOCK)
+          }
+        }
+      }
+      frame++
+      rafId = requestAnimationFrame(render)
     }
-  }
+
+    render()
+    return () => cancelAnimationFrame(rafId)
+  }, [])
+
   return (
-    <div
-      className="absolute inset-0 overflow-hidden"
-      style={{
-        display: 'grid',
-        gridTemplateColumns: `repeat(${COLS}, 1fr)`,
-        gridTemplateRows: `repeat(${ROWS}, 1fr)`,
-        padding: '12px 16px',
-      }}
-    >
-      {dots.map(({ key, delay }) => (
-        <div key={key} className="flex items-center justify-center">
-          <div
-            className="rounded-full bg-white"
-            style={{
-              width: 2.5,
-              height: 2.5,
-              animation: 'dotGridPulse 2.4s ease-in-out infinite',
-              animationDelay: `${delay}ms`,
-            }}
-          />
-        </div>
-      ))}
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full"
+      width={440}
+      height={440}
+      style={{ imageRendering: 'pixelated' }}
+    />
   )
 }
 
@@ -887,37 +909,46 @@ function AIPromptCard({
   }
 
   return (
-    <div className="relative overflow-hidden rounded-xl" style={{ background: '#1e3a8a', minHeight: 140 }}>
-      <DotGrid />
-      <div className="relative z-10 flex flex-col gap-3 p-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-blue-300" />
-            <span className="text-sm font-semibold text-white">Ask AI to build a widget</span>
-          </div>
-          <button
-            onClick={onDismiss}
-            className="p-1 rounded text-blue-300/60 hover:text-blue-200 transition-colors"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        </div>
-        <div className="flex gap-2">
+    <div
+      className="relative overflow-hidden rounded-xl flex flex-col"
+      style={{ background: '#000', width: 440, height: 440, minWidth: 280, maxWidth: '100%', resize: 'horizontal' }}
+    >
+      {/* Dither canvas — covers top portion only, above input section */}
+      <DitherCanvas />
+
+      {/* Headline — floats over dither */}
+      <div className="relative z-10 flex items-start justify-between px-5 pt-5">
+        <span className="text-sm font-semibold text-white">Ask AI to build a widget</span>
+        <button
+          onClick={onDismiss}
+          className="p-1 rounded text-white/40 hover:text-white/80 transition-colors"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+
+      {/* Spacer */}
+      <div className="flex-1" />
+
+      {/* Input section — sits at bottom over dither */}
+      <div className="relative z-10 px-4 pb-4 pt-3">
+        <div className="flex items-center rounded-lg border border-white/15 overflow-hidden" style={{ background: 'rgba(0,0,0,0.65)' }}>
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
             placeholder="e.g. Show gender breakdown of smartphone usage…"
-            className="flex-1 h-9 rounded-lg px-3 text-sm bg-white/10 border border-white/20 text-white placeholder:text-blue-300/50 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all"
+            className="flex-1 h-10 px-3 text-sm text-white focus:outline-none"
+            style={{ background: 'transparent', color: '#fff' }}
           />
           <button
             onClick={handleSubmit}
             disabled={!query.trim() || isLoading}
-            className="h-9 px-3 rounded-lg bg-white text-blue-900 font-medium text-sm hover:bg-blue-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shrink-0 flex items-center gap-1.5"
+            className="h-10 w-10 flex items-center justify-center border-l border-white/15 text-white/60 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors shrink-0"
           >
             {isLoading
-              ? <RefreshCw className="h-4 w-4 animate-spin" />
-              : <Send className="h-4 w-4" />
+              ? <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+              : <Send className="h-3.5 w-3.5" />
             }
           </button>
         </div>
@@ -934,6 +965,7 @@ export default function DashboardBuilderPage() {
   const { dashboards, add, update, updateLayout, toggleShare } = useDashboardStore()
   const { widgets, add: addWidget, update: updateWidget } = useWidgetStore()
   const { audiences } = useAudienceStore()
+  const { projects, addAnalysis } = useProjectStore()
 
   const existing = id ? dashboards.find((d) => d.id === id) : null
   const isNew = !existing
@@ -955,6 +987,7 @@ export default function DashboardBuilderPage() {
   const [summaryGenerating, setSummaryGenerating] = useState<Record<string, boolean>>({})
 
   const [exportOpen, setExportOpen] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
   const [containerWidth, setContainerWidth] = useState(900)
   const [isDragOver, setIsDragOver] = useState(false)
   const [dragOverWidgetId, setDragOverWidgetId] = useState<string | null>(null)
@@ -1199,7 +1232,7 @@ export default function DashboardBuilderPage() {
             <Button variant="outline" size="toolbar" onClick={handleRefresh}>
               Refresh
             </Button>
-            <Button variant="outline" size="toolbar" onClick={handleToggleShare}>
+            <Button variant="outline" size="toolbar" onClick={() => setShareOpen(true)}>
               {isShared ? 'Shared' : 'Share'}
             </Button>
             <Button variant="outline" size="toolbar" onClick={() => setExportOpen(true)}>
@@ -1207,7 +1240,34 @@ export default function DashboardBuilderPage() {
             </Button>
             <Button
               size="toolbar"
-              onClick={() => navigate('/analyses')}
+              onClick={() => {
+                const projectId = projects[0]?.id ?? 'proj-1'
+                const anaId = `ana-${Date.now()}`
+                const widgetTitles = placedWidgets
+                  .map(pw => widgets.find(w => w.id === pw.widgetId)?.title)
+                  .filter(Boolean) as string[]
+                const widgetList = widgetTitles.length
+                  ? widgetTitles.map(t => `• ${t}`).join('\n')
+                  : '• No widgets yet'
+                const execContent = `This report summarises the ${name} dashboard, covering ${widgetTitles.length} data point${widgetTitles.length !== 1 ? 's' : ''}. The analysis draws on the following charts and metrics:\n\n${widgetList}\n\nOverall, the data reveals consistent patterns across the tracked audience, with notable variation in key intent and awareness metrics. Signals point to clear opportunities for targeted activation in high-performing segments.`
+                const findingsContent = widgetTitles.length
+                  ? widgetTitles.map(t => `• ${t}: trending above category average, with the strongest performance in the 25–34 age cohort.`).join('\n')
+                  : '• No widget data available yet.'
+                addAnalysis(projectId, {
+                  id: anaId,
+                  name: `${name} — Summary`,
+                  dashboardId: dashId,
+                  template: 'summary',
+                  audienceId: dashAudienceId || 'all',
+                  widgetIds: placedWidgets.map(w => w.widgetId),
+                  sections: [
+                    { id: `${anaId}-exec`, heading: 'Executive Summary', content: execContent },
+                    { id: `${anaId}-findings`, heading: 'Key Findings', content: findingsContent },
+                  ],
+                  createdAt: new Date().toISOString(),
+                })
+                navigate(`/analyses/${anaId}`)
+              }}
             >
               <Sparkles className="h-3.5 w-3.5" />
               Generate
@@ -1250,10 +1310,26 @@ export default function DashboardBuilderPage() {
           </div>
 
           {placedWidgets.length === 0 ? (
-            <EmptyState
-              title="Canvas is empty"
-              description={isEditMode ? 'Click a question in the sidebar or type below to add a widget.' : 'Switch to Edit mode to add widgets.'}
-            />
+            isEditMode ? (
+              <div
+                className={cn(
+                  'mx-4 my-2 flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed transition-colors',
+                  isDragOver
+                    ? 'border-primary bg-primary/5 text-primary'
+                    : 'border-border text-muted-foreground'
+                )}
+                style={{ minHeight: 320 }}
+              >
+                <LayoutDashboard className={cn('h-8 w-8 opacity-40', isDragOver && 'opacity-70')} />
+                <p className="text-sm font-medium">{isDragOver ? 'Drop to add widget' : 'Drag a question here'}</p>
+                <p className="text-xs opacity-60">or click the + next to any question in the sidebar</p>
+              </div>
+            ) : (
+              <EmptyState
+                title="Canvas is empty"
+                description="Switch to Edit mode to add widgets."
+              />
+            )
           ) : (
             <div className="px-4">
             <GridLayout
@@ -1422,6 +1498,31 @@ export default function DashboardBuilderPage() {
               })}
             </GridLayout>
 
+            {/* Drop zone strip — visible while dragging from sidebar */}
+            {isEditMode && draggingQuestion && (
+              <div
+                className={cn(
+                  'mt-3 rounded-2xl flex items-center justify-center gap-2 py-5 transition-colors',
+                  isDragOver
+                    ? 'bg-primary/5 text-primary'
+                    : 'text-muted-foreground'
+                )}
+                style={{ width: containerWidth - 16 }}
+                onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setIsDragOver(true) }}
+                onDragLeave={() => setIsDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault(); e.stopPropagation()
+                  setIsDragOver(false)
+                  const qId = e.dataTransfer.getData('survey-question-id')
+                  const qLabel = e.dataTransfer.getData('survey-question-label')
+                  if (qId && qLabel) addQuestionAsWidget({ id: qId, label: qLabel })
+                }}
+              >
+                <Plus className="h-4 w-4 opacity-60" />
+                <span className="text-xs font-medium">{isDragOver ? 'Drop to add widget' : 'Drop here to add as new widget'}</span>
+              </div>
+            )}
+
             {/* AI card — edit mode only */}
             {isEditMode && (
               <div className="mt-3 pr-3" style={{ width: containerWidth - 16 }}>
@@ -1472,6 +1573,7 @@ export default function DashboardBuilderPage() {
       )}
 
       <ExportModal dashboardId={dashId} open={exportOpen} onClose={() => setExportOpen(false)} />
+      <ShareModal dashboardId={dashId} open={shareOpen} onClose={() => setShareOpen(false)} />
     </div>
   )
 }

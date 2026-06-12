@@ -10,6 +10,7 @@ import DashboardViewPage from '@/pages/DashboardViewPage'
 import ResearchAIPage from '@/pages/ResearchAIPage'
 import ChartsPage from '@/pages/ChartsPage'
 import AnalysesPage from '@/pages/AnalysesPage'
+import AnalysisDetailPage from '@/pages/AnalysisDetailPage'
 import PlaygroundPage from '@/pages/PlaygroundPage'
 
 export default function App() {
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route element={<AppLayout />}>
           <Route path="/analyses" element={<AnalysesPage />} />
+          <Route path="/analyses/:id" element={<AnalysisDetailPage />} />
           <Route path="/audiences" element={<AudiencesPage />} />
           <Route path="/audiences/new" element={<AudienceBuilderPage />} />
           <Route path="/audiences/:id/edit" element={<AudienceBuilderPage />} />

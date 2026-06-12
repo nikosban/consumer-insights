@@ -501,6 +501,7 @@ export default function AudienceBuilderPage() {
   }
 
   return (
+    <div className="flex-1 overflow-y-auto">
     <div className="px-6 py-10 max-w-[960px] mx-auto pb-10">
 
       {/* Header */}
@@ -574,6 +575,7 @@ export default function AudienceBuilderPage() {
         </div>
       </div>
 
+    </div>
     </div>
   )
 }

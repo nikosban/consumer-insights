@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAIStore } from '@/store/aiStore'
 import { useAudienceStore } from '@/store/audienceStore'
 import { useDashboardStore } from '@/store/dashboardStore'
+import { useWidgetStore } from '@/store/widgetStore'
 import type { ChatHistoryEntry } from '@/store/aiStore'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -394,7 +395,8 @@ function InputBox({
 function AudienceCardMessage({ card }: { card: AudienceCardData }) {
   const navigate = useNavigate()
   const { add: addAudience } = useAudienceStore()
-  const { dashboards } = useDashboardStore()
+  const { dashboards, updateLayout } = useDashboardStore()
+  const { add: addWidget } = useWidgetStore()
   const [saved, setSaved] = useState(false)
   const [dashPickerOpen, setDashPickerOpen] = useState(false)
   const [addedToDash, setAddedToDash] = useState<{ id: string; name: string } | null>(null)
@@ -430,6 +432,20 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
 
   function handleAddToDashboard(dashId: string, dashName: string) {
     setDashPickerOpen(false)
+    const widgetId = `widget-${Date.now()}`
+    const newWidget: Widget = {
+      id: widgetId,
+      type: 'bar',
+      title: card.name,
+      audienceId: '',
+      metric: card.subtitle,
+      createdAt: new Date().toISOString(),
+    }
+    addWidget(newWidget)
+    const dash = dashboards.find(d => d.id === dashId)
+    const existing = dash?.widgets ?? []
+    const y = existing.reduce((max, w) => Math.max(max, w.position.y + w.position.h), 0)
+    updateLayout(dashId, [...existing, { widgetId, position: { x: 0, y, w: 6, h: 4 } }])
     setAddedToDash({ id: dashId, name: dashName })
   }
 
@@ -524,24 +540,8 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
               {addedToDash ? 'Added' : 'Add to Dashboard'}
             </button>
 
-            {/* Dashboard picker dropdown */}
             {dashPickerOpen && (
-              <div className="absolute bottom-full left-0 right-0 mb-1 z-20 bg-white border border-border rounded-xl shadow-lg py-1 min-w-[160px]">
-                <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground tracking-wider">Select dashboard</p>
-                {dashboards.length === 0 && (
-                  <p className="px-3 py-2 text-xs text-muted-foreground">No dashboards yet</p>
-                )}
-                {dashboards.map(d => (
-                  <button
-                    key={d.id}
-                    onClick={() => handleAddToDashboard(d.id, d.name)}
-                    className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-between gap-2"
-                  >
-                    <span className="truncate">{d.name}</span>
-                    <ChevronRight size={11} className="shrink-0 text-muted-foreground" />
-                  </button>
-                ))}
-              </div>
+              <DashboardPickerDropdown dashboards={dashboards} onSelect={(id, name) => { setDashPickerOpen(false); handleAddToDashboard(id, name) }} label="Select dashboard" direction="up" />
             )}
           </div>
 
@@ -585,7 +585,8 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
 
 function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
   const navigate = useNavigate()
-  const { dashboards } = useDashboardStore()
+  const { dashboards, updateLayout } = useDashboardStore()
+  const { add: addWidget } = useWidgetStore()
   const [dashPickerOpen, setDashPickerOpen] = useState(false)
   const [addedToDash, setAddedToDash] = useState<{ id: string; name: string } | null>(null)
   const dashRef = useRef<HTMLDivElement>(null)
@@ -610,6 +611,20 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
 
   function handleAddToDashboard(dashId: string, dashName: string) {
     setDashPickerOpen(false)
+    const widgetId = `widget-${Date.now()}`
+    const newWidget: Widget = {
+      id: widgetId,
+      type: card.chartType,
+      title: card.title,
+      audienceId: '',
+      metric: card.metric,
+      createdAt: new Date().toISOString(),
+    }
+    addWidget(newWidget)
+    const dash = dashboards.find(d => d.id === dashId)
+    const existing = dash?.widgets ?? []
+    const y = existing.reduce((max, w) => Math.max(max, w.position.y + w.position.h), 0)
+    updateLayout(dashId, [...existing, { widgetId, position: { x: 0, y, w: 6, h: 4 } }])
     setAddedToDash({ id: dashId, name: dashName })
   }
 
@@ -658,24 +673,8 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
               {addedToDash ? 'Added to Dashboard' : 'Add to Dashboard'}
             </button>
 
-            {/* Dashboard picker */}
             {dashPickerOpen && (
-              <div className="absolute bottom-full left-0 right-0 mb-1 z-20 bg-white border border-border rounded-xl shadow-lg py-1 min-w-[180px]">
-                <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground tracking-wider">Select dashboard</p>
-                {dashboards.length === 0 && (
-                  <p className="px-3 py-2 text-xs text-muted-foreground">No dashboards yet</p>
-                )}
-                {dashboards.map(d => (
-                  <button
-                    key={d.id}
-                    onClick={() => handleAddToDashboard(d.id, d.name)}
-                    className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-between gap-2"
-                  >
-                    <span className="truncate">{d.name}</span>
-                    <ChevronRight size={11} className="shrink-0 text-muted-foreground" />
-                  </button>
-                ))}
-              </div>
+              <DashboardPickerDropdown dashboards={dashboards} onSelect={(id, name) => { setDashPickerOpen(false); handleAddToDashboard(id, name) }} label="Select dashboard" direction="up" />
             )}
           </div>
 
@@ -849,7 +848,8 @@ function BenchmarkPanel({ panel, onCreateDraft }: { panel: BenchmarkPanelData; o
 
 function WidgetCluster({ widgets }: { widgets: DataWidgetCardData[] }) {
   const navigate = useNavigate()
-  const { dashboards } = useDashboardStore()
+  const { dashboards, updateLayout } = useDashboardStore()
+  const { add: addWidget } = useWidgetStore()
   const [dashPickerOpen, setDashPickerOpen] = useState<'all' | number | null>(null)
   const [added, setAdded] = useState<Record<string | number, { id: string; name: string }>>({})
   const dashRef = useRef<HTMLDivElement>(null)
@@ -862,14 +862,30 @@ function WidgetCluster({ widgets }: { widgets: DataWidgetCardData[] }) {
     return () => document.removeEventListener('mousedown', close)
   }, [])
 
+  function persistWidgets(toAdd: DataWidgetCardData[], dashId: string) {
+    const dash = dashboards.find(d => d.id === dashId)
+    const existing = dash?.widgets ?? []
+    let y = existing.reduce((max, w) => Math.max(max, w.position.y + w.position.h), 0)
+    const newDashWidgets = toAdd.map(card => {
+      const widgetId = `widget-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+      addWidget({ id: widgetId, type: card.chartType, title: card.title, audienceId: '', metric: card.metric, createdAt: new Date().toISOString() })
+      const entry = { widgetId, position: { x: 0, y, w: 6, h: 4 } }
+      y += 4
+      return entry
+    })
+    updateLayout(dashId, [...existing, ...newDashWidgets])
+  }
+
   function handleAdd(key: 'all' | number, dashId: string, dashName: string) {
     setDashPickerOpen(null)
     if (key === 'all') {
+      persistWidgets(widgets, dashId)
       const next: Record<string | number, { id: string; name: string }> = {}
       widgets.forEach((_, i) => { next[i] = { id: dashId, name: dashName } })
       next['all'] = { id: dashId, name: dashName }
       setAdded(next)
     } else {
+      persistWidgets([widgets[key as number]], dashId)
       setAdded(prev => ({ ...prev, [key]: { id: dashId, name: dashName } }))
     }
   }
@@ -984,17 +1000,34 @@ function WidgetCluster({ widgets }: { widgets: DataWidgetCardData[] }) {
 }
 
 // shared tiny component used by WidgetCluster
-function DashboardPickerDropdown({ dashboards, onSelect, label }: {
+function DashboardPickerDropdown({ dashboards, onSelect, label, direction = 'down' }: {
   dashboards: { id: string; name: string }[]
   onSelect: (id: string, name: string) => void
   label: string
+  direction?: 'up' | 'down'
 }) {
+  const { add: addDashboard } = useDashboardStore()
+  const [creating, setCreating] = useState(false)
+  const [newName, setNewName] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (creating) setTimeout(() => inputRef.current?.focus(), 0)
+  }, [creating])
+
+  function handleCreate() {
+    const name = newName.trim()
+    if (!name) return
+    const id = `dash-${Date.now()}`
+    addDashboard({ id, name, widgets: [], isShared: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() })
+    onSelect(id, name)
+    setCreating(false)
+    setNewName('')
+  }
+
   return (
-    <div className="absolute top-full right-0 mt-1 z-20 bg-white border border-border rounded-xl shadow-lg py-1 min-w-[180px]">
+    <div onMouseDown={e => e.stopPropagation()} className={cn('absolute right-0 z-20 bg-white border border-border rounded-xl shadow-lg py-1 min-w-[200px]', direction === 'up' ? 'bottom-full mb-1' : 'top-full mt-1')}>
       <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground tracking-wider">{label}</p>
-      {dashboards.length === 0 && (
-        <p className="px-3 py-2 text-xs text-muted-foreground">No dashboards yet</p>
-      )}
       {dashboards.map(d => (
         <button
           key={d.id}
@@ -1005,6 +1038,35 @@ function DashboardPickerDropdown({ dashboards, onSelect, label }: {
           <ChevronRight size={11} className="shrink-0 text-muted-foreground" />
         </button>
       ))}
+      <div className="border-t border-border mt-1 pt-1">
+        {creating ? (
+          <div className="flex items-center gap-1.5 px-2 py-1">
+            <input
+              ref={inputRef}
+              value={newName}
+              onChange={e => setNewName(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') handleCreate(); if (e.key === 'Escape') { setCreating(false); setNewName('') } }}
+              placeholder="Dashboard name…"
+              className="flex-1 text-xs border border-border rounded-md px-2 py-1 outline-none focus:border-primary min-w-0"
+            />
+            <button
+              onClick={handleCreate}
+              disabled={!newName.trim()}
+              className="h-6 w-6 flex items-center justify-center rounded-md bg-primary text-white disabled:opacity-40 shrink-0"
+            >
+              <Check size={11} />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setCreating(true)}
+            className="w-full text-left px-3 py-2 text-xs text-primary font-medium hover:bg-primary/5 transition-colors flex items-center gap-1.5"
+          >
+            <Plus size={11} />
+            New dashboard
+          </button>
+        )}
+      </div>
     </div>
   )
 }

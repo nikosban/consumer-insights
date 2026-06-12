@@ -7,8 +7,10 @@ type PageShellProps = {
 
 export function PageShell({ children, className }: PageShellProps) {
   return (
-    <div className={cn('p-6 max-w-4xl mx-auto', className)}>
-      {children}
+    <div className="flex-1 overflow-y-auto">
+      <div className={cn('p-6 max-w-4xl mx-auto', className)}>
+        {children}
+      </div>
     </div>
   )
 }

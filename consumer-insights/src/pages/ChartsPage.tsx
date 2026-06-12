@@ -600,12 +600,14 @@ export default function ChartsPage() {
   // Add to dashboard popover
   const [dashMenuOpen, setDashMenuOpen] = useState(false)
   const [addedDash, setAddedDash] = useState<string | null>(null)
+  const [creatingDash, setCreatingDash] = useState(false)
+  const [newDashName, setNewDashName] = useState('')
   const addToDashRef = useRef<HTMLDivElement>(null)
 
   // Drop target for columns
   const [isDragOver, setIsDragOver] = useState(false)
 
-  const { dashboards, update: updateDashboard } = useDashboardStore()
+  const { dashboards, add: addDashboard, updateLayout } = useDashboardStore()
   const { add: addWidget, remove: removeWidget } = useWidgetStore()
 
   // Close dashboard popover on outside click
@@ -614,6 +616,8 @@ export default function ChartsPage() {
     function handler(e: MouseEvent) {
       if (addToDashRef.current && !addToDashRef.current.contains(e.target as Node)) {
         setDashMenuOpen(false)
+        setCreatingDash(false)
+        setNewDashName('')
       }
     }
     document.addEventListener('mousedown', handler)
@@ -684,12 +688,28 @@ export default function ChartsPage() {
     if (!dash) return
     const newId = `lib-dash-${Date.now()}`
     addWidget({ ...widget, id: newId, createdAt: new Date().toISOString() })
-    const existingCount = dash.widgets.length
+    const existing = dash.widgets
     const newDashWidget = {
       widgetId: newId,
-      position: { x: (existingCount % 2) * 6, y: Math.floor(existingCount / 2) * 4, w: 6, h: 4 },
+      position: { x: (existing.length % 2) * 6, y: Math.floor(existing.length / 2) * 4, w: 6, h: 4 },
     }
-    updateDashboard(dashId, { widgets: [...dash.widgets, newDashWidget] })
+    updateLayout(dashId, [...existing, newDashWidget])
+    setAddedDash(dashId)
+    setTimeout(() => { setAddedDash(null); setDashMenuOpen(false) }, 1200)
+  }
+
+  function handleAddToNewDashboard(dashName: string) {
+    if (!selected || !widget) return
+    const dashId = `dash-${Date.now()}`
+    const widgetId = `lib-dash-${Date.now()}`
+    addWidget({ ...widget, id: widgetId, createdAt: new Date().toISOString() })
+    addDashboard({
+      id: dashId, name: dashName,
+      widgets: [{ widgetId, position: { x: 0, y: 0, w: 6, h: 4 } }],
+      isShared: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    })
     setAddedDash(dashId)
     setTimeout(() => { setAddedDash(null); setDashMenuOpen(false) }, 1200)
   }
@@ -778,20 +798,41 @@ export default function ChartsPage() {
                     Add to dashboard
                   </Button>
                   {dashMenuOpen && (
-                    <div className="absolute right-0 top-full mt-1 bg-popover border border-border rounded-md shadow-md z-50 overflow-hidden min-w-[180px]">
-                      {dashboards.length === 0 ? (
-                        <p className="px-3 py-2 text-xs text-muted-foreground">No dashboards yet</p>
+                    <div
+                      className="absolute right-0 top-full mt-1 bg-popover border border-border rounded-md shadow-md z-50 overflow-hidden min-w-[200px]"
+                      onMouseDown={e => e.stopPropagation()}
+                    >
+                      {dashboards.map(d => (
+                        <button
+                          key={d.id}
+                          onClick={() => handleAddToDashboard(d.id)}
+                          className="flex items-center justify-between gap-2 w-full px-3 py-2 text-xs text-left hover:bg-accent transition-colors"
+                        >
+                          <span className="truncate">{d.name}</span>
+                          {addedDash === d.id && <Check className="h-3 w-3 text-green-600 shrink-0" />}
+                        </button>
+                      ))}
+                      {creatingDash ? (
+                        <form
+                          className="flex items-center gap-1 px-2 py-1.5 border-t border-border"
+                          onSubmit={e => { e.preventDefault(); if (newDashName.trim()) { handleAddToNewDashboard(newDashName.trim()); setCreatingDash(false); setNewDashName('') } }}
+                        >
+                          <input
+                            autoFocus
+                            value={newDashName}
+                            onChange={e => setNewDashName(e.target.value)}
+                            placeholder="Dashboard name"
+                            className="flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground"
+                          />
+                          <button type="submit" className="text-xs text-primary font-medium">Add</button>
+                        </form>
                       ) : (
-                        dashboards.map(d => (
-                          <button
-                            key={d.id}
-                            onClick={() => handleAddToDashboard(d.id)}
-                            className="flex items-center justify-between gap-2 w-full px-3 py-2 text-xs text-left hover:bg-accent transition-colors"
-                          >
-                            <span className="truncate">{d.name}</span>
-                            {addedDash === d.id && <Check className="h-3 w-3 text-green-600 shrink-0" />}
-                          </button>
-                        ))
+                        <button
+                          className="flex items-center gap-1.5 w-full px-3 py-2 text-xs text-primary border-t border-border hover:bg-accent transition-colors"
+                          onClick={() => setCreatingDash(true)}
+                        >
+                          + New dashboard
+                        </button>
                       )}
                     </div>
                   )}

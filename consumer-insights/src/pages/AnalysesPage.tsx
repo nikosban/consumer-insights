@@ -1,9 +1,11 @@
+import { useNavigate } from 'react-router-dom'
 import { useProjectStore } from '@/store/projectStore'
 import { ResourceCard, PageShell } from '@/components/app'
 import EmptyState from '@/components/EmptyState'
 import { FileText } from 'lucide-react'
 
 export default function AnalysesPage() {
+  const navigate = useNavigate()
   const { projects } = useProjectStore()
 
   const analyses = projects.flatMap((project) =>
@@ -31,6 +33,7 @@ export default function AnalysesPage() {
               title={analysis.name}
               meta={`${analysis.sections?.length ?? 0} ${(analysis.sections?.length ?? 0) === 1 ? 'section' : 'sections'} · ${project.name}`}
               date={`Created ${new Date(analysis.createdAt).toLocaleDateString()}`}
+              onClick={() => navigate(`/analyses/${analysis.id}`)}
             />
           ))}
         </div>
