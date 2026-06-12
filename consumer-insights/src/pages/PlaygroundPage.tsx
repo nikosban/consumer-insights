@@ -107,7 +107,7 @@ function AudienceStyleRow() {
     <div className="group flex items-center gap-4 py-3.5 rounded-xl hover:bg-accent transition-colors cursor-pointer -mx-3 px-3">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-sm font-semibold text-gray-900">Millennials 25–34 DE</span>
+          <span className="text-sm font-semibold text-foreground">Millennials 25–34 DE</span>
           <Badge variant="secondary" className="text-xs font-normal">Germany</Badge>
           <Badge className="text-xs font-normal bg-primary/10 text-primary border-0">Shared</Badge>
         </div>
@@ -116,8 +116,8 @@ function AudienceStyleRow() {
       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
         {[<Pencil key="p" />, <Copy key="c" />, <Trash2 key="t" />].map((icon, i) => (
           <button key={i} className={cn(
-            'inline-flex items-center justify-center w-7 h-7 rounded border border-border bg-background text-gray-400 transition-colors',
-            i === 2 ? 'hover:bg-red-50 hover:border-red-200 hover:text-destructive' : 'hover:bg-accent hover:text-gray-900'
+            'inline-flex items-center justify-center w-7 h-7 rounded border border-border bg-background text-muted-foreground transition-colors',
+            i === 2 ? 'hover:bg-red-50 hover:border-red-200 hover:text-destructive' : 'hover:bg-accent hover:text-foreground'
           )}>{icon}</button>
         ))}
       </div>
@@ -132,10 +132,10 @@ function DashboardStyleRow() {
         <LayoutDashboard className="h-3.5 w-3.5" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-gray-900">Q1 Audience Overview</p>
+        <p className="text-sm font-semibold text-foreground">Q1 Audience Overview</p>
         <p className="text-xs text-muted-foreground mt-0.5">3 widgets · Updated 3/15/2025</p>
       </div>
-      <button className="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center justify-center w-7 h-7 rounded border border-border bg-background text-gray-400 hover:bg-red-50 hover:border-red-200 hover:text-destructive">
+      <button className="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center justify-center w-7 h-7 rounded border border-border bg-background text-muted-foreground hover:bg-red-50 hover:border-red-200 hover:text-destructive">
         <Trash2 className="h-3 w-3" />
       </button>
     </div>
@@ -177,7 +177,7 @@ function OverviewPage() {
   ]
 
   const dot: Record<'done' | 'warn' | 'info', string> = {
-    done: 'bg-green-500',
+    done: 'bg-emerald-500',
     warn: 'bg-amber-400',
     info: 'bg-muted-foreground/40',
   }
@@ -211,7 +211,7 @@ function OverviewPage() {
       </div>
 
       <div className="mt-6 flex items-center gap-6 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-green-500 inline-block" /> Consolidated</span>
+        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" /> Consolidated</span>
         <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-400 inline-block" /> Known inconsistency</span>
         <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-muted-foreground/40 inline-block" /> Future work</span>
       </div>
@@ -1148,7 +1148,7 @@ function ButtonPage() {
           <Toolbar>
             <div className="flex flex-col min-w-0">
               <p className="text-xs text-muted-foreground leading-none mb-0.5">Characteristics & demographics</p>
-              <h1 className="text-sm font-semibold text-gray-900">Country of residence</h1>
+              <h1 className="text-sm font-semibold text-foreground">Country of residence</h1>
             </div>
             <ToolbarActions>
               <Button variant="outline" size="default" className="text-xs h-8"><Share2 className="h-3.5 w-3.5" /> Share</Button>
