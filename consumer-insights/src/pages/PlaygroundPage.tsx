@@ -553,47 +553,182 @@ function ColorPage() {
   )
 }
 
-function ElevationPage() {
-  const shadows = [
-    { name: 'shadow-none',   cls: '',                                                                     value: 'none',                                  usage: 'Flat surfaces — sidebars, table cells, toolbar' },
-    { name: 'shadow-sm',     cls: 'shadow-sm',                                                            value: '0 1px 2px 0 rgb(0 0 0 / 0.05)',         usage: 'Inputs, small cards, resource cards' },
-    { name: 'shadow',        cls: 'shadow',                                                               value: '0 1px 3px 0 rgb(0 0 0 / 0.1) …',       usage: 'Dropdowns, context menus, pickers' },
-    { name: 'shadow-md',     cls: 'shadow-md',                                                            value: '0 4px 6px -1px rgb(0 0 0 / 0.1) …',    usage: 'Popovers, floating action panels' },
-    { name: 'shadow-lg',     cls: 'shadow-lg',                                                            value: '0 10px 15px -3px rgb(0 0 0 / 0.1) …',  usage: 'Modals, command palette, search overlay' },
-    { name: 'shadow-xl',     cls: 'shadow-xl',                                                            value: '0 20px 25px -5px rgb(0 0 0 / 0.1) …',  usage: 'Sheets, drawers, side panels' },
-  ]
+function ElevSurface({ label, style, description, code }: { label: string; style: React.CSSProperties; description: string; code: string }) {
+  return (
+    <div className="flex items-start gap-5">
+      <div className="shrink-0 w-20 h-14 rounded-lg bg-background" style={style} />
+      <div className="min-w-0 pt-1">
+        <p className="text-[11px] font-medium text-foreground mb-0.5">{label}</p>
+        <code className="block text-[10px] font-mono text-muted-foreground mb-1 whitespace-pre-wrap leading-relaxed">{code}</code>
+        <p className="text-[11px] text-muted-foreground">{description}</p>
+      </div>
+    </div>
+  )
+}
 
+function ElevationPage() {
   return (
     <>
-      <PageHeader title="Elevation" description="Box-shadow scale. Higher elevation = further from the page surface = more prominent." />
+      <PageHeader title="Elevation" description="Controlled strokes, compact shadows, and inset highlights. Crisp and dimensional — not flat, not fluffy." />
 
-      <div className="space-y-5">
-        {shadows.map(({ name, cls, value, usage }) => (
-          <div key={name} className="flex items-center gap-6">
-            {/* Preview tile */}
-            <div className={cn('w-16 h-16 rounded-xl bg-white border border-border shrink-0', cls)} />
-            {/* Metadata */}
-            <div className="min-w-0">
-              <div className="flex items-center gap-3 mb-1">
-                <code className="text-sm font-semibold text-foreground">{name}</code>
-              </div>
-              <p className="text-[11px] text-muted-foreground font-mono mb-0.5 truncate">{value}</p>
-              <p className="text-xs text-muted-foreground">{usage}</p>
+      <Section title="Surface anatomy">
+        <p className="text-[11px] text-muted-foreground mb-4">A raised component may use up to three visual layers. Not every component needs all three.</p>
+        <div className="rounded-xl border border-border overflow-hidden mb-4">
+          <div className="grid grid-cols-[28px_160px_1fr] gap-3 text-[11px] font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+            <span>#</span><span>Layer</span><span>Purpose</span>
+          </div>
+          {[
+            { n: '1', layer: '1px perimeter stroke', desc: 'Defines the component edge' },
+            { n: '2', layer: 'Inset upper-edge highlight', desc: 'Communicates that the surface is raised' },
+            { n: '3', layer: 'Compact external shadow', desc: 'Conveys elevation — distance from the page surface' },
+          ].map(({ n, layer, desc }) => (
+            <div key={n} className="grid grid-cols-[28px_160px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center">
+              <span className="text-[11px] text-muted-foreground tabular-nums">{n}</span>
+              <span className="text-[11px] text-foreground">{layer}</span>
+              <span className="text-[11px] text-muted-foreground">{desc}</span>
             </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-10 p-4 rounded-xl bg-muted/40 border border-border">
-        <p className="text-xs font-semibold text-foreground mb-2">Blur / overlay</p>
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-xl bg-white/80 backdrop-blur-sm border border-white/50 shrink-0" />
-          <div>
-            <code className="text-sm font-semibold text-foreground">backdrop-blur-sm</code>
-            <p className="text-xs text-muted-foreground mt-0.5">Used on sticky chat header — bg-background/80 + backdrop-blur-sm</p>
-          </div>
+          ))}
         </div>
-      </div>
+        <p className="text-[11px] text-muted-foreground">Do not add additional visual layers without a clear purpose. A component is not elevated simply because it has a background or border radius.</p>
+      </Section>
+
+      <Section title="Surface treatments">
+        <div className="space-y-6">
+          <ElevSurface
+            label="Default structural surface"
+            style={{ border: '1px solid var(--border)' }}
+            description="Cards, panels, tables, chart containers, sidebar sections, form groups. No external shadow."
+            code={`border: 1px solid var(--border);\nbox-shadow: none;`}
+          />
+          <ElevSurface
+            label="Raised control (resting)"
+            style={{
+              border: '1px solid var(--border)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.5), 0 1px 1px rgba(0,0,0,0.10), 0 2px 3px -1px rgba(0,0,0,0.08)',
+            }}
+            description="Buttons and compact raised controls. Top-edge highlight visible only on inspection — not glossy."
+            code={`border: 1px solid var(--border-control);\nbox-shadow:\n  inset 0 1px 0 var(--edge-highlight),\n  0 1px 1px rgb(0 0 0 / 0.1),\n  0 2px 3px -1px rgb(0 0 0 / 0.08);`}
+          />
+          <ElevSurface
+            label="Raised control (hover)"
+            style={{
+              border: '1px solid var(--border)',
+              transform: 'translateY(-1px)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.10), 0 3px 5px -2px rgba(0,0,0,0.10)',
+            }}
+            description="Slight lift. Move no more than 1px. No large blur, no glow, no border-width change."
+            code={`transform: translateY(-1px);\nbox-shadow:\n  inset 0 1px 0 var(--edge-highlight),\n  0 1px 2px rgb(0 0 0 / 0.1),\n  0 3px 5px -2px rgb(0 0 0 / 0.1);`}
+          />
+          <ElevSurface
+            label="Raised control (pressed)"
+            style={{
+              border: '1px solid var(--border)',
+              boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.10), 0 1px 0 rgba(0,0,0,0.04)',
+            }}
+            description="Appears closer to the surface. Reduces external shadow, adds restrained inset depth."
+            code={`transform: translateY(0);\nbox-shadow:\n  inset 0 1px 2px rgb(0 0 0 / 0.1),\n  0 1px 0 rgb(0 0 0 / 0.04);`}
+          />
+          <ElevSurface
+            label="Selected control"
+            style={{
+              border: '1px solid var(--border)',
+              boxShadow: 'inset 0 0 0 1px var(--border)',
+            }}
+            description="Tabs, segments, options. Inset stroke communicates selection without affecting layout. Not the same as pressed."
+            code={`box-shadow: inset 0 0 0 1px var(--border-control);`}
+          />
+          <ElevSurface
+            label="Floating surface"
+            style={{
+              border: '1px solid var(--border)',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.08), 0 6px 14px -4px rgba(0,0,0,0.14)',
+            }}
+            description="Dropdowns, popovers, menus, autocomplete. Two layers: contact shadow + limited ambient separation."
+            code={`border: 1px solid var(--border-subtle);\nbox-shadow:\n  0 1px 2px rgb(0 0 0 / 0.08),\n  0 6px 14px -4px rgb(0 0 0 / 0.14);`}
+          />
+          <ElevSurface
+            label="Large overlay"
+            style={{
+              border: '1px solid var(--border)',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.08), 0 10px 24px -8px rgba(0,0,0,0.18)',
+            }}
+            description="Dialogs. Slightly broader shadow, still crisp. Relies on backdrop for hierarchy — shadow does not carry it alone."
+            code={`border: 1px solid var(--border-subtle);\nbox-shadow:\n  0 2px 4px rgb(0 0 0 / 0.08),\n  0 10px 24px -8px rgb(0 0 0 / 0.18);`}
+          />
+        </div>
+      </Section>
+
+      <Section title="Component defaults">
+        <div className="rounded-xl border border-border overflow-hidden">
+          <div className="grid grid-cols-[140px_100px_130px_1fr] gap-3 text-[11px] font-medium text-muted-foreground bg-muted/50 px-4 py-2 border-b border-border">
+            <span>Component</span><span>Stroke</span><span>Inset</span><span>External shadow</span>
+          </div>
+          {[
+            { comp: 'Standard card',    stroke: 'Subtle',          inset: 'None',             shadow: 'None' },
+            { comp: 'Static panel',     stroke: 'Subtle',          inset: 'None',             shadow: 'None' },
+            { comp: 'Input',            stroke: 'Default',         inset: 'None',             shadow: 'None' },
+            { comp: 'Raised button',    stroke: 'Default',         inset: 'Upper-edge highlight', shadow: 'Compact' },
+            { comp: 'Ghost button',     stroke: 'Optional subtle', inset: 'None',             shadow: 'None' },
+            { comp: 'Pressed button',   stroke: 'Default',         inset: 'Inset depth',      shadow: 'Minimal' },
+            { comp: 'Selected segment', stroke: 'Optional',        inset: 'Inset stroke',     shadow: 'None or minimal' },
+            { comp: 'Dropdown menu',    stroke: 'Subtle',          inset: 'None',             shadow: 'Floating' },
+            { comp: 'Popover',          stroke: 'Subtle',          inset: 'None',             shadow: 'Floating' },
+            { comp: 'Dialog',           stroke: 'Subtle',          inset: 'None',             shadow: 'Overlay' },
+            { comp: 'Sticky header',    stroke: 'Separator',       inset: 'None',             shadow: 'None or 1px contact' },
+          ].map(({ comp, stroke, inset, shadow }) => (
+            <div key={comp} className="grid grid-cols-[140px_100px_130px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+              <span className="text-[11px] text-foreground">{comp}</span>
+              <span className="text-[11px] text-muted-foreground">{stroke}</span>
+              <span className="text-[11px] text-muted-foreground">{inset}</span>
+              <span className="text-[11px] text-muted-foreground">{shadow}</span>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Decision rule">
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { trigger: 'Component needs a clear edge',           treatment: 'Stroke' },
+            { trigger: 'Control should feel subtly raised',      treatment: 'Upper-edge inset highlight' },
+            { trigger: 'Component overlaps another surface',     treatment: 'External shadow' },
+            { trigger: 'Control is actively pressed or recessed', treatment: 'Inset depth shadow' },
+            { trigger: 'None of the above apply',                treatment: 'Keep flat' },
+          ].map(({ trigger, treatment }) => (
+            <div key={trigger} className="flex items-start gap-3 rounded-lg border border-border p-3">
+              <div className="flex-1">
+                <p className="text-[11px] text-muted-foreground">If: {trigger}</p>
+                <p className="text-[11px] font-medium text-foreground mt-0.5">→ {treatment}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Prohibited">
+        <ul className="text-[11px] text-muted-foreground space-y-1 list-disc list-inside">
+          <li>Shadows on every card</li>
+          <li>Large soft shadows below small controls</li>
+          <li>Inner depth shadows on resting cards</li>
+          <li>Glossy button highlights</li>
+          <li>Multiple visible perimeter strokes</li>
+          <li>Combining strong border + strong inset shadow + strong external shadow</li>
+          <li>Using pressed treatment to indicate selection (unless the control is a toggle)</li>
+          <li>Adding elevation purely because a component is "important"</li>
+          <li>Using shadow as a substitute for grouping, spacing, or hierarchy</li>
+          <li>Arbitrary component-specific shadow values</li>
+        </ul>
+      </Section>
+
+      <Section title="Shadow limits">
+        <ul className="text-[11px] text-muted-foreground space-y-1 list-disc list-inside">
+          <li>No more than two external shadow layers per component</li>
+          <li>Keep vertical offset small and downward-biased</li>
+          <li>Control blur ≤ ~5px; menu/popover blur ≤ ~16px</li>
+          <li>Avoid shadows that extend significantly above or to the sides of a component</li>
+          <li>Avoid large negative spread values to manufacture dramatic floating effects</li>
+        </ul>
+      </Section>
     </>
   )
 }
