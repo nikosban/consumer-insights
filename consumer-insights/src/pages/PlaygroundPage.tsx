@@ -1489,7 +1489,7 @@ export default function PlaygroundPage() {
     <div className="flex h-full overflow-hidden">
 
       {/* Left nav */}
-      <nav className="w-52 shrink-0 border-r border-border bg-sidebar flex flex-col overflow-y-auto pt-5 pb-4">
+      <nav className="w-52 shrink-0 bg-sidebar flex flex-col overflow-y-auto pt-5 pb-4">
         <p className="px-4 mb-4 text-sm font-semibold text-foreground">Design System</p>
         {NAV.map(({ group, items }, gi) => (
           <div key={group} className={cn(gi > 0 && 'mt-4')}>
