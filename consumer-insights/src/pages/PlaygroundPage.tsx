@@ -230,33 +230,82 @@ function OverviewPage() {
   )
 }
 
-function TypographyPage() {
-  const rows = [
-    { label: 'Page title',      sample: <h1 className="text-2xl font-bold text-foreground">Page title</h1>,                                          size: '24px', weight: '700 bold',     cls: 'text-2xl font-bold' },
-    { label: 'Section title',   sample: <h2 className="text-xl font-bold text-foreground">Section title</h2>,                                        size: '20px', weight: '700 bold',     cls: 'text-xl font-bold' },
-    { label: 'Card / row title',sample: <p className="text-sm font-semibold text-gray-900">Card title</p>,                                           size: '14px', weight: '600 semibold', cls: 'text-sm font-semibold' },
-    { label: 'Body',            sample: <p className="text-sm text-foreground">Body text</p>,                                                        size: '14px', weight: '400 regular',  cls: 'text-sm' },
-    { label: 'Secondary / meta',sample: <p className="text-xs text-muted-foreground">Secondary text</p>,                                            size: '12px', weight: '400 regular',  cls: 'text-xs text-muted-foreground' },
-    { label: 'Field label',     sample: <label className="text-xs font-medium text-muted-foreground">Field label</label>,                            size: '12px', weight: '500 medium',   cls: 'text-xs font-medium text-muted-foreground' },
-    { label: 'Toolbar button',  sample: <span className="text-xs font-medium text-foreground">Toolbar btn</span>,                                    size: '12px', weight: '500 medium',   cls: 'text-xs h-8' },
-    { label: 'Section caps',    sample: <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Section label</p>,    size: '10px', weight: '600 semibold', cls: 'text-[10px] uppercase tracking-wider' },
-    { label: 'Micro / badge',   sample: <span className="text-[10px] text-muted-foreground">10px text</span>,                                        size: '10px', weight: '400 regular',  cls: 'text-[10px]' },
-  ]
+function TypographyTable({ cols, children }: { cols: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl border border-border overflow-hidden mb-8">
+      <div className={`grid ${cols} gap-4 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider bg-muted/50 px-4 py-2 border-b border-border`}>
+        {children}
+      </div>
+    </div>
+  )
+}
 
+function TypographyPage() {
   return (
     <>
-      <PageHeader title="Typography" description="Font family: Open Sans — weights 400 · 500 · 600 · 700" />
-      <div className="rounded-xl border border-border overflow-hidden">
-        <div className="grid grid-cols-[140px_1fr_100px_120px_200px] gap-4 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider bg-muted/50 px-4 py-2 border-b border-border">
-          <span>Role</span><span>Sample</span><span>Size</span><span>Weight</span><span>Tailwind</span>
+      <PageHeader title="Typography" description="Design tokens for font family, size, and weight." />
+
+      {/* ── Font family ── */}
+      <p className="text-xs font-semibold text-foreground mb-3">Font family</p>
+      <div className="rounded-xl border border-border overflow-hidden mb-8">
+        <div className="grid grid-cols-[160px_1fr_160px] gap-4 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider bg-muted/50 px-4 py-2 border-b border-border">
+          <span>Token</span><span>Sample</span><span>Usage</span>
         </div>
-        {rows.map(({ label, sample, size, weight, cls }) => (
-          <div key={label} className="grid grid-cols-[140px_1fr_100px_120px_200px] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
-            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">{label}</span>
+        {[
+          { token: 'font-sans (Open Sans)', sample: <span className="text-sm font-sans text-foreground">The quick brown fox</span>, usage: 'All body, labels, UI' },
+          { token: 'font-mono',             sample: <span className="text-sm font-mono text-foreground">border: 1px solid</span>,  usage: 'Code snippets, token values' },
+        ].map(({ token, sample, usage }) => (
+          <div key={token} className="grid grid-cols-[160px_1fr_160px] gap-4 px-4 py-3 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+            <code className="text-[11px] text-foreground font-medium">{token}</code>
             <div>{sample}</div>
-            <span className="text-[11px] text-muted-foreground tabular-nums">{size}</span>
-            <span className="text-[11px] text-muted-foreground">{weight}</span>
-            <code className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground truncate">{cls}</code>
+            <span className="text-[11px] text-muted-foreground">{usage}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Font size / line height ── */}
+      <p className="text-xs font-semibold text-foreground mb-3">Font size &amp; line height</p>
+      <div className="rounded-xl border border-border overflow-hidden mb-8">
+        <div className="grid grid-cols-[140px_60px_60px_80px_1fr] gap-4 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider bg-muted/50 px-4 py-2 border-b border-border">
+          <span>Token</span><span>px</span><span>rem</span><span>Line height</span><span>Usage</span>
+        </div>
+        {[
+          { token: 'text-2xl',    px: '24',  rem: '1.5',    lh: '1.5 (36px)',   usage: 'Page titles (h1)' },
+          { token: 'text-xl',     px: '20',  rem: '1.25',   lh: '1.75 (28px)',  usage: 'Section titles (h2)' },
+          { token: 'text-lg',     px: '18',  rem: '1.125',  lh: '1.75 (28px)',  usage: 'Large headings (landing)' },
+          { token: 'text-base',   px: '16',  rem: '1',      lh: '1.5 (24px)',   usage: 'Nav items, prominent labels' },
+          { token: 'text-sm',     px: '14',  rem: '0.875',  lh: '1.25 (20px)',  usage: 'Body, card titles, row text' },
+          { token: 'text-xs',     px: '12',  rem: '0.75',   lh: '1 (16px)',     usage: 'Meta, secondary text, field labels' },
+          { token: 'text-[11px]', px: '11',  rem: '0.6875', lh: '—',            usage: 'Table cells, dense data' },
+          { token: 'text-[10px]', px: '10',  rem: '0.625',  lh: '—',            usage: 'Caps labels, badges, micro text' },
+        ].map(({ token, px, rem, lh, usage }) => (
+          <div key={token} className="grid grid-cols-[140px_60px_60px_80px_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+            <code className="text-[11px] text-foreground font-medium">{token}</code>
+            <span className="text-[11px] text-muted-foreground tabular-nums">{px}</span>
+            <span className="text-[11px] text-muted-foreground tabular-nums">{rem}</span>
+            <span className="text-[11px] text-muted-foreground tabular-nums">{lh}</span>
+            <span className="text-[11px] text-muted-foreground">{usage}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Font weight ── */}
+      <p className="text-xs font-semibold text-foreground mb-3">Font weight</p>
+      <div className="rounded-xl border border-border overflow-hidden mb-8">
+        <div className="grid grid-cols-[140px_60px_1fr_1fr] gap-4 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider bg-muted/50 px-4 py-2 border-b border-border">
+          <span>Token</span><span>Value</span><span>Sample</span><span>Usage</span>
+        </div>
+        {[
+          { token: 'font-normal',   value: '400', sample: <span className="text-sm font-normal text-foreground">The quick brown fox</span>, usage: 'Body text, descriptions, meta' },
+          { token: 'font-medium',   value: '500', sample: <span className="text-sm font-medium text-foreground">The quick brown fox</span>, usage: 'Field labels, toolbar buttons, chips' },
+          { token: 'font-semibold', value: '600', sample: <span className="text-sm font-semibold text-foreground">The quick brown fox</span>, usage: 'Card titles, row titles, nav items, caps labels' },
+          { token: 'font-bold',     value: '700', sample: <span className="text-sm font-bold text-foreground">The quick brown fox</span>,    usage: 'Page titles, section headings' },
+        ].map(({ token, value, sample, usage }) => (
+          <div key={token} className="grid grid-cols-[140px_60px_1fr_1fr] gap-4 px-4 py-3 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+            <code className="text-[11px] text-foreground font-medium">{token}</code>
+            <span className="text-[11px] text-muted-foreground tabular-nums">{value}</span>
+            <div>{sample}</div>
+            <span className="text-[11px] text-muted-foreground">{usage}</span>
           </div>
         ))}
       </div>
