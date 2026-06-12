@@ -104,7 +104,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 
 function AudienceStyleRow() {
   return (
-    <div className="group flex items-center gap-4 py-3.5 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer -mx-3 px-3">
+    <div className="group flex items-center gap-4 py-3.5 rounded-xl hover:bg-accent transition-colors cursor-pointer -mx-3 px-3">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-sm font-semibold text-gray-900">Millennials 25–34 DE</span>
@@ -127,7 +127,7 @@ function AudienceStyleRow() {
 
 function DashboardStyleRow() {
   return (
-    <div className="group flex items-center gap-3 py-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer -mx-3 px-3">
+    <div className="group flex items-center gap-3 py-3 rounded-xl hover:bg-accent transition-colors cursor-pointer -mx-3 px-3">
       <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/8 text-primary shrink-0">
         <LayoutDashboard className="h-3.5 w-3.5" />
       </div>
@@ -1499,10 +1499,10 @@ export default function PlaygroundPage() {
                 key={id}
                 onClick={() => setActive(id)}
                 className={cn(
-                  'w-full text-left px-4 py-1.5 text-sm transition-colors rounded-none',
+                  'w-full text-left pl-3 pr-4 py-1.5 text-sm transition-colors border-l-2',
                   active === id
-                    ? 'text-primary font-medium bg-primary/8'
-                    : 'text-sidebar-foreground hover:text-foreground hover:bg-white/60'
+                    ? 'border-primary text-primary font-medium bg-primary/10'
+                    : 'border-transparent text-sidebar-foreground hover:text-foreground hover:bg-accent'
                 )}
               >
                 {label}

@@ -1,0 +1,31 @@
+## Icon sizing and weight
+
+- Use Tabler Icons exclusively. Do not mix icons from multiple libraries.
+- Match the icon’s visual weight to the text it accompanies. Do not attempt to map font-weight values directly to SVG stroke widths.
+  - Regular text: use a light or regular icon stroke.
+  - Medium or semibold text: use the default medium icon stroke
+  - Icon-only controls: use the default medium icon stroke.
+  - Use `stroke-width: 2` as the default.
+  - Use `stroke-width: 1.75` when a lighter icon is needed.
+  - Avoid stroke widths above `2` unless a heavier treatment has been explicitly defined and visually tested.
+- When an icon is paired with text, size it relative to the font’s cap height rather than assigning an unrelated fixed pixel size.
+  - Use `1.25cap` as the default paired-icon size.
+  - Keep the icon square by applying the same value to its width and height.
+  - Align the icon and label using flexbox.
+  - Do not manually position icons using arbitrary top offsets.
+  - The cap-relative value may be adjusted once for the selected application typeface, but should not vary between individual components.
+- Use the following fixed sizes when an icon is not paired with text:
+  - `32px` visual container → `18px` or `20px` icon
+  - `24px` visual container → `16px` icon
+  - `20px` visual container → `12px` or `14px` icon
+- Prefer the smaller icon option in dense toolbars, tables, and filtering interfaces.
+- Use `12px` icons only for simple glyphs such as chevrons, arrows, sort indicators, or close marks. Do not render detailed or compound Tabler icons at `12px`.
+- The visual container and the interactive target are separate concepts.
+  - Interactive icon buttons should normally have a minimum target of `32px × 32px`.
+  - A `20px` or `24px` visual container may sit inside a larger clickable target.
+  - Do not make the SVG itself the only clickable region.
+- Do not stretch, crop, or distort icons.
+- Preserve the icon’s square aspect ratio.
+- Icons must use `flex-shrink: 0`.
+- Use the same icon size and stroke treatment for controls at the same hierarchy level.
+- Do not introduce arbitrary icon sizes outside the defined scale.
