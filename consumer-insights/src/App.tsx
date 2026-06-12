@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import AppLayout from '@/components/layout/AppLayout'
 import SearchModal from '@/components/ui/SearchModal'
+import { Toaster } from '@/components/ui/Toaster'
 import LandingPage from '@/pages/LandingPage'
 import AudiencesPage from '@/pages/AudiencesPage'
 import AudienceBuilderPage from '@/pages/AudienceBuilderPage'
@@ -17,6 +18,7 @@ export default function App() {
   return (
     <>
       <SearchModal />
+      <Toaster />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route element={<AppLayout />}>

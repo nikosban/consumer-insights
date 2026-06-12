@@ -34,6 +34,7 @@ import type { Audience } from '@/types'
 import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Chip, FieldGroup, SectionLabel } from '@/components/app'
+import { toast } from '@/components/ui/Toaster'
 
 // ─── Dashboard-level context types ───────────────────────────────────────────
 
@@ -979,7 +980,7 @@ export default function DashboardBuilderPage() {
   const [name, setName] = useState(existing?.name ?? 'Untitled Dashboard')
   const [isShared] = useState(existing?.isShared ?? false)
   const [placedWidgets, setPlacedWidgets] = useState<PlacedWidget[]>(
-    (existing?.widgets ?? []).map((w) => ({ ...w, chartKey: Math.random() }))
+    (existing?.widgets ?? []).map((w) => ({ ...w, chartKey: 0 }))
   )
   // View/Edit mode — new dashboards start in edit mode, existing in view mode
   const [isEditMode, setIsEditMode] = useState(isNew)
@@ -1061,7 +1062,7 @@ export default function DashboardBuilderPage() {
     const maxY = placedWidgets.reduce((acc, pw) => Math.max(acc, pw.position.y + pw.position.h), 0)
     const updated: PlacedWidget[] = [
       ...placedWidgets,
-      { widgetId, position: { x: 0, y: maxY, w: 6, h: 4 }, chartKey: Math.random() },
+      { widgetId, position: { x: 0, y: maxY, w: 6, h: 4 }, chartKey: 0 },
     ]
     setPlacedWidgets(updated)
     debouncedSave(updated)
@@ -1096,7 +1097,7 @@ export default function DashboardBuilderPage() {
     const maxY = placedWidgets.reduce((acc, pw) => Math.max(acc, pw.position.y + pw.position.h), 0)
     const updated: PlacedWidget[] = [
       ...placedWidgets,
-      { widgetId, position: { x: 0, y: maxY, w: 6, h: 2 }, chartKey: Math.random() },
+      { widgetId, position: { x: 0, y: maxY, w: 6, h: 2 }, chartKey: 0 },
     ]
     setPlacedWidgets(updated)
     debouncedSave(updated)
@@ -1344,7 +1345,13 @@ export default function DashboardBuilderPage() {
                 const isText = widget.type === 'text'
                 const data = isText
                   ? { labels: [], series: [] }
-                  : generateChartData(widget.type, Boolean(widget.benchmarkAudienceId), widget.crossDimensionLabel)
+                  : generateChartData(
+                      widget.type,
+                      Boolean(widget.benchmarkAudienceId),
+                      widget.crossDimensionLabel,
+                      // Seed includes effective filters so changing audience/region/period visibly changes the data
+                      `${pw.widgetId}:${pw.chartKey}:${widget.audienceId || dashAudienceId}:${widget.country ?? dashRegion}:${widget.year ?? dashPeriod.year}:${dashPeriod.wave}`
+                    )
                 const isSelected = selectedWidgetId === pw.widgetId
                 const isDragTarget = dragOverWidgetId === pw.widgetId
                 const summary = widgetSummaries[pw.widgetId]
@@ -1439,13 +1446,16 @@ export default function DashboardBuilderPage() {
                                 a.href = img.toDataURL('image/png')
                                 a.download = `${widget?.title ?? pw.widgetId}.png`
                                 a.click()
+                                toast.success('Widget exported as PNG')
                               }}
                                 className="h-6 px-2 rounded text-[11px] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
                               >Export</button>
                               <button onClick={(e) => {
                                 e.stopPropagation()
                                 const url = `${window.location.origin}/dashboards/${dashId}?widget=${pw.widgetId}`
-                                navigator.clipboard.writeText(url).catch(() => {})
+                                navigator.clipboard.writeText(url)
+                                  .then(() => toast.success('Share link copied'))
+                                  .catch(() => toast.error('Copy failed'))
                               }}
                                 className="h-6 px-2 rounded text-[11px] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
                               >Share</button>

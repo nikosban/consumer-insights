@@ -91,7 +91,7 @@ function AnalysesTab({
     const all = dashboard.widgets
       .map(dw => widgets.find(w => w.id === dw.widgetId))
       .filter((w): w is Widget => w !== undefined)
-      .map(w => ({ widget: w, data: generateChartData(w.type, !!w.benchmarkAudienceId, w.crossDimensionLabel) }))
+      .map(w => ({ widget: w, data: generateChartData(w.type, !!w.benchmarkAudienceId, w.crossDimensionLabel, `${w.id}:0`) }))
     return {
       scorecards: all.filter(d => d.widget.type === 'scorecard'),
       charts: all.filter(d => d.widget.type !== 'scorecard' && d.widget.type !== 'table'),

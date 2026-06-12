@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { useDashboardStore } from '@/store/dashboardStore'
 import { useWidgetStore } from '@/store/widgetStore'
 import { FileText, Presentation } from 'lucide-react'
+import { toast } from '@/components/ui/Toaster'
 
 type ExportModalProps = {
   dashboardId: string
@@ -34,6 +35,7 @@ export default function ExportModal({ dashboardId, open, onClose }: ExportModalP
       const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [img.width, img.height] })
       pdf.addImage(img.toDataURL('image/png'), 'PNG', 0, 0, img.width, img.height)
       pdf.save(`${dashboard?.name ?? 'dashboard'}.pdf`)
+      toast.success('PDF exported')
     } finally {
       setExporting(null)
       onClose()
@@ -68,6 +70,7 @@ export default function ExportModal({ dashboardId, open, onClose }: ExportModalP
       }
 
       await pptx.writeFile({ fileName: `${dashboard?.name ?? 'dashboard'}.pptx` })
+      toast.success('PPTX exported')
     } finally {
       setExporting(null)
       onClose()

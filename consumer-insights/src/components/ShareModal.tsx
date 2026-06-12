@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { useDashboardStore } from '@/store/dashboardStore'
 import { Link2, Check, Globe, Lock } from 'lucide-react'
+import { toast } from '@/components/ui/Toaster'
 
 type ShareModalProps = {
   dashboardId: string
@@ -27,7 +28,9 @@ export default function ShareModal({ dashboardId, open, onClose }: ShareModalPro
   const shareUrl = `https://insights.statista.com/dashboards/${dashboardId}/view`
 
   function handleCopy() {
-    navigator.clipboard.writeText(shareUrl).catch(() => {})
+    navigator.clipboard.writeText(shareUrl)
+      .then(() => toast.success('Link copied'))
+      .catch(() => toast.error('Copy failed'))
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -37,6 +40,7 @@ export default function ShareModal({ dashboardId, open, onClose }: ShareModalPro
     if (!trimmed || invited.includes(trimmed)) return
     setInvited(prev => [...prev, trimmed])
     setEmail('')
+    toast.success(`Invite sent to ${trimmed}`)
   }
 
   return (

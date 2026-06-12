@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import EmptyState from '@/components/EmptyState'
 import { Plus, Users, Pencil, Copy, Trash2, Share2 } from 'lucide-react'
 import { ResourceCard, IconBtn, PageShell } from '@/components/app'
+import { toast } from '@/components/ui/Toaster'
 
 export default function AudiencesPage() {
   const navigate = useNavigate()
@@ -42,13 +43,16 @@ export default function AudiencesPage() {
                 actions={
                   <>
                     <IconBtn icon={<Pencil size={12} />} label="Edit" onClick={() => navigate(`/audiences/${audience.id}/edit`)} />
-                    <IconBtn icon={<Copy size={12} />} label="Duplicate" onClick={() => duplicate(audience.id)} />
+                    <IconBtn icon={<Copy size={12} />} label="Duplicate" onClick={() => { duplicate(audience.id); toast.success('Audience duplicated') }} />
                     <IconBtn
                       icon={<Share2 size={12} />}
                       label={audience.isShared ? 'Unshare' : 'Share'}
-                      onClick={() => update(audience.id, { isShared: !audience.isShared })}
+                      onClick={() => {
+                        update(audience.id, { isShared: !audience.isShared })
+                        toast.success(audience.isShared ? 'Audience set to private' : 'Audience shared with team')
+                      }}
                     />
-                    <IconBtn icon={<Trash2 size={12} />} label="Delete" destructive onClick={() => remove(audience.id)} />
+                    <IconBtn icon={<Trash2 size={12} />} label="Delete" destructive onClick={() => { remove(audience.id); toast.success('Audience deleted') }} />
                   </>
                 }
                 onClick={() => navigate(`/audiences/${audience.id}/edit`)}

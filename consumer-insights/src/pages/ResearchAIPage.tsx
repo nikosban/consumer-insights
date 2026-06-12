@@ -24,6 +24,7 @@ import {
 } from 'lucide-react'
 import type { WidgetType } from '@/types'
 import { cn } from '@/lib/utils'
+import { toast } from '@/components/ui/Toaster'
 
 // ─── Gradient styles ──────────────────────────────────────────────────────────
 
@@ -439,6 +440,7 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
     }
     addAudience(aud)
     setSaved(true)
+    toast.success('Audience saved to library')
   }
 
   function handleAddToDashboard(dashId: string, dashName: string) {
@@ -458,6 +460,7 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
     const y = existing.reduce((max, w) => Math.max(max, w.position.y + w.position.h), 0)
     updateLayout(dashId, [...existing, { widgetId, position: { x: 0, y, w: 6, h: 4 } }])
     setAddedToDash({ id: dashId, name: dashName })
+    toast.success(`Added to ${dashName}`)
   }
 
   async function handleCopy() {
@@ -466,7 +469,9 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
     const canvas = await html2canvas(cardRef.current, { scale: 2, useCORS: true })
     canvas.toBlob(blob => {
       if (!blob) return
-      navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).catch(() => {})
+      navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+        .then(() => toast.success('Image copied to clipboard'))
+        .catch(() => toast.error('Copy failed'))
     })
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
@@ -650,6 +655,7 @@ async function exportElAsPng(el: HTMLElement, filename: string) {
   a.href = canvas.toDataURL('image/png')
   a.download = filename
   a.click()
+  toast.success('PNG exported')
 }
 
 // ─── Data Widget Card message ─────────────────────────────────────────────────
@@ -691,6 +697,7 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
     const y = existing.reduce((max, w) => Math.max(max, w.position.y + w.position.h), 0)
     updateLayout(dashId, [...existing, { widgetId, position: { x: 0, y, w: 6, h: 4 } }])
     setAddedToDash({ id: dashId, name: dashName })
+    toast.success(`Added to ${dashName}`)
   }
 
   async function handleCopy() {
@@ -699,7 +706,9 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
     const canvas = await html2canvas(cardRef.current, { scale: 2, useCORS: true })
     canvas.toBlob(blob => {
       if (!blob) return
-      navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).catch(() => {})
+      navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+        .then(() => toast.success('Image copied to clipboard'))
+        .catch(() => toast.error('Copy failed'))
     })
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
@@ -786,7 +795,9 @@ function MessageActions({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)
 
   function handleCopy() {
-    navigator.clipboard.writeText(text).catch(() => {})
+    navigator.clipboard.writeText(text)
+      .then(() => toast.success('Response copied'))
+      .catch(() => toast.error('Copy failed'))
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
   }
@@ -1011,6 +1022,7 @@ function WidgetClusterCard({ card, index }: { card: DataWidgetCardData; index: n
     const y = existing.reduce((max, w) => Math.max(max, w.position.y + w.position.h), 0)
     updateLayout(dashId, [...existing, { widgetId, position: { x: 0, y, w: 6, h: 4 } }])
     setAddedToDash({ id: dashId, name: dashName })
+    toast.success(`Added to ${dashName}`)
   }
 
   async function handleCopy() {
@@ -1019,7 +1031,9 @@ function WidgetClusterCard({ card, index }: { card: DataWidgetCardData; index: n
     const canvas = await html2canvas(cardRef.current, { scale: 2, useCORS: true })
     canvas.toBlob(blob => {
       if (!blob) return
-      navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).catch(() => {})
+      navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+        .then(() => toast.success('Image copied to clipboard'))
+        .catch(() => toast.error('Copy failed'))
     })
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
@@ -1189,6 +1203,7 @@ function AudienceDraftCard({ draft }: { draft: AudienceDraftData }) {
     }
     addAudience(aud)
     setSaved(true)
+    toast.success('Audience saved to library')
   }
 
   function handleOpenBuilder() {

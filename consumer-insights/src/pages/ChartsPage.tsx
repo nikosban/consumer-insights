@@ -91,7 +91,7 @@ const CHART_LIBRARY: LibraryChart[] = RAW.map((item, i) => {
     id, type: item.ty, title: item.t,
     audienceId: 'all', metric: 'brand_awareness', createdAt: '',
   }
-  const data = generateChartData(item.ty, false)
+  const data = generateChartData(item.ty, false, undefined, id)
   return { id, title: item.t, category: item.c, type: item.ty, widget, data }
 })
 
@@ -137,7 +137,7 @@ function ChartSidebar({
       category: 'Saved',
       type: w.type,
       widget: w,
-      data: generateChartData(w.type, false),
+      data: generateChartData(w.type, false, undefined, w.id),
     }))
 
   function toggleCategory(label: string) {
@@ -225,6 +225,16 @@ function ChartSidebar({
             ))}
             <div className="mx-3 my-1 border-t border-border" />
           </div>
+        )}
+
+        {search.trim().length > 0 &&
+          !CHART_LIBRARY.some(c =>
+            c.title.toLowerCase().includes(search.trim().toLowerCase()) ||
+            c.category.toLowerCase().includes(search.trim().toLowerCase())
+          ) && (
+          <p className="px-3 py-4 text-xs text-muted-foreground text-center">
+            No charts match "{search.trim()}"
+          </p>
         )}
 
         {ATTRIBUTE_GROUPS.map(group => {
@@ -649,12 +659,12 @@ export default function ChartsPage() {
     const type = effectiveType
 
     // Merge series from all cross-tab dimensions so every added column is visible
-    const baseData = generateChartData(type, false, crossAttrs[0] || undefined)
+    const baseData = generateChartData(type, false, crossAttrs[0] || undefined, `${selected.id}:${audienceId}`)
     const data = isCrossTab && crossAttrs.length > 1
       ? {
           ...baseData,
           series: crossAttrs.flatMap(attr =>
-            generateChartData('table', false, attr).series
+            generateChartData('table', false, attr, selected.id).series
           ),
         }
       : baseData
@@ -670,12 +680,12 @@ export default function ChartsPage() {
       label: rowAttr,
       data: isCrossTab
         ? {
-            ...generateCrosstabRowData(rowAttr, crossAttrs[0]),
+            ...generateCrosstabRowData(rowAttr, crossAttrs[0], selected.id),
             series: crossAttrs.flatMap(attr =>
-              generateCrosstabRowData(rowAttr, attr).series
+              generateCrosstabRowData(rowAttr, attr, selected.id).series
             ),
           }
-        : generateTableRowData(rowAttr),
+        : generateTableRowData(rowAttr, selected.id),
     }))
     return { widget, data, extraRowsData }
   }, [selected, effectiveType, audienceId, crossAttrs, extraRows, isCrossTab])

@@ -79,7 +79,7 @@ export default function DashboardViewPage() {
           {dashboard.widgets.map((dw) => {
             const widget = widgets.find((w) => w.id === dw.widgetId)
             if (!widget) return null
-            const data = generateChartData(widget.type, Boolean(widget.benchmarkAudienceId))
+            const data = generateChartData(widget.type, Boolean(widget.benchmarkAudienceId), undefined, `${dw.widgetId}:0`)
             return (
               <div
                 key={dw.widgetId}

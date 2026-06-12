@@ -37,7 +37,7 @@ export default function WidgetCreatorPage() {
   const [metric, setMetric] = useState(prefill?.metric ?? '')
   const [breakdown, setBreakdown] = useState(prefill?.breakdown ?? '')
 
-  const chartData = generateChartData(type, Boolean(benchmarkAudienceId))
+  const chartData = generateChartData(type, Boolean(benchmarkAudienceId), undefined, `creator:${title || 'preview'}`)
 
   const previewWidget: Widget = {
     id: 'preview',

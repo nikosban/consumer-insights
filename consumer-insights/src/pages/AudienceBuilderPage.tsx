@@ -20,6 +20,7 @@ import { IconWrapper, ICON_SIZES } from '@/components/ui/IconWrapper'
 import { cn } from '@/lib/utils'
 import { AttributePicker } from '@/components/AttributePicker'
 import { ValuePicker } from '@/components/ValuePicker'
+import { toast } from '@/components/ui/Toaster'
 
 type LocationState = { prefill?: Partial<Audience> }
 
@@ -494,8 +495,10 @@ export default function AudienceBuilderPage() {
     const now = new Date().toISOString()
     if (isEditing && id) {
       update(id, { name, description, region, filters, updatedAt: now })
+      toast.success('Audience updated')
     } else {
       add({ id: `aud-${Date.now()}`, name, description, region, filters, isShared: false, createdAt: now, updatedAt: now })
+      toast.success('Audience created')
     }
     navigate('/audiences')
   }

@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
 import type { AnalysisSection, Widget } from '@/types'
 import ChartRenderer from '@/components/charts/ChartRenderer'
 import { generateChartData } from '@/data/fakeGenerators'
+import { toast } from '@/components/ui/Toaster'
 
 // ─── Section catalogue ────────────────────────────────────────────────────────
 
@@ -111,6 +112,7 @@ function ExportAnalysisModal({
         y += 18
       }
       pdf.save(`${analysisName}.pdf`)
+      toast.success('PDF exported')
     } finally { setExporting(null); onClose() }
   }
 
@@ -144,6 +146,7 @@ function ExportAnalysisModal({
         })
       }
       await pptx.writeFile({ fileName: `${analysisName}.pptx` })
+      toast.success('PPTX exported')
     } finally { setExporting(null); onClose() }
   }
 
@@ -247,7 +250,7 @@ export default function AnalysisDetailPage() {
         <div className="h-36">
           <ChartRenderer
             widget={{ ...w, type: displayType }}
-            data={generateChartData(displayType, false)}
+            data={generateChartData(displayType, false, undefined, `${w.id}:0`)}
             height={144}
           />
         </div>
@@ -405,7 +408,7 @@ export default function AnalysisDetailPage() {
                                     <div className="h-full pb-2">
                                       <ChartRenderer
                                         widget={{ ...w, type: displayType }}
-                                        data={generateChartData(displayType, false)}
+                                        data={generateChartData(displayType, false, undefined, `${w.id}:0`)}
                                         height={80}
                                       />
                                     </div>

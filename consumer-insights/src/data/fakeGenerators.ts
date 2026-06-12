@@ -14,8 +14,36 @@ export function formatAudienceSize(n: number): string {
 
 // ─── Chart data ───────────────────────────────────────────────────────────────
 
+// Seeded PRNG so the same widget shows the same numbers across navigations.
+// generateChartData(seed) re-seeds before generating; refresh actions pass a
+// different salt to get new data on purpose.
+
+function hashString(s: string): number {
+  let h = 0x811c9dc5
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i)
+    h = Math.imul(h, 0x01000193)
+  }
+  return h >>> 0
+}
+
+function mulberry32(a: number): () => number {
+  return () => {
+    a |= 0; a = (a + 0x6d2b79f5) | 0
+    let t = Math.imul(a ^ (a >>> 15), 1 | a)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+let rng: () => number = Math.random
+
+function seedRng(seed?: string) {
+  rng = seed ? mulberry32(hashString(seed)) : Math.random
+}
+
 const rand = (min: number, max: number) =>
-  Math.floor(Math.random() * (max - min + 1)) + min;
+  Math.floor(rng() * (max - min + 1)) + min;
 
 function barData(withBenchmark: boolean): ChartData {
   const labels = ['18-24', '25-34', '35-44', '45-54', '55+'];
@@ -122,13 +150,15 @@ function crosstableData(dimensionLabel: string, rowLabels?: string[]): ChartData
 }
 
 /** Generate a cross-tab section for an extra row attribute (uses its dimension values as row labels) */
-export function generateCrosstabRowData(rowAttr: string, colAttr: string): ChartData {
+export function generateCrosstabRowData(rowAttr: string, colAttr: string, seed?: string): ChartData {
+  seedRng(seed ? `${seed}:${rowAttr}:${colAttr}` : undefined)
   const rowLabels = DIMENSION_VALUES[rowAttr] ?? SURVEY_ANSWERS.slice(0, 5)
   return crosstableData(colAttr, rowLabels)
 }
 
 /** Generate a simple (non-cross-tab) table for an extra row attribute */
-export function generateTableRowData(rowAttr: string): ChartData {
+export function generateTableRowData(rowAttr: string, seed?: string): ChartData {
+  seedRng(seed ? `${seed}:${rowAttr}` : undefined)
   const labels = DIMENSION_VALUES[rowAttr] ?? SURVEY_ANSWERS.slice(0, 5)
   const raw = labels.map(() => rand(5, 40))
   const total = raw.reduce((s, v) => s + v, 0)
@@ -136,7 +166,8 @@ export function generateTableRowData(rowAttr: string): ChartData {
   return { labels, series: [{ name: 'Percent', values: percents }] }
 }
 
-export function generateChartData(type: WidgetType, hasBenchmark: boolean, crossDimensionLabel?: string): ChartData {
+export function generateChartData(type: WidgetType, hasBenchmark: boolean, crossDimensionLabel?: string, seed?: string): ChartData {
+  seedRng(seed ? `${seed}:${type}:${crossDimensionLabel ?? ''}` : undefined)
   if (type === 'table' && crossDimensionLabel) return crosstableData(crossDimensionLabel)
   switch (type) {
     case 'bar': return barData(hasBenchmark);

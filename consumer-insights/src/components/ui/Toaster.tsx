@@ -1,0 +1,68 @@
+import { create } from 'zustand'
+import { Check, X, Info } from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+type ToastKind = 'success' | 'error' | 'info'
+
+type ToastItem = {
+  id: number
+  kind: ToastKind
+  message: string
+}
+
+type ToastStore = {
+  toasts: ToastItem[]
+  push: (kind: ToastKind, message: string) => void
+  dismiss: (id: number) => void
+}
+
+let nextId = 1
+
+const useToastStore = create<ToastStore>((set) => ({
+  toasts: [],
+  push: (kind, message) => {
+    const id = nextId++
+    set((s) => ({ toasts: [...s.toasts, { id, kind, message }] }))
+    setTimeout(() => {
+      set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) }))
+    }, 3000)
+  },
+  dismiss: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
+}))
+
+/** Imperative API — call from anywhere: toast.success('Saved') */
+export const toast = {
+  success: (message: string) => useToastStore.getState().push('success', message),
+  error:   (message: string) => useToastStore.getState().push('error', message),
+  info:    (message: string) => useToastStore.getState().push('info', message),
+}
+
+const KIND_STYLES: Record<ToastKind, { icon: React.ReactNode; cls: string }> = {
+  success: { icon: <Check size={13} />, cls: 'text-green-600' },
+  error:   { icon: <X size={13} />,     cls: 'text-destructive' },
+  info:    { icon: <Info size={13} />,  cls: 'text-primary' },
+}
+
+export function Toaster() {
+  const { toasts, dismiss } = useToastStore()
+
+  return (
+    <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center gap-2 pointer-events-none">
+      {toasts.map((t) => (
+        <div
+          key={t.id}
+          className="pointer-events-auto flex items-center gap-2 rounded-lg border border-border bg-white shadow-lg pl-3 pr-2 py-2 text-xs text-foreground animate-in fade-in slide-in-from-bottom-2"
+        >
+          <span className={cn('shrink-0', KIND_STYLES[t.kind].cls)}>{KIND_STYLES[t.kind].icon}</span>
+          <span>{t.message}</span>
+          <button
+            onClick={() => dismiss(t.id)}
+            className="shrink-0 ml-1 p-0.5 rounded text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+          >
+            <X size={11} />
+          </button>
+        </div>
+      ))}
+    </div>
+  )
+}
