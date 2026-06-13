@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
+import { useLayout } from '@/components/layout/LayoutContext'
 import { ATTRIBUTE_GROUPS, DEFAULT_CROSSTAB_CONFIG } from '@/types'
 import type { Widget, ChartData, WidgetType, CrossTabConfig } from '@/types'
 import { generateChartData, generateCrosstabRowData, generateTableRowData } from '@/data/fakeGenerators'
@@ -593,6 +594,7 @@ function SaveDialog({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ChartsPage() {
+  const { setLeftPanel } = useLayout()
   const [selected, setSelected] = useState<LibraryChart | null>(null)
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT)
 
@@ -658,13 +660,14 @@ export default function ChartsPage() {
     if (!selected) return { widget: null, data: null, extraRowsData: [] }
     const type = effectiveType
 
+    const cat = selected.category
     // Merge series from all cross-tab dimensions so every added column is visible
-    const baseData = generateChartData(type, false, crossAttrs[0] || undefined, `${selected.id}:${audienceId}`)
+    const baseData = generateChartData(type, false, crossAttrs[0] || undefined, `${selected.id}:${audienceId}`, undefined, undefined, cat)
     const data = isCrossTab && crossAttrs.length > 1
       ? {
           ...baseData,
           series: crossAttrs.flatMap(attr =>
-            generateChartData('table', false, attr, selected.id).series
+            generateChartData('table', false, attr, selected.id, undefined, undefined, cat).series
           ),
         }
       : baseData
@@ -680,9 +683,9 @@ export default function ChartsPage() {
       label: rowAttr,
       data: isCrossTab
         ? {
-            ...generateCrosstabRowData(rowAttr, crossAttrs[0], selected.id),
+            ...generateCrosstabRowData(rowAttr, crossAttrs[0], selected.id, undefined, cat),
             series: crossAttrs.flatMap(attr =>
-              generateCrosstabRowData(rowAttr, attr, selected.id).series
+              generateCrosstabRowData(rowAttr, attr, selected.id, undefined, cat).series
             ),
           }
         : generateTableRowData(rowAttr, selected.id),
@@ -753,16 +756,21 @@ export default function ChartsPage() {
     if (val && val !== selected?.title && !extraRows.includes(val)) setExtraRows(prev => [...prev, val])
   }
 
-  return (
-    <div className="flex h-full overflow-hidden">
-
-      {/* Left sidebar — folder tree */}
+  // Inject the chart sidebar outside the white card via LayoutContext
+  useEffect(() => {
+    setLeftPanel(
       <ChartSidebar
         selected={selected}
         onSelect={chart => setSelected(chart)}
         width={sidebarWidth}
         onWidthChange={setSidebarWidth}
       />
+    )
+    return () => setLeftPanel(null)
+  }, [selected, sidebarWidth, setLeftPanel])
+
+  return (
+    <div className="flex h-full overflow-hidden">
 
       {/* Centre — standalone chart view or empty state */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">

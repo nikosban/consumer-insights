@@ -148,7 +148,7 @@ function GroupEditor({ group, onChange, depth = 0 }: GroupEditorProps) {
   }
 
   return (
-    <div className={cn('space-y-3', depth > 0 ? 'ml-4 pl-4 border-l-2 border-gray-100' : '')}>
+    <div className={cn('space-y-3', depth > 0 ? 'ml-4 pl-4 border-l-2 border-border' : '')}>
       {/* AND / OR segmented toggle */}
       <div className="flex items-center gap-2.5">
         <SegmentedControl
@@ -433,8 +433,8 @@ function AIQueryInput({ onApply }: { onApply: (f: FilterGroup) => void }) {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-gray-50 p-4 space-y-3">
-      <span className="text-xs font-semibold text-gray-700">Describe your audience</span>
+    <div className="rounded-xl border border-border bg-muted p-4 space-y-3">
+      <span className="text-xs font-semibold text-secondary-foreground">Describe your audience</span>
       <div className="flex gap-2">
         <HighlightedInput
           value={query}
@@ -512,7 +512,7 @@ export default function AudienceBuilderPage() {
         <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={() => navigate('/audiences')}
-            className="inline-flex items-center justify-center w-8 h-8 rounded border border-border bg-background text-gray-600 hover:bg-accent hover:text-gray-900 transition-colors shrink-0"
+            className="inline-flex items-center justify-center w-8 h-8 rounded border border-border bg-background text-muted-foreground hover:bg-accent hover:text-foreground transition-colors shrink-0"
           >
             <IconWrapper><ArrowLeft size={ICON_SIZES.body} /></IconWrapper>
           </button>
@@ -525,14 +525,14 @@ export default function AudienceBuilderPage() {
               onBlur={() => setEditingTitle(false)}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') setEditingTitle(false) }}
               placeholder="Audience name…"
-              className="text-[24px] leading-[36px] font-bold text-gray-900 bg-transparent border-b-2 border-primary outline-none min-w-0 w-full placeholder:text-gray-300"
+              className="text-[24px] leading-[36px] font-semibold text-foreground bg-transparent border-b-2 border-primary outline-none min-w-0 w-full placeholder:text-muted-foreground"
               autoFocus
             />
           ) : (
             <h1
               onClick={() => setEditingTitle(true)}
               title="Click to rename"
-              className="text-[24px] leading-[36px] font-bold text-gray-900 cursor-text hover:opacity-70 transition-opacity truncate select-none"
+              className="text-[24px] leading-[36px] font-semibold text-foreground cursor-text hover:opacity-70 transition-opacity truncate select-none"
             >
               {name.trim() || (isEditing ? 'Untitled' : 'New Audience')}
             </h1>

@@ -250,7 +250,7 @@ export default function AnalysisDetailPage() {
         <div className="h-36">
           <ChartRenderer
             widget={{ ...w, type: displayType }}
-            data={generateChartData(displayType, false, undefined, `${w.id}:0`)}
+            data={generateChartData(displayType, false, undefined, `${w.id}:0`, w.metric, w.breakdown)}
             height={144}
           />
         </div>
@@ -408,7 +408,7 @@ export default function AnalysisDetailPage() {
                                     <div className="h-full pb-2">
                                       <ChartRenderer
                                         widget={{ ...w, type: displayType }}
-                                        data={generateChartData(displayType, false, undefined, `${w.id}:0`)}
+                                        data={generateChartData(displayType, false, undefined, `${w.id}:0`, w.metric, w.breakdown)}
                                         height={80}
                                       />
                                     </div>

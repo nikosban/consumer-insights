@@ -1,7 +1,12 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { IconWrapper, ICON_SIZES } from '@/components/ui/IconWrapper'
-import { MessageSquare, Users, BarChart2, FlaskConical, LogOut, PanelLeftClose, PanelLeftOpen, Search, LayoutDashboard } from 'lucide-react'
+import {
+  IconMessage, IconUsers, IconChartBar, IconFlask, IconLogout,
+  IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand,
+  IconSearch, IconLayoutDashboard, IconCommand,
+} from '@tabler/icons-react'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 const MIN_WIDTH = 160
@@ -13,16 +18,16 @@ const navItemCls = (isActive: boolean) =>
   cn(
     'flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors w-full',
     isActive
-      ? 'bg-white text-gray-900 font-medium shadow-sm'
-      : 'text-sidebar-foreground hover:bg-white/70'
+      ? 'bg-background text-foreground font-medium shadow-[var(--btn-raised-light-rest)]'
+      : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
   )
 
 const iconOnlyCls = (isActive: boolean) =>
   cn(
     'flex items-center justify-center w-8 h-8 rounded-md transition-colors',
     isActive
-      ? 'bg-white text-gray-900 shadow-sm'
-      : 'text-sidebar-foreground hover:bg-white/70'
+      ? 'bg-background text-foreground shadow-[var(--btn-raised-light-rest)]'
+      : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
   )
 
 function NavItem({ to, icon, label, end, collapsed }: {
@@ -31,13 +36,13 @@ function NavItem({ to, icon, label, end, collapsed }: {
   if (collapsed) {
     return (
       <NavLink to={to} end={end} title={label} className={({ isActive }) => iconOnlyCls(isActive)}>
-        <IconWrapper>{icon}</IconWrapper>
+        {icon}
       </NavLink>
     )
   }
   return (
     <NavLink to={to} end={end} className={({ isActive }) => navItemCls(isActive)}>
-      <IconWrapper>{icon}</IconWrapper>
+      {icon}
       {label}
     </NavLink>
   )
@@ -49,7 +54,6 @@ export default function WorkspaceSidebar() {
   const [collapsed, setCollapsed] = useState(false)
   const isResizing = useRef(false)
 
-  // ⌘D / Ctrl+D toggles the sidebar; ⌘S / Ctrl+S opens global search
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === 'd') {
@@ -107,22 +111,25 @@ export default function WorkspaceSidebar() {
               src="/statista-logo.svg"
               alt="Statista"
               data-logo
-              style={{ height: 18, filter: 'brightness(0)' }}
+              className="brightness-0 dark:brightness-0 dark:invert"
+              style={{ height: 18 }}
               draggable={false}
             />
           </button>
         )}
         <div className={cn('shrink-0', collapsed && 'flex-1 flex justify-center')}>
-          <button
+          <Button
+            variant="ghost"
+            size="icon-sm"
             onClick={() => setCollapsed(c => !c)}
             title={collapsed ? 'Expand sidebar (⌘D)' : 'Collapse sidebar (⌘D)'}
-            className="inline-flex items-center justify-center w-7 h-7 rounded text-muted-foreground hover:bg-accent hover:text-gray-900 transition-colors"
+            className="text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
           >
             {collapsed
-              ? <PanelLeftOpen className="h-[14px] w-[14px]" />
-              : <PanelLeftClose className="h-[14px] w-[14px]" />
+              ? <IconLayoutSidebarLeftExpand size={14} strokeWidth={2} />
+              : <IconLayoutSidebarLeftCollapse size={14} strokeWidth={2} />
             }
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -130,32 +137,34 @@ export default function WorkspaceSidebar() {
       <div className={cn('px-2 pt-3 pb-2 shrink-0', collapsed && 'hidden')}>
         <button
           onClick={() => document.dispatchEvent(new CustomEvent('open-search'))}
-          className="w-full flex items-center gap-2 h-9 px-2 rounded-md bg-background border border-border text-muted-foreground text-sm transition-colors hover:border-primary/40 hover:text-foreground"
-          style={{ borderRadius: 6 }}
+          className="w-full flex items-center gap-2.5 h-9 px-2.5 rounded-md bg-background text-muted-foreground text-sm transition-[shadow,color] shadow-[var(--field-shadow)] hover:shadow-[var(--field-shadow-focus)] hover:text-foreground"
         >
-          <Search className="h-3.5 w-3.5 shrink-0" />
-          <span className="flex-1 text-left text-xs">Search</span>
-          <kbd className="text-[10px] text-muted-foreground/60 font-mono">⌘S</kbd>
+          <IconSearch size={14} strokeWidth={2} className="shrink-0" />
+          <span className="flex-1 text-left">Search</span>
+          <kbd className="inline-flex items-center gap-0.5 h-5 px-1.5 rounded border border-border bg-background text-foreground text-xs leading-none shadow-[var(--btn-raised-light-rest)]">
+            <IconCommand size={10} strokeWidth={2} /><span className="font-mono">S</span>
+          </kbd>
         </button>
       </div>
 
       {/* Primary nav */}
       <div className={cn('pt-1 flex-1 space-y-0.5', collapsed ? 'px-1.5 flex flex-col items-center' : 'px-2')}>
-        <NavItem to="/research-ai" icon={<MessageSquare    size={ICON_SIZES.body} />} label="Chat"       collapsed={collapsed} />
-        <NavItem to="/audiences"   icon={<Users            size={ICON_SIZES.body} />} label="Audience"   collapsed={collapsed} />
-        <NavItem to="/charts"      icon={<BarChart2        size={ICON_SIZES.body} />} label="Charts"     collapsed={collapsed} />
-        <NavItem to="/dashboards"  icon={<LayoutDashboard  size={ICON_SIZES.body} />} label="Dashboards" collapsed={collapsed} />
-        <NavItem to="/analyses"    icon={<FlaskConical     size={ICON_SIZES.body} />} label="Analysis"   collapsed={collapsed} />
+        <NavItem to="/research-ai" icon={<IconMessage       size={14} strokeWidth={2} />} label="Chat"       collapsed={collapsed} />
+        <NavItem to="/audiences"   icon={<IconUsers         size={14} strokeWidth={2} />} label="Audience"   collapsed={collapsed} />
+        <NavItem to="/charts"      icon={<IconChartBar      size={14} strokeWidth={2} />} label="Charts"     collapsed={collapsed} />
+        <NavItem to="/dashboards"  icon={<IconLayoutDashboard size={14} strokeWidth={2} />} label="Dashboards" collapsed={collapsed} />
+        <NavItem to="/analyses"    icon={<IconFlask         size={14} strokeWidth={2} />} label="Analysis"   collapsed={collapsed} />
       </div>
 
-      {/* Bottom — logout */}
-      <div className={cn('pb-3 pt-2 border-t border-sidebar-border shrink-0', collapsed ? 'px-1.5 flex justify-center' : 'px-2')}>
+      {/* Bottom — theme toggle + logout */}
+      <div className={cn('pb-3 pt-2 border-t border-sidebar-border shrink-0 space-y-0.5', collapsed ? 'px-1.5 flex flex-col items-center' : 'px-2')}>
+        <ThemeToggle collapsed={collapsed} />
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/playground')}
           title={collapsed ? 'Logout' : undefined}
           className={cn(collapsed ? iconOnlyCls(false) : cn(navItemCls(false), 'w-full'))}
         >
-          <IconWrapper><LogOut size={ICON_SIZES.body} /></IconWrapper>
+          <IconLogout size={14} strokeWidth={2} className="shrink-0" />
           {!collapsed && 'Logout'}
         </button>
       </div>

@@ -17,16 +17,15 @@ export function ResourceCard({ icon, title, meta, date, actions, onClick, classN
     <div
       onClick={onClick}
       className={cn(
-        'rounded-[8px] overflow-hidden',
-        '[background:var(--color-25)]',
-        'shadow-[0_0_0_1px_hsla(0,0%,0%,0.06),0_2px_2px_0_hsla(0,0%,0%,0.04)]',
-        onClick && 'cursor-pointer hover:shadow-[0_0_0_1px_hsla(220,80%,55%,0.25),0_2px_4px_0_hsla(0,0%,0%,0.06)]',
+        'rounded-[8px] overflow-hidden bg-muted',
+        'shadow-[0_0_0_1px_var(--border)]',
+        onClick && 'cursor-pointer hover:shadow-[0_0_0_1px_hsl(var(--ring)/0.4),0_2px_4px_0_hsla(0,0%,0%,0.08)]',
         'transition-shadow',
         className
       )}
     >
-      {/* Header — white elevated row */}
-      <div className="flex items-center gap-3 p-2 bg-white rounded-[6px] shadow-[0_0_0_1px_hsla(0,0%,0%,0.08),0_2px_2px_0_hsla(0,0%,0%,0.06)]">
+      {/* Header — card surface elevated row */}
+      <div className="flex items-center gap-3 p-2 bg-card rounded-[6px] shadow-[0_0_0_1px_var(--border)]">
         {/* Icon */}
         {icon !== undefined && (
           <div className="flex items-center justify-center w-6 h-6 rounded-md bg-primary/8 text-primary shrink-0 [&>svg]:h-2.5 [&>svg]:w-2.5">
@@ -35,7 +34,7 @@ export function ResourceCard({ icon, title, meta, date, actions, onClick, classN
         )}
 
         {/* Title */}
-        <p className="text-sm font-semibold text-gray-900 flex-1 min-w-0 truncate">{title}</p>
+        <p className="text-sm font-semibold text-foreground flex-1 min-w-0 truncate">{title}</p>
 
         {/* Actions */}
         {actions && (
@@ -85,12 +84,12 @@ export function IconBtn({ icon, label, onClick, destructive = false, className }
       onClick={onClick}
       className={cn(
         'inline-flex items-center justify-center w-7 h-7 rounded border border-border bg-background',
-        'text-gray-400 transition-colors',
+        'text-muted-foreground transition-colors',
         'opacity-0 group-hover:opacity-100',
         '[&>svg]:h-3 [&>svg]:w-3',
         destructive
-          ? 'hover:bg-red-50 hover:border-red-200 hover:text-destructive'
-          : 'hover:bg-accent hover:text-gray-900',
+          ? 'hover:bg-destructive/8 hover:border-destructive/30 hover:text-destructive'
+          : 'hover:bg-accent hover:text-foreground',
         className
       )}
     >

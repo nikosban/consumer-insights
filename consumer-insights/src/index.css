@@ -124,11 +124,21 @@
     --color-950: var(--zinc-950);
 
     /* ── Paper shadows ── */
-    --field-shadow: rgba(0,0,0,0.08) 0px -2px 0px inset, rgba(0,0,0,0.12) 0px 0px 0px 1px;
-    --field-shadow-focus: rgba(0,0,0,0.08) 0px -2px 0px inset, rgba(61,156,243,0.12) 0px 0px 0px 3px, #1F7BE1 0px 0px 0px 1px;
+    --field-inset:          inset 0 1px 2px rgba(0,0,0,0.06);
+    --field-shadow:         rgba(0,0,0,0.12) 0px 0px 0px 1px;
+    --field-shadow-focus:   rgba(61,156,243,0.12) 0px 0px 0px 3px, #1F7BE1 0px 0px 0px 1px;
+    --field-shadow-error:         rgba(239,68,68,0.40) 0px 0px 0px 1px;
+    --field-shadow-error-focus:   rgba(239,68,68,0.15) 0px 0px 0px 3px, rgba(220,38,38,0.80) 0px 0px 0px 1px;
+    --field-shadow-success:       rgba(16,185,129,0.40) 0px 0px 0px 1px;
+    --field-shadow-success-focus: rgba(16,185,129,0.15) 0px 0px 0px 3px, rgba(5,150,105,0.80) 0px 0px 0px 1px;
     --btn-primary-bg: linear-gradient(in oklab 180deg, oklab(57.3% -0.024 -0.233) 0%, oklab(47% -0.025 -0.241) 100%);
     --btn-primary-shadow: rgba(255,255,255,0.12) 0px 1px 0px inset;
-    --btn-white-shadow: inset 0px -3.5px 0px 0px rgba(0,0,0,0.08), inset 0px 0px 0px 1px rgba(49,60,73,0.12), inset 0px 1px 1px 0px rgba(255,255,255,0.88);
+    /* Button elevation — three-layer raised system (Elevation.md) */
+    --btn-raised-dark-rest:   inset 0 1px 0 rgba(255,255,255,.12), 0 1px 1px rgba(0,0,0,.10), 0 2px 3px -1px rgba(0,0,0,.08);
+    --btn-raised-dark-hover:  inset 0 1px 0 rgba(255,255,255,.12), 0 1px 2px rgba(0,0,0,.10), 0 3px 5px -2px rgba(0,0,0,.10);
+    --btn-raised-light-rest:  inset 0 1px 0 rgba(255,255,255,.8),  0 1px 1px rgba(0,0,0,.08), 0 2px 3px -1px rgba(0,0,0,.06);
+    --btn-raised-light-hover: inset 0 1px 0 rgba(255,255,255,.8),  0 1px 2px rgba(0,0,0,.08), 0 3px 5px -2px rgba(0,0,0,.08);
+    --btn-raised-active:      inset 0 1px 2px rgba(0,0,0,.10), 0 1px 0 rgba(0,0,0,.04);
     --toolbar-item-h: 2rem;
 
     /* ── Shadcn semantic tokens — light theme ── */
@@ -213,6 +223,25 @@
     --sidebar-accent-foreground: var(--zinc-300);
     --sidebar-border: oklch(100% 0 0 / 7%);
     --sidebar-ring: var(--brand-500);
+
+    /* Field shadows — dark mode overrides */
+    --field-inset:          inset 0 1px 2px rgba(0,0,0,0.20);
+    --field-shadow:         rgba(255,255,255,0.10) 0px 0px 0px 1px;
+    --field-shadow-focus:   rgba(61,156,243,0.20) 0px 0px 0px 3px, #1F7BE1 0px 0px 0px 1px;
+    --field-shadow-error:         rgba(239,68,68,0.45) 0px 0px 0px 1px;
+    --field-shadow-error-focus:   rgba(239,68,68,0.20) 0px 0px 0px 3px, rgba(239,68,68,0.90) 0px 0px 0px 1px;
+    --field-shadow-success:       rgba(16,185,129,0.45) 0px 0px 0px 1px;
+    --field-shadow-success-focus: rgba(16,185,129,0.20) 0px 0px 0px 3px, rgba(16,185,129,0.90) 0px 0px 0px 1px;
+
+    /* Button shadows — tone down the white top-edge highlight on dark surfaces */
+    --btn-raised-light-rest:  inset 0 1px 0 rgba(255,255,255,.06), 0 1px 1px rgba(0,0,0,.30), 0 2px 3px -1px rgba(0,0,0,.22);
+    --btn-raised-light-hover: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 2px rgba(0,0,0,.30), 0 3px 5px -2px rgba(0,0,0,.24);
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Toolbar: enforce consistent item height */

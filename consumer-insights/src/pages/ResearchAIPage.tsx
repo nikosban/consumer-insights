@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
+import { useLayout } from '@/components/layout/LayoutContext'
 import { useNavigate } from 'react-router-dom'
 import { useAIStore } from '@/store/aiStore'
 import { useAudienceStore } from '@/store/audienceStore'
@@ -75,19 +76,19 @@ function UseCaseTile({ Icon, title, desc, color, onClick }: { Icon: React.Elemen
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="flex flex-col items-start p-4 rounded-xl bg-gray-50 transition-all text-left w-full border border-transparent hover:border-gray-200 hover:shadow-md"
+      className="flex flex-col items-start p-4 rounded-xl bg-muted transition-all text-left w-full border border-transparent hover:border-border hover:shadow-md"
     >
       <div
         style={hovered ? metalGradient(color) : {}}
         className={cn(
           'w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-all duration-200',
-          !hovered && 'bg-gray-200/60'
+          !hovered && 'bg-accent'
         )}
       >
-        <Icon size={15} strokeWidth={2.5} className={hovered ? 'text-white' : 'text-gray-500'} />
+        <Icon size={15} strokeWidth={2.5} className={hovered ? 'text-white' : 'text-muted-foreground'} />
       </div>
       <div className="mt-6">
-        <p className="text-xs font-semibold text-gray-800 leading-snug">{title}</p>
+        <p className="text-xs font-semibold text-foreground leading-snug">{title}</p>
         <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{desc}</p>
       </div>
     </button>
@@ -137,7 +138,7 @@ function ChatHistoryPanel({ onSelect, onNew, showNewChat }: {
             <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground tracking-wider">7 days</p>
             {sevenDays.map(entry => (
               <button key={entry.id} onClick={() => onSelect(entry.firstMessage)}
-                className="flex items-center gap-2 w-full text-left px-3 py-2 text-xs text-sidebar-foreground rounded-md mx-1 transition-colors hover:bg-white/70"
+                className="flex items-center gap-2 w-full text-left px-3 py-2 text-xs text-sidebar-foreground rounded-md mx-1 transition-colors hover:bg-sidebar-accent"
                 style={{ width: 'calc(100% - 8px)' }}
               >
                 <MessageSquare size={11} className="shrink-0 text-muted-foreground" />
@@ -151,7 +152,7 @@ function ChatHistoryPanel({ onSelect, onNew, showNewChat }: {
             <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground tracking-wider">Past month</p>
             {pastMonth.map(entry => (
               <button key={entry.id} onClick={() => onSelect(entry.firstMessage)}
-                className="flex items-center gap-2 w-full text-left px-3 py-2 text-xs text-sidebar-foreground rounded-md mx-1 transition-colors hover:bg-white/70"
+                className="flex items-center gap-2 w-full text-left px-3 py-2 text-xs text-sidebar-foreground rounded-md mx-1 transition-colors hover:bg-sidebar-accent"
                 style={{ width: 'calc(100% - 8px)' }}
               >
                 <MessageSquare size={11} className="shrink-0 text-muted-foreground" />
@@ -251,13 +252,13 @@ function ContextChip({ label, value, options, onChange }: {
         <ChevronDown size={10} className="shrink-0" />
       </button>
       {open && (
-        <div className="absolute bottom-full left-0 mb-1 z-20 bg-white border border-border rounded-xl shadow-lg py-1 min-w-[160px]">
+        <div className="absolute bottom-full left-0 mb-1 z-20 bg-popover border border-border rounded-xl shadow-lg py-1 min-w-[160px]">
           <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground tracking-wider">{label}</p>
           {options.map(opt => (
             <button
               key={opt} type="button"
               onClick={() => { onChange(opt); setOpen(false) }}
-              className={cn('w-full text-left px-3 py-2 text-xs hover:bg-gray-50 transition-colors', opt === value ? 'text-primary font-medium' : 'text-gray-700')}
+              className={cn('w-full text-left px-3 py-2 text-xs hover:bg-accent transition-colors', opt === value ? 'text-primary font-medium' : 'text-foreground')}
             >{opt}</button>
           ))}
         </div>
@@ -290,7 +291,7 @@ function SourceChip({ value, onChange }: { value: SourceMode; onChange: (v: Sour
         <ChevronDown size={10} className="shrink-0" />
       </button>
       {open && (
-        <div className="absolute bottom-full left-0 mb-1 z-20 bg-white border border-border rounded-xl shadow-lg py-1 min-w-[180px]">
+        <div className="absolute bottom-full left-0 mb-1 z-20 bg-popover border border-border rounded-xl shadow-lg py-1 min-w-[180px]">
           <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground tracking-wider">Source</p>
           {SOURCE_OPTIONS.map(opt => {
             const Icon = opt.icon
@@ -298,7 +299,7 @@ function SourceChip({ value, onChange }: { value: SourceMode; onChange: (v: Sour
               <button
                 key={opt.value} type="button"
                 onClick={() => { onChange(opt.value); setOpen(false) }}
-                className={cn('w-full text-left px-3 py-2 text-xs hover:bg-gray-50 transition-colors flex items-center gap-2', opt.value === value ? 'text-primary font-medium' : 'text-gray-700')}
+                className={cn('w-full text-left px-3 py-2 text-xs hover:bg-accent transition-colors flex items-center gap-2', opt.value === value ? 'text-primary font-medium' : 'text-foreground')}
               >
                 <Icon size={12} className="shrink-0" />
                 {opt.label}
@@ -345,7 +346,7 @@ function InputBox({
   }
 
   return (
-    <div className="rounded-2xl bg-white border border-border shadow-sm overflow-visible">
+    <div className="rounded-2xl bg-card border border-border shadow-sm overflow-visible">
       {/* Textarea area with revolving placeholder */}
       <div className="relative px-4 pt-3 pb-1">
         {!input && (
@@ -355,7 +356,7 @@ function InputBox({
         )}
         <textarea
           ref={textareaRef}
-          className="resize-none text-sm w-full bg-transparent outline-none border-0 text-gray-900 placeholder:text-transparent"
+          className="resize-none text-sm w-full bg-transparent outline-none border-0 text-foreground placeholder:text-transparent"
           rows={rows}
           value={input}
           onChange={e => setInput(e.target.value)}
@@ -391,7 +392,7 @@ function InputBox({
           type="button"
           onClick={onSend}
           disabled={!input.trim() || isStreaming}
-          className="w-[30px] h-[30px] rounded-[6px] bg-gray-900 text-white flex items-center justify-center shrink-0 transition-opacity disabled:opacity-30"
+          className="w-[30px] h-[30px] rounded-[6px] bg-foreground text-background flex items-center justify-center shrink-0 transition-opacity disabled:opacity-30"
         >
           <Send className="h-3.5 w-3.5" />
         </button>
@@ -478,13 +479,13 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
   }
 
   return (
-    <div ref={cardRef} className="max-w-[480px] w-full rounded-2xl rounded-bl-sm border border-border bg-white shadow-sm overflow-hidden">
+    <div ref={cardRef} className="max-w-[480px] w-full rounded-2xl rounded-bl-sm border border-border bg-card shadow-sm overflow-hidden">
 
       {/* ── Header ── */}
       <div className="px-4 pt-4 pb-3 border-b border-border">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <h3 className="text-sm font-semibold text-gray-900 leading-tight">{card.name}</h3>
+            <h3 className="text-sm font-semibold text-foreground leading-tight">{card.name}</h3>
             <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{card.subtitle}</p>
           </div>
           <div className="flex items-center gap-1 shrink-0">
@@ -524,7 +525,7 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
             {card.demographics.map(d => (
               <div key={d.label} className="flex items-baseline justify-between gap-2">
                 <span className="text-[11px] text-muted-foreground shrink-0">{d.label}</span>
-                <span className="text-[11px] font-medium text-gray-900 text-right">{d.value}</span>
+                <span className="text-xs font-medium text-foreground text-right">{d.value}</span>
               </div>
             ))}
           </div>
@@ -537,7 +538,7 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
             {card.behaviors.map(b => (
               <div key={b.label} className="flex items-baseline justify-between gap-2">
                 <span className="text-[11px] text-muted-foreground shrink-0">{b.label}</span>
-                <span className="text-[11px] font-medium text-gray-900 text-right">{b.value}</span>
+                <span className="text-xs font-medium text-foreground text-right">{b.value}</span>
               </div>
             ))}
           </div>
@@ -570,7 +571,7 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
                 'w-full flex items-center justify-center gap-1.5 h-8 rounded-lg border text-xs font-medium transition-colors',
                 addedToDash
                   ? 'border-green-200 bg-green-50 text-green-700 cursor-default'
-                  : 'border-border bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                  : 'border-border bg-background text-foreground hover:bg-accent'
               )}
             >
               {addedToDash ? <Check size={11} /> : <LayoutDashboard size={11} />}
@@ -585,7 +586,7 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
           {/* Refine in chat */}
           <button
             onClick={() => document.dispatchEvent(new CustomEvent('focus-chat-input'))}
-            className="flex items-center justify-center gap-1 h-8 px-3 rounded-lg border border-border bg-white text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+            className="flex items-center justify-center gap-1 h-8 px-3 rounded-lg border border-border bg-background text-xs font-medium text-foreground hover:bg-accent transition-colors"
           >
             Refine
           </button>
@@ -636,7 +637,7 @@ function VizSwitcher({ value, onChange }: { value: WidgetType; onChange: (t: Wid
           onClick={() => onChange(type)}
           className={cn(
             'flex items-center justify-center w-6 h-6 rounded transition-colors',
-            value === type ? 'bg-white shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'
+            value === type ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'
           )}
         >
           <Icon size={12} />
@@ -715,13 +716,13 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
   }
 
   return (
-    <div ref={cardRef} className="max-w-[480px] w-full rounded-2xl rounded-bl-sm border border-border bg-white shadow-sm overflow-hidden">
+    <div ref={cardRef} className="max-w-[480px] w-full rounded-2xl rounded-bl-sm border border-border bg-card shadow-sm overflow-hidden">
 
       {/* ── Header ── */}
       <div className="px-4 pt-4 pb-3 border-b border-border">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <h3 className="text-sm font-semibold text-gray-900 leading-tight">{card.title}</h3>
+            <h3 className="text-sm font-semibold text-foreground leading-tight">{card.title}</h3>
             <p className="text-xs text-muted-foreground mt-0.5">{card.subtitle}</p>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
@@ -758,7 +759,7 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
                 'w-full flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-colors',
                 addedToDash
                   ? 'border border-green-200 bg-green-50 text-green-700 cursor-default'
-                  : 'border border-border bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                  : 'border border-border bg-background text-foreground hover:bg-accent'
               )}
             >
               {addedToDash ? <Check size={11} /> : <LayoutDashboard size={11} />}
@@ -770,7 +771,7 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
           </div>
           <button
             onClick={() => document.dispatchEvent(new CustomEvent('focus-chat-input'))}
-            className="flex items-center justify-center gap-1 h-8 px-3 rounded-lg border border-border bg-white text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+            className="flex items-center justify-center gap-1 h-8 px-3 rounded-lg border border-border bg-background text-xs font-medium text-foreground hover:bg-accent transition-colors"
           >
             Refine
           </button>
@@ -853,7 +854,7 @@ function ProcessingStepsDisplay({ steps }: { steps: ProcessingStep[] }) {
   const doneCount = steps.filter(s => s.status === 'done').length
 
   return (
-    <div className="rounded-xl border border-border bg-white overflow-hidden">
+    <div className="rounded-xl border border-border bg-card overflow-hidden">
       {/* header — always visible, click to toggle */}
       <button
         type="button"
@@ -906,7 +907,7 @@ function BenchmarkPanel({ panel, onCreateDraft }: { panel: BenchmarkPanelData; o
   const maxIntent = Math.max(...panel.segments.map(s => s.intentScore))
 
   return (
-    <div className="mt-3 rounded-xl border border-border bg-white overflow-hidden">
+    <div className="mt-3 rounded-xl border border-border bg-card overflow-hidden">
       {/* header */}
       <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border bg-muted/40">
         <span className="text-[11px] font-semibold text-muted-foreground">Audience segments</span>
@@ -1040,12 +1041,12 @@ function WidgetClusterCard({ card, index }: { card: DataWidgetCardData; index: n
   }
 
   return (
-    <div ref={cardRef} className="w-full rounded-2xl rounded-bl-sm border border-border bg-white shadow-sm overflow-hidden">
+    <div ref={cardRef} className="w-full rounded-2xl rounded-bl-sm border border-border bg-card shadow-sm overflow-hidden">
       {/* header */}
       <div className="px-4 pt-3 pb-2.5 border-b border-border">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <h4 className="text-sm font-semibold text-gray-900 leading-tight">{card.title}</h4>
+            <h4 className="text-sm font-semibold text-foreground leading-tight">{card.title}</h4>
             <p className="text-[11px] text-muted-foreground mt-0.5">{card.subtitle}</p>
           </div>
           <div className="flex items-center gap-1 shrink-0">
@@ -1081,7 +1082,7 @@ function WidgetClusterCard({ card, index }: { card: DataWidgetCardData; index: n
               'w-full flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-colors',
               addedToDash
                 ? 'border border-green-200 bg-green-50 text-green-700 cursor-default'
-                : 'border border-border bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                : 'border border-border bg-background text-foreground hover:bg-accent'
             )}
           >
             {addedToDash ? <Check size={11} /> : <LayoutDashboard size={11} />}
@@ -1139,13 +1140,14 @@ function DashboardPickerDropdown({ dashboards, onSelect, label, direction = 'dow
   }
 
   return (
-    <div onMouseDown={e => e.stopPropagation()} className={cn('absolute right-0 z-20 bg-white border border-border rounded-xl shadow-lg py-1 min-w-[200px]', direction === 'up' ? 'bottom-full mb-1' : 'top-full mt-1')}>
+    <div onMouseDown={e => e.stopPropagation()} className={cn('absolute right-0 z-20 bg-popover border border-border rounded-xl shadow-lg py-1 min-w-[200px]', direction === 'up' ? 'bottom-full mb-1' : 'top-full mt-1')}>
+
       <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground tracking-wider">{label}</p>
       {dashboards.map(d => (
         <button
           key={d.id}
           onClick={() => onSelect(d.id, d.name)}
-          className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-between gap-2"
+          className="w-full text-left px-3 py-2 text-xs text-foreground hover:bg-accent transition-colors flex items-center justify-between gap-2"
         >
           <span className="truncate">{d.name}</span>
           <ChevronRight size={11} className="shrink-0 text-muted-foreground" />
@@ -1211,11 +1213,11 @@ function AudienceDraftCard({ draft }: { draft: AudienceDraftData }) {
   }
 
   return (
-    <div className="mt-3 max-w-[480px] w-full rounded-2xl rounded-bl-sm border border-primary/30 bg-white shadow-sm overflow-hidden">
+    <div className="mt-3 max-w-[480px] w-full rounded-2xl rounded-bl-sm border border-primary/30 bg-card shadow-sm overflow-hidden">
       {/* header */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-primary/4">
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-bold text-primary">Audience draft</span>
+          <span className="text-xs font-semibold text-primary">Audience draft</span>
         </div>
         <button
           onClick={handleOpenBuilder}
@@ -1228,7 +1230,7 @@ function AudienceDraftCard({ draft }: { draft: AudienceDraftData }) {
 
       {/* name */}
       <div className="px-4 pt-3 pb-2">
-        <h3 className="text-sm font-semibold text-gray-900">{draft.name}</h3>
+        <h3 className="text-sm font-semibold text-foreground">{draft.name}</h3>
         <p className="text-[11px] text-muted-foreground mt-0.5">
           ← Inherited from: <span className="font-medium text-foreground">{draft.inheritedFrom}</span>
         </p>
@@ -1240,7 +1242,7 @@ function AudienceDraftCard({ draft }: { draft: AudienceDraftData }) {
           {draft.filters.map(f => (
             <div key={f.label} className="flex items-baseline justify-between gap-2">
               <span className="text-[11px] text-muted-foreground shrink-0">{f.label}</span>
-              <span className="text-[11px] font-medium text-gray-900 text-right">{f.value}</span>
+              <span className="text-xs font-medium text-foreground text-right">{f.value}</span>
             </div>
           ))}
         </div>
@@ -1250,7 +1252,7 @@ function AudienceDraftCard({ draft }: { draft: AudienceDraftData }) {
       <div className="px-4 py-3 border-t border-border flex items-center gap-2">
         <button
           onClick={handleOpenBuilder}
-          className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg border border-border text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg border border-border text-xs font-medium text-foreground hover:bg-accent transition-colors"
         >
           Open in Audience Builder
           <ArrowUpRight size={10} />
@@ -1398,10 +1400,26 @@ function StreamingSkeleton() {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ResearchAIPage() {
+  const { setLeftPanel } = useLayout()
   const { conversation, isStreaming, addMessage, updateLastAssistantMessage, setStreaming, reset } = useAIStore()
   const [input, setInput] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const isEmpty = conversation.messages.length === 0
+
+  const handleSelect = useCallback((q: string) => { reset(); setInput(q) }, [reset])
+
+  useEffect(() => {
+    setLeftPanel(
+      <ChatHistoryPanel
+        onSelect={handleSelect}
+        onNew={reset}
+        showNewChat={!isEmpty}
+      />
+    )
+    return () => setLeftPanel(null)
+  }, [isEmpty, handleSelect, reset, setLeftPanel])
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
@@ -1522,17 +1540,8 @@ export default function ResearchAIPage() {
     }, 18)
   }
 
-  const isEmpty = conversation.messages.length === 0
-
   return (
     <div className="flex h-full overflow-hidden">
-
-      {/* Chat history panel */}
-      <ChatHistoryPanel
-        onSelect={q => { reset(); setInput(q) }}
-        onNew={reset}
-        showNewChat={!isEmpty}
-      />
 
       {/* Main content */}
       <div className="relative flex flex-col flex-1 overflow-hidden">
@@ -1545,7 +1554,7 @@ export default function ResearchAIPage() {
               <div className="w-full max-w-[640px]">
 
                 {/* Heading */}
-                <h2 className="text-[24px] leading-[36px] font-bold text-gray-900 mb-8">
+                <h2 className="text-[24px] leading-[36px] font-semibold text-foreground mb-8">
                   What are you researching today?<br />
                   Good to see you, <span style={gradientNameStyle}>Nikos</span>.
                 </h2>

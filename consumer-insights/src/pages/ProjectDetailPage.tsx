@@ -91,7 +91,7 @@ function AnalysesTab({
     const all = dashboard.widgets
       .map(dw => widgets.find(w => w.id === dw.widgetId))
       .filter((w): w is Widget => w !== undefined)
-      .map(w => ({ widget: w, data: generateChartData(w.type, !!w.benchmarkAudienceId, w.crossDimensionLabel, `${w.id}:0`) }))
+      .map(w => ({ widget: w, data: generateChartData(w.type, !!w.benchmarkAudienceId, w.crossDimensionLabel, `${w.id}:0`, w.metric, w.breakdown) }))
     return {
       scorecards: all.filter(d => d.widget.type === 'scorecard'),
       charts: all.filter(d => d.widget.type !== 'scorecard' && d.widget.type !== 'table'),
@@ -293,7 +293,7 @@ function AnalysesTab({
     return (
       <div>
         {dashboards.length === 0 && (
-          <p className="text-xs text-muted-foreground bg-gray-50 rounded-lg px-4 py-3 mb-4">
+          <p className="text-xs text-muted-foreground bg-muted rounded-lg px-4 py-3 mb-4">
             Link a dashboard to this project first, then generate an analysis from it.
           </p>
         )}
@@ -387,7 +387,7 @@ function AnalysesTab({
 
         {/* Dashboard picker */}
         <div className="space-y-2">
-          <p className="text-sm font-medium text-gray-700">1. Choose a dashboard</p>
+          <p className="text-sm font-medium text-secondary-foreground">1. Choose a dashboard</p>
           <div className="space-y-2">
             {dashboards.map((d) => (
               <button
@@ -397,8 +397,8 @@ function AnalysesTab({
                 className={cn(
                   'w-full flex items-center gap-3 px-3 py-3 rounded-xl border text-left transition-colors',
                   mode.dashboardId === d.id
-                    ? 'border-primary bg-primary/5 text-gray-900'
-                    : 'border-border hover:border-gray-300 hover:bg-gray-50 text-gray-700'
+                    ? 'border-primary bg-primary/5 text-foreground'
+                    : 'border-border hover:bg-accent text-secondary-foreground'
                 )}
               >
                 <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/8 text-primary shrink-0">
@@ -418,7 +418,7 @@ function AnalysesTab({
 
         {/* Template picker */}
         <div className="space-y-2">
-          <p className="text-sm font-medium text-gray-700">2. Report format</p>
+          <p className="text-sm font-medium text-secondary-foreground">2. Report format</p>
           <div className="grid grid-cols-2 gap-3">
             {([
               { value: 'summary', label: 'Summary', desc: '3 sections · Quick read', badge: '~1 min' },
@@ -432,10 +432,10 @@ function AnalysesTab({
                   'flex flex-col gap-1.5 px-4 py-4 rounded-xl border text-left transition-colors',
                   mode.template === t.value
                     ? 'border-primary bg-primary/5'
-                    : 'border-border hover:border-gray-300 hover:bg-gray-50'
+                    : 'border-border hover:bg-accent'
                 )}
               >
-                <p className={cn('text-sm font-semibold', mode.template === t.value ? 'text-primary' : 'text-gray-900')}>
+                <p className={cn('text-sm font-semibold', mode.template === t.value ? 'text-primary' : 'text-foreground')}>
                   {t.label}
                 </p>
                 <p className="text-xs text-muted-foreground">{t.desc}</p>

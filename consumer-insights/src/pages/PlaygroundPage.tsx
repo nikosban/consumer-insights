@@ -8,9 +8,15 @@
  */
 
 import { useState } from 'react'
+import ChartRenderer from '@/components/charts/ChartRenderer'
+import type { Widget, ChartData } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { SelectField } from '@/components/ui/select'
+import { Checkbox } from '@/components/ui/checkbox'
+import { RadioGroup, Radio } from '@/components/ui/radio'
 import { Chip } from '@/components/app/Chip'
 import { SectionLabel } from '@/components/app/SectionLabel'
 import { FieldGroup } from '@/components/app/FieldGroup'
@@ -21,7 +27,14 @@ import {
   Pencil, Copy, Plus, Share2, BookmarkPlus, RefreshCw,
   ChevronRight, Sparkles, Settings,
 } from 'lucide-react'
+import {
+  IconPlus, IconDownload, IconTrash, IconCheck, IconArrowRight,
+  IconLoader2, IconUser, IconShare,
+  IconLayoutSidebarRightCollapse, IconLayoutSidebarRightExpand,
+} from '@tabler/icons-react'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { cn } from '@/lib/utils'
+import { generateChartData } from '@/data/fakeGenerators'
 
 // ─── Nav structure ────────────────────────────────────────────────────────────
 
@@ -34,10 +47,12 @@ type PageId =
   | 'data-viz'
   | 'button'
   | 'badge'
-  | 'input'
+  | 'form'
   | 'chip'
   | 'card'
+  | 'chart-widget'
   | 'empty-state'
+  | 'switcher'
   | 'layout'
 
 const NAV: { group: string; items: { id: PageId; label: string }[] }[] = [
@@ -57,10 +72,12 @@ const NAV: { group: string; items: { id: PageId; label: string }[] }[] = [
     items: [
       { id: 'button',      label: 'Button'      },
       { id: 'badge',       label: 'Badge'       },
-      { id: 'input',       label: 'Input'       },
+      { id: 'form',        label: 'Form'        },
       { id: 'chip',        label: 'Chip'        },
-      { id: 'card',        label: 'Card'        },
-      { id: 'empty-state', label: 'Empty State' },
+      { id: 'card',         label: 'Card'         },
+      { id: 'chart-widget', label: 'Chart Widget' },
+      { id: 'empty-state',  label: 'Empty State'  },
+      { id: 'switcher',     label: 'Switcher'     },
       { id: 'layout',      label: 'Layout'      },
     ],
   },
@@ -924,6 +941,173 @@ function DataVizPage() {
           <li>Continuous animation unrelated to an active process</li>
         </ul>
       </Section>
+
+      <DataVizLiveExamples />
+    </>
+  )
+}
+
+// ─── Data Viz live examples ───────────────────────────────────────────────────
+
+function DemoChart({ widget, data, height = 180, caption }: {
+  widget: Widget; data: ChartData; height?: number; caption?: string
+}) {
+  return (
+    <div className="rounded-lg border border-border bg-background overflow-hidden">
+      <div className="px-3 pt-3 pb-1">
+        <p className="text-xs font-medium text-foreground truncate">{widget.title}</p>
+      </div>
+      <div style={{ height }} className="px-1 pb-2">
+        <ChartRenderer widget={widget} data={data} height={height} />
+      </div>
+      {caption && (
+        <div className="px-3 py-2 border-t border-border/60 bg-muted/30">
+          <p className="text-xs text-muted-foreground">{caption}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function w(overrides: Partial<Widget> & { id: string; type: Widget['type']; title: string }): Widget {
+  return { audienceId: 'all', metric: 'brand_awareness', createdAt: '', ...overrides }
+}
+
+function DataVizLiveExamples() {
+  // ── Categorical palette — 8 series, one bar per token ──
+  const paletteWidget = w({ id: 'dv-palette', type: 'bar', title: 'Categorical palette — 8 color tokens' })
+  const paletteData: ChartData = {
+    labels: ['Brand blue', 'Violet', 'Cyan', 'Orange', 'Fuchsia', 'Teal', 'Indigo', 'Lime'],
+    series: [{ name: 'Value', values: [72, 65, 58, 61, 54, 67, 70, 56] }],
+  }
+
+  // ── Chart types grid ──
+  const barWidget   = w({ id: 'dv-bar',   type: 'bar',       title: 'Purchase intent by age group', metric: 'purchase_intent', breakdown: 'age_group' })
+  const barData: ChartData = {
+    labels: ['18–24', '25–34', '35–44', '45–54', '55+'],
+    series: [
+      { name: 'Millennial Shoppers', values: [58, 74, 61, 42, 27] },
+      { name: 'Market average',      values: [44, 55, 48, 36, 28] },
+    ],
+  }
+
+  const lineWidget  = w({ id: 'dv-line',  type: 'line',      title: 'Brand awareness — Jan → Jun 2025' })
+  const lineData: ChartData = {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    series: [{ name: 'Awareness %', values: [41, 44, 48, 51, 54, 57] }],
+  }
+
+  const pieWidget   = w({ id: 'dv-pie',   type: 'pie',       title: 'Device type distribution' })
+  const pieData: ChartData = {
+    labels: ['Mobile', 'Desktop', 'Tablet', 'Smart TV'],
+    series: [{ name: 'Share', values: [54, 28, 11, 7] }],
+  }
+
+  const kpiWidget   = w({ id: 'dv-kpi',   type: 'scorecard', title: 'Net Promoter Score', benchmarkAudienceId: 'bench' })
+  const kpiData: ChartData = {
+    labels: ['NPS'],
+    series: [
+      { name: 'Millennial Shoppers', values: [48] },
+      { name: 'Market average',      values: [32] },
+    ],
+  }
+
+  // ── Color roles ──
+  // Primary: one series highlighted, others muted
+  const highlightWidget = w({ id: 'dv-hl', type: 'bar', title: 'Selected series highlighted' })
+  const highlightData: ChartData = {
+    labels: ['18–24', '25–34', '35–44', '45–54', '55+'],
+    series: [
+      { name: 'Audience', values: [58, 74, 61, 42, 27] },
+      { name: 'Benchmark (muted)', values: [44, 55, 48, 36, 28] },
+    ],
+  }
+
+  // Semantic: NPS band breakdown — emerald / amber / red via intent
+  const semanticWidget = w({ id: 'dv-semantic', type: 'bar', title: 'NPS band distribution', metric: 'net_promoter_score' })
+  const semanticData: ChartData = {
+    labels: ['Promoters (9–10)', 'Passives (7–8)', 'Detractors (0–6)'],
+    series: [{ name: 'Respondents %', values: [38, 29, 33] }],
+  }
+
+  // Sequential: single series, ordered magnitude
+  const seqWidget = w({ id: 'dv-seq', type: 'bar', title: 'Online spend by income bracket', breakdown: 'income_bracket' })
+  const seqData: ChartData = {
+    labels: ['<$25k', '$25–50k', '$50–100k', '$100k+'],
+    series: [{ name: 'Monthly avg. spend ($)', values: [38, 72, 124, 218] }],
+  }
+
+  // ── Anti-patterns ──
+  const tooManySlicesWidget = w({ id: 'dv-pie-bad', type: 'pie', title: 'Avoid: pie with 8 categories' })
+  const tooManySlicesData: ChartData = {
+    labels: ['Mobile', 'Desktop', 'Tablet', 'Smart TV', 'Console', 'Wearable', 'OOH', 'Other'],
+    series: [{ name: 'Share', values: [28, 22, 10, 8, 12, 6, 7, 7] }],
+  }
+
+  return (
+    <>
+      <Section title="Live examples — categorical palette">
+        <p className="text-xs text-muted-foreground mb-4">
+          8-hue palette applied to a single bar chart. The same category always maps to the same token across views.
+        </p>
+        <DemoChart widget={paletteWidget} data={paletteData} height={200}
+          caption="chart-1 → chart-8 tokens. Assign by stable category order, not by data rank." />
+      </Section>
+
+      <Section title="Live examples — chart types">
+        <p className="text-xs text-muted-foreground mb-4">
+          Four main chart types with realistic consumer survey data. Choose based on the analytical question, not aesthetics.
+        </p>
+        <div className="grid grid-cols-2 gap-4">
+          <DemoChart widget={barWidget} data={barData} height={180}
+            caption="Bar — compare categories. Use when ranking or discrete comparison is the goal." />
+          <DemoChart widget={lineWidget} data={lineData} height={180}
+            caption="Line — time series and ordered trends. Always chronological left→right." />
+          <DemoChart widget={pieWidget} data={pieData} height={180}
+            caption="Pie — approximate proportion, ≤5 slices, one meaningful whole." />
+          <DemoChart widget={kpiWidget} data={kpiData} height={180}
+            caption="Scorecard — single value with benchmark delta. One KPI per card." />
+        </div>
+      </Section>
+
+      <Section title="Live examples — color roles">
+        <p className="text-xs text-muted-foreground mb-4">
+          Three distinct color roles: primary selection (brand blue), sequential magnitude, and semantic status.
+        </p>
+        <div className="grid grid-cols-3 gap-4">
+          <DemoChart widget={highlightWidget} data={highlightData} height={160}
+            caption="Primary — audience series in brand blue; benchmark muted." />
+          <DemoChart widget={seqWidget} data={seqData} height={160}
+            caption="Sequential — single hue, ordered by magnitude. No rainbow scale." />
+          <DemoChart widget={semanticWidget} data={semanticData} height={160}
+            caption="Semantic — emerald/amber/red only when data genuinely maps to success/warning/danger." />
+        </div>
+      </Section>
+
+      <Section title="Live examples — anti-patterns">
+        <p className="text-xs text-muted-foreground mb-4">
+          Examples of what not to do, and why.
+        </p>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <div className="rounded-md border-2 border-destructive/30 overflow-hidden">
+              <DemoChart widget={tooManySlicesWidget} data={tooManySlicesData} height={160} />
+            </div>
+            <p className="text-xs text-destructive mt-1.5">Avoid: 8 pie slices — impossible to compare. Use a bar chart instead.</p>
+          </div>
+          <div className="rounded-lg border border-border bg-background p-4 flex flex-col justify-center gap-3">
+            <p className="text-xs font-medium text-foreground">Other patterns to avoid</p>
+            <ul className="text-xs text-muted-foreground space-y-1.5 list-disc list-inside">
+              <li>3D bars or glows on chart elements</li>
+              <li>Gradient fills on bars or lines (decorative)</li>
+              <li>Dual Y-axes without clear labeling</li>
+              <li>Truncated Y-axis starting above zero on a bar chart</li>
+              <li>Rainbow hue scale for ordered magnitude</li>
+              <li>Green/red encoding on non-semantic data</li>
+            </ul>
+          </div>
+        </div>
+      </Section>
     </>
   )
 }
@@ -1108,67 +1292,262 @@ function ElevationPage() {
   )
 }
 
+// ─── ButtonPage ───────────────────────────────────────────────────────────────
+
 function ButtonPage() {
+  const ic = (Icon: React.ElementType) => <Icon strokeWidth={2} />
+
   return (
     <>
-      <PageHeader title="Button" description="All variants and sizes currently in use." />
+      <PageHeader
+        title="Button"
+        description="Two-axis system: hierarchy (filled / outlined / flat / inline) × intent (brand / neutral / danger / success)."
+      />
 
-      <Section title="Variants">
-        <Row label="Default">
-          <Button size="default">Default</Button>
-          <Button size="default"><Sparkles className="h-3.5 w-3.5" /> With icon</Button>
-          <Button size="sm">Small</Button>
-        </Row>
-        <Row label="Outline">
-          <Button variant="outline" size="default">Outline</Button>
-          <Button variant="outline" size="default"><Share2 className="h-3.5 w-3.5" /> Share</Button>
-          <Button variant="outline" size="default"><BookmarkPlus className="h-3.5 w-3.5" /> Save</Button>
-          <Button variant="outline" size="default"><RefreshCw className="h-3.5 w-3.5" /> Refresh</Button>
-          <Button variant="outline" size="sm">Outline sm</Button>
-        </Row>
-        <Row label="Ghost">
-          <Button variant="ghost" size="default">Ghost</Button>
-          <Button variant="ghost" size="sm">Ghost sm</Button>
-        </Row>
-        <Row label="Destructive">
-          <Button variant="destructive" size="default">Delete</Button>
-          <Button variant="outline" size="default" className="text-destructive hover:bg-destructive/10 hover:border-destructive/40">
-            <Trash2 className="h-3.5 w-3.5" /> Delete (outline)
-          </Button>
-        </Row>
-      </Section>
-
-      <Section title="Toolbar size" hint="h-8 text-xs — used inside Toolbar">
-        <Row label="h-8 / text-xs">
-          <Button size="default" className="text-xs h-8">Done</Button>
-          <Button variant="outline" size="default" className="text-xs h-8">Edit</Button>
-          <Button variant="outline" size="default" className="text-xs h-8"><Share2 className="h-3.5 w-3.5" /> Share</Button>
-        </Row>
-        <div className="border border-border rounded-lg overflow-hidden mt-4">
-          <Toolbar>
-            <div className="flex flex-col min-w-0">
-              <p className="text-xs text-muted-foreground leading-none mb-0.5">Characteristics & demographics</p>
-              <h1 className="text-sm font-semibold text-foreground">Country of residence</h1>
-            </div>
-            <ToolbarActions>
-              <Button variant="outline" size="default" className="text-xs h-8"><Share2 className="h-3.5 w-3.5" /> Share</Button>
-              <Button variant="outline" size="default" className="text-xs h-8"><BookmarkPlus className="h-3.5 w-3.5" /> Save</Button>
-              <Button size="default" className="text-xs h-8"><LayoutDashboard className="h-3.5 w-3.5" /> Add to dashboard</Button>
-            </ToolbarActions>
-          </Toolbar>
+      {/* ── API reference ── */}
+      <Section title="API">
+        <div className="rounded-lg border border-border bg-muted/30 px-4 py-3 space-y-1">
+          <code className="block text-xs font-mono text-foreground">{'<Button variant="primary|secondary|ghost|link[-neutral|-danger|-success]"'}</code>
+          <code className="block text-xs font-mono text-foreground">{'        size="xs|sm|default|lg|icon|icon-xs|icon-sm|icon-lg" />'}</code>
+          <p className="text-xs text-muted-foreground mt-2">Legacy aliases still accepted: <code className="font-mono">default</code> → primary, <code className="font-mono">outline</code> → secondary, <code className="font-mono">destructive</code> → secondary-danger.</p>
         </div>
       </Section>
 
-      <Section title="Icon-only (IconBtn)">
-        <Row label="Standard">
-          <IconBtn icon={<Pencil className="h-3 w-3" />} label="Edit" onClick={() => {}} />
-          <IconBtn icon={<Copy className="h-3 w-3" />} label="Duplicate" onClick={() => {}} />
-          <IconBtn icon={<Settings className="h-3 w-3" />} label="Settings" onClick={() => {}} />
-          <IconBtn icon={<Plus className="h-3 w-3" />} label="Add" onClick={() => {}} />
-        </Row>
-        <Row label="Destructive">
-          <IconBtn icon={<Trash2 className="h-3 w-3" />} label="Delete" destructive onClick={() => {}} />
-        </Row>
+      {/* ── Hierarchy × Intent grid ── */}
+      <Section title="Hierarchy × intent">
+        {/* Header */}
+        <div className="grid grid-cols-[90px_1fr_1fr_1fr_1fr] gap-3 mb-2 px-1">
+          <span />
+          {['Brand', 'Neutral', 'Danger', 'Success'].map(h => (
+            <span key={h} className="text-xs text-muted-foreground">{h}</span>
+          ))}
+        </div>
+
+        {/* Primary row */}
+        <div className="grid grid-cols-[90px_1fr_1fr_1fr_1fr] gap-3 items-center py-3 border-t border-border/40">
+          <div>
+            <p className="text-xs font-medium text-foreground">Primary</p>
+            <p className="text-xs text-muted-foreground">Filled, raised</p>
+          </div>
+          <Button variant="primary">Save</Button>
+          <Button variant="primary-neutral">Export</Button>
+          <Button variant="primary-danger">{ic(IconTrash)} Delete</Button>
+          <Button variant="primary-success">{ic(IconCheck)} Publish</Button>
+        </div>
+
+        {/* Secondary row */}
+        <div className="grid grid-cols-[90px_1fr_1fr_1fr_1fr] gap-3 items-center py-3 border-t border-border/40">
+          <div>
+            <p className="text-xs font-medium text-foreground">Secondary</p>
+            <p className="text-xs text-muted-foreground">Outlined, raised</p>
+          </div>
+          <Button variant="secondary-brand">Share</Button>
+          <Button variant="secondary">Cancel</Button>
+          <Button variant="secondary-danger">{ic(IconTrash)} Remove</Button>
+          <Button variant="secondary-success">{ic(IconCheck)} Approve</Button>
+        </div>
+
+        {/* Ghost row */}
+        <div className="grid grid-cols-[90px_1fr_1fr_1fr_1fr] gap-3 items-center py-3 border-t border-border/40">
+          <div>
+            <p className="text-xs font-medium text-foreground">Ghost</p>
+            <p className="text-xs text-muted-foreground">Flat, no border</p>
+          </div>
+          <Button variant="ghost-brand">View more</Button>
+          <Button variant="ghost">Dismiss</Button>
+          <Button variant="ghost-danger">{ic(IconTrash)} Clear</Button>
+          <Button variant="ghost-success">{ic(IconCheck)} Mark done</Button>
+        </div>
+
+        {/* Link row */}
+        <div className="grid grid-cols-[90px_1fr_1fr_1fr_1fr] gap-3 items-center py-3 border-t border-border/40">
+          <div>
+            <p className="text-xs font-medium text-foreground">Link</p>
+            <p className="text-xs text-muted-foreground">Inline, no padding</p>
+          </div>
+          <Button variant="link">Learn more</Button>
+          <Button variant="link-neutral">Details</Button>
+          <Button variant="link-danger">Remove</Button>
+          <Button variant="link-success">Confirm</Button>
+        </div>
+      </Section>
+
+      {/* ── Icon positions ── */}
+      <Section title="Icon positions">
+        <div className="grid grid-cols-[90px_1fr_1fr_1fr_1fr] gap-4 mb-2 px-1">
+          <span />
+          {['No icon', 'Leading', 'Trailing', 'Icon only'].map(h => (
+            <span key={h} className="text-xs text-muted-foreground">{h}</span>
+          ))}
+        </div>
+
+        {(
+          [
+            { v: 'primary',         label: 'Primary'     },
+            { v: 'secondary',       label: 'Secondary'   },
+            { v: 'ghost',           label: 'Ghost'       },
+            { v: 'secondary-danger', label: 'Sec-danger' },
+            { v: 'primary-success', label: 'Pri-success' },
+          ] as const
+        ).map(({ v, label }) => (
+          <div key={v} className="grid grid-cols-[90px_1fr_1fr_1fr_1fr] gap-4 items-center py-2 border-t border-border/40 first:border-0">
+            <span className="text-xs text-foreground">{label}</span>
+            <Button variant={v}>{label}</Button>
+            <Button variant={v}>{ic(IconPlus)}{label}</Button>
+            <Button variant={v}>{label}{ic(IconArrowRight)}</Button>
+            <Button variant={v} size="icon">{ic(IconPlus)}</Button>
+          </div>
+        ))}
+      </Section>
+
+      {/* ── Sizes ── */}
+      <Section title="Sizes">
+        <div className="grid grid-cols-[70px_55px_1fr_1fr_1fr_1fr] gap-4 mb-2 px-1">
+          <span className="text-xs text-muted-foreground">Size</span>
+          <span className="text-xs text-muted-foreground">h</span>
+          <span className="text-xs text-muted-foreground">Primary</span>
+          <span className="text-xs text-muted-foreground">Secondary</span>
+          <span className="text-xs text-muted-foreground">Ghost</span>
+          <span className="text-xs text-muted-foreground">With icon</span>
+        </div>
+
+        {([
+          { k: 'xs',      h: '24px' },
+          { k: 'sm',      h: '28px' },
+          { k: 'default', h: '32px' },
+          { k: 'lg',      h: '36px' },
+        ] as const).map(({ k, h }) => (
+          <div key={k} className="grid grid-cols-[70px_55px_1fr_1fr_1fr_1fr] gap-4 items-center py-2.5 border-t border-border/40">
+            <code className="text-xs font-mono text-foreground">{k}</code>
+            <span className="text-xs tabular-nums text-muted-foreground">{h}</span>
+            <Button variant="primary" size={k}>Button</Button>
+            <Button variant="secondary" size={k}>Button</Button>
+            <Button variant="ghost" size={k}>Button</Button>
+            <Button variant="primary" size={k}>{ic(IconDownload)} Export</Button>
+          </div>
+        ))}
+
+        <p className="text-xs text-muted-foreground mt-4 mb-2">Icon-only sizes</p>
+        <div className="flex items-end gap-3">
+          <div className="flex flex-col items-center gap-1.5">
+            <Button variant="secondary" size="icon-xs"><IconPlus size={12} strokeWidth={2} /></Button>
+            <span className="text-xs text-muted-foreground">icon-xs</span>
+          </div>
+          <div className="flex flex-col items-center gap-1.5">
+            <Button variant="secondary" size="icon-sm"><IconPlus size={14} strokeWidth={2} /></Button>
+            <span className="text-xs text-muted-foreground">icon-sm</span>
+          </div>
+          <div className="flex flex-col items-center gap-1.5">
+            <Button variant="secondary" size="icon"><IconPlus size={16} strokeWidth={2} /></Button>
+            <span className="text-xs text-muted-foreground">icon</span>
+          </div>
+          <div className="flex flex-col items-center gap-1.5">
+            <Button variant="secondary" size="icon-lg"><IconPlus size={18} strokeWidth={2} /></Button>
+            <span className="text-xs text-muted-foreground">icon-lg</span>
+          </div>
+        </div>
+      </Section>
+
+      {/* ── States ── */}
+      <Section title="States">
+        <div className="space-y-5">
+          {(
+            [
+              { v: 'primary',   label: 'Primary'   },
+              { v: 'secondary', label: 'Secondary'  },
+              { v: 'ghost',     label: 'Ghost'      },
+            ] as const
+          ).map(({ v, label }) => (
+            <div key={v}>
+              <p className="text-xs text-muted-foreground mb-3">{label}</p>
+              <div className="flex items-end gap-6 flex-wrap">
+                <div className="flex flex-col items-center gap-2">
+                  <Button variant={v}>Action</Button>
+                  <span className="text-xs text-muted-foreground">Rest</span>
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <Button variant={v} disabled>Action</Button>
+                  <span className="text-xs text-muted-foreground">Disabled</span>
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <Button variant={v}><IconLoader2 strokeWidth={2} className="animate-spin" /> Loading…</Button>
+                  <span className="text-xs text-muted-foreground">Loading</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* ── Real-world combos ── */}
+      <Section title="Real-world combinations">
+        <div className="space-y-4">
+
+          <div>
+            <p className="text-xs text-muted-foreground mb-2">Toolbar — mixed hierarchy</p>
+            <div className="flex items-center gap-2 px-4 h-14 border border-border rounded-lg bg-background">
+              <div className="flex flex-col min-w-0 mr-auto">
+                <span className="text-xs text-muted-foreground leading-none mb-0.5">Characteristics</span>
+                <span className="text-sm font-semibold text-foreground">Country of residence</span>
+              </div>
+              <Button variant="ghost">{ic(IconShare)} Share</Button>
+              <Button variant="secondary">{ic(IconDownload)} Export</Button>
+              <Button variant="primary">{ic(IconPlus)} Add to dashboard</Button>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs text-muted-foreground mb-2">Confirm dialog</p>
+            <div className="flex items-center gap-2 px-4 py-3 border border-border rounded-lg bg-background w-fit">
+              <Button variant="ghost">Cancel</Button>
+              <Button variant="primary">{ic(IconCheck)} Confirm</Button>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs text-muted-foreground mb-2">Destructive — soft trigger → bold confirm</p>
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2 px-4 py-3 border border-border rounded-lg bg-background w-fit">
+                <Button variant="ghost">Cancel</Button>
+                <Button variant="secondary-danger">{ic(IconTrash)} Delete</Button>
+              </div>
+              <span className="text-xs text-muted-foreground">→ opens confirm →</span>
+              <div className="flex items-center gap-2 px-4 py-3 border border-border rounded-lg bg-background w-fit">
+                <Button variant="ghost">Cancel</Button>
+                <Button variant="primary-danger">{ic(IconTrash)} Delete permanently</Button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs text-muted-foreground mb-2">Success action</p>
+            <div className="flex items-center gap-2 px-4 py-3 border border-border rounded-lg bg-background w-fit">
+              <Button variant="ghost">Back</Button>
+              <Button variant="primary-success">{ic(IconCheck)} Publish dashboard</Button>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs text-muted-foreground mb-2">Inline link in body text</p>
+            <p className="text-sm text-foreground">
+              This analysis is read-only. <Button variant="link">Request edit access</Button> or <Button variant="link-neutral">view history</Button>.
+            </p>
+          </div>
+
+        </div>
+      </Section>
+
+      {/* ── Rules ── */}
+      <Section title="Rules">
+        <ul className="text-sm text-foreground space-y-1 list-disc list-inside leading-relaxed">
+          <li>Typography: <code className="font-mono text-xs">text-sm font-medium</code> (14px / 500). No <code className="font-mono text-xs">font-bold</code>, no uppercase.</li>
+          <li>Icons: Tabler only, <code className="font-mono text-xs">strokeWidth=&#123;2&#125;</code>, ~14px. Leading = semantic action; trailing = directional.</li>
+          <li>Colors: semantic tokens only. Exception: <code className="font-mono text-xs">emerald-600</code> for success pending a <code className="font-mono text-xs">--success</code> token.</li>
+          <li>Elevation: primary + secondary use three-layer raised shadow. Ghost + link stay flat.</li>
+          <li>Hover: <code className="font-mono text-xs">translateY(-1px)</code> — never more than 1px. No glow, no border-width change.</li>
+          <li>Destructive flows: secondary-danger (soft) → primary-danger (final confirm).</li>
+          <li>One primary per view. Secondary for supporting. Ghost for tertiary/toolbar. Link for inline navigation.</li>
+        </ul>
       </Section>
     </>
   )
@@ -1206,62 +1585,196 @@ function BadgePage() {
   )
 }
 
-function InputPage() {
+function FormPage() {
+  const [radio, setRadio] = useState('weekly')
+  const [search, setSearch] = useState('')
+  const [sel, setSel] = useState('')
+  const [selGrouped, setSelGrouped] = useState('')
+
   return (
     <>
-      <PageHeader title="Input" description="Form control primitives." />
+      <PageHeader title="Form" description="Input · Textarea · Select · Checkbox · Radio" />
 
+      {/* ── Text input ── */}
       <Section title="Text input">
-        <Row label="Default">
-          <Input placeholder="Search…" className="w-48" />
+        <Row label="Sizes">
+          <Input size="sm"      placeholder="Small"   className="w-36" />
+          <Input size="default" placeholder="Default" className="w-40" />
+          <Input size="lg"      placeholder="Large"   className="w-44" />
         </Row>
-        <Row label="Small (h-7)">
-          <Input placeholder="Small variant" className="h-7 text-xs w-36" />
+        <Row label="States">
+          <Input placeholder="Default"           className="w-40" />
+          <Input placeholder="Error"   state="error"   className="w-40" />
+          <Input placeholder="Success" state="success" className="w-40" />
+        </Row>
+        <Row label="Decorations">
+          <Input placeholder="With prefix"  prefix="https://" className="w-48" />
+          <Input placeholder="With suffix"  suffix=".com"      className="w-40" />
+        </Row>
+        <Row label="Search">
+          <Input type="search" placeholder="Search…" value={search} onChange={e => setSearch(e.target.value)} className="w-48" />
+        </Row>
+        <Row label="With FormField">
+          <Input
+            label="Email address"
+            helper="We'll never share your email."
+            placeholder="you@example.com"
+            className="w-64"
+          />
+          <Input
+            label="Username"
+            error="Username is already taken"
+            placeholder="handle"
+            className="w-56"
+          />
         </Row>
       </Section>
 
+      {/* ── Textarea ── */}
+      <Section title="Textarea">
+        <Row label="Sizes">
+          <Textarea size="sm"      placeholder="Small textarea"   className="w-64" />
+          <Textarea size="default" placeholder="Default textarea" className="w-64" />
+        </Row>
+        <Row label="States">
+          <Textarea placeholder="Error state"   state="error"   className="w-64" />
+          <Textarea placeholder="Success state" state="success" className="w-64" />
+        </Row>
+        <Row label="With FormField">
+          <Textarea
+            label="Description"
+            helper="Max 500 characters."
+            placeholder="Describe your audience segment…"
+            className="w-72"
+          />
+        </Row>
+      </Section>
+
+      {/* ── Select ── */}
       <Section title="Select">
-        <Row label="Standard">
-          <select className="h-8 text-sm px-2 border border-border rounded-md bg-background text-foreground">
-            <option>Option A</option>
-            <option>Option B</option>
-          </select>
+        <Row label="Sizes">
+          <SelectField
+            size="sm"
+            value={sel}
+            onChange={setSel}
+            options={[{ value: 'a', label: 'Option A' }, { value: 'b', label: 'Option B' }]}
+            placeholder="Small"
+            className="w-36"
+          />
+          <SelectField
+            size="default"
+            value={sel}
+            onChange={setSel}
+            options={[{ value: 'a', label: 'Option A' }, { value: 'b', label: 'Option B' }]}
+            placeholder="Default"
+            className="w-40"
+          />
+          <SelectField
+            size="lg"
+            value={sel}
+            onChange={setSel}
+            options={[{ value: 'a', label: 'Option A' }, { value: 'b', label: 'Option B' }]}
+            placeholder="Large"
+            className="w-44"
+          />
         </Row>
-        <Row label="Small (dashed)">
-          <select className="h-7 text-xs pl-2.5 pr-2 bg-muted/50 border border-dashed border-border rounded-md text-muted-foreground appearance-none">
-            <option>+ Add column</option>
-            <option>Gender</option>
-          </select>
-          <span className="text-xs text-amber-600 font-medium">⚠ Hand-rolled — extract to Select component</span>
+        <Row label="States">
+          <SelectField
+            value={sel} onChange={setSel}
+            options={[{ value: 'a', label: 'Option A' }]}
+            placeholder="Error state"
+            state="error"
+            className="w-40"
+          />
+          <SelectField
+            value={sel} onChange={setSel}
+            options={[{ value: 'a', label: 'Option A' }]}
+            placeholder="Success state"
+            state="success"
+            className="w-40"
+          />
+        </Row>
+        <Row label="Grouped">
+          <SelectField
+            value={selGrouped}
+            onChange={setSelGrouped}
+            options={[
+              { group: 'Demographics', items: [{ value: 'age', label: 'Age' }, { value: 'gender', label: 'Gender' }] },
+              { group: 'Behavior', items: [{ value: 'purchase', label: 'Purchase intent' }, { value: 'usage', label: 'Usage frequency' }] },
+            ]}
+            placeholder="Select dimension…"
+            label="Dimension"
+            className="w-56"
+          />
         </Row>
       </Section>
 
+      {/* ── Checkbox ── */}
       <Section title="Checkbox">
-        <Row label="Standard">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" defaultChecked className="accent-primary h-3.5 w-3.5" />
-            <span className="text-xs text-foreground">Enabled (h-3.5)</span>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" className="accent-primary h-3 w-3" />
-            <span className="text-xs text-foreground">Properties panel (h-3)</span>
-          </label>
-          <span className="text-xs text-amber-600 font-medium">⚠ Two sizes — consider extracting a Toggle</span>
+        <Row label="Sizes">
+          <Checkbox size="sm"      defaultChecked label="Small"   />
+          <Checkbox size="default" defaultChecked label="Default" />
+        </Row>
+        <Row label="States">
+          <Checkbox label="Unchecked" />
+          <Checkbox label="Checked"       defaultChecked />
+          <Checkbox label="Indeterminate" indeterminate />
+          <Checkbox label="Disabled"      disabled />
+          <Checkbox label="Disabled + checked" disabled defaultChecked />
+        </Row>
+        <Row label="With description">
+          <Checkbox
+            defaultChecked
+            label="Send weekly digest"
+            description="Receive a summary of your audience insights every Monday."
+          />
         </Row>
       </Section>
 
-      <Section title="Section labels & field groups" hint="app/SectionLabel.tsx, app/FieldGroup.tsx">
-        <Row label="SectionLabel">
-          <div>
-            <SectionLabel>Rows</SectionLabel>
-            <SectionLabel>Cross-tab columns</SectionLabel>
-          </div>
+      {/* ── Radio ── */}
+      <Section title="Radio">
+        <Row label="RadioGroup">
+          <RadioGroup name="frequency" value={radio} onChange={setRadio}>
+            <Radio value="daily"   label="Daily"   description="Every day at 9am" />
+            <Radio value="weekly"  label="Weekly"  description="Every Monday morning" />
+            <Radio value="monthly" label="Monthly" description="First day of the month" />
+            <Radio value="never"   label="Never"   disabled />
+          </RadioGroup>
         </Row>
-        <Row label="FieldGroup">
-          <div className="w-64">
-            <FieldGroup label="Chart type">
-              <div className="h-8 bg-muted/30 rounded border border-dashed border-border flex items-center justify-center text-xs text-muted-foreground">content</div>
-            </FieldGroup>
+        <Row label="Sizes">
+          <RadioGroup name="size-sm" size="sm">
+            <Radio value="a" label="Small A" defaultChecked />
+            <Radio value="b" label="Small B" />
+          </RadioGroup>
+        </Row>
+      </Section>
+
+      {/* ── Field patterns ── */}
+      <Section title="Field patterns" hint="FormField wrapper">
+        <Row label="Full form">
+          <div className="flex flex-col gap-4 w-72">
+            <Input
+              label="Full name"
+              placeholder="Jane Doe"
+            />
+            <Textarea
+              label="Bio"
+              helper="Briefly describe this segment."
+              placeholder="Describe…"
+            />
+            <SelectField
+              label="Primary market"
+              placeholder="Select country…"
+              options={[
+                { value: 'de', label: 'Germany' },
+                { value: 'us', label: 'United States' },
+                { value: 'uk', label: 'United Kingdom' },
+              ]}
+            />
+            <div className="flex flex-col gap-2">
+              <Checkbox label="Agree to terms" />
+              <Checkbox label="Subscribe to newsletter" defaultChecked />
+            </div>
           </div>
         </Row>
       </Section>
@@ -1405,57 +1918,1064 @@ function EmptyStatePage() {
   )
 }
 
+function SwitcherPage() {
+  return (
+    <>
+      <PageHeader
+        title="Switcher"
+        description="ThemeToggle.tsx — segmented 3-state picker for system / light / dark. Used in the sidebar."
+      />
+
+      <Section title="Expanded (sidebar context)">
+        <div className="flex gap-6 items-start">
+          <div>
+            <p className="text-xs text-muted-foreground mb-2">In sidebar</p>
+            <div className="w-44 bg-sidebar rounded-lg border border-sidebar-border overflow-hidden">
+              <ThemeToggle />
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      <Section title="Collapsed (sidebar icon mode)">
+        <div className="flex gap-6 items-center">
+          <div>
+            <p className="text-xs text-muted-foreground mb-2">Icon only — cycles system → light → dark</p>
+            <div className="w-12 bg-sidebar rounded-lg border border-sidebar-border overflow-hidden flex flex-col items-center py-1">
+              <ThemeToggle collapsed />
+            </div>
+          </div>
+        </div>
+      </Section>
+    </>
+  )
+}
+
 function LayoutPage() {
   return (
     <>
-      <PageHeader title="Layout" description="Page shells, headers, dividers — structural primitives." />
+      <PageHeader title="Layout" description="App shell, toolbars, sidebars, panels — the structural skeleton." />
 
-      <Section title="Page shell">
-        <div className="text-xs text-muted-foreground space-y-2">
-          <div className="flex items-center gap-3">
-            <code className="bg-muted px-2 py-1 rounded text-foreground">max-w-5xl mx-auto p-6</code>
-            <span>DashboardsPage, AudiencesPage, AnalysesPage</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <code className="bg-muted px-2 py-1 rounded text-foreground">max-w-4xl mx-auto px-8 py-10</code>
-            <span>PlaygroundPage</span>
-          </div>
-          <p className="text-green-700 font-medium">✓ Standardised via PageShell component</p>
-        </div>
-      </Section>
-
-      <Section title="Page header">
-        <div className="w-full max-w-lg border border-border rounded-lg p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-semibold text-foreground">Dashboards</h1>
-              <p className="text-sm text-muted-foreground">Build and share interactive dashboards</p>
+      {/* ── App shell ── */}
+      <Section title="App shell">
+        {/* Full shell replica at reduced scale */}
+        <div
+          className="w-full rounded-lg border border-border overflow-hidden bg-sidebar"
+          style={{ height: 360, boxShadow: '0 1px 2px rgb(0 0 0 / 0.08), 0 6px 14px -4px rgb(0 0 0 / 0.14)' }}
+        >
+          <div className="flex h-full">
+            {/* Left nav sidebar */}
+            <div className="w-14 shrink-0 flex flex-col border-r border-sidebar-border bg-sidebar">
+              {/* Header */}
+              <div className="h-14 flex items-center justify-center border-b border-sidebar-border shrink-0">
+                <div className="w-5 h-5 rounded bg-foreground/10" />
+              </div>
+              {/* Nav items */}
+              <div className="flex-1 px-1.5 pt-3 flex flex-col gap-0.5">
+                {[true, false, false, false, false].map((active, i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      'flex items-center justify-center w-8 h-8 rounded-md mx-auto',
+                      active ? 'bg-white text-foreground shadow-sm' : 'text-sidebar-foreground hover:bg-white/70'
+                    )}
+                  >
+                    <div className={cn('w-3.5 h-3.5 rounded-sm', active ? 'bg-foreground/60' : 'bg-foreground/20')} />
+                  </div>
+                ))}
+              </div>
+              {/* Footer */}
+              <div className="pb-3 pt-2 border-t border-sidebar-border px-1.5 flex justify-center">
+                <div className="w-8 h-8 rounded-md flex items-center justify-center">
+                  <div className="w-3.5 h-3.5 rounded-sm bg-foreground/20" />
+                </div>
+              </div>
             </div>
-            <Button><Plus className="h-4 w-4 mr-1" /> New</Button>
+
+            {/* Main content area */}
+            <div className="flex-1 min-w-0 p-2">
+              <div className="flex-1 h-full bg-background rounded-lg border border-border overflow-hidden flex flex-col"
+                style={{ boxShadow: '0 1px 2px rgb(0 0 0 / 0.06), 0 4px 8px -3px rgb(0 0 0 / 0.08)' }}
+              >
+                {/* Page toolbar */}
+                <div className="h-14 border-b border-border flex items-center px-4 gap-3 shrink-0">
+                  <div className="flex flex-col gap-1">
+                    <div className="h-2 w-20 rounded bg-foreground/60" />
+                    <div className="h-1.5 w-32 rounded bg-foreground/20" />
+                  </div>
+                  <div className="ml-auto flex items-center gap-2">
+                    <div className="h-7 w-16 rounded-md bg-muted border border-border" />
+                    <div className="h-7 w-20 rounded-md bg-foreground/70" />
+                  </div>
+                </div>
+                {/* Page body */}
+                <div className="flex-1 p-5 grid grid-cols-3 gap-3 content-start">
+                  {[...Array(6)].map((_, i) => (
+                    <div key={i} className="h-16 rounded-lg border border-border bg-background" />
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center justify-between pt-2 border-t border-border">
-            <p className="text-xs text-foreground">2 dashboards</p>
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          Outer shell: <code className="bg-muted px-1 rounded">bg-sidebar</code> + 8px padding around white card.
+          White card: floating shadow, rounded-lg, border.
+        </p>
+      </Section>
+
+      {/* ── App shell — expanded sidebar ── */}
+      <Section title="App shell — expanded sidebar">
+        <div
+          className="w-full rounded-lg border border-border overflow-hidden bg-sidebar"
+          style={{ height: 300, boxShadow: '0 1px 2px rgb(0 0 0 / 0.08), 0 6px 14px -4px rgb(0 0 0 / 0.14)' }}
+        >
+          <div className="flex h-full">
+            {/* Expanded left sidebar */}
+            <div className="w-44 shrink-0 flex flex-col border-r border-sidebar-border bg-sidebar">
+              <div className="h-14 flex items-center px-3 gap-2 border-b border-sidebar-border shrink-0">
+                <div className="flex-1 h-4 w-20 rounded bg-foreground/30" />
+                <div className="w-5 h-5 rounded bg-foreground/10" />
+              </div>
+              {/* Search */}
+              <div className="px-2 pt-3 pb-2">
+                <div className="h-8 rounded-md bg-background border border-border flex items-center px-2 gap-2">
+                  <div className="w-3 h-3 rounded-sm bg-foreground/20" />
+                  <div className="flex-1 h-2 rounded bg-foreground/10" />
+                </div>
+              </div>
+              {/* Nav */}
+              <div className="flex-1 px-2 flex flex-col gap-0.5">
+                {[true, false, false, false, false].map((active, i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      'flex items-center gap-2.5 h-8 px-2 rounded-md',
+                      active ? 'bg-white shadow-sm' : ''
+                    )}
+                  >
+                    <div className={cn('w-3.5 h-3.5 rounded-sm shrink-0', active ? 'bg-foreground/50' : 'bg-foreground/20')} />
+                    <div className={cn('h-2 rounded flex-1', active ? 'bg-foreground/40' : 'bg-foreground/15')} />
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Content */}
+            <div className="flex-1 min-w-0 p-2">
+              <div className="h-full bg-background rounded-lg border border-border overflow-hidden flex flex-col"
+                style={{ boxShadow: '0 1px 2px rgb(0 0 0 / 0.06), 0 4px 8px -3px rgb(0 0 0 / 0.08)' }}
+              >
+                <div className="h-14 border-b border-border flex items-center px-4 shrink-0">
+                  <div className="h-2 w-24 rounded bg-foreground/50" />
+                  <div className="ml-auto flex gap-2">
+                    <div className="h-7 w-16 rounded-md bg-muted border border-border" />
+                    <div className="h-7 w-20 rounded-md bg-foreground/70" />
+                  </div>
+                </div>
+                <div className="flex-1 p-4 grid grid-cols-3 gap-3 content-start">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="h-16 rounded-lg border border-border" />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          Expanded: resizable 160–320px, default 224px. Collapse with ⌘D. Logo in header, search bar below.
+        </p>
+      </Section>
+
+      {/* ── App shell — left + right panels ── */}
+      <Section title="App shell — left + right panels (DashboardBuilder)">
+        <div
+          className="w-full rounded-lg border border-border overflow-hidden bg-sidebar"
+          style={{ height: 300, boxShadow: '0 1px 2px rgb(0 0 0 / 0.08), 0 6px 14px -4px rgb(0 0 0 / 0.14)' }}
+        >
+          <div className="flex h-full">
+            {/* Icon nav */}
+            <div className="w-14 shrink-0 border-r border-sidebar-border bg-sidebar flex flex-col">
+              <div className="h-14 border-b border-sidebar-border flex items-center justify-center shrink-0">
+                <div className="w-5 h-5 rounded bg-foreground/10" />
+              </div>
+              <div className="flex-1 px-1.5 pt-3 flex flex-col gap-0.5">
+                {[false, false, false, true, false].map((active, i) => (
+                  <div key={i} className={cn('w-8 h-8 rounded-md mx-auto flex items-center justify-center', active ? 'bg-white shadow-sm' : '')}>
+                    <div className={cn('w-3.5 h-3.5 rounded-sm', active ? 'bg-foreground/60' : 'bg-foreground/20')} />
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Left questions panel */}
+            <div className="w-36 shrink-0 border-r border-sidebar-border bg-sidebar flex flex-col">
+              <div className="h-14 border-b border-sidebar-border flex items-center px-3 shrink-0">
+                <div className="h-2 w-20 rounded bg-foreground/40" />
+              </div>
+              <div className="flex-1 p-2 flex flex-col gap-1.5">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="h-8 rounded border border-border bg-background px-2 flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-sm bg-foreground/20 shrink-0" />
+                    <div className="flex-1 h-1.5 rounded bg-foreground/15" />
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Canvas */}
+            <div className="flex-1 min-w-0 p-2">
+              <div className="h-full bg-background rounded-lg border border-border overflow-hidden flex flex-col"
+                style={{ boxShadow: '0 1px 2px rgb(0 0 0 / 0.06), 0 4px 8px -3px rgb(0 0 0 / 0.08)' }}
+              >
+                <div className="h-14 border-b border-border flex items-center px-4 shrink-0">
+                  <div className="h-2 w-28 rounded bg-foreground/50" />
+                  <div className="ml-auto flex gap-2">
+                    <div className="h-7 w-14 rounded-md bg-muted border border-border" />
+                    <div className="h-7 w-20 rounded-md bg-foreground/70" />
+                  </div>
+                </div>
+                <div className="flex-1 p-4 grid grid-cols-2 gap-3 content-start">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="h-20 rounded-lg border border-border" />
+                  ))}
+                </div>
+              </div>
+            </div>
+            {/* Right properties panel */}
+            <div className="w-32 shrink-0 border-l border-sidebar-border bg-sidebar flex flex-col">
+              <div className="h-14 border-b border-sidebar-border flex items-center justify-between px-3 shrink-0">
+                <div className="h-2 w-14 rounded bg-foreground/40" />
+                <div className="w-4 h-4 rounded bg-foreground/10" />
+              </div>
+              <div className="flex-1 p-3 flex flex-col gap-3">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="space-y-1.5">
+                    <div className="h-1.5 w-10 rounded bg-foreground/25" />
+                    <div className="h-7 rounded-md bg-background border border-border" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          Three-panel layout: icon nav + questions browser + canvas + properties panel. Used in DashboardBuilder edit mode.
+        </p>
+      </Section>
+
+      {/* ── App shell — chart detail (left list + right properties) ── */}
+      <Section title="App shell — chart detail (Charts page)">
+        <div
+          className="w-full rounded-lg border border-border overflow-hidden bg-sidebar"
+          style={{ height: 300, boxShadow: '0 1px 2px rgb(0 0 0 / 0.08), 0 6px 14px -4px rgb(0 0 0 / 0.14)' }}
+        >
+          <div className="flex h-full">
+            {/* Icon nav */}
+            <div className="w-14 shrink-0 border-r border-sidebar-border bg-sidebar flex flex-col">
+              <div className="h-14 border-b border-sidebar-border flex items-center justify-center shrink-0">
+                <div className="w-5 h-5 rounded bg-foreground/10" />
+              </div>
+              <div className="flex-1 px-1.5 pt-3 flex flex-col gap-0.5">
+                {[false, false, true, false, false].map((active, i) => (
+                  <div key={i} className={cn('w-8 h-8 rounded-md mx-auto flex items-center justify-center', active ? 'bg-white shadow-sm' : '')}>
+                    <div className={cn('w-3.5 h-3.5 rounded-sm', active ? 'bg-foreground/60' : 'bg-foreground/20')} />
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Chart list sidebar */}
+            <div className="w-44 shrink-0 border-r border-sidebar-border bg-sidebar flex flex-col">
+              <div className="h-14 border-b border-sidebar-border flex items-center px-3 gap-2 shrink-0">
+                <div className="flex-1 h-2 w-16 rounded bg-foreground/30" />
+              </div>
+              <div className="flex-1 overflow-hidden p-2 flex flex-col gap-1">
+                {[false, true, false, false, false, false].map((active, i) => (
+                  <div key={i}
+                    className={cn('h-10 rounded-md px-2 flex items-center gap-2 border', active ? 'bg-background border-primary/30' : 'border-transparent hover:bg-white/50')}
+                  >
+                    <div className={cn('w-3 h-3 rounded-sm shrink-0', active ? 'bg-primary/40' : 'bg-foreground/20')} />
+                    <div className="flex-1 space-y-1">
+                      <div className={cn('h-1.5 w-16 rounded', active ? 'bg-foreground/50' : 'bg-foreground/20')} />
+                      <div className="h-1 w-10 rounded bg-foreground/10" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Chart detail + toolbar */}
+            <div className="flex-1 min-w-0 p-2">
+              <div className="h-full bg-background rounded-lg border border-border overflow-hidden flex flex-col"
+                style={{ boxShadow: '0 1px 2px rgb(0 0 0 / 0.06), 0 4px 8px -3px rgb(0 0 0 / 0.08)' }}
+              >
+                <div className="h-14 border-b border-border flex items-center px-4 gap-3 shrink-0">
+                  <div className="flex flex-col gap-1 min-w-0">
+                    <div className="h-1.5 w-14 rounded bg-foreground/20" />
+                    <div className="h-2 w-28 rounded bg-foreground/50" />
+                  </div>
+                  <div className="ml-auto flex items-center gap-2">
+                    <div className="h-7 w-14 rounded-md bg-muted border border-border" />
+                    <div className="h-7 w-14 rounded-md bg-muted border border-border" />
+                    <div className="h-7 w-24 rounded-md bg-foreground/70" />
+                  </div>
+                </div>
+                <div className="flex-1 p-4 flex items-center justify-center">
+                  <div className="w-full h-full rounded border border-border/50 bg-muted/20" />
+                </div>
+              </div>
+            </div>
+            {/* Right properties panel */}
+            <div className="w-36 shrink-0 border-l border-sidebar-border bg-sidebar flex flex-col">
+              <div className="h-14 border-b border-sidebar-border flex items-center px-3 shrink-0">
+                <div className="h-1.5 w-12 rounded bg-muted-foreground/40 uppercase" />
+              </div>
+              <div className="flex-1 p-3 flex flex-col gap-3">
+                {/* Chart type grid */}
+                <div className="grid grid-cols-3 gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className={cn('h-8 rounded border flex items-center justify-center', i === 1 ? 'border-primary/40 bg-primary/5' : 'border-border bg-background')}>
+                      <div className={cn('w-3 h-3 rounded-sm', i === 1 ? 'bg-primary/40' : 'bg-foreground/15')} />
+                    </div>
+                  ))}
+                </div>
+                {/* Form fields */}
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="space-y-1">
+                    <div className="h-1.5 w-10 rounded bg-foreground/25" />
+                    <div className="h-7 rounded-md bg-background border border-border" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          Chart list left panel (injected via <code className="bg-muted px-1 rounded">setLeftPanel</code>) + detail toolbar + properties right sidebar.
+        </p>
+      </Section>
+
+      {/* ── Toolbar ── */}
+      <Section title="Toolbar">
+        {/* Standard */}
+        <div className="w-full space-y-3">
+          <p className="text-xs text-muted-foreground">Standard — title + actions</p>
+          <div className="rounded-lg border border-border overflow-hidden">
+            <Toolbar>
+              <span className="text-sm font-semibold text-foreground">Dashboards</span>
+              <ToolbarActions>
+                <Button variant="secondary" size="toolbar">
+                  <Share2 className="h-3.5 w-3.5" strokeWidth={2} />
+                  Share
+                </Button>
+                <Button size="toolbar">
+                  <Plus className="h-3.5 w-3.5" strokeWidth={2} />
+                  New
+                </Button>
+              </ToolbarActions>
+            </Toolbar>
+          </div>
+
+          <p className="text-xs text-muted-foreground">Breadcrumb + title + multi-action</p>
+          <div className="rounded-lg border border-border overflow-hidden">
+            <Toolbar>
+              <div className="flex flex-col min-w-0">
+                <p className="text-[10px] text-muted-foreground leading-none mb-0.5">Brand tracking</p>
+                <h1 className="text-sm font-semibold text-foreground truncate">Insurance brand awareness — 18–34</h1>
+              </div>
+              <ToolbarActions>
+                <Button variant="secondary" size="toolbar">
+                  <Trash2 className="h-3.5 w-3.5" strokeWidth={2} />
+                  Delete
+                </Button>
+                <Button variant="secondary" size="toolbar">
+                  <Share2 className="h-3.5 w-3.5" strokeWidth={2} />
+                  Share
+                </Button>
+                <Button variant="secondary" size="toolbar">
+                  <BookmarkPlus className="h-3.5 w-3.5" strokeWidth={2} />
+                  Save
+                </Button>
+                <Button size="toolbar">
+                  <LayoutDashboard className="h-3.5 w-3.5" strokeWidth={2} />
+                  Add to dashboard
+                </Button>
+              </ToolbarActions>
+            </Toolbar>
+          </div>
+
+        </div>
+      </Section>
+
+      {/* ── Left sidebar ── */}
+      <Section title="Left sidebar (WorkspaceSidebar)">
+        <div className="flex gap-6 items-start">
+          {/* Expanded */}
+          <div>
+            <p className="text-xs text-muted-foreground mb-2">Expanded</p>
+            <div className="w-44 h-80 rounded-lg border border-sidebar-border bg-sidebar overflow-hidden flex flex-col shadow-sm">
+              <div className="h-14 flex items-center px-3 gap-2 border-b border-sidebar-border shrink-0">
+                <div className="flex-1 h-4 w-20 rounded bg-foreground/30" />
+                <div className="w-5 h-5 rounded-md bg-foreground/10 flex items-center justify-center">
+                  <div className="w-2.5 h-2.5 rounded-sm bg-foreground/25" />
+                </div>
+              </div>
+              <div className="px-2 pt-3 pb-2 shrink-0">
+                <div className="h-8 rounded-md bg-background border border-border flex items-center px-2 gap-2">
+                  <div className="w-3 h-3 rounded-sm bg-foreground/20 shrink-0" />
+                  <div className="flex-1 h-1.5 rounded bg-foreground/10" />
+                  <div className="w-5 h-4 rounded bg-muted/60 border border-border text-[8px] flex items-center justify-center text-muted-foreground font-mono">⌘S</div>
+                </div>
+              </div>
+              <div className="flex-1 px-2 flex flex-col gap-0.5">
+                {['Chat', 'Audience', 'Charts', 'Dashboards', 'Analysis'].map((label, i) => (
+                  <div
+                    key={label}
+                    className={cn(
+                      'flex items-center gap-2.5 h-8 px-2 rounded-md',
+                      i === 0 ? 'bg-background shadow-sm' : ''
+                    )}
+                  >
+                    <div className={cn('w-3.5 h-3.5 rounded-sm shrink-0', i === 0 ? 'bg-foreground/50' : 'bg-foreground/20')} />
+                    <span className={cn('text-xs', i === 0 ? 'font-medium text-foreground' : 'text-sidebar-foreground')}>{label}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="pb-3 pt-2 border-t border-sidebar-border px-2 space-y-0.5">
+                <ThemeToggle />
+                <div className="flex items-center gap-2.5 h-8 px-2 rounded-md text-sidebar-foreground">
+                  <div className="w-3.5 h-3.5 rounded-sm bg-foreground/20 shrink-0" />
+                  <span className="text-xs text-sidebar-foreground">Logout</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Collapsed */}
+          <div>
+            <p className="text-xs text-muted-foreground mb-2">Collapsed</p>
+            <div className="w-14 h-80 rounded-lg border border-sidebar-border bg-sidebar overflow-hidden flex flex-col shadow-sm">
+              <div className="h-14 flex items-center justify-center border-b border-sidebar-border shrink-0">
+                <div className="w-5 h-5 rounded-md bg-foreground/10 flex items-center justify-center">
+                  <div className="w-2.5 h-2.5 rounded-sm bg-foreground/25" />
+                </div>
+              </div>
+              <div className="flex-1 px-1.5 pt-3 flex flex-col gap-0.5 items-center">
+                {[true, false, false, false, false].map((active, i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      'w-8 h-8 rounded-md flex items-center justify-center',
+                      active ? 'bg-white shadow-sm' : ''
+                    )}
+                  >
+                    <div className={cn('w-3.5 h-3.5 rounded-sm', active ? 'bg-foreground/50' : 'bg-foreground/20')} />
+                  </div>
+                ))}
+              </div>
+              <div className="pb-3 pt-2 border-t border-sidebar-border px-1.5 flex flex-col items-center gap-0.5">
+                <ThemeToggle collapsed />
+                <div className="w-8 h-8 rounded-md flex items-center justify-center">
+                  <div className="w-3.5 h-3.5 rounded-sm bg-foreground/20" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Resize note */}
+          <div className="pt-8 text-xs text-muted-foreground space-y-1 max-w-[160px]">
+            <p>Resizable: 160–320px</p>
+            <p>Default: 224px</p>
+            <p>Collapsed: 52px</p>
+            <p>Toggle: ⌘D</p>
+            <p>Resize handle: right edge drag</p>
           </div>
         </div>
       </Section>
 
+      {/* ── Right sidebar ── */}
+      <Section title="Right sidebar / inspector panel">
+        <div className="flex gap-6 items-start">
+          {/* Expanded */}
+          <div>
+            <p className="text-xs text-muted-foreground mb-2">Expanded (RightSidebar)</p>
+            <div className="w-56 h-72 rounded-lg border border-sidebar-border bg-sidebar overflow-hidden flex flex-col shadow-sm">
+              <div className="h-14 flex items-center px-3 border-b border-sidebar-border shrink-0">
+                <button className="w-7 h-7 rounded flex items-center justify-center text-muted-foreground hover:bg-accent transition-colors">
+                  <IconLayoutSidebarRightCollapse size={14} strokeWidth={2} />
+                </button>
+              </div>
+              <div className="flex-1 p-3 flex flex-col gap-3">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="space-y-1.5">
+                    <div className="h-1.5 w-12 rounded bg-foreground/25" />
+                    <div className="h-8 rounded-md bg-background border border-border" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Collapsed */}
+          <div>
+            <p className="text-xs text-muted-foreground mb-2">Collapsed</p>
+            <div className="w-14 h-72 rounded-lg border border-sidebar-border bg-sidebar overflow-hidden flex flex-col shadow-sm">
+              <div className="h-14 flex items-center justify-center border-b border-sidebar-border shrink-0">
+                <button className="w-7 h-7 rounded flex items-center justify-center text-muted-foreground hover:bg-accent transition-colors">
+                  <IconLayoutSidebarRightExpand size={14} strokeWidth={2} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* WidgetPropertiesPanel variant */}
+          <div>
+            <p className="text-xs text-muted-foreground mb-2">Properties panel (Dashboard)</p>
+            <div className="w-56 h-72 rounded-lg border border-sidebar-border bg-sidebar overflow-hidden flex flex-col shadow-sm">
+              <div className="h-14 flex items-center justify-between px-4 border-b border-sidebar-border shrink-0">
+                <span className="text-xs font-semibold text-muted-foreground">Properties</span>
+                <button className="p-1 rounded text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+                  <Plus className="h-3.5 w-3.5 rotate-45" strokeWidth={2} />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {['Rows', 'Columns', 'Filters'].map((label) => (
+                  <div key={label} className="space-y-2 pb-4 border-b border-sidebar-border last:border-0">
+                    <p className="text-xs font-medium text-foreground">{label}</p>
+                    <div className="h-6 rounded-md border border-dashed border-border flex items-center px-2">
+                      <span className="text-[10px] text-muted-foreground/50 italic">Drop here</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-8 text-xs text-muted-foreground space-y-1 max-w-[140px]">
+            <p>Resizable: 200–480px</p>
+            <p>Default: 280px</p>
+            <p>Collapsed: 52px</p>
+            <p>Resize handle: left edge drag</p>
+          </div>
+        </div>
+      </Section>
+
+      {/* ── PageHeader ── */}
+      <Section title="PageHeader component">
+        <div className="w-full space-y-3">
+          <p className="text-xs text-muted-foreground">Title only</p>
+          <div className="rounded-lg border border-border overflow-hidden">
+            <Toolbar>
+              <span className="text-sm font-semibold text-foreground">Analyses</span>
+            </Toolbar>
+          </div>
+
+          <p className="text-xs text-muted-foreground">Title + subtitle text node</p>
+          <div className="rounded-lg border border-border overflow-hidden">
+            <Toolbar>
+              <div className="flex flex-col min-w-0">
+                <span className="text-sm font-semibold text-foreground leading-tight">My Dashboards</span>
+                <span className="text-xs text-muted-foreground">3 dashboards</span>
+              </div>
+              <ToolbarActions>
+                <Button size="toolbar">
+                  <Plus className="h-3.5 w-3.5" strokeWidth={2} />
+                  New dashboard
+                </Button>
+              </ToolbarActions>
+            </Toolbar>
+          </div>
+        </div>
+      </Section>
+
+      {/* ── Dividers ── */}
       <Section title="Dividers">
-        <div className="w-48 space-y-3">
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">border-border (standard)</p>
-            <div className="border-t border-border" />
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">border-border/50 (subtle)</p>
-            <div className="border-t border-border/50" />
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">divide-border (list rows)</p>
-            <div className="flex flex-col divide-y divide-border border border-border rounded-md">
-              <div className="py-2 px-3 text-xs text-muted-foreground">Row A</div>
-              <div className="py-2 px-3 text-xs text-muted-foreground">Row B</div>
+        <div className="flex gap-12 items-start">
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs text-muted-foreground mb-2">Standard — <code className="bg-muted px-1 rounded">border-border</code></p>
+              <div className="w-48 border-t border-border" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-2">Subtle — <code className="bg-muted px-1 rounded">border-border/50</code></p>
+              <div className="w-48 border-t border-border/50" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-2">Sidebar — <code className="bg-muted px-1 rounded">border-sidebar-border</code></p>
+              <div className="w-48 border-t border-sidebar-border" />
             </div>
           </div>
+
+          <div>
+            <p className="text-xs text-muted-foreground mb-2">List rows — <code className="bg-muted px-1 rounded">divide-border</code></p>
+            <div className="flex flex-col divide-y divide-border border border-border rounded-md w-48">
+              {['Brand tracking', 'Purchase intent', 'Ad recall', 'NPS trend'].map(label => (
+                <div key={label} className="py-2 px-3 text-xs text-foreground">{label}</div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs text-muted-foreground mb-2">Section group in sidebar</p>
+            <div className="w-48 bg-sidebar border border-sidebar-border rounded-lg overflow-hidden">
+              <div className="px-4 py-3 border-b border-sidebar-border">
+                <p className="text-xs font-medium text-foreground">General</p>
+                <p className="text-xs text-muted-foreground mt-2 mb-1">Title</p>
+                <div className="h-7 rounded-md bg-background border border-border" />
+              </div>
+              <div className="px-4 py-3">
+                <p className="text-xs font-medium text-foreground">Filters</p>
+                <div className="mt-2 space-y-1.5">
+                  <div className="h-7 rounded-md bg-background border border-border" />
+                  <div className="h-7 rounded-md bg-background border border-border" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Section>
+    </>
+  )
+}
+
+// ── Shared chart widget helpers ───────────────────────────────────────────────
+
+const CW_VIZ_TYPES: { type: Widget['type']; label: string }[] = [
+  { type: 'bar',   label: 'Bar'   },
+  { type: 'line',  label: 'Line'  },
+  { type: 'table', label: 'Table' },
+]
+
+function CwVizSwitcher({ value, onChange }: { value: Widget['type']; onChange: (t: Widget['type']) => void }) {
+  return (
+    <div className="flex items-center gap-0.5 bg-muted rounded-md p-0.5">
+      {CW_VIZ_TYPES.map(({ type, label }) => (
+        <button
+          key={type}
+          onClick={() => onChange(type)}
+          className={cn(
+            'h-6 px-2 rounded text-xs font-medium transition-colors',
+            value === type
+              ? 'bg-background shadow-sm text-foreground'
+              : 'text-muted-foreground hover:text-foreground'
+          )}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+// ── AI Chat data widget card ───────────────────────────────────────────────────
+
+function AiChatWidgetDemo() {
+  const [vizType, setVizType] = useState<Widget['type']>('bar')
+  const [saved, setSaved] = useState(false)
+
+  const metric = 'brand_awareness'
+  const widget: Widget = {
+    id: 'pg-ai-demo',
+    type: vizType,
+    title: 'Insurance brand awareness — 18–34',
+    audienceId: '',
+    metric,
+    createdAt: '2025-01-01T00:00:00Z',
+  }
+  const data = generateChartData(vizType, false, undefined, `pg-ai:${vizType}`, metric, undefined, 'Insurance')
+
+  return (
+    <div className="w-[400px] rounded-2xl rounded-bl-sm border border-border bg-background shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="px-4 pt-4 pb-3 border-b border-border">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h3 className="text-sm font-semibold text-foreground leading-tight">Insurance brand awareness — 18–34</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">Statista Consumer Insights · Global 2025</p>
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <CwVizSwitcher value={vizType} onChange={setVizType} />
+            <button
+              title="Export PNG"
+              className="w-6 h-6 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <IconDownload size={12} strokeWidth={2} />
+            </button>
+            <button
+              title="Copy image"
+              className="w-6 h-6 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <IconPlus size={12} strokeWidth={2} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Chart */}
+      <div className="px-3 pt-3 pb-1" style={{ height: 160 }}>
+        <ChartRenderer widget={widget} data={data} height={160} />
+      </div>
+
+      {/* Source */}
+      <div className="px-4 pb-3">
+        <span className="text-xs text-muted-foreground">Source: Statista Consumer Insights</span>
+      </div>
+
+      {/* CTAs */}
+      <div className="px-4 py-3 border-t border-border space-y-2">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setSaved(s => !s)}
+            className={cn(
+              'flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-medium border transition-colors',
+              saved
+                ? 'border-green-200 bg-green-50 text-green-700'
+                : 'border-border bg-background text-foreground hover:bg-accent'
+            )}
+          >
+            <IconCheck size={11} strokeWidth={2} />
+            {saved ? 'Added to Dashboard' : 'Add to Dashboard'}
+          </button>
+          <button className="flex items-center justify-center gap-1 h-8 px-3 rounded-lg border border-border bg-background text-xs font-medium text-foreground hover:bg-accent transition-colors">
+            Refine
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Charts page inline view ────────────────────────────────────────────────────
+
+const CHART_TYPE_OPTIONS: { type: Widget['type']; label: string }[] = [
+  { type: 'bar',       label: 'Bar'       },
+  { type: 'line',      label: 'Line'      },
+  { type: 'pie',       label: 'Pie'       },
+  { type: 'table',     label: 'Table'     },
+  { type: 'scorecard', label: 'Scorecard' },
+]
+
+const METRIC_OPTIONS = [
+  { value: 'brand_awareness', label: 'Brand awareness' },
+  { value: 'purchase_intent', label: 'Purchase intent' },
+  { value: 'net_promoter_score', label: 'Net Promoter Score' },
+  { value: 'brand_affinity', label: 'Brand affinity' },
+  { value: 'ad_recall', label: 'Ad recall' },
+]
+
+const CATEGORY_OPTIONS = [
+  'Insurance', 'Health', 'Finance', 'Fashion', 'Travel',
+  'AI & smart technology', 'Consumer electronics', 'Online shopping',
+]
+
+const BREAKDOWN_OPTIONS = [
+  { value: '',            label: 'None' },
+  { value: 'age_group',   label: 'Age group' },
+  { value: 'gender',      label: 'Gender' },
+  { value: 'country',     label: 'Country' },
+  { value: 'device_type', label: 'Device' },
+]
+
+function ChartsPageWidgetDemo() {
+  const [chartType, setChartType] = useState<Widget['type']>('bar')
+  const [metric, setMetric]       = useState('brand_awareness')
+  const [category, setCategory]   = useState('Insurance')
+  const [breakdown, setBreakdown] = useState('age_group')
+  const [heatmap, setHeatmap]     = useState(false)
+  const [benchmark, setBenchmark] = useState(true)
+
+  const widget: Widget = {
+    id: 'pg-charts-demo',
+    type: chartType,
+    title: `${METRIC_OPTIONS.find(m => m.value === metric)?.label} — ${category}`,
+    audienceId: '',
+    benchmarkAudienceId: benchmark ? 'bench' : undefined,
+    metric,
+    breakdown: breakdown || undefined,
+    createdAt: '2025-01-01T00:00:00Z',
+  }
+
+  const data = generateChartData(
+    chartType, benchmark,
+    undefined, `pg-charts:${chartType}:${metric}:${category}:${breakdown}`,
+    metric, breakdown || undefined, category
+  )
+
+  const isTable = chartType === 'table'
+
+  return (
+    <div className="border border-border rounded-lg overflow-hidden flex w-full" style={{ height: 480 }}>
+
+      {/* Chart area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Toolbar */}
+        <div className="h-12 flex items-center justify-between px-4 border-b border-border shrink-0 gap-4">
+          <div className="min-w-0">
+            <p className="text-[10px] text-muted-foreground leading-none mb-0.5">{category}</p>
+            <p className="text-sm font-semibold text-foreground truncate">
+              {METRIC_OPTIONS.find(m => m.value === metric)?.label}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button variant="secondary" size="sm">
+              <IconShare size={13} strokeWidth={2} />
+              Share
+            </Button>
+            <Button size="sm">
+              <IconDownload size={13} strokeWidth={2} />
+              Save
+            </Button>
+          </div>
+        </div>
+
+        {/* Chart */}
+        <div className={cn('flex-1 min-h-0', isTable ? 'overflow-auto' : 'p-5')}>
+          <ChartRenderer
+            widget={widget}
+            data={data}
+            height={isTable ? undefined : 360}
+            heatmap={isTable ? heatmap : undefined}
+          />
+        </div>
+      </div>
+
+      {/* Properties panel */}
+      <div className="w-56 shrink-0 border-l border-border flex flex-col bg-sidebar overflow-y-auto">
+        <div className="px-3 py-2.5 border-b border-border">
+          <p className="text-xs font-semibold text-muted-foreground">Properties</p>
+        </div>
+
+        <div className="p-3 space-y-4">
+
+          {/* Chart type */}
+          <div>
+            <p className="text-xs font-medium text-foreground mb-1.5">Chart type</p>
+            <div className="grid grid-cols-3 gap-1">
+              {CHART_TYPE_OPTIONS.map(({ type, label }) => (
+                <button
+                  key={type}
+                  onClick={() => setChartType(type)}
+                  className={cn(
+                    'py-1.5 rounded border text-xs font-medium transition-colors',
+                    chartType === type
+                      ? 'border-primary bg-primary/8 text-primary'
+                      : 'border-border text-muted-foreground hover:border-primary/40 hover:bg-primary/5'
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Metric */}
+          <div>
+            <p className="text-xs font-medium text-foreground mb-1.5">Metric</p>
+            <select
+              value={metric}
+              onChange={e => setMetric(e.target.value)}
+              className="w-full h-7 text-xs px-2 rounded-md border border-border bg-background text-foreground appearance-none cursor-pointer"
+            >
+              {METRIC_OPTIONS.map(({ value, label }) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Category */}
+          <div>
+            <p className="text-xs font-medium text-foreground mb-1.5">Category</p>
+            <select
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+              className="w-full h-7 text-xs px-2 rounded-md border border-border bg-background text-foreground appearance-none cursor-pointer"
+            >
+              {CATEGORY_OPTIONS.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Breakdown */}
+          <div>
+            <p className="text-xs font-medium text-foreground mb-1.5">Breakdown</p>
+            <select
+              value={breakdown}
+              onChange={e => setBreakdown(e.target.value)}
+              className="w-full h-7 text-xs px-2 rounded-md border border-border bg-background text-foreground appearance-none cursor-pointer"
+            >
+              {BREAKDOWN_OPTIONS.map(({ value, label }) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Toggles */}
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={benchmark}
+                onChange={e => setBenchmark(e.target.checked)}
+                className="h-3.5 w-3.5 accent-primary cursor-pointer"
+              />
+              <span className="text-xs text-foreground">Show benchmark</span>
+            </label>
+            {isTable && (
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={heatmap}
+                  onChange={e => setHeatmap(e.target.checked)}
+                  className="h-3.5 w-3.5 accent-primary cursor-pointer"
+                />
+                <span className="text-xs text-foreground">Heatmap</span>
+              </label>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Dashboard widget card ─────────────────────────────────────────────────────
+
+const DASH_CHART_TYPES: { type: Widget['type']; label: string }[] = [
+  { type: 'table',     label: 'Table'     },
+  { type: 'bar',       label: 'Bar'       },
+  { type: 'line',      label: 'Line'      },
+  { type: 'pie',       label: 'Pie'       },
+  { type: 'scorecard', label: 'Scorecard' },
+]
+
+const DASH_SUMMARIES = [
+  'The 25–34 age group shows the strongest brand awareness at 74%, well above the 55% market average. Awareness drops sharply for consumers aged 45+.',
+  'Mobile leads with 72% recall — significantly above the 54% all-demographics benchmark. Desktop shows a smaller gap (58% vs 51%).',
+  'Insurance awareness peaks in the DACH region at 81%. Trust-based statements score highest among 35–44s, aligned with life-stage financial responsibility.',
+]
+
+function DashboardWidgetDemo() {
+  const [chartType, setChartType] = useState<Widget['type']>('bar')
+  const [summary, setSummary]     = useState<string | null>(null)
+  const [generating, setGenerating] = useState(false)
+
+  const metric = 'brand_awareness'
+  const widget: Widget = {
+    id: 'pg-dash-demo',
+    type: chartType,
+    title: 'Brand Awareness by Age Group',
+    audienceId: '',
+    metric,
+    breakdown: 'age_group',
+    createdAt: '2025-01-01T00:00:00Z',
+  }
+  const data = generateChartData(chartType, false, undefined, `pg-dash:${chartType}`, metric, 'age_group', 'Insurance')
+
+  function handleGenerateSummary() {
+    setGenerating(true)
+    setTimeout(() => {
+      setSummary(DASH_SUMMARIES[Math.floor(Math.random() * DASH_SUMMARIES.length)])
+      setGenerating(false)
+    }, 1400)
+  }
+
+  return (
+    <div
+      className="bg-background rounded-xl flex flex-col overflow-hidden w-[480px]"
+      style={{ boxShadow: 'var(--field-shadow)', minHeight: 320 }}
+    >
+      {/* Title + actions */}
+      <div className="relative flex items-center gap-2 px-4 py-3 shrink-0 border-b border-border/40">
+        <span className="text-sm font-semibold truncate flex-1 min-w-0">Brand Awareness by Age Group</span>
+        <div className="flex items-center gap-0.5 shrink-0">
+          <button className="h-6 px-2 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">Export</button>
+          <button className="h-6 px-2 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">Share</button>
+          <button className="h-6 w-6 flex items-center justify-center rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors ml-1">
+            <IconTrash size={13} strokeWidth={2} />
+          </button>
+        </div>
+      </div>
+
+      {/* AI summary row */}
+      <div className="px-4 shrink-0 border-b border-border/40">
+        {summary ? (
+          <div className="flex items-start gap-2 py-2.5">
+            <Sparkles className="h-3 w-3 text-primary/50 shrink-0 mt-0.5" />
+            <p className="text-xs text-muted-foreground leading-relaxed flex-1">{summary}</p>
+            <button onClick={() => setSummary(null)} className="shrink-0 text-muted-foreground/40 hover:text-muted-foreground transition-colors">
+              <X className="h-3 w-3" />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={handleGenerateSummary}
+            disabled={generating}
+            className="flex items-center gap-1.5 py-2 text-xs text-muted-foreground/50 hover:text-primary transition-colors disabled:opacity-40"
+          >
+            {generating
+              ? <><RefreshCw className="h-3 w-3 animate-spin" /><span>Generating…</span></>
+              : <><Sparkles className="h-3 w-3" /><span>Add AI summary</span></>}
+          </button>
+        )}
+      </div>
+
+      {/* Chart type strip */}
+      <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-border/40 shrink-0">
+        {DASH_CHART_TYPES.map(({ type, label }) => (
+          <button
+            key={type}
+            onClick={() => setChartType(type)}
+            className={cn(
+              'h-7 px-3 rounded-full text-xs font-medium transition-colors border',
+              type === chartType
+                ? 'bg-foreground text-background border-foreground'
+                : 'bg-background text-muted-foreground border-border hover:text-foreground hover:border-foreground/30'
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Chart */}
+      <div className="px-2 pb-2 pt-1" style={{ height: 200 }}>
+        <ChartRenderer widget={widget} data={data} height={200} />
+      </div>
+    </div>
+  )
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+
+function ChartWidgetPage() {
+  return (
+    <>
+      <PageHeader
+        title="Chart Widget"
+        description="Three surfaces that embed chart data — the dashboard widget card, the AI chat card, and the Charts page view."
+      />
+
+      <Section title="Dashboard widget card">
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground max-w-xl">
+            The grid card used in Dashboard Builder. Has a title bar with Export/Share/Delete actions, an AI summary row (click "Add AI summary" below to see it generate), a chart type strip for switching visualization, and the chart body. All controls are live.
+          </p>
+          <DashboardWidgetDemo />
+        </div>
+      </Section>
+
+      <Section title="AI chat card">
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground max-w-xl">
+            Returned inline in the Research AI conversation thread. Compact, self-contained. Has a viz-type switcher (bar / line / table), export PNG, copy image, and an Add to Dashboard CTA. The viz switcher and saved state are interactive below.
+          </p>
+          <AiChatWidgetDemo />
+        </div>
+      </Section>
+
+      <Section title="Charts page view">
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground max-w-xl">
+            Full-width view rendered when a chart is selected in the Charts page sidebar. Includes a toolbar with Share/Save actions and a Properties panel with chart type picker, metric, category, breakdown, benchmark toggle, and heatmap toggle. All controls below are live.
+          </p>
+          <ChartsPageWidgetDemo />
         </div>
       </Section>
     </>
@@ -1473,10 +2993,12 @@ const PAGES: Record<PageId, React.ReactNode> = {
   'elevation':   <ElevationPage />,
   'button':      <ButtonPage />,
   'badge':       <BadgePage />,
-  'input':       <InputPage />,
+  'form':        <FormPage />,
   'chip':        <ChipPage />,
-  'card':        <CardPage />,
-  'empty-state': <EmptyStatePage />,
+  'card':          <CardPage />,
+  'chart-widget':  <ChartWidgetPage />,
+  'empty-state':   <EmptyStatePage />,
+  'switcher':      <SwitcherPage />,
   'layout':      <LayoutPage />,
 }
 

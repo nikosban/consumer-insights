@@ -60,7 +60,7 @@ export const seedWidgets: Widget[] = [
   {
     id: 'wid-1',
     type: 'bar',
-    title: 'Purchase Intent by Brand',
+    title: 'Purchase Intent by Age Group',
     audienceId: 'aud-1',
     benchmarkAudienceId: 'aud-3',
     metric: 'purchase_intent',
@@ -79,7 +79,7 @@ export const seedWidgets: Widget[] = [
   {
     id: 'wid-3',
     type: 'line',
-    title: 'Brand Awareness Over Time',
+    title: 'Brand Awareness Trend — Q1 2025',
     audienceId: 'aud-1',
     metric: 'brand_awareness',
     createdAt: '2025-03-12T09:10:00Z',
@@ -96,7 +96,7 @@ export const seedWidgets: Widget[] = [
   {
     id: 'wid-5',
     type: 'table',
-    title: 'Ad Recall Breakdown',
+    title: 'Ad Recall — Statement Battery by Gender',
     audienceId: 'aud-2',
     metric: 'ad_recall',
     breakdown: 'gender',

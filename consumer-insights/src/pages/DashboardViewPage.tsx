@@ -79,12 +79,12 @@ export default function DashboardViewPage() {
           {dashboard.widgets.map((dw) => {
             const widget = widgets.find((w) => w.id === dw.widgetId)
             if (!widget) return null
-            const data = generateChartData(widget.type, Boolean(widget.benchmarkAudienceId), undefined, `${dw.widgetId}:0`)
+            const data = generateChartData(widget.type, Boolean(widget.benchmarkAudienceId), undefined, `${dw.widgetId}:0`, widget.metric, widget.breakdown)
             return (
               <div
                 key={dw.widgetId}
                 data-widget-id={dw.widgetId}
-                className="bg-background border border-border rounded-lg flex flex-col overflow-hidden shadow-sm"
+                className="bg-background border border-border rounded-lg flex flex-col overflow-hidden shadow-sm min-h-[180px]"
               >
                 <div className="flex items-center gap-2 px-3 py-2 border-b border-border shrink-0">
                   <span className="text-xs font-medium truncate flex-1">{widget.title}</span>

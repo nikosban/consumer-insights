@@ -1,18 +1,63 @@
-import * as React from "react"
+import * as React from 'react'
+import { cn } from '@/lib/utils'
+import { FormField, fieldShadowDirect, fieldRounded, fieldText, fieldPadX } from '@/components/ui/input'
+import type { FieldSize, FieldState } from '@/components/ui/input'
 
-import { cn } from "@/lib/utils"
-
-function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
-  return (
-    <textarea
-      data-slot="textarea"
-      className={cn(
-        "flex field-sizing-content min-h-16 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-base transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
-        className
-      )}
-      {...props}
-    />
-  )
+export interface TextareaProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  size?:   FieldSize
+  state?:  FieldState
+  label?:  string
+  helper?: string
+  error?:  string
 }
 
-export { Textarea }
+const minH: Record<FieldSize, string> = {
+  sm:      'min-h-[64px]',
+  default: 'min-h-[80px]',
+  lg:      'min-h-[96px]',
+}
+
+const paddingY: Record<FieldSize, string> = {
+  sm:      'py-1.5',
+  default: 'py-2',
+  lg:      'py-2.5',
+}
+
+export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ size = 'default', state = 'default', label, helper, error, className, disabled, ...props }, ref) => {
+    const resolvedState: FieldState = error ? 'error' : state
+
+    const el = (
+      <textarea
+        ref={ref}
+        disabled={disabled}
+        className={cn(
+          'w-full min-w-0 bg-background text-foreground outline-none resize-none transition-shadow',
+          'placeholder:text-muted-foreground',
+          'disabled:pointer-events-none disabled:opacity-50',
+          '[field-sizing:content]',
+          fieldRounded[size],
+          fieldText[size],
+          fieldPadX[size],
+          paddingY[size],
+          minH[size],
+          fieldShadowDirect[resolvedState],
+          className,
+        )}
+        {...props}
+      />
+    )
+
+    if (label || helper || error) {
+      return (
+        <FormField label={label} helper={helper} error={error}>
+          {el}
+        </FormField>
+      )
+    }
+
+    return el
+  },
+)
+Textarea.displayName = 'Textarea'

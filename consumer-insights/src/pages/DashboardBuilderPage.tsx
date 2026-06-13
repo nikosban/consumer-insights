@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import GridLayout from 'react-grid-layout'
 import type { LayoutItem, Layout } from 'react-grid-layout'
@@ -10,6 +10,12 @@ import { useAudienceStore } from '@/store/audienceStore'
 import { useProjectStore } from '@/store/projectStore'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
   Select,
   SelectContent,
@@ -35,6 +41,7 @@ import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Chip, FieldGroup, SectionLabel } from '@/components/app'
 import { toast } from '@/components/ui/Toaster'
+import { useLayout } from '@/components/layout/LayoutContext'
 
 // ─── Dashboard-level context types ───────────────────────────────────────────
 
@@ -97,7 +104,7 @@ function PeriodChip({ value, onChange, size = 'md' }: {
       </button>
 
       {open && (
-        <div className="absolute top-full mt-1 left-0 z-30 bg-white border border-border rounded-xl shadow-lg p-3 min-w-[260px]">
+        <div className="absolute top-full mt-1 left-0 z-30 bg-popover border border-border rounded-xl shadow-lg p-3 min-w-[260px]">
           <p className="text-[10px] font-semibold text-muted-foreground tracking-wider mb-1.5">YEAR</p>
           <div className="flex gap-1 mb-3 flex-wrap">
             {['All', '2022', '2023', '2024', '2025'].map(y => (
@@ -165,12 +172,12 @@ function DashboardContextChip({ label, value, options, onChange, size = 'md' }: 
         <ChevronDown size={9} className="shrink-0" />
       </button>
       {open && (
-        <div className="absolute top-full mt-1 left-0 z-30 bg-white border border-border rounded-xl shadow-lg py-1 min-w-[180px]">
+        <div className="absolute top-full mt-1 left-0 z-30 bg-popover border border-border rounded-xl shadow-lg py-1 min-w-[180px]">
           <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground tracking-wider">{label}</p>
           {options.map(opt => (
             <button key={opt} onClick={() => { onChange(opt); setOpen(false) }}
-              className={cn('w-full text-left px-3 py-2 text-xs hover:bg-gray-50 transition-colors',
-                opt === (value || options[0]) ? 'text-primary font-medium' : 'text-gray-700'
+              className={cn('w-full text-left px-3 py-2 text-xs hover:bg-accent transition-colors',
+                opt === (value || options[0]) ? 'text-primary font-medium' : 'text-foreground'
               )}
             >{opt}</button>
           ))}
@@ -235,7 +242,7 @@ function WidgetFilterChip({ label, value, options, isOverride, onSelect, onReset
         'h-7 flex items-center rounded-full border text-xs font-medium transition-colors',
         isOverride
           ? 'bg-primary/8 border-primary/25 text-primary pr-1'
-          : 'bg-white border-border text-foreground pr-2.5 shadow-sm',
+          : 'bg-background border-border text-foreground pr-2.5 shadow-sm',
       )}>
         <button
           onClick={(e) => { e.stopPropagation(); setOpen(o => !o) }}
@@ -255,7 +262,7 @@ function WidgetFilterChip({ label, value, options, isOverride, onSelect, onReset
       </div>
 
       {open && (
-        <div className="absolute top-full mt-1 left-0 z-50 bg-white border border-border rounded-xl shadow-lg py-1 min-w-[160px]" onClick={e => e.stopPropagation()}>
+        <div className="absolute top-full mt-1 left-0 z-50 bg-popover border border-border rounded-xl shadow-lg py-1 min-w-[160px]" onClick={e => e.stopPropagation()}>
           {renderPicker ? (
             renderPicker(() => setOpen(false))
           ) : (
@@ -265,8 +272,8 @@ function WidgetFilterChip({ label, value, options, isOverride, onSelect, onReset
                 <button
                   key={opt}
                   onClick={() => { onSelect?.(opt); setOpen(false) }}
-                  className={cn('w-full text-left px-3 py-2 text-xs hover:bg-gray-50 transition-colors',
-                    opt === value ? 'text-primary font-medium' : 'text-gray-700'
+                  className={cn('w-full text-left px-3 py-2 text-xs hover:bg-accent transition-colors',
+                    opt === value ? 'text-primary font-medium' : 'text-foreground'
                   )}
                 >{opt}</button>
               ))}
@@ -406,7 +413,7 @@ function WidgetTypeStrip({ currentType, onChange }: { currentType: WidgetType; o
             'h-7 px-3 rounded-full text-xs font-medium transition-colors border',
             type === currentType
               ? 'bg-foreground text-background border-foreground'
-              : 'bg-white text-muted-foreground border-border hover:text-foreground hover:border-foreground/30'
+              : 'bg-background text-muted-foreground border-border hover:text-foreground hover:border-foreground/30'
           )}
         >
           {label}
@@ -464,7 +471,7 @@ function WidgetPropertiesPanel({
 
   return (
     <aside
-      className="relative shrink-0 border-l border-border flex flex-col bg-sidebar overflow-hidden h-full"
+      className="relative shrink-0 border-l border-sidebar-border flex flex-col bg-sidebar overflow-hidden h-full"
       style={{ width: panelWidth }}
     >
       {/* Resize handle on left edge */}
@@ -475,7 +482,7 @@ function WidgetPropertiesPanel({
         <div className="h-full w-px bg-sidebar-border transition-colors group-hover:bg-primary/40 group-active:bg-primary/60" />
       </div>
 
-      <div className="h-14 flex items-center justify-between px-4 border-b border-border shrink-0">
+      <div className="h-14 flex items-center justify-between px-4 border-b border-sidebar-border shrink-0">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Properties</p>
         <button
           onClick={onClose}
@@ -488,7 +495,7 @@ function WidgetPropertiesPanel({
       <div className="flex-1 overflow-y-auto">
 
         {/* ── Rows / Columns / Filters ── */}
-        <div className="p-4 space-y-4 border-b border-border">
+        <div className="p-4 space-y-4 border-b border-sidebar-border">
 
           {/* Rows */}
           <div>
@@ -732,7 +739,7 @@ function SurveyBrowser({ onAdd, onAddText, onDragStart, onDragEnd }: {
         {/* Text block shortcut */}
         <button
           onClick={onAddText}
-          className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-gray-50 transition-colors border-b border-border"
+          className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors border-b border-border"
         >
           <FileText className="h-3.5 w-3.5 shrink-0" />
           <span>Add text block</span>
@@ -764,7 +771,7 @@ function SurveyBrowser({ onAdd, onAddText, onDragStart, onDragEnd }: {
             <div key={category.label}>
               <button
                 onClick={() => toggleCategory(category.label)}
-                className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-gray-50 transition-colors border-b border-border"
+                className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-accent transition-colors border-b border-border"
               >
                 <ChevronRight className={`h-3 w-3 transition-transform duration-150 shrink-0 ${open ? 'rotate-90' : ''}`} />
                 <span className="flex-1 text-left truncate">{category.label}</span>
@@ -972,6 +979,7 @@ export default function DashboardBuilderPage() {
   const { widgets, add: addWidget, update: updateWidget } = useWidgetStore()
   const { audiences } = useAudienceStore()
   const { projects, addAnalysis } = useProjectStore()
+  const { setLeftPanel, setRightSidebar } = useLayout()
 
   const existing = id ? dashboards.find((d) => d.id === id) : null
   const isNew = !existing
@@ -982,13 +990,10 @@ export default function DashboardBuilderPage() {
   const [placedWidgets, setPlacedWidgets] = useState<PlacedWidget[]>(
     (existing?.widgets ?? []).map((w) => ({ ...w, chartKey: 0 }))
   )
-  // View/Edit mode — new dashboards start in edit mode, existing in view mode
   const [isEditMode, setIsEditMode] = useState(isNew)
-  // Dashboard-level context (defaults for all widgets)
   const [dashAudienceId, setDashAudienceId] = useState('')
   const [dashRegion, setDashRegion] = useState('Global')
   const [dashPeriod, setDashPeriod] = useState<DashPeriod>({ year: 'All', wave: 'All' })
-  // Per-widget AI summary state: widgetId → summary text
   const [widgetSummaries, setWidgetSummaries] = useState<Record<string, string>>({})
   const [summaryGenerating, setSummaryGenerating] = useState<Record<string, boolean>>({})
 
@@ -1042,10 +1047,10 @@ export default function DashboardBuilderPage() {
     [dashId, name, isShared, isNew, dashboards, add, update, updateLayout]
   )
 
-  function debouncedSave(pw: PlacedWidget[]) {
+  const debouncedSave = useCallback((pw: PlacedWidget[]) => {
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
     saveTimerRef.current = setTimeout(() => persistLayout(pw), 2000)
-  }
+  }, [persistLayout])
 
   function handleLayoutChange(newLayout: Layout) {
     const updated = placedWidgets.map((pw) => {
@@ -1057,18 +1062,20 @@ export default function DashboardBuilderPage() {
     debouncedSave(updated)
   }
 
-  function addWidgetToCanvas(widgetId: string) {
-    if (placedWidgets.some((pw) => pw.widgetId === widgetId)) return
-    const maxY = placedWidgets.reduce((acc, pw) => Math.max(acc, pw.position.y + pw.position.h), 0)
-    const updated: PlacedWidget[] = [
-      ...placedWidgets,
-      { widgetId, position: { x: 0, y: maxY, w: 6, h: 4 }, chartKey: 0 },
-    ]
-    setPlacedWidgets(updated)
-    debouncedSave(updated)
-  }
+  const addWidgetToCanvas = useCallback((widgetId: string) => {
+    setPlacedWidgets(prev => {
+      if (prev.some(pw => pw.widgetId === widgetId)) return prev
+      const maxY = prev.reduce((acc, pw) => Math.max(acc, pw.position.y + pw.position.h), 0)
+      const updated: PlacedWidget[] = [
+        ...prev,
+        { widgetId, position: { x: 0, y: maxY, w: 6, h: 4 }, chartKey: 0 },
+      ]
+      debouncedSave(updated)
+      return updated
+    })
+  }, [debouncedSave])
 
-  function addQuestionAsWidget(q: SurveyQuestion) {
+  const addQuestionAsWidget = useCallback((q: SurveyQuestion) => {
     const widgetId = `wid-${Date.now()}`
     const newWidget: Widget = {
       id: widgetId,
@@ -1081,9 +1088,9 @@ export default function DashboardBuilderPage() {
     addWidget(newWidget)
     addWidgetToCanvas(widgetId)
     setSelectedWidgetId(widgetId)
-  }
+  }, [audiences, addWidget, addWidgetToCanvas])
 
-  function addTextWidget() {
+  const addTextWidget = useCallback(() => {
     const widgetId = `wid-text-${Date.now()}`
     const newWidget: Widget = {
       id: widgetId,
@@ -1094,14 +1101,100 @@ export default function DashboardBuilderPage() {
       createdAt: new Date().toISOString(),
     }
     addWidget(newWidget)
-    const maxY = placedWidgets.reduce((acc, pw) => Math.max(acc, pw.position.y + pw.position.h), 0)
-    const updated: PlacedWidget[] = [
-      ...placedWidgets,
-      { widgetId, position: { x: 0, y: maxY, w: 6, h: 2 }, chartKey: 0 },
-    ]
-    setPlacedWidgets(updated)
-    debouncedSave(updated)
-  }
+    setPlacedWidgets(prev => {
+      const maxY = prev.reduce((acc, pw) => Math.max(acc, pw.position.y + pw.position.h), 0)
+      const updated: PlacedWidget[] = [
+        ...prev,
+        { widgetId, position: { x: 0, y: maxY, w: 6, h: 2 }, chartKey: 0 },
+      ]
+      debouncedSave(updated)
+      return updated
+    })
+  }, [addWidget, debouncedSave])
+
+  const clearDraggingQuestion = useCallback(() => setDraggingQuestion(null), [])
+
+  const handleGenerateAnalysis = useCallback(() => {
+    const projectId = projects[0]?.id ?? 'proj-1'
+    const anaId = `ana-${Date.now()}`
+    const widgetTitles = placedWidgets
+      .map(pw => widgets.find(w => w.id === pw.widgetId)?.title)
+      .filter(Boolean) as string[]
+    const widgetList = widgetTitles.length
+      ? widgetTitles.map(t => `• ${t}`).join('\n')
+      : '• No widgets yet'
+    const execContent = `This report summarises the ${name} dashboard, covering ${widgetTitles.length} data point${widgetTitles.length !== 1 ? 's' : ''}. The analysis draws on the following charts and metrics:\n\n${widgetList}\n\nOverall, the data reveals consistent patterns across the tracked audience, with notable variation in key intent and awareness metrics. Signals point to clear opportunities for targeted activation in high-performing segments.`
+    const findingsContent = widgetTitles.length
+      ? widgetTitles.map(t => `• ${t}: trending above category average, with the strongest performance in the 25–34 age cohort.`).join('\n')
+      : '• No widget data available yet.'
+    addAnalysis(projectId, {
+      id: anaId,
+      name: `${name} — Summary`,
+      dashboardId: dashId,
+      template: 'summary',
+      audienceId: dashAudienceId || 'all',
+      widgetIds: placedWidgets.map(w => w.widgetId),
+      sections: [
+        { id: `${anaId}-exec`, heading: 'Executive Summary', content: execContent },
+        { id: `${anaId}-findings`, heading: 'Key Findings', content: findingsContent },
+      ],
+      createdAt: new Date().toISOString(),
+    })
+    navigate(`/analyses/${anaId}`)
+  }, [projects, placedWidgets, widgets, name, dashId, dashAudienceId, addAnalysis, navigate])
+
+  // ── Left panel: Questions browser (edit mode only) ──
+  useEffect(() => {
+    if (!isEditMode) {
+      setLeftPanel(null)
+      return () => setLeftPanel(null)
+    }
+    setLeftPanel(
+      <aside className="w-64 shrink-0 flex flex-col bg-sidebar overflow-hidden border-r border-sidebar-border" onClick={e => e.stopPropagation()}>
+        <div className="h-14 flex items-center px-4 border-b border-sidebar-border shrink-0">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Questions</p>
+        </div>
+        <SurveyBrowser
+          onAdd={addQuestionAsWidget}
+          onAddText={addTextWidget}
+          onDragStart={setDraggingQuestion}
+          onDragEnd={clearDraggingQuestion}
+        />
+      </aside>
+    )
+    return () => setLeftPanel(null)
+  }, [isEditMode, addQuestionAsWidget, addTextWidget, clearDraggingQuestion, setLeftPanel])
+
+  // ── Right panel: Widget properties (edit mode + widget selected) ──
+  const selectedWidget = useMemo(
+    () => selectedWidgetId ? widgets.find(w => w.id === selectedWidgetId) ?? null : null,
+    [selectedWidgetId, widgets]
+  )
+
+  useEffect(() => {
+    if (!isEditMode || !selectedWidget) {
+      setRightSidebar(null)
+      return () => setRightSidebar(null)
+    }
+    setRightSidebar(
+      <WidgetPropertiesPanel
+        widget={selectedWidget}
+        audiences={audiences}
+        onClose={() => setSelectedWidgetId(null)}
+        onUpdate={(patch) => {
+          updateWidget(selectedWidget.id, patch)
+          if (patch.type || patch.crossDimensionLabel !== undefined) {
+            setPlacedWidgets(prev =>
+              prev.map(pw =>
+                pw.widgetId === selectedWidget.id ? { ...pw, chartKey: Math.random() } : pw
+              )
+            )
+          }
+        }}
+      />
+    )
+    return () => setRightSidebar(null)
+  }, [isEditMode, selectedWidget, audiences, updateWidget, setRightSidebar])
 
   function generateAISummary(widgetId: string) {
     setSummaryGenerating(prev => ({ ...prev, [widgetId]: true }))
@@ -1153,10 +1246,6 @@ export default function DashboardBuilderPage() {
     }
   }
 
-  const selectedWidget = selectedWidgetId
-    ? widgets.find((w) => w.id === selectedWidgetId) ?? null
-    : null
-
   const layout: LayoutItem[] = placedWidgets.map(toLayoutItem)
 
   // Derive audience label for toolbar chip
@@ -1165,25 +1254,7 @@ export default function DashboardBuilderPage() {
     : 'All'
 
   return (
-    <div className="flex h-full overflow-hidden" onClick={() => setSelectedWidgetId(null)}>
-
-      {/* ── Survey browser sidebar (edit mode only) ── */}
-      {isEditMode && (
-        <aside
-          className="w-64 shrink-0 border-r border-border flex flex-col bg-sidebar overflow-hidden"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="h-14 flex items-center px-4 border-b border-border shrink-0">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Questions</p>
-          </div>
-          <SurveyBrowser
-            onAdd={addQuestionAsWidget}
-            onAddText={addTextWidget}
-            onDragStart={setDraggingQuestion}
-            onDragEnd={() => setDraggingQuestion(null)}
-          />
-        </aside>
-      )}
+    <div className="flex flex-col overflow-hidden flex-1" onClick={() => setSelectedWidgetId(null)}>
 
       {/* ── Main canvas ── */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
@@ -1222,56 +1293,36 @@ export default function DashboardBuilderPage() {
 
           {/* Right: actions */}
           <div className="flex items-center gap-2 shrink-0">
-            <Button
-              variant={isEditMode ? 'default' : 'outline'}
-              size="toolbar"
-              onClick={() => setIsEditMode(e => !e)}
-            >
-              {isEditMode ? 'Done' : 'Edit'}
-            </Button>
-            <Button variant="outline" size="toolbar" onClick={handleRefresh}>
-              Refresh
-            </Button>
+            {!isEditMode && (
+              <Button variant="outline" size="toolbar" onClick={() => setIsEditMode(true)}>
+                Edit
+              </Button>
+            )}
             <Button variant="outline" size="toolbar" onClick={() => setShareOpen(true)}>
               {isShared ? 'Shared' : 'Share'}
             </Button>
-            <Button variant="outline" size="toolbar" onClick={() => setExportOpen(true)}>
-              Export
-            </Button>
-            <Button
-              size="toolbar"
-              onClick={() => {
-                const projectId = projects[0]?.id ?? 'proj-1'
-                const anaId = `ana-${Date.now()}`
-                const widgetTitles = placedWidgets
-                  .map(pw => widgets.find(w => w.id === pw.widgetId)?.title)
-                  .filter(Boolean) as string[]
-                const widgetList = widgetTitles.length
-                  ? widgetTitles.map(t => `• ${t}`).join('\n')
-                  : '• No widgets yet'
-                const execContent = `This report summarises the ${name} dashboard, covering ${widgetTitles.length} data point${widgetTitles.length !== 1 ? 's' : ''}. The analysis draws on the following charts and metrics:\n\n${widgetList}\n\nOverall, the data reveals consistent patterns across the tracked audience, with notable variation in key intent and awareness metrics. Signals point to clear opportunities for targeted activation in high-performing segments.`
-                const findingsContent = widgetTitles.length
-                  ? widgetTitles.map(t => `• ${t}: trending above category average, with the strongest performance in the 25–34 age cohort.`).join('\n')
-                  : '• No widget data available yet.'
-                addAnalysis(projectId, {
-                  id: anaId,
-                  name: `${name} — Summary`,
-                  dashboardId: dashId,
-                  template: 'summary',
-                  audienceId: dashAudienceId || 'all',
-                  widgetIds: placedWidgets.map(w => w.widgetId),
-                  sections: [
-                    { id: `${anaId}-exec`, heading: 'Executive Summary', content: execContent },
-                    { id: `${anaId}-findings`, heading: 'Key Findings', content: findingsContent },
-                  ],
-                  createdAt: new Date().toISOString(),
-                })
-                navigate(`/analyses/${anaId}`)
-              }}
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              Generate
-            </Button>
+            {isEditMode ? (
+              <Button size="toolbar" onClick={() => setIsEditMode(false)}>
+                Done
+              </Button>
+            ) : (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="toolbar">
+                    Export
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleGenerateAnalysis}>
+                    <Sparkles className="h-3.5 w-3.5 mr-2" />
+                    Generate analysis
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setExportOpen(true)}>
+                    Export as PDF
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
 
@@ -1349,8 +1400,9 @@ export default function DashboardBuilderPage() {
                       widget.type,
                       Boolean(widget.benchmarkAudienceId),
                       widget.crossDimensionLabel,
-                      // Seed includes effective filters so changing audience/region/period visibly changes the data
-                      `${pw.widgetId}:${pw.chartKey}:${widget.audienceId || dashAudienceId}:${widget.country ?? dashRegion}:${widget.year ?? dashPeriod.year}:${dashPeriod.wave}`
+                      `${pw.widgetId}:${pw.chartKey}:${widget.audienceId || dashAudienceId}:${widget.country ?? dashRegion}:${widget.year ?? dashPeriod.year}:${dashPeriod.wave}`,
+                      widget.metric,
+                      widget.breakdown,
                     )
                 const isSelected = selectedWidgetId === pw.widgetId
                 const isDragTarget = dragOverWidgetId === pw.widgetId
@@ -1391,7 +1443,7 @@ export default function DashboardBuilderPage() {
                     {/* ── Card box — title + AI summary + type strip + chart ── */}
                     <div
                       className="flex-1 bg-background rounded-xl flex flex-col overflow-hidden min-h-0 transition-all"
-                      style={{ boxShadow: isDragTarget || isSelected ? 'var(--field-shadow-focus)' : 'var(--field-shadow)' }}
+                      style={{ boxShadow: isDragTarget || isSelected ? 'var(--field-shadow-focus)' : 'var(--field-shadow)', minHeight: 180 }}
                     >
                       {isText ? (
                         /* Text annotation */
@@ -1573,27 +1625,6 @@ export default function DashboardBuilderPage() {
           )}
         </div>
       </div>
-
-      {/* ── Widget properties panel (edit mode only) ── */}
-      {isEditMode && selectedWidget && (
-        <div className="h-full" onClick={(e) => e.stopPropagation()}>
-          <WidgetPropertiesPanel
-            widget={selectedWidget}
-            audiences={audiences}
-            onClose={() => setSelectedWidgetId(null)}
-            onUpdate={(patch) => {
-              updateWidget(selectedWidget.id, patch)
-              if (patch.type || patch.crossDimensionLabel !== undefined) {
-                setPlacedWidgets((prev) =>
-                  prev.map((pw) =>
-                    pw.widgetId === selectedWidget.id ? { ...pw, chartKey: Math.random() } : pw
-                  )
-                )
-              }
-            }}
-          />
-        </div>
-      )}
 
       <ExportModal dashboardId={dashId} open={exportOpen} onClose={() => setExportOpen(false)} />
       <ShareModal dashboardId={dashId} open={shareOpen} onClose={() => setShareOpen(false)} />
