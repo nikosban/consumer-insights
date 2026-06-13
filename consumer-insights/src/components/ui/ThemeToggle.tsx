@@ -53,7 +53,7 @@ export function ThemeToggle({ collapsed }: { collapsed?: boolean }) {
   }
 
   return (
-    <div className="flex items-center gap-0.5 bg-sidebar-accent rounded-md p-0.5 mx-1 my-0.5">
+    <div className="flex w-full items-center gap-0.5 bg-sidebar-accent rounded-md p-0.5">
       {OPTIONS.map(({ value, Icon, title }) => (
         <button
           key={value}
