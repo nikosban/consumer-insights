@@ -36,6 +36,9 @@ pnpm-debug.log*
 # ── Demo / planning docs (local only) ────────────────────────────────────────
 DEMO_FLOW.md
 
+# ── UI guidelines (local only) ───────────────────────────────────────────────
+UI_rules/
+
 # ── Editor ────────────────────────────────────────────────────────────────────
 .vscode/*
 !.vscode/extensions.json
