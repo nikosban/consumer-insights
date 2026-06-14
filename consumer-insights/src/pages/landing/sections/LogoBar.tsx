@@ -28,7 +28,7 @@ export function LogoBar() {
               key={alt}
               src={src}
               alt={alt}
-              className="h-6 w-auto grayscale opacity-50 hover:opacity-100 hover:grayscale-0 transition-opacity duration-200 object-contain"
+              className="h-6 w-auto grayscale brightness-0 opacity-30 hover:opacity-70 hover:grayscale-0 hover:brightness-100 transition-all duration-200 object-contain"
             />
           ))}
         </motion.div>

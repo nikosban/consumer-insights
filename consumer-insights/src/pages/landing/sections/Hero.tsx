@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { stagger, fadeUp } from '../variants'
 import { CTAPrimary, CTASecondary } from '../components/LandingCTA'
 import { LandingNav } from '../components/LandingNav'
-import { RayBurst } from '../components/RayBurst'
+import { DawnSun } from '../components/DawnSun'
 
 const TRUST_ITEMS = [
   'Trusted by 23,069+ research teams',
@@ -15,22 +15,22 @@ export function Hero() {
     <section className="relative min-h-[88vh] bg-background flex items-center overflow-hidden">
       <LandingNav />
 
-      {/* Ray burst canvas */}
+      {/* DawnSun canvas — full background, pointer-events handled inside */}
       <div className="absolute inset-0 z-0">
-        <RayBurst className="w-full h-full" />
+        <DawnSun className="w-full h-full" />
       </div>
 
-      <div className="relative z-10 w-full max-w-6xl mx-auto px-6 py-24 flex flex-col items-center text-center">
+      <div className="relative z-10 w-full max-w-6xl mx-auto px-6 py-24 flex flex-col items-start">
         <motion.div
           variants={stagger}
           initial="hidden"
           animate="visible"
-          className="flex flex-col items-center gap-0"
+          className="flex flex-col items-start gap-0 max-w-[540px]"
         >
           {/* Eyebrow */}
           <motion.p
             variants={fadeUp}
-            className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground mb-6"
+            className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.08em] text-secondary-foreground mb-6"
           >
             <span className="inline-block w-1 h-1 rounded-full bg-primary shrink-0" aria-hidden />
             Consumer Insights
@@ -49,7 +49,7 @@ export function Hero() {
           {/* Subhead */}
           <motion.p
             variants={fadeUp}
-            className="text-lg text-muted-foreground leading-relaxed max-w-xl mb-10"
+            className="text-lg text-secondary-foreground leading-relaxed max-w-md mb-10"
             style={{ textWrap: 'balance' } as React.CSSProperties}
           >
             Ask a question about any consumer market. Consumer Insights
@@ -60,7 +60,7 @@ export function Hero() {
           {/* CTAs */}
           <motion.div
             variants={fadeUp}
-            className="flex flex-col sm:flex-row items-center gap-3 mb-10"
+            className="flex flex-col sm:flex-row items-start gap-3 mb-10"
           >
             <CTAPrimary>
               Book a demo
@@ -79,7 +79,7 @@ export function Hero() {
           {/* Trust line */}
           <motion.p
             variants={fadeUp}
-            className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs text-muted-foreground"
+            className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-secondary-foreground"
           >
             {TRUST_ITEMS.map((item, i) => (
               <span key={item} className="flex items-center gap-2">
