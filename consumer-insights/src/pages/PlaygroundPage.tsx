@@ -18,18 +18,16 @@ import { SelectField } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, Radio } from '@/components/ui/radio'
 import { Chip } from '@/components/app/Chip'
-import { SectionLabel } from '@/components/app/SectionLabel'
-import { FieldGroup } from '@/components/app/FieldGroup'
 import { Toolbar, ToolbarActions, ResourceCard, IconBtn } from '@/components/app'
 import EmptyState from '@/components/EmptyState'
 import {
   LayoutDashboard, FileText, Users, BarChart2, Trash2,
   Pencil, Copy, Plus, Share2, BookmarkPlus, RefreshCw,
-  ChevronRight, Sparkles, Settings,
+  ChevronRight, Sparkles,
 } from 'lucide-react'
 import {
   IconPlus, IconDownload, IconTrash, IconCheck, IconArrowRight,
-  IconLoader2, IconUser, IconShare,
+  IconLoader2, IconShare, IconX,
   IconLayoutSidebarRightCollapse, IconLayoutSidebarRightExpand,
 } from '@tabler/icons-react'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
@@ -2900,7 +2898,7 @@ function DashboardWidgetDemo() {
             <Sparkles className="h-3 w-3 text-primary/50 shrink-0 mt-0.5" />
             <p className="text-xs text-muted-foreground leading-relaxed flex-1">{summary}</p>
             <button onClick={() => setSummary(null)} className="shrink-0 text-muted-foreground/40 hover:text-muted-foreground transition-colors">
-              <X className="h-3 w-3" />
+              <IconX size={12} stroke={2} />
             </button>
           </div>
         ) : (

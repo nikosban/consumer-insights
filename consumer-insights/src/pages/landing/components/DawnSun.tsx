@@ -67,8 +67,9 @@ export function DawnSun({ className }: { className?: string }) {
   const tRef      = useRef(1.8)
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
+    const canvasEl = canvasRef.current
+    if (!canvasEl) return
+    const canvas: HTMLCanvasElement = canvasEl
     const ctx = canvas.getContext('2d')!
 
     function resize() {

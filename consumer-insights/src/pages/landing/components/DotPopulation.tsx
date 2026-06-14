@@ -46,7 +46,7 @@ export function DotPopulation({ activeFraction, className }: Props) {
     }
 
     function placeDots(w: number, h: number) {
-      dotsRef.current = Array.from({ length: DOT_COUNT }, (_, i) => {
+      dotsRef.current = Array.from({ length: DOT_COUNT }, (_) => {
         const angle = Math.random() * Math.PI * 2
         const r     = Math.sqrt(Math.random()) * (Math.min(w, h) * SPREAD * 0.5)
         return {

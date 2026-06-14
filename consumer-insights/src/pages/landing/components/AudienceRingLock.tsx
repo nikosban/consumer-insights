@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from 'react'
+import { useRef, useEffect, useState } from 'react'
 
 // ── Colour helpers ────────────────────────────────────────────────────────────
 function lerp(a: number, b: number, t: number) { return a + (b - a) * t }

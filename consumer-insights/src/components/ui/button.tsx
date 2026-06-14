@@ -40,7 +40,6 @@ const UP  = "hover:-translate-y-px"
 // Primary — filled, raised
 const pBase   = [ACT, UP].join(" ")
 const pDark   = [DR, DH, "hover:brightness-110 active:brightness-95"].join(" ")
-const pLight  = [LR, LH, "hover:bg-muted"].join(" ")
 
 const vPrimary        = `bg-[image:var(--btn-primary-bg)] bg-clip-border text-primary-foreground border-[#0C41DF] ${pBase} ${pDark} focus-visible:ring-ring/50`
 const vPrimaryNeutral = `bg-foreground text-background border-foreground ${pBase} ${pDark}`

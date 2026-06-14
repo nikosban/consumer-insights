@@ -281,6 +281,8 @@ const METRIC_LABELS: Record<string, string[]> = {
   ],
 }
 
+const SURVEY_ANSWERS = ['Daily', 'Weekly', 'Monthly', 'Rarely', 'Never', "Don't know"]
+
 // Ultimate fallback — frequency scale
 const DEFAULT_SURVEY_LABELS = [
   'Daily',
@@ -297,8 +299,8 @@ function surveyTableData(metric?: string, category?: string): ChartData {
     (metric   && METRIC_LABELS[metric])     ??
     DEFAULT_SURVEY_LABELS
   const raw = labels.map(() => rand(5, 40))
-  const total = raw.reduce((a, b) => a + b, 0)
-  const percents = raw.map((v) => Math.round((v * 100) / total))
+  const total = raw.reduce((a: number, b: number) => a + b, 0)
+  const percents = raw.map((v: number) => Math.round((v * 100) / total))
   return { labels, series: [{ name: 'Percent', values: percents }] }
 }
 
@@ -331,8 +333,8 @@ function crosstableData(dimensionLabel: string, rowLabels?: string[], metric?: s
 
   const groupPercents = dimensions.map(() => answers.map(() => rand(5, 45)))
 
-  const totalPercents = answers.map((_, ai) => {
-    const weightedSum = groupPercents.reduce((sum, gp, gi) => sum + gp[ai] * groupNs[gi], 0)
+  const totalPercents = answers.map((_: string, ai: number) => {
+    const weightedSum = groupPercents.reduce((sum: number, gp: number[], gi: number) => sum + gp[ai] * groupNs[gi], 0)
     return Math.round(weightedSum / TOTAL_N)
   })
 
@@ -342,9 +344,9 @@ function crosstableData(dimensionLabel: string, rowLabels?: string[], metric?: s
     return {
       name: dim,
       values: percents,
-      absolutes: percents.map((p) => Math.round((p * groupN) / 100)),
-      populations: percents.map((p) => Math.round((p * groupN * POP_SCALE) / 1e8) / 10), // millions, 1dp
-      indexValues: percents.map((p, ai) =>
+      absolutes: percents.map((p: number) => Math.round((p * groupN) / 100)),
+      populations: percents.map((p: number) => Math.round((p * groupN * POP_SCALE) / 1e8) / 10), // millions, 1dp
+      indexValues: percents.map((p: number, ai: number) =>
         totalPercents[ai] > 0 ? Math.round((p / totalPercents[ai]) * 100) : 100
       ),
       baseN: groupN,
@@ -356,8 +358,8 @@ function crosstableData(dimensionLabel: string, rowLabels?: string[], metric?: s
     series,
     totalSeries: {
       values: totalPercents,
-      absolutes: totalPercents.map((p) => Math.round((p * TOTAL_N) / 100)),
-      populations: totalPercents.map((p) => Math.round((p * TOTAL_N * POP_SCALE) / 1e8) / 10),
+      absolutes: totalPercents.map((p: number) => Math.round((p * TOTAL_N) / 100)),
+      populations: totalPercents.map((p: number) => Math.round((p * TOTAL_N * POP_SCALE) / 1e8) / 10),
       baseN: TOTAL_N,
     },
   }
@@ -373,10 +375,10 @@ export function generateCrosstabRowData(rowAttr: string, colAttr: string, seed?:
 /** Generate a simple (non-cross-tab) table for an extra row attribute */
 export function generateTableRowData(rowAttr: string, seed?: string): ChartData {
   seedRng(seed ? `${seed}:${rowAttr}` : undefined)
-  const labels = DIMENSION_VALUES[rowAttr] ?? SURVEY_ANSWERS.slice(0, 5)
+  const labels: string[] = DIMENSION_VALUES[rowAttr] ?? SURVEY_ANSWERS.slice(0, 5)
   const raw = labels.map(() => rand(5, 40))
-  const total = raw.reduce((s, v) => s + v, 0)
-  const percents = raw.map(v => Math.round((v / total) * 100))
+  const total = raw.reduce((s: number, v: number) => s + v, 0)
+  const percents = raw.map((v: number) => Math.round((v / total) * 100))
   return { labels, series: [{ name: 'Percent', values: percents }] }
 }
 

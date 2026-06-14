@@ -1228,10 +1228,6 @@ export default function DashboardBuilderPage() {
     if (selectedWidgetId === widgetId) setSelectedWidgetId(null)
   }
 
-  function handleRefresh() {
-    setPlacedWidgets((prev) => prev.map((pw) => ({ ...pw, chartKey: Math.random() })))
-  }
-
   function handleNameBlur() {
     if (!isNew) update(dashId, { name })
   }
@@ -1307,7 +1303,7 @@ export default function DashboardBuilderPage() {
               </Button>
             ) : (
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+                <DropdownMenuTrigger>
                   <Button variant="outline" size="toolbar">
                     Export
                   </Button>
