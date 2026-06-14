@@ -16,11 +16,11 @@ export function CTAPrimary({ children, onClick, className }: CTAProps) {
       onClick={onClick}
       className={cn(
         'landing-cta-primary',
-        'relative inline-flex items-center gap-2 px-6 py-3 rounded-full',
+        'group relative inline-flex items-center gap-2 px-6 py-3 rounded-full',
         'bg-foreground text-background text-sm font-medium',
         'cursor-pointer select-none whitespace-nowrap',
         'transition-colors duration-150',
-        'hover:bg-zinc-800',
+        'hover:bg-foreground/85',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50',
         className,
       )}

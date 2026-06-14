@@ -65,7 +65,7 @@ export function Hero() {
             <CTAPrimary>
               Book a demo
               <span
-                className="inline-block transition-transform duration-[250ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:translate-x-[3px]"
+                className="inline-block transition-transform duration-[250ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-[3px]"
                 aria-hidden
               >
                 →
