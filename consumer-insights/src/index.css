@@ -274,6 +274,64 @@ body {
   to   { transform: translateX(-33.333%); }
 }
 
+/* ── Landing page ──────────────────────────────────────────────── */
+
+/* Hero gradient text slide-in */
+@keyframes gradient-slide {
+  from { background-position: 100% center; }
+  to   { background-position: 0% center; }
+}
+
+/* Border beam on primary CTA */
+@property --beam-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes beam-rotate {
+  to { --beam-angle: 360deg; }
+}
+
+/* Proof card pulse — fires once, no loop */
+@keyframes pulse-once {
+  from { transform: scale(0); opacity: 0.04; }
+  to   { transform: scale(1.8); opacity: 0; }
+}
+
+/* Ray burst canvas colour tokens — "day" defaults (brand blue family) */
+:root {
+  --ray-colour:  color-mix(in srgb, var(--primary) 40%, transparent);
+  --dot-colour:  color-mix(in srgb, var(--primary) 65%, transparent);
+  --glow-colour: color-mix(in srgb, var(--primary) 12%, transparent);
+}
+
+/* Landing gradient text */
+.landing-gradient-text {
+  background: linear-gradient(
+    135deg,
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 55%, white) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-slide 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+}
+.landing-gradient-text::selection {
+  -webkit-text-fill-color: var(--foreground);
+  background: var(--primary);
+}
+
+/* Reduced motion — kill all animations */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
