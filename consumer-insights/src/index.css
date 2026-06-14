@@ -323,6 +323,35 @@ body {
   background: var(--primary);
 }
 
+/* Landing primary CTA — border beam */
+.landing-cta-primary {
+  isolation: isolate;
+}
+.landing-cta-primary::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--beam-angle, 0deg),
+    transparent 0deg,
+    transparent 300deg,
+    var(--primary) 340deg,
+    rgba(255,255,255,0.6) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: beam-rotate 2.5s linear infinite;
+  pointer-events: none;
+}
+.landing-cta-primary:hover::before {
+  animation-duration: 1.5s;
+}
+
 /* Reduced motion — kill all animations */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
