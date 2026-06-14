@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { stagger, fadeUp } from '../variants'
 import { CTAPrimary, CTASecondary } from '../components/LandingCTA'
 import { LandingNav } from '../components/LandingNav'
-import { DawnSun } from '../components/DawnSun'
+import { RayBurst } from '../components/RayBurst'
 
 const TRUST_ITEMS = [
   'Trusted by 23,069+ research teams',
@@ -15,9 +15,9 @@ export function Hero() {
     <section className="relative min-h-[88vh] bg-background flex items-center overflow-hidden">
       <LandingNav />
 
-      {/* DawnSun canvas — full background, pointer-events handled inside */}
+      {/* Ray burst canvas */}
       <div className="absolute inset-0 z-0">
-        <DawnSun className="w-full h-full" />
+        <RayBurst className="w-full h-full" />
       </div>
 
       <div className="relative z-10 w-full max-w-6xl mx-auto px-6 py-24 flex flex-col items-start">
