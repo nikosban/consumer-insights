@@ -55,7 +55,7 @@ const BREAKDOWN_LABELS: Record<string, string[]> = {
 }
 
 function barData(withBenchmark: boolean, breakdown?: string): ChartData {
-  const labels = (breakdown && BREAKDOWN_LABELS[breakdown]) ?? ['18-24', '25-34', '35-44', '45-54', '55+'];
+  const labels: string[] = (breakdown ? BREAKDOWN_LABELS[breakdown] : undefined) ?? ['18-24', '25-34', '35-44', '45-54', '55+'];
   const series = [{ name: 'Audience', values: labels.map(() => rand(20, 85)) }];
   if (withBenchmark) series.push({ name: 'Benchmark', values: labels.map(() => rand(20, 85)) });
   return { labels, series };
@@ -294,9 +294,9 @@ const DEFAULT_SURVEY_LABELS = [
 ]
 
 function surveyTableData(metric?: string, category?: string): ChartData {
-  const labels =
-    (category && CATEGORY_LABELS[category]) ??
-    (metric   && METRIC_LABELS[metric])     ??
+  const labels: string[] =
+    (category ? CATEGORY_LABELS[category] : undefined) ??
+    (metric ? METRIC_LABELS[metric] : undefined) ??
     DEFAULT_SURVEY_LABELS
   const raw = labels.map(() => rand(5, 40))
   const total = raw.reduce((a: number, b: number) => a + b, 0)
@@ -322,7 +322,7 @@ export const DIMENSION_VALUES: Record<string, string[]> = {
 const POP_SCALE = 22500 // respondents-to-population multiplier (fake)
 
 function crosstableData(dimensionLabel: string, rowLabels?: string[], metric?: string, category?: string): ChartData {
-  const answers = rowLabels ?? (category && CATEGORY_LABELS[category]) ?? (metric && METRIC_LABELS[metric]) ?? DEFAULT_SURVEY_LABELS.slice(0, 5)
+  const answers: string[] = rowLabels ?? (category ? CATEGORY_LABELS[category] : undefined) ?? (metric ? METRIC_LABELS[metric] : undefined) ?? DEFAULT_SURVEY_LABELS.slice(0, 5)
   const dimensions = DIMENSION_VALUES[dimensionLabel] ?? ['Group A', 'Group B', 'Group C']
 
   const TOTAL_N = 8599

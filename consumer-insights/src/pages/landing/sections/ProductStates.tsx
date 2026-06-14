@@ -341,7 +341,7 @@ function ExportColumn({ expanded }: { expanded: boolean }) {
               <div style={{ background: 'hsl(var(--muted))', borderRadius: 7, padding: '8px 10px' }}>
                 <p style={{ fontSize: 9, color: 'hsl(var(--muted-foreground))', marginBottom: 6 }}>Fig 1. Shopping Frequency</p>
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 36 }}>
-                  {BAR_H.map((h,i) => (
+                  {BAR_H.map((_h, i) => (
                     <motion.div key={i} style={{ flex: 1, borderRadius: '2px 2px 0 0', background: 'hsl(var(--primary) / 0.45)', originY: 1 }}
                       animate={{ scaleY: [0.2, 1] }}
                       transition={{ type: 'spring', stiffness: 200, damping: 20, delay: i * 0.04 }} />

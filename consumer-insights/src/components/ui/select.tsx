@@ -245,7 +245,7 @@ export function SelectField({
   )
 
   const select = (
-    <Select value={value} onValueChange={(v: string | null) => v != null && onChange(v)}>
+    <Select value={value} onValueChange={(v: string | null) => v != null && onChange?.(v)}>
       {trigger}
       {content}
     </Select>
