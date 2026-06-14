@@ -107,7 +107,7 @@ function ReportsCard({ title, body, gradient }: { title: string; body: string; g
 export function Capabilities() {
   return (
     <section className="bg-muted py-24">
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="max-w-[1264px] mx-auto px-6">
         <motion.div
           className="mb-16"
           variants={stagger}

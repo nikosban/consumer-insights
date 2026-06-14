@@ -8,7 +8,7 @@ export function Hero() {
     <section className="relative bg-background overflow-hidden">
       <LandingNav />
 
-      <div className="relative z-10 w-full max-w-6xl mx-auto px-6 pt-32 pb-20 flex flex-col items-start">
+      <div className="relative z-10 w-full max-w-[1264px] mx-auto px-6 pt-32 pb-20 flex flex-col items-start">
         <motion.div
           variants={stagger}
           initial="hidden"

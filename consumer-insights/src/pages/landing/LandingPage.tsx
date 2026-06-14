@@ -8,6 +8,7 @@ import { Capabilities } from './sections/Capabilities'
 import { DataSection } from './sections/DataSection'
 import { ProofNumbers } from './sections/ProofNumbers'
 import { FinalCTA } from './sections/FinalCTA'
+import { Footer } from './sections/Footer'
 
 export default function LandingPage() {
   return (
@@ -25,6 +26,7 @@ export default function LandingPage() {
       <DataSection />
       <ProofNumbers />
       <FinalCTA />
+      <Footer />
     </div>
   )
 }

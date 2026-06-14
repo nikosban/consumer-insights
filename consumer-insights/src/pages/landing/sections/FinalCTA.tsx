@@ -4,11 +4,6 @@ import { stagger, fadeUp } from '../variants'
 export function FinalCTA() {
   return (
     <section className="relative bg-zinc-950 py-32 overflow-hidden">
-      {/* Gradient fade from previous white section */}
-      <div
-        className="pointer-events-none absolute top-0 left-0 right-0 h-16"
-        style={{ background: 'linear-gradient(to bottom, var(--background), transparent)' }}
-      />
 
       <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
         <motion.div

@@ -8,7 +8,7 @@ export function LandingNav() {
 
   return (
     <header className="absolute top-0 left-0 right-0 z-20 border-b border-border/50 bg-background/90 backdrop-blur-sm">
-      <div className="mx-auto max-w-[1136px] px-6 flex items-center justify-between">
+      <div className="mx-auto max-w-[1264px] px-6 flex items-center justify-between">
 
         {/* Left — logo + nav links */}
         <div className="flex items-center gap-6">
@@ -16,7 +16,8 @@ export function LandingNav() {
             <img
               src="/statista-logo.svg"
               alt="Statista"
-              style={{ height: 24, filter: 'brightness(0)' }}
+              className="brightness-0 dark:invert"
+              style={{ height: 24 }}
             />
           </a>
           <nav className="hidden lg:flex items-center">

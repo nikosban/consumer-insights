@@ -44,7 +44,7 @@ function StatCounter({ end, suffix = '', prefix = '', duration = 700, startFrom 
 export function DataSection() {
   return (
     <section className="bg-zinc-950 py-24">
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="max-w-[1264px] mx-auto px-6">
         {/* Headline */}
         <motion.div
           className="mb-16"

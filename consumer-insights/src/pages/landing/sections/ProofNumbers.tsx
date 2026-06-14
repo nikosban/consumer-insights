@@ -43,7 +43,7 @@ function ProofCounter({ end, suffix, decimals, duration, label }: {
 export function ProofNumbers() {
   return (
     <section className="bg-background py-24">
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="max-w-[1264px] mx-auto px-6">
         <motion.div
           className="mb-16"
           variants={stagger}

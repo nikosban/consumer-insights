@@ -196,7 +196,7 @@ export function ProductStates() {
 
   return (
     <section className="bg-muted py-24">
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="max-w-[1264px] mx-auto px-6">
 
         {/* Headline */}
         <motion.div

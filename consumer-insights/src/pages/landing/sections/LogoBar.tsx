@@ -33,7 +33,7 @@ export function LogoBar() {
               src={logo.src}
               alt={logo.alt}
               draggable={false}
-              className="h-5 w-auto object-contain brightness-0 opacity-35 hover:opacity-65 transition-opacity duration-200"
+              className="h-5 w-auto object-contain brightness-0 opacity-35 hover:opacity-65 dark:invert dark:opacity-20 dark:hover:opacity-40 transition-opacity duration-200"
             />
           ))}
         </div>
