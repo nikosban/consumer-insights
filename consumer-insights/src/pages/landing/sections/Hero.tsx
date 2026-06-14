@@ -2,39 +2,26 @@ import { motion } from 'framer-motion'
 import { stagger, fadeUp } from '../variants'
 import { CTAPrimary, CTASecondary } from '../components/LandingCTA'
 import { LandingNav } from '../components/LandingNav'
-import { RayBurst } from '../components/RayBurst'
-
-const TRUST_ITEMS = [
-  'Trusted by 23,069+ research teams',
-  'Refreshed every Friday',
-  "Built on Statista's 700k+ respondent database",
-]
 
 export function Hero() {
   return (
-    <section className="relative min-h-[88vh] bg-background flex items-center overflow-hidden">
+    <section className="relative bg-background overflow-hidden">
       <LandingNav />
 
-      {/* Ray burst canvas */}
-      <div className="absolute inset-0 z-0">
-        <RayBurst className="w-full h-full" />
-      </div>
-
-      <div className="relative z-10 w-full max-w-6xl mx-auto px-6 py-24 flex flex-col items-start">
+      <div className="relative z-10 w-full max-w-6xl mx-auto px-6 pt-32 pb-20 flex flex-col items-start">
         <motion.div
           variants={stagger}
           initial="hidden"
           animate="visible"
-          className="flex flex-col items-start gap-0 max-w-[540px]"
+          className="flex flex-col items-start gap-0 max-w-[600px]"
         >
-          {/* Eyebrow */}
-          <motion.p
-            variants={fadeUp}
-            className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.08em] text-secondary-foreground mb-6"
-          >
-            <span className="inline-block w-1 h-1 rounded-full bg-primary shrink-0" aria-hidden />
-            Consumer Insights
-          </motion.p>
+          {/* Data pill */}
+          <motion.div variants={fadeUp} className="mb-6">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-muted text-xs font-medium text-secondary-foreground">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary shrink-0" aria-hidden />
+              170,402 survey questions across 56 markets
+            </span>
+          </motion.div>
 
           {/* Headline */}
           <motion.h1
@@ -60,7 +47,7 @@ export function Hero() {
           {/* CTAs */}
           <motion.div
             variants={fadeUp}
-            className="flex flex-col sm:flex-row items-start gap-3 mb-10"
+            className="flex flex-col sm:flex-row items-start gap-3"
           >
             <CTAPrimary>
               Book a demo
@@ -75,19 +62,6 @@ export function Hero() {
               Try the assistant
             </CTASecondary>
           </motion.div>
-
-          {/* Trust line */}
-          <motion.p
-            variants={fadeUp}
-            className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-secondary-foreground"
-          >
-            {TRUST_ITEMS.map((item, i) => (
-              <span key={item} className="flex items-center gap-2">
-                {i > 0 && <span aria-hidden className="text-border">·</span>}
-                {item}
-              </span>
-            ))}
-          </motion.p>
         </motion.div>
       </div>
     </section>
