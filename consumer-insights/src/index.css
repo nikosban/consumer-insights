@@ -340,6 +340,12 @@ body {
   to { --beam-angle: 360deg; }
 }
 
+/* Audience Builder particle pulse */
+@keyframes abParticlePulse {
+  0%, 100% { opacity: 0.12; transform: scale(1); }
+  50%       { opacity: 0.55; transform: scale(1.5); }
+}
+
 /* Proof card pulse — fires once, no loop */
 @keyframes pulse-once {
   from { transform: scale(0); opacity: 0.04; }

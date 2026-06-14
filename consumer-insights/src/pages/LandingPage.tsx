@@ -152,7 +152,7 @@ export default function LandingPage() {
 
         {/* Nav */}
         <header className="relative border-b border-white/[0.08] py-4">
-          <div className="mx-auto max-w-[1136px] px-6 flex items-center justify-between">
+          <div className="mx-auto max-w-[1264px] px-6 flex items-center justify-between">
 
             {/* Left — logo + nav links */}
             <div className="flex items-center gap-6">
@@ -216,7 +216,7 @@ export default function LandingPage() {
         </header>
 
         {/* Content area with subtle side borders */}
-        <div className="relative mx-auto max-w-[1136px] h-[826px] border-x border-white/[0.08] flex flex-col items-center pt-8 gap-10 overflow-hidden">
+        <div className="relative mx-auto max-w-[1264px] h-[826px] border-x border-white/[0.08] flex flex-col items-center pt-8 gap-10 overflow-hidden">
 
           {/* Tile watermark — real Statista symbol, contained within the 1156px column */}
           <WatermarkBackground />
@@ -294,14 +294,14 @@ export default function LandingPage() {
 
       {/* Logo marquee strip */}
       <div className="bg-[#0666e5] border-t border-white/[0.08]">
-        <div className="mx-auto max-w-[1136px] border-x border-white/[0.08] py-10 overflow-hidden">
+        <div className="mx-auto max-w-[1264px] border-x border-white/[0.08] py-10 overflow-hidden">
           <LogoMarquee />
         </div>
       </div>
 
       {/* ── Role / metrics section ─────────────────────────────── */}
       <div className="bg-white border-t border-border">
-        <div className="relative mx-auto max-w-[1136px] border-x border-border py-16 flex flex-col items-center text-center overflow-hidden">
+        <div className="relative mx-auto max-w-[1264px] border-x border-border py-16 flex flex-col items-center text-center overflow-hidden">
 
           {/* Diagonal stripe columns */}
           {(['left', 'right'] as const).map(side => (
