@@ -1,5 +1,3 @@
-import { motion } from 'framer-motion'
-
 const LOGOS = [
   { src: '/logos/google.svg',  alt: 'Google'   },
   { src: '/logos/samsung.svg', alt: 'Samsung'  },
@@ -9,29 +7,36 @@ const LOGOS = [
   { src: '/logos/tmobile.svg', alt: 'T-Mobile' },
 ]
 
+const TRACK = [...LOGOS, ...LOGOS, ...LOGOS]
+
 export function LogoBar() {
   return (
-    <section className="bg-muted py-12">
-      <div className="max-w-6xl mx-auto px-6">
-        <p className="text-center text-xs font-medium text-muted-foreground mb-8 uppercase tracking-[0.08em]">
-          Trusted by research teams at
-        </p>
-        <motion.div
-          className="flex items-center justify-center gap-10 flex-wrap"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.4, ease: 'easeOut' }}
+    <section className="bg-muted py-6">
+      <p className="text-center text-xs font-medium text-muted-foreground mb-5 uppercase tracking-[0.08em]">
+        Trusted by research teams at
+      </p>
+
+      <div
+        className="overflow-hidden"
+        style={{
+          maskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)',
+        }}
+      >
+        <div
+          className="flex items-center gap-16"
+          style={{ width: 'max-content', animation: 'marquee-ltr 28s linear infinite' }}
         >
-          {LOGOS.map(({ src, alt }) => (
+          {TRACK.map((logo, i) => (
             <img
-              key={alt}
-              src={src}
-              alt={alt}
-              className="h-6 w-auto grayscale brightness-0 opacity-30 hover:opacity-70 hover:grayscale-0 hover:brightness-100 transition-all duration-200 object-contain"
+              key={i}
+              src={logo.src}
+              alt={logo.alt}
+              draggable={false}
+              className="h-5 w-auto object-contain brightness-0 opacity-35 hover:opacity-65 transition-opacity duration-200"
             />
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   )
