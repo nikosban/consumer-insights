@@ -20,7 +20,7 @@ export function LogoBar() {
           className="flex items-center justify-center gap-10 flex-wrap"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          viewport={{ once: true, amount: 0.5 }}
+          viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.4, ease: 'easeOut' }}
         >
           {LOGOS.map(({ src, alt }) => (

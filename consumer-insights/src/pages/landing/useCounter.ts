@@ -4,7 +4,7 @@ import { useInView } from 'framer-motion'
 export function useCounter(end: number, duration = 700, startFrom = 0) {
   const [count, setCount] = useState(startFrom)
   const ref = useRef<HTMLElement>(null)
-  const inView = useInView(ref, { once: true, amount: 0.5 })
+  const inView = useInView(ref, { once: true, amount: 0.3 })
 
   useEffect(() => {
     if (!inView) return

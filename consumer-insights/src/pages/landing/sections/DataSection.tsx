@@ -17,22 +17,24 @@ const METHODOLOGY = [
   },
 ]
 
-function StatCounter({ end, suffix = '', prefix = '', duration = 700, startFrom = 0, label }: {
+function StatCounter({ end, suffix = '', prefix = '', duration = 700, startFrom = 0, label, noGrouping = false }: {
   end: number
   suffix?: string
   prefix?: string
   duration?: number
   startFrom?: number
   label: string
+  noGrouping?: boolean
 }) {
   const { count, ref } = useCounter(end, duration, startFrom)
+  const display = noGrouping ? count.toString() : count.toLocaleString()
   return (
     <div className="flex flex-col gap-2">
       <span
         ref={ref as React.RefObject<HTMLSpanElement>}
-        className="text-5xl font-semibold text-foreground tabular-nums"
+        className="text-5xl font-semibold text-zinc-50 tabular-nums"
       >
-        {prefix}{count.toLocaleString()}{suffix}
+        {prefix}{display}{suffix}
       </span>
       <span className="text-sm text-muted-foreground">{label}</span>
     </div>
@@ -83,7 +85,7 @@ export function DataSection() {
           variants={stagger}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
+          viewport={{ once: true, amount: 0.1 }}
         >
           <motion.div variants={fadeUp}>
             <StatCounter end={700} suffix="k+" duration={900} label="respondents" />
@@ -95,7 +97,7 @@ export function DataSection() {
             <StatCounter end={4} suffix="×" duration={400} label="annually" />
           </motion.div>
           <motion.div variants={fadeUp}>
-            <StatCounter end={2014} duration={400} startFrom={2010} label="since" />
+            <StatCounter end={2014} duration={400} startFrom={2010} label="since" noGrouping />
           </motion.div>
         </motion.div>
 
