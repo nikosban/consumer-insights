@@ -6,7 +6,7 @@ export function AudienceBuilder() {
   return (
     <section className="bg-background pt-24 pb-0 overflow-hidden">
 
-      <div className="max-w-6xl mx-auto px-6 mb-14">
+      <div className="max-w-6xl mx-auto px-6 mb-8">
         <motion.div
           variants={stagger}
           initial="hidden"
@@ -39,7 +39,6 @@ export function AudienceBuilder() {
         </motion.div>
       </div>
 
-      {/* Full-bleed canvas — no horizontal constraints */}
       <AudienceRingLock />
 
     </section>
