@@ -1355,16 +1355,16 @@ function MessageBubble({ msg, onSend, onCreateDraft }: {
         <IconSparkles className="h-3.5 w-3.5 text-primary-foreground" strokeWidth={2} />
       </div>
 
-      <div className="max-w-xl mr-8 w-full">
+      <div className="w-full min-w-0">
         {/* Processing steps (EV demo) */}
         {msg.processingSteps && msg.processingSteps.length > 0 && (
           <ProcessingStepsDisplay steps={msg.processingSteps} />
         )}
 
-        {/* Text bubble */}
+        {/* Text bubble — constrained width for readability */}
         {(msg.content || (!msg.processingSteps && !msg.audienceDraft)) && (
           <div className={cn(!msg.content && 'hidden')}>
-            <div className="rounded-2xl rounded-bl-sm px-4 py-3 text-sm leading-relaxed bg-muted text-foreground">
+            <div className="max-w-xl rounded-2xl rounded-bl-sm px-4 py-3 text-sm leading-relaxed bg-muted text-foreground">
               {msg.isStreaming ? (
                 <span>
                   {renderMarkdown(msg.content)}
