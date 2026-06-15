@@ -95,73 +95,86 @@ function UseCaseTile({ Icon, title, desc, color, onClick }: { Icon: React.Elemen
   )
 }
 
-// ─── Chat History Panel ───────────────────────────────────────────────────────
+// ─── Chat History ─────────────────────────────────────────────────────────────
+
+function formatDate(iso: string) {
+  const d = new Date(iso)
+  return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
 
 function groupHistory(history: ChatHistoryEntry[]) {
   const now = Date.now()
-  const sevenDays: ChatHistoryEntry[] = []
-  const pastMonth: ChatHistoryEntry[] = []
+  const today: ChatHistoryEntry[] = []
+  const past7: ChatHistoryEntry[] = []
+  const older: ChatHistoryEntry[] = []
   history.forEach(entry => {
-    const age = now - new Date(entry.createdAt).getTime()
-    const days = age / (1000 * 60 * 60 * 24)
-    if (days <= 7) sevenDays.push(entry)
-    else if (days <= 30) pastMonth.push(entry)
+    const days = (now - new Date(entry.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+    if (days < 1)      today.push(entry)
+    else if (days < 7) past7.push(entry)
+    else               older.push(entry)
   })
-  return { sevenDays, pastMonth }
+  return { today, past7, older }
 }
 
-function ChatHistoryPanel({ onSelect, onNew, showNewChat }: {
-  onSelect: (q: string) => void
-  onNew: () => void
-  showNewChat: boolean
-}) {
-  const { history } = useAIStore()
-  const { sevenDays, pastMonth } = groupHistory(history)
-
+function HistoryRow({ entry, onSelect }: { entry: ChatHistoryEntry; onSelect: (q: string) => void }) {
   return (
-    <aside className="w-[220px] shrink-0 flex flex-col border-r border-border bg-sidebar h-full overflow-hidden">
+    <button
+      onClick={() => onSelect(entry.firstMessage)}
+      className="flex items-center gap-2 w-full text-left px-3 py-2 rounded-md transition-colors hover:bg-accent group"
+    >
+      <span className="flex-1 truncate text-xs text-foreground">{entry.firstMessage}</span>
+      <span className="shrink-0 text-[10px] text-muted-foreground tabular-nums">{formatDate(entry.createdAt)}</span>
+    </button>
+  )
+}
+
+function HistoryGroup({ label, entries, onSelect }: { label: string; entries: ChatHistoryEntry[]; onSelect: (q: string) => void }) {
+  if (entries.length === 0) return null
+  return (
+    <div className="mb-1">
+      <p className="px-3 py-1.5 text-[10px] font-semibold text-muted-foreground tracking-wider uppercase">{label}</p>
+      {entries.map(entry => <HistoryRow key={entry.id} entry={entry} onSelect={onSelect} />)}
+    </div>
+  )
+}
+
+/** Inline section rendered below the use-case tiles on the empty state */
+function InlineHistory({ onSelect }: { onSelect: (q: string) => void }) {
+  const { history } = useAIStore()
+  const { today, past7, older } = groupHistory(history)
+  const hasAny = today.length + past7.length + older.length > 0
+  if (!hasAny) return null
+  return (
+    <div className="mt-6">
+      <p className="text-xs font-semibold text-foreground mb-2">Recent chats</p>
+      <HistoryGroup label="Today"       entries={today}  onSelect={onSelect} />
+      <HistoryGroup label="Past 7 days" entries={past7}  onSelect={onSelect} />
+      <HistoryGroup label="Older"       entries={older}  onSelect={onSelect} />
+    </div>
+  )
+}
+
+/** Right sidebar shown during an active conversation */
+function ChatHistoryPanel({ onSelect, onNew }: { onSelect: (q: string) => void; onNew: () => void }) {
+  const { history } = useAIStore()
+  const { today, past7, older } = groupHistory(history)
+  return (
+    <aside className="w-[220px] shrink-0 flex flex-col border-l border-border bg-sidebar h-full overflow-hidden">
       <div className="flex items-center justify-between px-3 h-14 border-b border-border shrink-0">
         <span className="text-xs font-semibold text-muted-foreground tracking-wide">Chat history</span>
-        {showNewChat && (
-          <button
-            onClick={onNew}
-            title="New chat"
-            className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-primary text-white hover:bg-primary/90 transition-colors"
-          >
-            <SquarePen size={12} />
-          </button>
-        )}
+        <button
+          onClick={onNew}
+          title="New chat"
+          className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-primary text-white hover:bg-primary/90 transition-colors"
+        >
+          <SquarePen size={12} />
+        </button>
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto py-2">
-        {sevenDays.length > 0 && (
-          <div className="mb-2">
-            <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground tracking-wider">7 days</p>
-            {sevenDays.map(entry => (
-              <button key={entry.id} onClick={() => onSelect(entry.firstMessage)}
-                className="flex items-center gap-2 w-full text-left px-3 py-2 text-xs text-sidebar-foreground rounded-md mx-1 transition-colors hover:bg-sidebar-accent"
-                style={{ width: 'calc(100% - 8px)' }}
-              >
-                <MessageSquare size={11} className="shrink-0 text-muted-foreground" />
-                <span className="truncate">{entry.firstMessage}</span>
-              </button>
-            ))}
-          </div>
-        )}
-        {pastMonth.length > 0 && (
-          <div>
-            <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground tracking-wider">Past month</p>
-            {pastMonth.map(entry => (
-              <button key={entry.id} onClick={() => onSelect(entry.firstMessage)}
-                className="flex items-center gap-2 w-full text-left px-3 py-2 text-xs text-sidebar-foreground rounded-md mx-1 transition-colors hover:bg-sidebar-accent"
-                style={{ width: 'calc(100% - 8px)' }}
-              >
-                <MessageSquare size={11} className="shrink-0 text-muted-foreground" />
-                <span className="truncate">{entry.firstMessage}</span>
-              </button>
-            ))}
-          </div>
-        )}
-        {sevenDays.length === 0 && pastMonth.length === 0 && (
+        <HistoryGroup label="Today"       entries={today}  onSelect={onSelect} />
+        <HistoryGroup label="Past 7 days" entries={past7}  onSelect={onSelect} />
+        <HistoryGroup label="Older"       entries={older}  onSelect={onSelect} />
+        {today.length + past7.length + older.length === 0 && (
           <p className="px-3 py-4 text-xs text-muted-foreground text-center">No chat history yet</p>
         )}
       </div>
@@ -1400,7 +1413,7 @@ function StreamingSkeleton() {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ResearchAIPage() {
-  const { setLeftPanel } = useLayout()
+  const { setLeftPanel, setRightSidebar } = useLayout()
   const { conversation, isStreaming, addMessage, updateLastAssistantMessage, setStreaming, reset } = useAIStore()
   const [input, setInput] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -1411,15 +1424,14 @@ export default function ResearchAIPage() {
   const handleSelect = useCallback((q: string) => { reset(); setInput(q) }, [reset])
 
   useEffect(() => {
-    setLeftPanel(
-      <ChatHistoryPanel
-        onSelect={handleSelect}
-        onNew={reset}
-        showNewChat={!isEmpty}
-      />
-    )
-    return () => setLeftPanel(null)
-  }, [isEmpty, handleSelect, reset, setLeftPanel])
+    setLeftPanel(null)
+    if (!isEmpty) {
+      setRightSidebar(<ChatHistoryPanel onSelect={handleSelect} onNew={reset} />)
+    } else {
+      setRightSidebar(null)
+    }
+    return () => { setLeftPanel(null); setRightSidebar(null) }
+  }, [isEmpty, handleSelect, reset, setLeftPanel, setRightSidebar])
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
@@ -1582,6 +1594,9 @@ export default function ResearchAIPage() {
                     />
                   ))}
                 </div>
+
+                {/* Chat history inline */}
+                <InlineHistory onSelect={handleSelect} />
 
               </div>
             </div>
