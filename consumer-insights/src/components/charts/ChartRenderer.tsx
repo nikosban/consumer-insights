@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {
   BarChart,
   Bar,
@@ -38,31 +38,47 @@ const CATEGORICAL_COLORS = [
   '#65A30D', // lime-600    (series 8)
 ]
 
-const GRID_STROKE = 'oklch(92% 0.004 286.32)' // zinc-200
 const SANS = "'Instrument Sans Variable', 'Instrument Sans', system-ui, sans-serif"
-const AXIS_STYLE = { fontSize: 12, fill: '#71717a', fontFamily: SANS }
+
+function useCSSVar(prop: string) {
+  const [value, setValue] = useState(() =>
+    getComputedStyle(document.documentElement).getPropertyValue(prop).trim()
+  )
+  const observer = useRef<MutationObserver | null>(null)
+  useEffect(() => {
+    const read = () => setValue(getComputedStyle(document.documentElement).getPropertyValue(prop).trim())
+    observer.current = new MutationObserver(read)
+    observer.current.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+    return () => observer.current?.disconnect()
+  }, [prop])
+  return value
+}
 
 function ChartTooltip({ active, payload, label }: {
   active?: boolean
   payload?: Array<{ name: string; value: number; color: string }>
   label?: string
 }) {
+  const bg = useCSSVar('--popover')
+  const border = useCSSVar('--border')
+  const fg = useCSSVar('--popover-foreground')
+  const fgMuted = useCSSVar('--muted-foreground')
   if (!active || !payload?.length) return null
   return (
     <div style={{
-      background: '#fff',
-      border: '1px solid #e9eaec',
+      background: `oklch(${bg})`,
+      border: `1px solid oklch(${border})`,
       borderRadius: 6,
       padding: '6px 10px',
       fontSize: 12,
       fontFamily: SANS,
-      boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
       lineHeight: '18px',
     }}>
-      {label && <p style={{ fontWeight: 600, color: '#1a1a1a', marginBottom: 2 }}>{label}</p>}
+      {label && <p style={{ fontWeight: 600, color: `oklch(${fg})`, marginBottom: 2 }}>{label}</p>}
       {payload.map((entry) => (
         <p key={entry.name} style={{ color: entry.color, margin: 0 }}>
-          <span style={{ color: '#555' }}>{entry.name}: </span>
+          <span style={{ color: `oklch(${fgMuted})` }}>{entry.name}: </span>
           <span style={{ fontWeight: 600 }}>{entry.value}</span>
         </p>
       ))}
@@ -79,6 +95,10 @@ function heatmapBg(pct: number): string {
 export default function ChartRenderer({ widget, data, height = 200, crossTabConfig, extraRowsData = [], heatmap = false }: ChartRendererProps) {
   const { type } = widget
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
+  const borderToken = useCSSVar('--border')
+  const mutedFgToken = useCSSVar('--muted-foreground')
+  const gridStroke = `oklch(${borderToken})`
+  const axisStyle = { fontSize: 12, fill: `oklch(${mutedFgToken})`, fontFamily: SANS }
 
   function toggleGroup(name: string) {
     setExpandedGroups(prev => {
@@ -97,9 +117,9 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
     return (
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData} margin={{ top: 4, right: 8, bottom: 4, left: -16 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={GRID_STROKE} vertical={false} />
-          <XAxis dataKey="label" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
-          <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+          <XAxis dataKey="label" tick={axisStyle} axisLine={false} tickLine={false} />
+          <YAxis tick={axisStyle} axisLine={false} tickLine={false} />
           <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(6,102,229,0.04)' }} />
           {data.series.length > 1 && <Legend iconSize={8} wrapperStyle={{ fontSize: 12, fontFamily: SANS }} />}
           {data.series.map((s, idx) => (
@@ -119,9 +139,9 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
     return (
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData} margin={{ top: 4, right: 8, bottom: 4, left: -16 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={GRID_STROKE} vertical={false} />
-          <XAxis dataKey="label" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
-          <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+          <XAxis dataKey="label" tick={axisStyle} axisLine={false} tickLine={false} />
+          <YAxis tick={axisStyle} axisLine={false} tickLine={false} />
           <Tooltip content={<ChartTooltip />} />
           {data.series.length > 1 && <Legend iconSize={8} wrapperStyle={{ fontSize: 12, fontFamily: SANS }} />}
           {data.series.map((s, idx) => (
