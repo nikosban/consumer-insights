@@ -59,6 +59,7 @@ const gridBgStyle: React.CSSProperties = {
   backgroundSize: '36px 36px',
   WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 40%, transparent 70%)',
   maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 40%, transparent 70%)',
+  zIndex: -1,
 }
 
 // ─── Use-case tiles ───────────────────────────────────────────────────────────
@@ -123,7 +124,7 @@ function HistoryRow({ entry, onSelect }: { entry: ChatHistoryEntry; onSelect: (q
       className="flex items-center gap-2 w-full text-left px-3 py-2 rounded-md transition-colors hover:bg-accent group"
     >
       <span className="flex-1 truncate text-xs text-foreground">{entry.firstMessage}</span>
-      <span className="shrink-0 text-[10px] text-muted-foreground tabular-nums">{formatDate(entry.createdAt)}</span>
+      <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{formatDate(entry.createdAt)}</span>
     </button>
   )
 }
@@ -132,7 +133,7 @@ function HistoryGroup({ label, entries, onSelect }: { label: string; entries: Ch
   if (entries.length === 0) return null
   return (
     <div className="mb-1">
-      <p className="px-3 py-1.5 text-[10px] font-semibold text-muted-foreground tracking-wider uppercase">{label}</p>
+      <p className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase">{label}</p>
       {entries.map(entry => <HistoryRow key={entry.id} entry={entry} onSelect={onSelect} />)}
     </div>
   )
