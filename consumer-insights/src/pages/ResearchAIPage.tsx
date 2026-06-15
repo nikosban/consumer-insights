@@ -104,16 +104,14 @@ function formatDate(iso: string) {
 
 function groupHistory(history: ChatHistoryEntry[]) {
   const now = Date.now()
-  const today: ChatHistoryEntry[] = []
-  const past7: ChatHistoryEntry[] = []
+  const recent: ChatHistoryEntry[] = []
   const older: ChatHistoryEntry[] = []
   history.forEach(entry => {
     const days = (now - new Date(entry.createdAt).getTime()) / (1000 * 60 * 60 * 24)
-    if (days < 1)      today.push(entry)
-    else if (days < 7) past7.push(entry)
-    else               older.push(entry)
+    if (days < 7) recent.push(entry)
+    else          older.push(entry)
   })
-  return { today, past7, older }
+  return { recent, older }
 }
 
 function HistoryRow({ entry, onSelect }: { entry: ChatHistoryEntry; onSelect: (q: string) => void }) {
@@ -141,15 +139,14 @@ function HistoryGroup({ label, entries, onSelect }: { label: string; entries: Ch
 /** Inline section rendered below the use-case tiles on the empty state */
 function InlineHistory({ onSelect }: { onSelect: (q: string) => void }) {
   const { history } = useAIStore()
-  const { today, past7, older } = groupHistory(history)
-  const hasAny = today.length + past7.length + older.length > 0
+  const { recent, older } = groupHistory(history)
+  const hasAny = recent.length + older.length > 0
   if (!hasAny) return null
   return (
     <div className="mt-8">
       <p className="px-3 text-xs font-semibold text-foreground mb-2">Recent chats</p>
-      <HistoryGroup label="Today"       entries={today}  onSelect={onSelect} />
-      <HistoryGroup label="Past 7 days" entries={past7}  onSelect={onSelect} />
-      <HistoryGroup label="Older"       entries={older}  onSelect={onSelect} />
+      <HistoryGroup label="Recent" entries={recent} onSelect={onSelect} />
+      <HistoryGroup label="Older"  entries={older}  onSelect={onSelect} />
     </div>
   )
 }
@@ -157,7 +154,7 @@ function InlineHistory({ onSelect }: { onSelect: (q: string) => void }) {
 /** Right sidebar shown during an active conversation */
 function ChatHistoryPanel({ onSelect, onNew }: { onSelect: (q: string) => void; onNew: () => void }) {
   const { history } = useAIStore()
-  const { today, past7, older } = groupHistory(history)
+  const { recent, older } = groupHistory(history)
   return (
     <aside className="w-[220px] shrink-0 flex flex-col border-l border-border bg-sidebar h-full overflow-hidden">
       <div className="flex items-center justify-between px-3 h-14 border-b border-border shrink-0">
@@ -171,10 +168,9 @@ function ChatHistoryPanel({ onSelect, onNew }: { onSelect: (q: string) => void; 
         </button>
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto py-2">
-        <HistoryGroup label="Today"       entries={today}  onSelect={onSelect} />
-        <HistoryGroup label="Past 7 days" entries={past7}  onSelect={onSelect} />
-        <HistoryGroup label="Older"       entries={older}  onSelect={onSelect} />
-        {today.length + past7.length + older.length === 0 && (
+        <HistoryGroup label="Recent" entries={recent} onSelect={onSelect} />
+        <HistoryGroup label="Older"  entries={older}  onSelect={onSelect} />
+        {recent.length + older.length === 0 && (
           <p className="px-3 py-4 text-xs text-muted-foreground text-center">No chat history yet</p>
         )}
       </div>
