@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useState, useRef, useCallback, useEffect } from 'react'
+import { useAIStore } from '@/store/aiStore'
 import {
   IconMessage, IconUsers, IconChartBar, IconFlask, IconLogout,
   IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand,
@@ -30,18 +31,18 @@ const iconOnlyCls = (isActive: boolean) =>
       : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
   )
 
-function NavItem({ to, icon, label, end, collapsed }: {
-  to: string; icon: React.ReactNode; label: string; end?: boolean; collapsed: boolean
+function NavItem({ to, icon, label, end, collapsed, onClick }: {
+  to: string; icon: React.ReactNode; label: string; end?: boolean; collapsed: boolean; onClick?: () => void
 }) {
   if (collapsed) {
     return (
-      <NavLink to={to} end={end} title={label} className={({ isActive }) => iconOnlyCls(isActive)}>
+      <NavLink to={to} end={end} title={label} className={({ isActive }) => iconOnlyCls(isActive)} onClick={onClick}>
         {icon}
       </NavLink>
     )
   }
   return (
-    <NavLink to={to} end={end} className={({ isActive }) => navItemCls(isActive)}>
+    <NavLink to={to} end={end} className={({ isActive }) => navItemCls(isActive)} onClick={onClick}>
       {icon}
       {label}
     </NavLink>
@@ -50,6 +51,7 @@ function NavItem({ to, icon, label, end, collapsed }: {
 
 export default function WorkspaceSidebar() {
   const navigate = useNavigate()
+  const reset = useAIStore(s => s.reset)
   const [width, setWidth] = useState(DEFAULT_WIDTH)
   const [collapsed, setCollapsed] = useState(false)
   const isResizing = useRef(false)
@@ -149,7 +151,7 @@ export default function WorkspaceSidebar() {
 
       {/* Primary nav */}
       <div className={cn('pt-1 flex-1 space-y-0.5', collapsed ? 'px-1.5 flex flex-col items-center' : 'px-2')}>
-        <NavItem to="/research-ai" icon={<IconMessage       size={14} strokeWidth={2} />} label="Chat"       collapsed={collapsed} />
+        <NavItem to="/research-ai" icon={<IconMessage       size={14} strokeWidth={2} />} label="Chat"       collapsed={collapsed} onClick={reset} />
         <NavItem to="/audiences"   icon={<IconUsers         size={14} strokeWidth={2} />} label="Audience"   collapsed={collapsed} />
         <NavItem to="/charts"      icon={<IconChartBar      size={14} strokeWidth={2} />} label="Charts"     collapsed={collapsed} />
         <NavItem to="/dashboards"  icon={<IconLayoutDashboard size={14} strokeWidth={2} />} label="Dashboards" collapsed={collapsed} />

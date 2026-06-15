@@ -19,6 +19,7 @@ type AIStore = {
   setPendingHandoff: (h: CIHandoff | null) => void
   clearHandoff: () => void
   reset: () => void
+  loadConversation: (msgs: AIMessage[]) => void
 }
 
 const initialConversation: AIConversation = {
@@ -77,9 +78,16 @@ export const useAIStore = create<AIStore>()(
 
   clearHandoff: () => set({ pendingHandoff: null }),
 
+  loadConversation: (msgs) => set((s) => ({
+    conversation: { ...s.conversation, id: `conv-${Date.now()}`, messages: msgs, isPreset: true },
+    isStreaming: false,
+    pendingHandoff: null,
+  })),
+
   reset: () => set((s) => {
     const firstUserMsg = s.conversation.messages.find(m => m.role === 'user')
-    const newHistory = firstUserMsg
+    const isPreset = (s.conversation as AIConversation & { isPreset?: boolean }).isPreset
+    const newHistory = firstUserMsg && !isPreset
       ? [{ id: s.conversation.id, firstMessage: firstUserMsg.content.slice(0, 120), createdAt: new Date().toISOString() }, ...s.history]
       : s.history
     return {
@@ -90,5 +98,5 @@ export const useAIStore = create<AIStore>()(
     }
     }),
   }),
-  { name: 'ci-ai', partialize: (s) => ({ history: s.history }) }
+  { name: 'ci-ai', partialize: () => ({}) }
 ))

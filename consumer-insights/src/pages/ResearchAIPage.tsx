@@ -12,13 +12,14 @@ import {
   EV_PROCESSING_STEPS, EV_AI_TEXT, EV_BENCHMARK_PANEL,
   EV_WIDGET_CLUSTER, EV_AUDIENCE_DRAFT, EV_FOLLOW_UPS,
 } from '@/data/fakeGenerators'
+import { PRESET_CONVERSATIONS } from '@/data/presetConversations'
 import ChartRenderer from '@/components/charts/ChartRenderer'
 import type {
   AudienceCardData, DataWidgetCardData, Audience, AIMessage, Widget,
   ProcessingStep, BenchmarkPanelData, AudienceDraftData,
 } from '@/types'
 import {
-  Send, Sparkles, RotateCcw, ChevronDown,
+  Send, Sparkles, ChevronDown,
   Users, Globe, TrendingUp, SquarePen, MessageSquare, BarChart2,
   Check, LayoutDashboard, ExternalLink, ChevronRight, ArrowUpRight,
   Crown, Plus, Download, Copy, LineChart, Table2, BarChart3,
@@ -1410,14 +1411,22 @@ function StreamingSkeleton() {
 
 export default function ResearchAIPage() {
   const { setLeftPanel, setRightSidebar } = useLayout()
-  const { conversation, isStreaming, addMessage, updateLastAssistantMessage, setStreaming, reset } = useAIStore()
+  const { conversation, isStreaming, addMessage, updateLastAssistantMessage, setStreaming, reset, loadConversation } = useAIStore()
   const [input, setInput] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const isEmpty = conversation.messages.length === 0
 
-  const handleSelect = useCallback((q: string) => { reset(); setInput(q) }, [reset])
+  const handleSelect = useCallback((q: string) => {
+    const preset = PRESET_CONVERSATIONS[q]
+    if (preset) {
+      loadConversation(preset)
+    } else {
+      reset()
+      setInput(q)
+    }
+  }, [loadConversation, reset])
 
   useEffect(() => {
     setLeftPanel(null)
@@ -1600,17 +1609,6 @@ export default function ResearchAIPage() {
         ) : (
           /* ── Conversation state ── */
           <>
-            <div className="relative flex items-center justify-between px-6 py-3 border-b border-border shrink-0 bg-background/80 backdrop-blur-sm">
-              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <Sparkles className="h-4 w-4 text-primary" />
-                Research AI
-              </div>
-              <button onClick={reset} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors rounded-md px-2 py-1.5 hover:bg-accent">
-                <RotateCcw className="h-3 w-3" />
-                New conversation
-              </button>
-            </div>
-
             <div ref={scrollRef} className="relative flex-1 min-h-0 overflow-y-auto px-6 py-6">
               <div className="max-w-3xl mx-auto">
                 {conversation.messages.map(msg => <MessageBubble key={msg.id} msg={msg} onSend={handleSend} onCreateDraft={handleCreateDraft} />)}
