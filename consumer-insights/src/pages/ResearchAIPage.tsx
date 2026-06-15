@@ -18,7 +18,7 @@ import type {
   AudienceCardData, DataWidgetCardData, Audience, AIMessage, Widget,
   ProcessingStep, BenchmarkPanelData, AudienceDraftData,
 } from '@/types'
-import { IconSend, IconSparkles, IconChevronDown, IconUsers, IconGlobe, IconTrendingUp, IconEdit, IconMessage, IconChartBar, IconCheck, IconLayoutDashboard, IconExternalLink, IconChevronRight, IconArrowUpRight, IconCrown, IconPlus, IconDownload, IconCopy, IconChartLine, IconTable, IconTrash, IconX } from '@tabler/icons-react'
+import { IconSend, IconSparkles, IconChevronDown, IconUsers, IconGlobe, IconTrendingUp, IconEdit, IconMessage, IconChartBar, IconCheck, IconLayoutDashboard, IconExternalLink, IconChevronRight, IconArrowUpRight, IconCrown, IconPlus, IconDownload, IconCopy, IconChartLine, IconTable, IconTrash, IconX, IconMessagePlus } from '@tabler/icons-react'
 import type { WidgetType } from '@/types'
 import { cn } from '@/lib/utils'
 import { toast } from '@/components/ui/Toaster'
@@ -345,7 +345,7 @@ function InputBox({
 }: {
   input: string; setInput: (v: string) => void; isStreaming: boolean; onSend: () => void; rows?: number
 }) {
-  const [sourceMode, setSourceMode] = useState<SourceMode>('general')
+  const [sourceMode, setSourceMode] = useState<SourceMode>('consumer')
   const [survey, setSurvey]   = useState(SURVEY_OPTIONS[0])
   const [market, setMarket]   = useState(MARKET_OPTIONS[0])
   const [country, setCountry] = useState(COUNTRY_OPTIONS[0])
@@ -372,7 +372,7 @@ function InputBox({
   }
 
   return (
-    <div className="rounded-2xl bg-card border border-border shadow-sm overflow-visible">
+    <div className="rounded-2xl bg-card shadow-sm overflow-visible">
       {/* Textarea area with revolving placeholder */}
       <div className="relative px-4 pt-3 pb-1">
         {!input && (
@@ -417,8 +417,7 @@ function InputBox({
         <button
           type="button"
           onClick={onSend}
-          disabled={!input.trim() || isStreaming}
-          className="w-[30px] h-[30px] rounded-[6px] bg-foreground text-background flex items-center justify-center shrink-0 transition-opacity disabled:opacity-30"
+          className="w-[30px] h-[30px] rounded-[6px] bg-foreground text-background flex items-center justify-center shrink-0"
         >
           <IconSend className="h-3.5 w-3.5" strokeWidth={2} />
         </button>
@@ -741,70 +740,80 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
     setTimeout(() => setCopied(false), 1500)
   }
 
-  return (
-    <div ref={cardRef} className="max-w-[480px] w-full rounded-2xl rounded-bl-sm border border-border bg-card shadow-sm overflow-hidden">
+  // Derive three scannable metrics from the primary series
+  const primaryValues = card.chartData.series[0]?.values ?? []
+  const primaryLabels = card.chartData.labels ?? []
+  const isMultiValue = primaryValues.length > 1
+  const peakIdx = isMultiValue ? primaryValues.reduce((best, v, i) => v > primaryValues[best] ? i : best, 0) : 0
+  const peakVal = primaryValues[peakIdx] ?? 0
+  const peakLabel = primaryLabels[peakIdx] ?? ''
+  const avg = isMultiValue ? Math.round(primaryValues.reduce((s, v) => s + v, 0) / primaryValues.length) : 0
+  const delta = peakVal - avg
 
-      {/* ── Header ── */}
+  return (
+    <div ref={cardRef} className="w-full rounded-2xl rounded-bl-sm border border-border bg-card shadow-sm overflow-hidden">
+
+      {/* ── Header: title + add-to-dashboard icon ── */}
       <div className="px-4 pt-4 pb-3 border-b border-border">
         <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <h3 className="text-sm font-semibold text-foreground leading-tight">{card.title}</h3>
-            <p className="text-xs text-secondary-foreground mt-0.5">{card.subtitle}</p>
-          </div>
-          <div className="flex items-center gap-1.5 shrink-0">
-            <VizSwitcher value={vizType} onChange={setVizType} />
-            <button title="Export PNG" onClick={() => cardRef.current && exportElAsPng(cardRef.current, card.title)}
-              className="w-6 h-6 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
-              <IconDownload size={12} strokeWidth={2} />
+          <h3 className="text-sm font-semibold text-foreground leading-tight">{card.title}</h3>
+          <div ref={dashRef} className="relative shrink-0">
+            <button
+              title={addedToDash ? 'Added to dashboard' : 'Add to dashboard'}
+              onClick={() => !addedToDash && setDashPickerOpen(o => !o)}
+              className={cn(
+                'w-6 h-6 flex items-center justify-center rounded transition-colors',
+                addedToDash ? 'text-green-600' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              )}
+            >
+              {addedToDash ? <IconCheck size={12} strokeWidth={2} /> : <IconLayoutDashboard size={12} strokeWidth={2} />}
             </button>
-            <button title={copied ? 'Copied!' : 'Copy image'} onClick={handleCopy}
-              className={cn('w-6 h-6 flex items-center justify-center rounded transition-colors', copied ? 'text-green-600' : 'hover:bg-muted text-muted-foreground hover:text-foreground')}>
-              {copied ? <IconCheck size={12} strokeWidth={2} /> : <IconCopy size={12} strokeWidth={2} />}
-            </button>
+            {dashPickerOpen && (
+              <DashboardPickerDropdown dashboards={dashboards} onSelect={(id, name) => { setDashPickerOpen(false); handleAddToDashboard(id, name) }} label="Select dashboard" direction="down" />
+            )}
           </div>
         </div>
+
+        {/* ── Metric strip ── */}
+        {isMultiValue && (
+          <div className="flex items-center gap-4 mt-3">
+            <div>
+              <p className="text-[11px] text-muted-foreground leading-none mb-1">Peak</p>
+              <p className="text-sm font-semibold text-foreground leading-none">{peakVal}% <span className="text-xs font-normal text-secondary-foreground">· {peakLabel}</span></p>
+            </div>
+            <div className="w-px self-stretch bg-border" />
+            <div>
+              <p className="text-[11px] text-muted-foreground leading-none mb-1">Average</p>
+              <p className="text-sm font-semibold text-foreground leading-none">{avg}%</p>
+            </div>
+            <div className="w-px self-stretch bg-border" />
+            <div>
+              <p className="text-[11px] text-muted-foreground leading-none mb-1">Peak vs avg</p>
+              <p className="text-sm font-semibold text-foreground leading-none">+{delta}pp</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── Chart ── */}
-      <div className="px-3 pt-3 pb-1" style={{ height: 150 }}>
-        <ChartRenderer widget={fakeWidget} data={card.chartData} height={150} />
+      <div className="px-3 pt-3 pb-2" style={{ height: 220 }}>
+        <ChartRenderer widget={fakeWidget} data={card.chartData} height={220} />
       </div>
 
-      {/* ── Source ── */}
-      <div className="px-4 pb-3">
-        <span className="text-[10px] text-muted-foreground">Source: {card.source}</span>
-      </div>
-
-      {/* ── CTAs ── */}
-      <div className="px-4 py-3 border-t border-border space-y-2">
-        <div className="flex items-center gap-2">
-          <div ref={dashRef} className="relative flex-1">
-            <button
-              onClick={() => !addedToDash && setDashPickerOpen(o => !o)}
-              className={cn(
-                'w-full flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-colors',
-                addedToDash
-                  ? 'border border-green-200 bg-green-50 text-green-700 cursor-default'
-                  : 'border border-border bg-background text-foreground hover:bg-accent'
-              )}
-            >
-              {addedToDash ? <IconCheck size={11} strokeWidth={2} /> : <IconLayoutDashboard size={11} strokeWidth={2} />}
-              {addedToDash ? 'Added to Dashboard' : 'Add to Dashboard'}
-            </button>
-            {dashPickerOpen && (
-              <DashboardPickerDropdown dashboards={dashboards} onSelect={(id, name) => { setDashPickerOpen(false); handleAddToDashboard(id, name) }} label="Select dashboard" direction="up" />
-            )}
-          </div>
-          <button
-            onClick={() => document.dispatchEvent(new CustomEvent('focus-chat-input'))}
-            className="flex items-center justify-center gap-1 h-8 px-3 rounded-lg border border-border bg-background text-xs font-medium text-foreground hover:bg-accent transition-colors"
-          >
-            Refine
-          </button>
-        </div>
+      {/* ── Footer: actions left, added-confirmation right ── */}
+      <div className="px-3 py-2 border-t border-border flex items-center gap-1">
+        <VizSwitcher value={vizType} onChange={setVizType} />
+        <button title="Export PNG" onClick={() => cardRef.current && exportElAsPng(cardRef.current, card.title)}
+          className="w-6 h-6 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
+          <IconDownload size={12} strokeWidth={2} />
+        </button>
+        <button title={copied ? 'Copied!' : 'Copy image'} onClick={handleCopy}
+          className={cn('w-6 h-6 flex items-center justify-center rounded transition-colors', copied ? 'text-green-600' : 'hover:bg-muted text-muted-foreground hover:text-foreground')}>
+          {copied ? <IconCheck size={12} strokeWidth={2} /> : <IconCopy size={12} strokeWidth={2} />}
+        </button>
         {addedToDash && (
-          <div className="flex items-center justify-between gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-            <span className="text-xs text-green-800">Added to <span className="font-medium">{addedToDash.name}</span></span>
+          <div className="flex-1 flex items-center justify-between ml-2">
+            <span className="text-xs text-green-700">Added to <span className="font-medium">{addedToDash.name}</span></span>
             <button onClick={() => navigate(`/dashboards/${addedToDash.id}`)}
               className="flex items-center gap-1 text-xs font-medium text-green-700 hover:text-green-900 transition-colors shrink-0">
               Go there <IconExternalLink size={10} strokeWidth={2} />
@@ -864,9 +873,9 @@ function FollowUpChips({ suggestions, onSend }: { suggestions: string[]; onSend:
           <button
             key={q}
             onClick={() => onSend(q)}
-            className="flex items-center gap-1.5 text-xs text-primary border border-primary/25 bg-primary/5 rounded-full px-3 py-1.5 hover:bg-primary/10 hover:border-primary/40 transition-colors"
+            className="flex items-center gap-1.5 text-xs text-secondary-foreground border border-border bg-transparent rounded-lg px-3 py-1.5 hover:bg-accent hover:text-foreground transition-colors"
           >
-            <IconChevronRight size={11} className="shrink-0" strokeWidth={2} />
+            <IconMessagePlus size={11} className="shrink-0 text-muted-foreground" strokeWidth={2} />
             {q}
           </button>
         ))}
@@ -1619,7 +1628,7 @@ export default function ResearchAIPage() {
                 />
 
                 <p className="text-xs text-muted-foreground mt-2.5 text-center">
-                  Press Enter to send · Shift+Enter for new line · Responses are illustrative
+                  Our AI can make mistakes. Please check important information.
                 </p>
 
                 {/* Use-case tiles */}
@@ -1660,7 +1669,7 @@ export default function ResearchAIPage() {
                   rows={2}
                 />
                 <p className="text-xs text-muted-foreground mt-2 text-center">
-                  Press Enter to send · Shift+Enter for new line · Responses are illustrative
+                  Our AI can make mistakes. Please check important information.
                 </p>
               </div>
             </div>
