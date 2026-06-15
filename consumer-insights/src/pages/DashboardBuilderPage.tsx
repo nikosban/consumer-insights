@@ -31,13 +31,14 @@ import { SURVEY_CATALOG, SURVEY_COUNTRIES } from '@/data/surveyData'
 import type { SurveyQuestion } from '@/data/surveyData'
 import type { DashboardWidget, Widget, WidgetType } from '@/types'
 import {
-  RefreshCw, X, GripVertical,
-  Search, ChevronRight, Plus, LayoutDashboard,
-  Table2, BarChart2, TrendingUp, PieChart, Hash,
-  Sparkles, Send, ChevronDown, FileText,
-} from 'lucide-react'
+  IconRefresh, IconX, IconGripVertical,
+  IconSearch, IconChevronRight, IconPlus, IconLayoutDashboard,
+  IconTable, IconChartBar, IconTrendingUp, IconChartPie, IconHash,
+  IconSparkles, IconSend, IconChevronDown, IconFileText, IconArrowBackUp,
+} from '@tabler/icons-react'
 import type { Audience } from '@/types'
-import type { LucideIcon } from 'lucide-react'
+
+type TablerIcon = React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>
 import { cn } from '@/lib/utils'
 import { Chip, FieldGroup, SectionLabel } from '@/components/app'
 import { toast } from '@/components/ui/Toaster'
@@ -100,7 +101,7 @@ function PeriodChip({ value, onChange, size = 'md' }: {
         )}
       >
         <span>{formatPeriod(value)}</span>
-        <ChevronDown size={9} className="shrink-0" />
+        <IconChevronDown size={9} strokeWidth={2} className="shrink-0" />
       </button>
 
       {open && (
@@ -169,7 +170,7 @@ function DashboardContextChip({ label, value, options, onChange, size = 'md' }: 
         )}
       >
         <span>{label}: {value || options[0]}</span>
-        <ChevronDown size={9} className="shrink-0" />
+        <IconChevronDown size={9} strokeWidth={2} className="shrink-0" />
       </button>
       {open && (
         <div className="absolute top-full mt-1 left-0 z-30 bg-popover border border-border rounded-xl shadow-lg py-1 min-w-[180px]">
@@ -205,13 +206,13 @@ function toLayoutItem(pw: PlacedWidget): LayoutItem {
 
 // ─── Chart type switcher ──────────────────────────────────────────────────────
 
-const CHART_TYPES: { type: WidgetType; label: string; Icon: LucideIcon }[] = [
-  { type: 'table',     label: 'Table',      Icon: Table2 },
-  { type: 'bar',       label: 'Bar',        Icon: BarChart2 },
-  { type: 'line',      label: 'Line',       Icon: TrendingUp },
-  { type: 'pie',       label: 'Pie',        Icon: PieChart },
-  { type: 'scorecard', label: 'Scorecard',  Icon: Hash },
-  { type: 'text',      label: 'Text block', Icon: FileText },
+const CHART_TYPES: { type: WidgetType; label: string; Icon: TablerIcon }[] = [
+  { type: 'table',     label: 'Table',      Icon: IconTable },
+  { type: 'bar',       label: 'Bar',        Icon: IconChartBar },
+  { type: 'line',      label: 'Line',       Icon: IconTrendingUp },
+  { type: 'pie',       label: 'Pie',        Icon: IconChartPie },
+  { type: 'scorecard', label: 'Scorecard',  Icon: IconHash },
+  { type: 'text',      label: 'Text block', Icon: IconFileText },
 ]
 
 // ─── Widget filter row ────────────────────────────────────────────────────────
@@ -249,14 +250,14 @@ function WidgetFilterChip({ label, value, options, isOverride, onSelect, onReset
           className="flex items-center gap-1 pl-3 h-full"
         >
           <span>{value}</span>
-          <ChevronDown size={9} className="shrink-0 opacity-50" />
+          <IconChevronDown size={9} strokeWidth={2} className="shrink-0 opacity-50" />
         </button>
         {isOverride && onReset && (
           <button
             onClick={(e) => { e.stopPropagation(); onReset(); setOpen(false) }}
             className="ml-1 h-4 w-4 flex items-center justify-center rounded-full hover:bg-primary/15 transition-colors"
           >
-            <X size={9} />
+            <IconX size={9} strokeWidth={2} />
           </button>
         )}
       </div>
@@ -488,7 +489,7 @@ function WidgetPropertiesPanel({
           onClick={onClose}
           className="p-1 rounded text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
         >
-          <X className="h-4 w-4" />
+          <IconX className="h-4 w-4" strokeWidth={2} />
         </button>
       </div>
 
@@ -701,14 +702,14 @@ function SurveyBrowser({ onAdd, onAddText, onDragStart, onDragEnd }: {
         onDragEnd={() => onDragEnd?.()}
         className="group flex items-center gap-2 px-3 py-2 hover:bg-primary/5 transition-colors cursor-grab active:cursor-grabbing"
       >
-        <GripVertical className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
+        <IconGripVertical className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" strokeWidth={2} />
         <span className="flex-1 text-xs text-foreground truncate leading-snug">{q.label}</span>
         <button
           onClick={() => onAdd(q)}
           title="Add to canvas"
           className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-primary/10 text-primary shrink-0 transition-opacity"
         >
-          <Plus className="h-3.5 w-3.5" />
+          <IconPlus className="h-3.5 w-3.5" strokeWidth={2} />
         </button>
       </div>
     )
@@ -719,7 +720,7 @@ function SurveyBrowser({ onAdd, onAddText, onDragStart, onDragEnd }: {
       <div className="p-3 border-b border-border shrink-0">
         {/* Search */}
         <div className="flex items-center gap-1.5 h-8 px-2 rounded-md bg-[#FDFDFD] dark:bg-input shadow-[var(--field-shadow)] focus-within:shadow-[var(--field-shadow-focus)] transition-shadow">
-          <Search className="h-4 w-4 shrink-0" style={{ color: '#B8B8B8' }} />
+          <IconSearch className="h-4 w-4 shrink-0" strokeWidth={2} style={{ color: '#B8B8B8' }} />
           <input
             placeholder="Search questions…"
             value={search}
@@ -729,7 +730,7 @@ function SurveyBrowser({ onAdd, onAddText, onDragStart, onDragEnd }: {
           />
           {search && (
             <button onClick={() => setSearch('')} className="shrink-0">
-              <X className="h-3.5 w-3.5 text-muted-foreground/40" />
+              <IconX className="h-3.5 w-3.5 text-muted-foreground/40" strokeWidth={2} />
             </button>
           )}
         </div>
@@ -741,9 +742,9 @@ function SurveyBrowser({ onAdd, onAddText, onDragStart, onDragEnd }: {
           onClick={onAddText}
           className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-secondary-foreground hover:text-foreground hover:bg-accent transition-colors border-b border-border"
         >
-          <FileText className="h-3.5 w-3.5 shrink-0" />
+          <IconFileText className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
           <span>Add text block</span>
-          <Plus className="h-3 w-3 ml-auto opacity-50" />
+          <IconPlus className="h-3 w-3 ml-auto opacity-50" strokeWidth={2} />
         </button>
 
         {!isSearching && (
@@ -773,7 +774,7 @@ function SurveyBrowser({ onAdd, onAddText, onDragStart, onDragEnd }: {
                 onClick={() => toggleCategory(category.label)}
                 className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-secondary-foreground hover:text-foreground hover:bg-accent transition-colors border-b border-border"
               >
-                <ChevronRight className={`h-3 w-3 transition-transform duration-150 shrink-0 ${open ? 'rotate-90' : ''}`} />
+                <IconChevronRight className={`h-3 w-3 transition-transform duration-150 shrink-0 ${open ? 'rotate-90' : ''}`} strokeWidth={2} />
                 <span className="flex-1 text-left truncate">{category.label}</span>
               </button>
               {open && (
@@ -936,7 +937,7 @@ function AIPromptCard({
           onClick={onDismiss}
           className="p-1 rounded text-white/40 hover:text-white/80 transition-colors"
         >
-          <X className="h-3.5 w-3.5" />
+          <IconX className="h-3.5 w-3.5" strokeWidth={2} />
         </button>
       </div>
 
@@ -960,8 +961,8 @@ function AIPromptCard({
             className="h-10 w-10 flex items-center justify-center border-l border-white/15 text-white/60 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors shrink-0"
           >
             {isLoading
-              ? <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-              : <Send className="h-3.5 w-3.5" />
+              ? <IconRefresh className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
+              : <IconSend className="h-3.5 w-3.5" strokeWidth={2} />
             }
           </button>
         </div>
@@ -990,6 +991,12 @@ export default function DashboardBuilderPage() {
   const [placedWidgets, setPlacedWidgets] = useState<PlacedWidget[]>(
     (existing?.widgets ?? []).map((w) => ({ ...w, chartKey: 0 }))
   )
+  const undoStackRef = useRef<PlacedWidget[][]>([])
+  const [undoCount, setUndoCount] = useState(0)
+  const pushUndo = useCallback((snapshot: PlacedWidget[]) => {
+    undoStackRef.current = [...undoStackRef.current.slice(-19), snapshot]
+    setUndoCount(c => c + 1)
+  }, [])
   const [isEditMode, setIsEditMode] = useState(isNew)
   const [dashAudienceId, setDashAudienceId] = useState('')
   const [dashRegion, setDashRegion] = useState('Global')
@@ -1025,6 +1032,28 @@ export default function DashboardBuilderPage() {
     return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current) }
   }, [])
 
+  const handleUndo = useCallback(() => {
+    const stack = undoStackRef.current
+    if (!stack.length) return
+    const prev = stack[stack.length - 1]
+    undoStackRef.current = stack.slice(0, -1)
+    setUndoCount(c => c - 1)
+    setPlacedWidgets(prev)
+    const layout: DashboardWidget[] = prev.map(({ chartKey: _ck, ...rest }) => rest)
+    updateLayout(dashId, layout)
+  }, [dashId, updateLayout])
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault()
+        handleUndo()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [handleUndo])
+
   const persistLayout = useCallback(
     (pw: PlacedWidget[]) => {
       const layout: DashboardWidget[] = pw.map(({ chartKey: _ck, ...rest }) => rest)
@@ -1058,6 +1087,9 @@ export default function DashboardBuilderPage() {
       if (!l) return pw
       return { ...pw, position: { x: l.x, y: l.y, w: l.w, h: l.h } }
     })
+    if (updated.some((u, i) => u.position.x !== placedWidgets[i]?.position.x || u.position.y !== placedWidgets[i]?.position.y || u.position.w !== placedWidgets[i]?.position.w || u.position.h !== placedWidgets[i]?.position.h)) {
+      pushUndo(placedWidgets)
+    }
     setPlacedWidgets(updated)
     debouncedSave(updated)
   }
@@ -1222,6 +1254,7 @@ export default function DashboardBuilderPage() {
   }
 
   function removeWidget(widgetId: string) {
+    pushUndo(placedWidgets)
     const updated = placedWidgets.filter((pw) => pw.widgetId !== widgetId)
     setPlacedWidgets(updated)
     debouncedSave(updated)
@@ -1264,7 +1297,7 @@ export default function DashboardBuilderPage() {
               onClick={() => navigate('/dashboards')}
               className="text-secondary-foreground hover:text-foreground transition-colors whitespace-nowrap"
             >Dashboards</button>
-            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
+            <IconChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" strokeWidth={2} />
             <span className="text-sm font-medium truncate max-w-40 text-foreground">
               {name || 'Untitled Dashboard'}
             </span>
@@ -1297,6 +1330,17 @@ export default function DashboardBuilderPage() {
             <Button variant="outline" size="toolbar" onClick={() => setShareOpen(true)}>
               {isShared ? 'Shared' : 'Share'}
             </Button>
+            {isEditMode && (
+              <Button
+                variant="outline"
+                size="toolbar"
+                onClick={handleUndo}
+                disabled={undoCount === 0}
+                title="Undo (⌘Z)"
+              >
+                <IconArrowBackUp className="h-3.5 w-3.5" strokeWidth={2} />
+              </Button>
+            )}
             {isEditMode ? (
               <Button size="toolbar" onClick={() => setIsEditMode(false)}>
                 Done
@@ -1310,7 +1354,7 @@ export default function DashboardBuilderPage() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={handleGenerateAnalysis}>
-                    <Sparkles className="h-3.5 w-3.5 mr-2" />
+                    <IconSparkles className="h-3.5 w-3.5 mr-2" strokeWidth={2} />
                     Generate analysis
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setExportOpen(true)}>
@@ -1367,7 +1411,7 @@ export default function DashboardBuilderPage() {
                 )}
                 style={{ minHeight: 320 }}
               >
-                <LayoutDashboard className={cn('h-8 w-8 opacity-40', isDragOver && 'opacity-70')} />
+                <IconLayoutDashboard className={cn('h-8 w-8 opacity-40', isDragOver && 'opacity-70')} strokeWidth={2} />
                 <p className="text-sm font-medium">{isDragOver ? 'Drop to add widget' : 'Drag a question here'}</p>
                 <p className="text-xs opacity-60">or click the + next to any question in the sidebar</p>
               </div>
@@ -1447,12 +1491,12 @@ export default function DashboardBuilderPage() {
                           {isEditMode && (
                             <>
                               <span className="drag-handle absolute left-1 top-1 cursor-grab active:cursor-grabbing text-muted-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <GripVertical className="h-3.5 w-3.5" />
+                                <IconGripVertical className="h-3.5 w-3.5" strokeWidth={2} />
                               </span>
                               <button
                                 onClick={(e) => { e.stopPropagation(); removeWidget(pw.widgetId) }}
                                 className="absolute top-2 right-2 p-1 rounded text-muted-foreground/30 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                              ><X className="h-3.5 w-3.5" /></button>
+                              ><IconX className="h-3.5 w-3.5" strokeWidth={2} /></button>
                             </>
                           )}
                           <textarea
@@ -1471,7 +1515,7 @@ export default function DashboardBuilderPage() {
                               <span
                                 className="drag-handle absolute left-1.5 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing text-muted-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                 onClick={(e) => e.stopPropagation()}
-                              ><GripVertical className="h-4 w-4" /></span>
+                              ><IconGripVertical className="h-4 w-4" strokeWidth={2} /></span>
                             )}
                             <span className={cn('text-sm font-semibold truncate flex-1 min-w-0', isEditMode && 'group-hover:ml-4 transition-[margin-left] duration-150')}>{widget.title}</span>
                             {widget.crossDimensionLabel && (
@@ -1510,7 +1554,7 @@ export default function DashboardBuilderPage() {
                               {isEditMode && (
                                 <button onClick={() => removeWidget(pw.widgetId)}
                                   className="h-6 w-6 flex items-center justify-center rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors ml-1"
-                                ><X className="h-3.5 w-3.5" /></button>
+                                ><IconX className="h-3.5 w-3.5" strokeWidth={2} /></button>
                               )}
                             </div>
                           </div>
@@ -1519,11 +1563,11 @@ export default function DashboardBuilderPage() {
                           <div className="px-4 shrink-0 border-b border-border/40">
                             {summary ? (
                               <div className="flex items-start gap-2 py-2.5">
-                                <Sparkles className="h-3 w-3 text-primary/50 shrink-0 mt-0.5" />
+                                <IconSparkles className="h-3 w-3 text-primary/50 shrink-0 mt-0.5" strokeWidth={2} />
                                 <p className="text-xs text-secondary-foreground leading-relaxed flex-1">{summary}</p>
                                 <button onClick={(e) => { e.stopPropagation(); setWidgetSummaries(p => { const n = { ...p }; delete n[pw.widgetId]; return n }) }}
                                   className="shrink-0 text-muted-foreground/40 hover:text-muted-foreground transition-colors"
-                                ><X className="h-3 w-3" /></button>
+                                ><IconX className="h-3 w-3" strokeWidth={2} /></button>
                               </div>
                             ) : (
                               <button
@@ -1532,8 +1576,8 @@ export default function DashboardBuilderPage() {
                                 className="flex items-center gap-1.5 py-2 text-xs text-muted-foreground/50 hover:text-primary transition-colors disabled:opacity-40"
                               >
                                 {generatingSummary
-                                  ? <><RefreshCw className="h-3 w-3 animate-spin" /><span>Generating…</span></>
-                                  : <><Sparkles className="h-3 w-3" /><span>Add AI summary</span></>
+                                  ? <><IconRefresh className="h-3 w-3 animate-spin" strokeWidth={2} /><span>Generating…</span></>
+                                  : <><IconSparkles className="h-3 w-3" strokeWidth={2} /><span>Add AI summary</span></>
                                 }
                               </button>
                             )}
@@ -1604,7 +1648,7 @@ export default function DashboardBuilderPage() {
                       onClick={() => setAiCardVisible(true)}
                       className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs text-muted-foreground hover:text-primary hover:bg-primary/5 border border-border hover:border-primary/30 transition-colors shrink-0"
                     >
-                      <Sparkles className="h-3 w-3" />
+                      <IconSparkles className="h-3 w-3" strokeWidth={2} />
                       Ask AI
                     </button>
                     <div className="flex-1 h-px bg-border" />

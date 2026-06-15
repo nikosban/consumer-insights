@@ -26,7 +26,7 @@ const MINI_CARDS = [
 function MiniCard({ card, expanded }: { card: typeof MINI_CARDS[0]; expanded?: boolean }) {
   return (
     <div style={{
-      background: '#fff',
+      background: 'var(--background)',
       border: '1px solid hsl(var(--border))',
       borderRadius: 8,
       padding: expanded ? '9px 11px' : '7px 9px',
@@ -302,7 +302,7 @@ function ExportColumn({ expanded }: { expanded: boolean }) {
         {!expanded ? (
           <motion.div key="compact" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ background: '#fff', border: '1px solid hsl(var(--border))', borderRadius: 8, padding: '10px 12px', flex: 1, display: 'flex', flexDirection: 'column', gap: 8, overflow: 'hidden' }}>
+            <div style={{ background: 'var(--background)', border: '1px solid hsl(var(--border))', borderRadius: 8, padding: '10px 12px', flex: 1, display: 'flex', flexDirection: 'column', gap: 8, overflow: 'hidden' }}>
               <div>
                 <div style={{ width: '72%', height: 8, borderRadius: 3, background: 'hsl(var(--foreground) / 0.14)', marginBottom: 5 }} />
                 <div style={{ width: '48%', height: 6, borderRadius: 3, background: 'hsl(var(--foreground) / 0.07)' }} />
@@ -313,7 +313,7 @@ function ExportColumn({ expanded }: { expanded: boolean }) {
                   {text}
                   {isStreaming && <span style={{ display: 'inline-block', width: 1, height: 10, background: 'hsl(var(--primary))', marginLeft: 1, animation: 'ps-blink 0.9s infinite' }} />}
                 </p>
-                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 40, background: 'linear-gradient(to bottom, transparent, #fff)' }} />
+                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 40, background: 'linear-gradient(to bottom, transparent, var(--background))' }} />
               </div>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 24, marginTop: 'auto' }}>
                 {BAR_H.map((h,i) => (
@@ -328,7 +328,7 @@ function ExportColumn({ expanded }: { expanded: boolean }) {
         ) : (
           <motion.div key="full" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <div style={{ background: '#fff', border: '1px solid hsl(var(--border))', borderRadius: 10, padding: '14px', flex: 1, display: 'flex', flexDirection: 'column', gap: 10, overflow: 'hidden' }}>
+            <div style={{ background: 'var(--background)', border: '1px solid hsl(var(--border))', borderRadius: 10, padding: '14px', flex: 1, display: 'flex', flexDirection: 'column', gap: 10, overflow: 'hidden' }}>
               <div>
                 <p style={{ fontSize: 13, fontWeight: 600, color: 'hsl(var(--foreground))', marginBottom: 2 }}>German Online Shoppers</p>
                 <p style={{ fontSize: 11, color: 'hsl(var(--muted-foreground))' }}>Market Brief · Q2 2025 · 284k respondents</p>

@@ -16,10 +16,13 @@ export function ResourceCard({ icon, title, meta, date, actions, onClick, classN
   return (
     <div
       onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick() } } : undefined}
       className={cn(
         'rounded-[8px] overflow-hidden bg-muted',
         'shadow-[0_0_0_1px_var(--border)]',
-        onClick && 'cursor-pointer hover:shadow-[0_0_0_1px_hsl(var(--ring)/0.4),0_2px_4px_0_hsla(0,0%,0%,0.08)]',
+        onClick && 'cursor-pointer hover:shadow-[0_0_0_1px_hsl(var(--ring)/0.4),0_2px_4px_0_hsla(0,0%,0%,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
         'transition-shadow',
         className
       )}
