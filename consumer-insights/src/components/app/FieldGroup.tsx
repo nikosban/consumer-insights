@@ -9,7 +9,7 @@ type FieldGroupProps = {
 export function FieldGroup({ label, children, className }: FieldGroupProps) {
   return (
     <div className={cn(className)}>
-      <label className="text-xs font-medium text-muted-foreground block mb-1.5">{label}</label>
+      <label className="text-xs font-medium text-secondary-foreground block mb-1.5">{label}</label>
       {children}
     </div>
   )

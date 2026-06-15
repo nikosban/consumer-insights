@@ -11,7 +11,7 @@ function CountryBadge({ country, small }: { country: string; small?: boolean }) 
   const code = COUNTRY_CODE[country] ?? country.slice(0, 2).toUpperCase()
   return (
     <span className={cn(
-      'inline-flex items-center rounded font-medium tabular-nums bg-muted text-muted-foreground',
+      'inline-flex items-center rounded font-medium tabular-nums bg-muted text-secondary-foreground',
       small ? 'px-1 py-0 text-[10px]' : 'px-1.5 py-0.5 text-[11px]',
     )}>
       {code}
@@ -143,7 +143,7 @@ function RegionForm({
                   'inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs border transition-colors',
                   on
                     ? 'bg-primary text-primary-foreground border-primary'
-                    : 'bg-background text-muted-foreground border-border hover:border-primary/40 hover:text-foreground',
+                    : 'bg-background text-secondary-foreground border-border hover:border-primary/40 hover:text-foreground',
                 )}
               >
                 <span className="font-medium">{COUNTRY_CODE[country] ?? country.slice(0, 2)}</span>
@@ -158,7 +158,7 @@ function RegionForm({
         <button
           type="button"
           onClick={onCancel}
-          className="px-3 py-1.5 text-xs rounded-lg border border-border text-muted-foreground hover:bg-muted transition-colors"
+          className="px-3 py-1.5 text-xs rounded-lg border border-border text-secondary-foreground hover:bg-muted transition-colors"
         >
           Cancel
         </button>

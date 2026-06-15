@@ -121,7 +121,7 @@ export const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
             </span>
           )}
           {description && (
-            <span className={cn('text-muted-foreground leading-snug', labelText[size])}>
+            <span className={cn('text-secondary-foreground leading-snug', labelText[size])}>
               {description}
             </span>
           )}

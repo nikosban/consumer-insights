@@ -15,7 +15,7 @@ export default function DashboardsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-bold text-foreground">Dashboards</h1>
-          <p className="text-sm text-muted-foreground">Build and share interactive dashboards</p>
+          <p className="text-sm text-secondary-foreground">Build and share interactive dashboards</p>
         </div>
         <Button onClick={() => navigate('/dashboards/new')}>
           <Plus className="h-4 w-4 mr-1" />

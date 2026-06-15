@@ -36,7 +36,7 @@ export function Footer() {
               style={{ height: 20 }}
               className="brightness-0 dark:invert mb-4"
             />
-            <p className="text-xs text-muted-foreground leading-relaxed max-w-[180px]">
+            <p className="text-xs text-secondary-foreground leading-relaxed max-w-[180px]">
               Consumer-grade survey data for teams that move fast.
             </p>
           </div>
@@ -52,7 +52,7 @@ export function Footer() {
                   <li key={link}>
                     <a
                       href="#"
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      className="text-sm text-secondary-foreground hover:text-foreground transition-colors"
                     >
                       {link}
                     </a>

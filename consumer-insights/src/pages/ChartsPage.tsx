@@ -518,7 +518,7 @@ function PropertiesPanel({
                         ? 'border-primary bg-primary/8 text-primary'
                         : isDisabled
                           ? 'border-border text-muted-foreground/30 cursor-not-allowed'
-                          : 'border-border text-muted-foreground hover:border-primary/40 hover:bg-primary/5'
+                          : 'border-border text-secondary-foreground hover:border-primary/40 hover:bg-primary/5'
                     }`}
                   >
                     <Icon className="h-4 w-4" />
@@ -575,7 +575,7 @@ function SaveDialog({
         <div className="flex gap-2 justify-end">
           <button
             onClick={onCancel}
-            className="px-3 h-8 rounded-md border border-border text-xs text-muted-foreground hover:bg-accent transition-colors"
+            className="px-3 h-8 rounded-md border border-border text-xs text-secondary-foreground hover:bg-accent transition-colors"
           >
             Cancel
           </button>

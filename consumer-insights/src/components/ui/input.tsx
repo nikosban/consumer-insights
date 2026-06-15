@@ -140,7 +140,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         onChange={onChange}
         disabled={disabled}
         className={cn(
-          'flex-1 min-w-0 bg-transparent outline-none text-foreground placeholder:text-muted-foreground',
+          'flex-1 min-w-0 bg-transparent outline-none border-0 text-foreground placeholder:text-muted-foreground',
           'disabled:pointer-events-none',
           'shadow-[var(--field-inset)]',
           fieldText[size],
@@ -168,7 +168,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {/* Inline prefix */}
         {prefix && (
           <span className={cn(
-            'shrink-0 flex items-center self-stretch bg-muted text-muted-foreground border-r border-[rgba(0,0,0,0.10)] dark:border-[rgba(255,255,255,0.08)]',
+            'shrink-0 flex items-center self-stretch bg-muted text-secondary-foreground border-r border-[rgba(0,0,0,0.10)] dark:border-[rgba(255,255,255,0.08)]',
             fieldPadX[size], fieldText[size],
           )}>
             {prefix}
@@ -215,7 +215,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {/* Inline suffix */}
         {suffix && (
           <span className={cn(
-            'shrink-0 flex items-center self-stretch bg-muted text-muted-foreground border-l border-[rgba(0,0,0,0.10)] dark:border-[rgba(255,255,255,0.08)]',
+            'shrink-0 flex items-center self-stretch bg-muted text-secondary-foreground border-l border-[rgba(0,0,0,0.10)] dark:border-[rgba(255,255,255,0.08)]',
             fieldPadX[size], fieldText[size],
           )}>
             {suffix}

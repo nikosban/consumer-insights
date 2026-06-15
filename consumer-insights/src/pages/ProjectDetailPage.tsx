@@ -438,7 +438,7 @@ function AnalysesTab({
                 <p className={cn('text-sm font-semibold', mode.template === t.value ? 'text-primary' : 'text-foreground')}>
                   {t.label}
                 </p>
-                <p className="text-xs text-muted-foreground">{t.desc}</p>
+                <p className="text-xs text-secondary-foreground">{t.desc}</p>
               </button>
             ))}
           </div>
@@ -496,7 +496,7 @@ function AnalysesTab({
             <div className="grid grid-cols-2 gap-3">
               {widgetData.scorecards.map(d => (
                 <div key={d.widget.id} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                  <p className="text-xs text-muted-foreground">{d.widget.title}</p>
+                  <p className="text-xs text-secondary-foreground">{d.widget.title}</p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">{d.data.series[0].values[0]}%</p>
                   {d.data.series[1] && (
                     <p className="text-xs text-muted-foreground mt-0.5">Benchmark {d.data.series[1].values[0]}%</p>
@@ -529,17 +529,17 @@ function AnalysesTab({
               {/* Chart for this section */}
               {paired && (
                 <div className="space-y-1.5">
-                  <p className="text-xs font-medium text-muted-foreground">{paired.widget.title}</p>
+                  <p className="text-xs font-medium text-secondary-foreground">{paired.widget.title}</p>
                   <div className="space-y-1.5">
                     {paired.data.labels.map((label, li) => {
                       const pct = Math.round((paired.data.series[0].values[li] / max) * 100)
                       return (
                         <div key={label} className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground w-20 shrink-0 truncate">{label}</span>
+                          <span className="text-xs text-secondary-foreground w-20 shrink-0 truncate">{label}</span>
                           <div className="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
                             <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: brandColor, opacity: 0.75 }} />
                           </div>
-                          <span className="text-xs text-muted-foreground w-8 tabular-nums text-right">{paired.data.series[0].values[li]}%</span>
+                          <span className="text-xs text-secondary-foreground w-8 tabular-nums text-right">{paired.data.series[0].values[li]}%</span>
                         </div>
                       )
                     })}
@@ -566,7 +566,7 @@ function AnalysesTab({
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
+                <p className="text-sm text-secondary-foreground whitespace-pre-line leading-relaxed">
                   {sec.content}
                 </p>
               )}

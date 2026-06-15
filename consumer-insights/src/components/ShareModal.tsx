@@ -57,7 +57,7 @@ export default function ShareModal({ dashboardId, open, onClose }: ShareModalPro
             {isShared ? <Globe className="h-4 w-4 text-primary" /> : <Lock className="h-4 w-4 text-muted-foreground" />}
             <div>
               <p className="text-sm font-medium">{isShared ? 'Public link' : 'Private'}</p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-secondary-foreground">
                 {isShared ? 'Anyone with the link can view' : 'Only invited people can access'}
               </p>
             </div>
@@ -105,7 +105,7 @@ export default function ShareModal({ dashboardId, open, onClose }: ShareModalPro
           {invited.length > 0 && (
             <div className="mt-2 flex flex-col gap-1">
               {invited.map(addr => (
-                <div key={addr} className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div key={addr} className="flex items-center gap-2 text-xs text-secondary-foreground">
                   <Check className="h-3 w-3 text-green-600" />
                   {addr}
                 </div>

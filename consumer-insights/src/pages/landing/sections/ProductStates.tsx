@@ -32,7 +32,7 @@ function MiniCard({ card, expanded }: { card: typeof MINI_CARDS[0]; expanded?: b
       padding: expanded ? '9px 11px' : '7px 9px',
       flexShrink: 0,
     }}>
-      <p style={{ fontSize: 9, fontWeight: 500, color: 'hsl(var(--muted-foreground))', marginBottom: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+      <p style={{ fontSize: 9, fontWeight: 500, color: 'hsl(var(--secondary-foreground))', marginBottom: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
         {card.label}
       </p>
       {card.type === 'stat' && (
@@ -182,7 +182,7 @@ function ResearchAIColumn({ expanded }: { expanded: boolean }) {
                   <div style={{ background: 'hsl(var(--primary) / 0.06)', border: '1px solid hsl(var(--primary) / 0.2)', borderRadius: 10, padding: '10px 12px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                       <div>
-                        <p style={{ fontSize: 9, color: 'hsl(var(--muted-foreground))', marginBottom: 2 }}>Estimated reach</p>
+                        <p style={{ fontSize: 9, color: 'hsl(var(--secondary-foreground))', marginBottom: 2 }}>Estimated reach</p>
                         <p style={{ fontSize: 22, fontWeight: 700, color: 'hsl(var(--foreground))', lineHeight: 1 }}>284k</p>
                       </div>
                       <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 99, background: 'hsl(var(--primary) / 0.1)', border: '1px solid hsl(var(--primary) / 0.25)', color: 'hsl(var(--primary))', fontWeight: 500 }}>Germany</span>
@@ -227,7 +227,7 @@ function ResearchAIColumn({ expanded }: { expanded: boolean }) {
                   <div style={{ background: 'hsl(var(--primary) / 0.05)', border: '1px solid hsl(var(--primary) / 0.18)', borderRadius: 10, padding: '12px 14px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
                       <div>
-                        <p style={{ fontSize: 10, color: 'hsl(var(--muted-foreground))', marginBottom: 2 }}>Estimated reach</p>
+                        <p style={{ fontSize: 10, color: 'hsl(var(--secondary-foreground))', marginBottom: 2 }}>Estimated reach</p>
                         <p style={{ fontSize: 26, fontWeight: 700, color: 'hsl(var(--foreground))', lineHeight: 1 }}>284k</p>
                       </div>
                       <span style={{ fontSize: 10, padding: '3px 9px', borderRadius: 99, alignSelf: 'flex-start', background: 'hsl(var(--primary) / 0.1)', border: '1px solid hsl(var(--primary) / 0.25)', color: 'hsl(var(--primary))', fontWeight: 500 }}>Germany</span>
@@ -235,13 +235,13 @@ function ResearchAIColumn({ expanded }: { expanded: boolean }) {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: 10 }}>
                       {[['Age 25–40','100%'],['Online buyers','78%'],['Weekly+','43%']].map(([l,v]) => (
                         <div key={l} style={{ background: 'hsl(var(--muted))', borderRadius: 6, padding: '6px 8px' }}>
-                          <p style={{ fontSize: 9, color: 'hsl(var(--muted-foreground))', marginBottom: 2 }}>{l}</p>
+                          <p style={{ fontSize: 9, color: 'hsl(var(--secondary-foreground))', marginBottom: 2 }}>{l}</p>
                           <p style={{ fontSize: 14, fontWeight: 600, color: 'hsl(var(--foreground))' }}>{v}</p>
                         </div>
                       ))}
                     </div>
                     <div style={{ borderTop: '1px solid hsl(var(--border))', paddingTop: 8 }}>
-                      <p style={{ fontSize: 11, color: 'hsl(var(--muted-foreground))', lineHeight: 1.5 }}>
+                      <p style={{ fontSize: 11, color: 'hsl(var(--secondary-foreground))', lineHeight: 1.5 }}>
                         Filters: <span style={{ color: 'hsl(var(--foreground))' }}>Women · Urban · Income €45k+ · Mobile-first · Weekly purchase intent</span>
                       </p>
                     </div>
@@ -353,7 +353,7 @@ function ExportColumn({ expanded }: { expanded: boolean }) {
               <div style={{ flex: 1, padding: '9px 0', borderRadius: 8, background: 'hsl(var(--foreground))', textAlign: 'center' }}>
                 <span style={{ fontSize: 12, fontWeight: 500, color: 'hsl(var(--background))' }}>Export as PowerPoint →</span>
               </div>
-              <div style={{ padding: '9px 12px', borderRadius: 8, border: '1px solid hsl(var(--border))', fontSize: 12, color: 'hsl(var(--muted-foreground))' }}>PDF</div>
+              <div style={{ padding: '9px 12px', borderRadius: 8, border: '1px solid hsl(var(--border))', fontSize: 12, color: 'hsl(var(--secondary-foreground))' }}>PDF</div>
             </div>
           </motion.div>
         )}
@@ -444,7 +444,7 @@ export function ProductStates() {
                 style={{ flex: 1, minWidth: 0, textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 10px 0' }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, overflow: 'hidden' }}>
                   <span style={{ fontSize: 11, fontWeight: 700, fontFamily: 'ui-monospace,monospace', color: expanded === i ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))', flexShrink: 0 }}>{s.num}</span>
-                  <span style={{ fontSize: 13, fontWeight: expanded === i ? 600 : 400, color: expanded === i ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))', transition: 'all 0.2s', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{s.label}</span>
+                  <span style={{ fontSize: 13, fontWeight: expanded === i ? 600 : 400, color: expanded === i ? 'hsl(var(--foreground))' : 'hsl(var(--secondary-foreground))', transition: 'all 0.2s', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{s.label}</span>
                   <AnimatePresence>
                     {expanded === i && (
                       <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}

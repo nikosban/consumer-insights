@@ -25,7 +25,7 @@ export function SegmentedControl<T extends string>({
             i > 0 && 'border-l border-border',
             value === option
               ? 'bg-primary text-primary-foreground'
-              : 'bg-background text-muted-foreground hover:bg-accent hover:text-foreground'
+              : 'bg-background text-secondary-foreground hover:bg-accent hover:text-foreground'
           )}
         >
           {option}

@@ -31,7 +31,7 @@ function FeatureCard({ label, title, body, proof, haloBase, haloExtra, screensho
       <div className="relative flex flex-col h-full rounded-2xl overflow-hidden">
         {/* Text area */}
         <div className="shrink-0 p-6 flex flex-col gap-2.5">
-          <p className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
+          <p className="text-xs font-medium uppercase tracking-[0.08em] text-secondary-foreground">
             {label}
           </p>
           <h3 className={`font-semibold text-foreground leading-snug ${large ? 'text-xl' : 'text-base'}`}>
@@ -371,9 +371,9 @@ function AudienceBuilderScreenshot() {
               <div className="w-16 h-1.5 rounded-full bg-muted overflow-hidden">
                 <div className="h-full w-[62%] rounded-full bg-primary/60" />
               </div>
-              <span className="text-[10px] text-muted-foreground">62%</span>
+              <span className="text-[10px] text-secondary-foreground">62%</span>
             </div>
-            <p className="text-[9px] text-muted-foreground">quality score</p>
+            <p className="text-[9px] text-secondary-foreground">quality score</p>
           </div>
         </div>
         <div className="rounded-xl border border-border bg-background p-3">
@@ -381,7 +381,7 @@ function AudienceBuilderScreenshot() {
           <div className="flex flex-wrap gap-1.5">
             {filters.map(f => (
               <div key={f.label} className={`flex items-center gap-1 px-2 py-1 rounded-lg border text-[10px] font-medium ${f.active ? 'bg-primary/8 border-primary/25 text-foreground' : 'bg-muted/40 border-border text-muted-foreground'}`}>
-                <span className="text-muted-foreground">{f.label}</span>
+                <span className="text-secondary-foreground">{f.label}</span>
                 <span className={f.active ? 'text-primary' : 'text-muted-foreground'}>·</span>
                 <span>{f.value}</span>
               </div>
@@ -506,7 +506,7 @@ function QuestionLibraryScreenshot() {
               <div className="w-12 h-1.5 rounded-full bg-muted overflow-hidden">
                 <div className="h-full rounded-full bg-primary/50" style={{ width: `${item.pct}%` }} />
               </div>
-              <span className="text-[9px] text-muted-foreground tabular-nums w-6">{item.pct}%</span>
+              <span className="text-[9px] text-secondary-foreground tabular-nums w-6">{item.pct}%</span>
             </div>
           </div>
         ))}
@@ -541,7 +541,7 @@ function CrosstabScreenshot() {
         <div className="grid border-b border-border bg-muted/30" style={{ gridTemplateColumns: '80px repeat(4, 1fr)' }}>
           <div className="px-2.5 py-1.5" />
           {headers.map(h => (
-            <div key={h} className="px-2 py-1.5 text-[9px] font-medium text-muted-foreground text-center">{h}</div>
+            <div key={h} className="px-2 py-1.5 text-[9px] font-medium text-secondary-foreground text-center">{h}</div>
           ))}
         </div>
         {rows.map((row, ri) => (

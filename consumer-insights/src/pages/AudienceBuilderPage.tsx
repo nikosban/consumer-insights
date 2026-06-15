@@ -196,7 +196,7 @@ function GroupEditor({ group, onChange, depth = 0 }: GroupEditorProps) {
             />
 
             {hasOptions ? (
-              <span className="text-xs text-muted-foreground px-0.5">is one of</span>
+              <span className="text-xs text-secondary-foreground px-0.5">is one of</span>
             ) : (
               <Select
                 value={item.operator}

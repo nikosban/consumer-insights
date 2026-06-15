@@ -94,7 +94,7 @@ export default function ExportModal({ dashboardId, open, onClose }: ExportModalP
             <Presentation className="h-5 w-5 text-primary" />
             <div className="text-left">
               <div className="font-medium">Export as PPTX</div>
-              <div className="text-xs text-muted-foreground">One slide per widget</div>
+              <div className="text-xs text-secondary-foreground">One slide per widget</div>
             </div>
           </Button>
           <Button
@@ -106,7 +106,7 @@ export default function ExportModal({ dashboardId, open, onClose }: ExportModalP
             <FileText className="h-5 w-5 text-primary" />
             <div className="text-left">
               <div className="font-medium">Export as PDF</div>
-              <div className="text-xs text-muted-foreground">Full dashboard as a single page</div>
+              <div className="text-xs text-secondary-foreground">Full dashboard as a single page</div>
             </div>
           </Button>
           {exporting && (

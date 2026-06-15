@@ -188,7 +188,7 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
         <span className={compact ? 'text-2xl font-semibold text-foreground' : 'text-4xl font-semibold text-foreground'}>
           {value}
         </span>
-        <span className={compact ? 'text-xs text-muted-foreground' : 'text-sm text-muted-foreground'}>
+        <span className={compact ? 'text-xs text-secondary-foreground' : 'text-sm text-secondary-foreground'}>
           {data.labels[0]}
         </span>
         {data.labels[1] && (
@@ -239,7 +239,7 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
       ]
       const totalColsPerGroup = totalSubCols.length || 1
 
-      const thBase = 'py-1.5 px-2 font-medium text-muted-foreground border-b border-border text-right whitespace-nowrap'
+      const thBase = 'py-1.5 px-2 font-medium text-secondary-foreground border-b border-border text-right whitespace-nowrap'
       const tdBase = 'py-1.5 px-2 tabular-nums text-right'
 
       const TOTAL_KEY = '__total__'
@@ -251,7 +251,7 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
             <thead>
               {/* Group name row */}
               <tr className="bg-muted/50">
-                <th className="text-left py-1.5 px-2 font-medium text-muted-foreground border-b border-border sticky left-0 bg-muted/50 min-w-[140px]" rowSpan={2}>
+                <th className="text-left py-1.5 px-2 font-medium text-secondary-foreground border-b border-border sticky left-0 bg-muted/50 min-w-[140px]" rowSpan={2}>
                   Answers
                 </th>
                 {cfg.showTotal && (
@@ -345,7 +345,7 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
                               cellVal = `${rowData.totalSeries?.values[i] ?? 0}%`
                             }
                             return (
-                              <td key={col.key} className={`${tdBase} text-muted-foreground${ci === 0 ? ' border-l border-border/40' : ''}`}>
+                              <td key={col.key} className={`${tdBase} text-secondary-foreground${ci === 0 ? ' border-l border-border/40' : ''}`}>
                                 {cellVal}
                               </td>
                             )
@@ -358,11 +358,11 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
                                 {visibleCols.map((col, ci) => {
                                   let cellContent: React.ReactNode
                                   if (col.key === 'univ') {
-                                    cellContent = <span className="text-muted-foreground">{s.populations?.[i] ?? 0}m</span>
+                                    cellContent = <span className="text-secondary-foreground">{s.populations?.[i] ?? 0}m</span>
                                   } else if (col.key === 'resp') {
-                                    cellContent = <span className="text-muted-foreground">{s.absolutes?.[i] ?? 0}</span>
+                                    cellContent = <span className="text-secondary-foreground">{s.absolutes?.[i] ?? 0}</span>
                                   } else if (col.key === 'pctcol') {
-                                    cellContent = <span className="text-muted-foreground">{s.values[i]}%</span>
+                                    cellContent = <span className="text-secondary-foreground">{s.values[i]}%</span>
                                     if (heatmap) return (
                                       <td key={col.key} className={`${tdBase}${ci === 0 ? ' border-l border-border/40' : ''}`}
                                         style={{ background: heatmapBg(s.values[i]) }}>
@@ -372,7 +372,7 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
                                   } else if (col.key === 'pctrow') {
                                     const rt = rTotals[i]
                                     const pctRow = rt > 0 ? Math.round((s.absolutes?.[i] ?? 0) / rt * 100) : 0
-                                    cellContent = <span className="text-muted-foreground">{pctRow}%</span>
+                                    cellContent = <span className="text-secondary-foreground">{pctRow}%</span>
                                   } else {
                                     const idx = s.indexValues?.[i] ?? 100
                                     cellContent = (
@@ -453,8 +453,8 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
         <table className="w-full text-xs border-collapse">
           <thead>
             <tr className="bg-muted/50">
-              <th className="text-left py-2 px-3 font-medium text-muted-foreground border-b border-border">Answers</th>
-              <th className="text-right py-2 px-3 font-medium text-muted-foreground border-b border-border w-12">%</th>
+              <th className="text-left py-2 px-3 font-medium text-secondary-foreground border-b border-border">Answers</th>
+              <th className="text-right py-2 px-3 font-medium text-secondary-foreground border-b border-border w-12">%</th>
               <th className="py-2 px-3 border-b border-border w-28" />
             </tr>
           </thead>

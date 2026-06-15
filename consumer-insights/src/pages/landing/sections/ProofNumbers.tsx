@@ -33,7 +33,7 @@ function ProofCounter({ end, suffix, decimals, duration, label }: {
       >
         {display}{suffix}
       </span>
-      <p className="text-sm text-muted-foreground leading-relaxed" style={{ textWrap: 'balance' } as React.CSSProperties}>
+      <p className="text-sm text-secondary-foreground leading-relaxed" style={{ textWrap: 'balance' } as React.CSSProperties}>
         {label}
       </p>
     </div>

@@ -77,7 +77,7 @@ function ReportsCard({ title, body, gradient }: { title: string; body: string; g
         </h3>
         {wordIdx > 0 ? (
           <div className="min-h-[60px]">
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-sm text-secondary-foreground leading-relaxed">
               {words.slice(0, wordIdx).join(' ')}
               {!done && <span className="inline-block w-0.5 h-3.5 bg-primary ml-0.5 animate-pulse" />}
             </p>
@@ -95,7 +95,7 @@ function ReportsCard({ title, body, gradient }: { title: string; body: string; g
             </AnimatePresence>
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground leading-relaxed min-h-[60px]" style={{ textWrap: 'balance' } as React.CSSProperties}>
+          <p className="text-sm text-secondary-foreground leading-relaxed min-h-[60px]" style={{ textWrap: 'balance' } as React.CSSProperties}>
             {body}
           </p>
         )}
@@ -132,7 +132,7 @@ export function Capabilities() {
           </motion.h2>
           <motion.p
             variants={fadeUp}
-            className="mt-6 text-base text-muted-foreground leading-relaxed max-w-md"
+            className="mt-6 text-base text-secondary-foreground leading-relaxed max-w-md"
             style={{ textWrap: 'balance' } as React.CSSProperties}
           >
             Three more tools on the same canvas.
@@ -160,7 +160,7 @@ export function Capabilities() {
                 <h3 className="text-base font-semibold text-foreground mb-3 transition-colors duration-150">
                   {card.title}
                 </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed" style={{ textWrap: 'balance' } as React.CSSProperties}>
+                <p className="text-sm text-secondary-foreground leading-relaxed" style={{ textWrap: 'balance' } as React.CSSProperties}>
                   {card.body}
                 </p>
               </div>

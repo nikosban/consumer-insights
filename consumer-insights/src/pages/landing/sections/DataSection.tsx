@@ -36,7 +36,7 @@ function StatCounter({ end, suffix = '', prefix = '', duration = 700, startFrom 
       >
         {prefix}{display}{suffix}
       </span>
-      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="text-sm text-secondary-foreground">{label}</span>
     </div>
   )
 }

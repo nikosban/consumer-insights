@@ -126,7 +126,7 @@ function AudienceStyleRow() {
           <Badge variant="secondary" className="text-xs font-normal">Germany</Badge>
           <Badge className="text-xs font-normal bg-primary/10 text-primary border-0">Shared</Badge>
         </div>
-        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">High-income urban consumers interested in premium brands</p>
+        <p className="text-xs text-secondary-foreground mt-0.5 line-clamp-1">High-income urban consumers interested in premium brands</p>
       </div>
       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
         {[<Pencil key="p" />, <Copy key="c" />, <Trash2 key="t" />].map((icon, i) => (
@@ -301,7 +301,7 @@ function TypographyPage() {
           <div className="grid grid-cols-[180px_1fr_200px] gap-4 px-4 py-3 border-b border-border/40 items-center hover:bg-muted/20 transition-colors py-3">
             <div>
               <code className="text-xs text-foreground font-medium">font-sans</code>
-              <p className="text-xs text-muted-foreground mt-0.5">Instrument Sans</p>
+              <p className="text-xs text-secondary-foreground mt-0.5">Instrument Sans</p>
             </div>
             <span className="text-sm text-foreground">The quick brown fox jumps</span>
             <span className="text-xs text-foreground">Primary — all UI by default</span>
@@ -309,7 +309,7 @@ function TypographyPage() {
           <div className="grid grid-cols-[180px_1fr_200px] gap-4 px-4 py-3 items-center hover:bg-muted/20 transition-colors py-3">
             <div>
               <code className="text-xs text-foreground font-medium">font-mono</code>
-              <p className="text-xs text-muted-foreground mt-0.5">IBM Plex Mono</p>
+              <p className="text-xs text-secondary-foreground mt-0.5">IBM Plex Mono</p>
             </div>
             <span className="text-sm font-mono text-foreground">DS-10482 · 2026-06-12</span>
             <span className="text-xs text-foreground">Secondary — machine-readable only</span>
@@ -1317,7 +1317,7 @@ function ButtonPage() {
         <div className="grid grid-cols-[90px_1fr_1fr_1fr_1fr] gap-3 mb-2 px-1">
           <span />
           {['Brand', 'Neutral', 'Danger', 'Success'].map(h => (
-            <span key={h} className="text-xs text-muted-foreground">{h}</span>
+            <span key={h} className="text-xs text-secondary-foreground">{h}</span>
           ))}
         </div>
 
@@ -1325,7 +1325,7 @@ function ButtonPage() {
         <div className="grid grid-cols-[90px_1fr_1fr_1fr_1fr] gap-3 items-center py-3 border-t border-border/40">
           <div>
             <p className="text-xs font-medium text-foreground">Primary</p>
-            <p className="text-xs text-muted-foreground">Filled, raised</p>
+            <p className="text-xs text-secondary-foreground">Filled, raised</p>
           </div>
           <Button variant="primary">Save</Button>
           <Button variant="primary-neutral">Export</Button>
@@ -1337,7 +1337,7 @@ function ButtonPage() {
         <div className="grid grid-cols-[90px_1fr_1fr_1fr_1fr] gap-3 items-center py-3 border-t border-border/40">
           <div>
             <p className="text-xs font-medium text-foreground">Secondary</p>
-            <p className="text-xs text-muted-foreground">Outlined, raised</p>
+            <p className="text-xs text-secondary-foreground">Outlined, raised</p>
           </div>
           <Button variant="secondary-brand">Share</Button>
           <Button variant="secondary">Cancel</Button>
@@ -1349,7 +1349,7 @@ function ButtonPage() {
         <div className="grid grid-cols-[90px_1fr_1fr_1fr_1fr] gap-3 items-center py-3 border-t border-border/40">
           <div>
             <p className="text-xs font-medium text-foreground">Ghost</p>
-            <p className="text-xs text-muted-foreground">Flat, no border</p>
+            <p className="text-xs text-secondary-foreground">Flat, no border</p>
           </div>
           <Button variant="ghost-brand">View more</Button>
           <Button variant="ghost">Dismiss</Button>
@@ -1361,7 +1361,7 @@ function ButtonPage() {
         <div className="grid grid-cols-[90px_1fr_1fr_1fr_1fr] gap-3 items-center py-3 border-t border-border/40">
           <div>
             <p className="text-xs font-medium text-foreground">Link</p>
-            <p className="text-xs text-muted-foreground">Inline, no padding</p>
+            <p className="text-xs text-secondary-foreground">Inline, no padding</p>
           </div>
           <Button variant="link">Learn more</Button>
           <Button variant="link-neutral">Details</Button>
@@ -1375,7 +1375,7 @@ function ButtonPage() {
         <div className="grid grid-cols-[90px_1fr_1fr_1fr_1fr] gap-4 mb-2 px-1">
           <span />
           {['No icon', 'Leading', 'Trailing', 'Icon only'].map(h => (
-            <span key={h} className="text-xs text-muted-foreground">{h}</span>
+            <span key={h} className="text-xs text-secondary-foreground">{h}</span>
           ))}
         </div>
 
@@ -1401,12 +1401,12 @@ function ButtonPage() {
       {/* ── Sizes ── */}
       <Section title="Sizes">
         <div className="grid grid-cols-[70px_55px_1fr_1fr_1fr_1fr] gap-4 mb-2 px-1">
-          <span className="text-xs text-muted-foreground">Size</span>
-          <span className="text-xs text-muted-foreground">h</span>
-          <span className="text-xs text-muted-foreground">Primary</span>
-          <span className="text-xs text-muted-foreground">Secondary</span>
-          <span className="text-xs text-muted-foreground">Ghost</span>
-          <span className="text-xs text-muted-foreground">With icon</span>
+          <span className="text-xs text-secondary-foreground">Size</span>
+          <span className="text-xs text-secondary-foreground">h</span>
+          <span className="text-xs text-secondary-foreground">Primary</span>
+          <span className="text-xs text-secondary-foreground">Secondary</span>
+          <span className="text-xs text-secondary-foreground">Ghost</span>
+          <span className="text-xs text-secondary-foreground">With icon</span>
         </div>
 
         {([
@@ -1457,7 +1457,7 @@ function ButtonPage() {
             ] as const
           ).map(({ v, label }) => (
             <div key={v}>
-              <p className="text-xs text-muted-foreground mb-3">{label}</p>
+              <p className="text-xs text-secondary-foreground mb-3">{label}</p>
               <div className="flex items-end gap-6 flex-wrap">
                 <div className="flex flex-col items-center gap-2">
                   <Button variant={v}>Action</Button>
@@ -2883,8 +2883,8 @@ function DashboardWidgetDemo() {
       <div className="relative flex items-center gap-2 px-4 py-3 shrink-0 border-b border-border/40">
         <span className="text-sm font-semibold truncate flex-1 min-w-0">Brand Awareness by Age Group</span>
         <div className="flex items-center gap-0.5 shrink-0">
-          <button className="h-6 px-2 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">Export</button>
-          <button className="h-6 px-2 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">Share</button>
+          <button className="h-6 px-2 rounded text-xs text-secondary-foreground hover:text-foreground hover:bg-muted/50 transition-colors">Export</button>
+          <button className="h-6 px-2 rounded text-xs text-secondary-foreground hover:text-foreground hover:bg-muted/50 transition-colors">Share</button>
           <button className="h-6 w-6 flex items-center justify-center rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors ml-1">
             <IconTrash size={13} strokeWidth={2} />
           </button>
@@ -2896,7 +2896,7 @@ function DashboardWidgetDemo() {
         {summary ? (
           <div className="flex items-start gap-2 py-2.5">
             <Sparkles className="h-3 w-3 text-primary/50 shrink-0 mt-0.5" />
-            <p className="text-xs text-muted-foreground leading-relaxed flex-1">{summary}</p>
+            <p className="text-xs text-secondary-foreground leading-relaxed flex-1">{summary}</p>
             <button onClick={() => setSummary(null)} className="shrink-0 text-muted-foreground/40 hover:text-muted-foreground transition-colors">
               <IconX size={12} stroke={2} />
             </button>
@@ -2905,7 +2905,7 @@ function DashboardWidgetDemo() {
           <button
             onClick={handleGenerateSummary}
             disabled={generating}
-            className="flex items-center gap-1.5 py-2 text-xs text-muted-foreground/50 hover:text-primary transition-colors disabled:opacity-40"
+            className="flex items-center gap-1.5 py-2 text-xs text-secondary-foreground/50 hover:text-primary transition-colors disabled:opacity-40"
           >
             {generating
               ? <><RefreshCw className="h-3 w-3 animate-spin" /><span>Generating…</span></>

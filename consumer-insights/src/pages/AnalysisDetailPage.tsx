@@ -246,7 +246,7 @@ export default function AnalysisDetailPage() {
     const displayType = w.type === 'scorecard' || w.type === 'table' ? 'bar' : w.type
     return (
       <div key={w.id} className="rounded-xl border border-border bg-muted/30 p-3">
-        <p className="text-xs font-medium text-muted-foreground mb-2 truncate">{w.title}</p>
+        <p className="text-xs font-medium text-secondary-foreground mb-2 truncate">{w.title}</p>
         <div className="h-36">
           <ChartRenderer
             widget={{ ...w, type: displayType }}
@@ -300,7 +300,7 @@ export default function AnalysisDetailPage() {
                   'px-4 py-2 text-sm font-medium capitalize border-b-2 -mb-px transition-colors',
                   activeTab === t
                     ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                    : 'border-transparent text-secondary-foreground hover:text-foreground'
                 )}
               >
                 {t === 'slides' ? 'Slides preview' : 'Report'}
@@ -340,7 +340,7 @@ export default function AnalysisDetailPage() {
               {sections.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-20 text-center gap-3">
                   <Presentation className="h-8 w-8 text-muted-foreground/30" />
-                  <p className="text-sm font-medium text-muted-foreground">No sections yet</p>
+                  <p className="text-sm font-medium text-secondary-foreground">No sections yet</p>
                   <p className="text-xs text-muted-foreground/60">Add a section below to build the report</p>
                 </div>
               )}
@@ -365,7 +365,7 @@ export default function AnalysisDetailPage() {
                         </div>
                         <div>
                           <p className="text-sm font-medium">{t.heading}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">{t.description}</p>
+                          <p className="text-xs text-secondary-foreground mt-0.5">{t.description}</p>
                         </div>
                       </button>
                     ))}
@@ -445,7 +445,7 @@ export default function AnalysisDetailPage() {
             {linkedWidgets.map(w => w && (
               <div key={w.id} className="rounded-lg border border-border bg-background px-3 py-2">
                 <p className="text-xs font-medium truncate">{w.title}</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5 uppercase">{w.type}</p>
+                <p className="text-[10px] text-secondary-foreground mt-0.5 uppercase">{w.type}</p>
               </div>
             ))}
           </div>

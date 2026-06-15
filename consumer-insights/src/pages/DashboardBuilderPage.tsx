@@ -95,7 +95,7 @@ function PeriodChip({ value, onChange, size = 'md' }: {
         onClick={() => { setDraft(value); setOpen(o => !o) }}
         className={cn(h, 'rounded-[6px] border flex items-center gap-1 transition-colors',
           isDefault
-            ? 'border-border bg-sidebar text-muted-foreground hover:border-primary/40'
+            ? 'border-border bg-sidebar text-secondary-foreground hover:border-primary/40'
             : 'border-primary/30 bg-primary/5 text-primary'
         )}
       >
@@ -110,7 +110,7 @@ function PeriodChip({ value, onChange, size = 'md' }: {
             {['All', '2022', '2023', '2024', '2025'].map(y => (
               <button key={y} onClick={() => setDraft(d => ({ ...d, year: y }))}
                 className={cn('h-7 px-2.5 rounded text-xs font-medium transition-colors',
-                  draft.year === y ? 'bg-primary text-white' : 'bg-muted text-muted-foreground hover:bg-muted/70'
+                  draft.year === y ? 'bg-primary text-white' : 'bg-muted text-secondary-foreground hover:bg-muted/70'
                 )}
               >{y}</button>
             ))}
@@ -120,7 +120,7 @@ function PeriodChip({ value, onChange, size = 'md' }: {
             {['All', 'Q1', 'Q2', 'Q3', 'Q4'].map(w => (
               <button key={w} onClick={() => setDraft(d => ({ ...d, wave: w }))}
                 className={cn('h-7 px-2.5 rounded text-xs font-medium transition-colors',
-                  draft.wave === w ? 'bg-primary text-white' : 'bg-muted text-muted-foreground hover:bg-muted/70'
+                  draft.wave === w ? 'bg-primary text-white' : 'bg-muted text-secondary-foreground hover:bg-muted/70'
                 )}
               >{w}</button>
             ))}
@@ -164,7 +164,7 @@ function DashboardContextChip({ label, value, options, onChange, size = 'md' }: 
         onClick={() => setOpen(o => !o)}
         className={cn(h, 'rounded-[6px] border flex items-center gap-1 transition-colors',
           isDefault
-            ? 'border-border bg-sidebar text-muted-foreground hover:border-primary/40'
+            ? 'border-border bg-sidebar text-secondary-foreground hover:border-primary/40'
             : 'border-primary/30 bg-primary/5 text-primary'
         )}
       >
@@ -370,7 +370,7 @@ function WidgetPeriodPicker({ value, onChange, onReset, dashDefault: _ }: {
         {['All', '2022', '2023', '2024', '2025'].map(y => (
           <button key={y} onClick={() => setDraft(d => ({ ...d, year: y }))}
             className={cn('h-6 px-2 rounded text-[11px] font-medium transition-colors',
-              draft.year === y ? 'bg-primary text-white' : 'bg-muted text-muted-foreground hover:bg-muted/70'
+              draft.year === y ? 'bg-primary text-white' : 'bg-muted text-secondary-foreground hover:bg-muted/70'
             )}
           >{y}</button>
         ))}
@@ -380,13 +380,13 @@ function WidgetPeriodPicker({ value, onChange, onReset, dashDefault: _ }: {
         {['All', 'Q1', 'Q2', 'Q3', 'Q4'].map(w => (
           <button key={w} onClick={() => setDraft(d => ({ ...d, wave: w }))}
             className={cn('h-6 px-2 rounded text-[11px] font-medium transition-colors',
-              draft.wave === w ? 'bg-primary text-white' : 'bg-muted text-muted-foreground hover:bg-muted/70'
+              draft.wave === w ? 'bg-primary text-white' : 'bg-muted text-secondary-foreground hover:bg-muted/70'
             )}
           >{w}</button>
         ))}
       </div>
       <div className="flex items-center justify-between border-t border-border pt-2">
-        <button onClick={onReset} className="text-[11px] text-muted-foreground hover:text-foreground transition-colors">
+        <button onClick={onReset} className="text-[11px] text-secondary-foreground hover:text-foreground transition-colors">
           Reset to dashboard
         </button>
         <button
@@ -413,7 +413,7 @@ function WidgetTypeStrip({ currentType, onChange }: { currentType: WidgetType; o
             'h-7 px-3 rounded-full text-xs font-medium transition-colors border',
             type === currentType
               ? 'bg-foreground text-background border-foreground'
-              : 'bg-background text-muted-foreground border-border hover:text-foreground hover:border-foreground/30'
+              : 'bg-background text-secondary-foreground border-border hover:text-foreground hover:border-foreground/30'
           )}
         >
           {label}
@@ -739,7 +739,7 @@ function SurveyBrowser({ onAdd, onAddText, onDragStart, onDragEnd }: {
         {/* Text block shortcut */}
         <button
           onClick={onAddText}
-          className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors border-b border-border"
+          className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-secondary-foreground hover:text-foreground hover:bg-accent transition-colors border-b border-border"
         >
           <FileText className="h-3.5 w-3.5 shrink-0" />
           <span>Add text block</span>
@@ -771,7 +771,7 @@ function SurveyBrowser({ onAdd, onAddText, onDragStart, onDragEnd }: {
             <div key={category.label}>
               <button
                 onClick={() => toggleCategory(category.label)}
-                className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-accent transition-colors border-b border-border"
+                className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-secondary-foreground hover:text-foreground hover:bg-accent transition-colors border-b border-border"
               >
                 <ChevronRight className={`h-3 w-3 transition-transform duration-150 shrink-0 ${open ? 'rotate-90' : ''}`} />
                 <span className="flex-1 text-left truncate">{category.label}</span>
@@ -807,7 +807,7 @@ function CrossDimensionPreview({ question }: { question: SurveyQuestion }) {
           <table className="w-full text-[10px] border-collapse">
             <thead>
               <tr className="bg-muted/40">
-                <th className="text-left py-1.5 px-2 font-medium text-muted-foreground border-b border-border sticky left-0 bg-muted/40 min-w-[80px]">
+                <th className="text-left py-1.5 px-2 font-medium text-secondary-foreground border-b border-border sticky left-0 bg-muted/40 min-w-[80px]">
                   Answers
                 </th>
                 {cols.map((col) => (
@@ -1262,7 +1262,7 @@ export default function DashboardBuilderPage() {
           <div className="flex items-center gap-1 text-sm min-w-0 shrink-0">
             <button
               onClick={() => navigate('/dashboards')}
-              className="text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+              className="text-secondary-foreground hover:text-foreground transition-colors whitespace-nowrap"
             >Dashboards</button>
             <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
             <span className="text-sm font-medium truncate max-w-40 text-foreground">
@@ -1475,7 +1475,7 @@ export default function DashboardBuilderPage() {
                             )}
                             <span className={cn('text-sm font-semibold truncate flex-1 min-w-0', isEditMode && 'group-hover:ml-4 transition-[margin-left] duration-150')}>{widget.title}</span>
                             {widget.crossDimensionLabel && (
-                              <span className="text-[10px] text-muted-foreground hidden sm:inline truncate max-w-[80px]">× {widget.crossDimensionLabel}</span>
+                              <span className="text-[10px] text-secondary-foreground hidden sm:inline truncate max-w-[80px]">× {widget.crossDimensionLabel}</span>
                             )}
                             {/* Actions — right side of title */}
                             <div className="flex items-center gap-0.5 shrink-0" onClick={e => e.stopPropagation()}>
@@ -1520,7 +1520,7 @@ export default function DashboardBuilderPage() {
                             {summary ? (
                               <div className="flex items-start gap-2 py-2.5">
                                 <Sparkles className="h-3 w-3 text-primary/50 shrink-0 mt-0.5" />
-                                <p className="text-xs text-muted-foreground leading-relaxed flex-1">{summary}</p>
+                                <p className="text-xs text-secondary-foreground leading-relaxed flex-1">{summary}</p>
                                 <button onClick={(e) => { e.stopPropagation(); setWidgetSummaries(p => { const n = { ...p }; delete n[pw.widgetId]; return n }) }}
                                   className="shrink-0 text-muted-foreground/40 hover:text-muted-foreground transition-colors"
                                 ><X className="h-3 w-3" /></button>

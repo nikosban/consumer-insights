@@ -71,12 +71,12 @@ export default function WidgetCreatorPage() {
       <div className="mb-6">
         <button
           onClick={() => navigate(-1)}
-          className="text-xs text-muted-foreground hover:text-foreground mb-2"
+          className="text-xs text-secondary-foreground hover:text-foreground mb-2"
         >
           ← Back
         </button>
         <h1 className="text-xl font-bold text-foreground">New Widget</h1>
-        <p className="text-sm text-muted-foreground">Configure a chart and save it to your widget library</p>
+        <p className="text-sm text-secondary-foreground">Configure a chart and save it to your widget library</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -184,7 +184,7 @@ export default function WidgetCreatorPage() {
               <p className="text-xs font-medium text-foreground truncate flex-1">
                 {title || 'Widget preview'}
               </p>
-              <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">{type}</span>
+              <span className="text-xs text-secondary-foreground bg-muted px-2 py-0.5 rounded">{type}</span>
             </div>
             <ChartRenderer widget={previewWidget} data={chartData} height={280} />
           </div>

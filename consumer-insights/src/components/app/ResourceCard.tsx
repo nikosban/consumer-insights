@@ -51,7 +51,7 @@ export function ResourceCard({ icon, title, meta, date, actions, onClick, classN
       {(meta || date) && (
         <div className="flex items-center justify-between gap-4 px-2 py-2">
           {meta ? (
-            <span className="text-xs text-muted-foreground truncate">{meta}</span>
+            <span className="text-xs text-secondary-foreground truncate">{meta}</span>
           ) : (
             <span />
           )}
