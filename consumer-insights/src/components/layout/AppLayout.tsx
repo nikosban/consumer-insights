@@ -19,13 +19,6 @@ function AppShell() {
         <WorkspaceSidebar />
       </aside>
 
-      {/* Page-controlled left panel (structural, outside white card) */}
-      {leftPanel && (
-        <div className="hidden md:flex shrink-0">
-          {leftPanel}
-        </div>
-      )}
-
       {/* Mobile: top bar with hamburger + sheet sidebar */}
       <div className="md:hidden flex flex-col flex-1 overflow-hidden">
         <Toolbar>
@@ -49,24 +42,21 @@ function AppShell() {
         </main>
       </div>
 
-      {/* Desktop: padded white card */}
+      {/* Desktop: padded compound card — leftPanel + main + rightSidebar all share the same top edge */}
       <div className="hidden md:flex flex-1 min-w-0 p-2">
-        <main
-          className="flex-1 min-w-0 flex flex-col bg-background rounded-lg border border-border overflow-hidden"
+        <div
+          className="flex flex-1 min-w-0 bg-background rounded-lg border border-border overflow-hidden"
           style={{
             boxShadow: '0 1px 2px rgb(0 0 0 / 0.08), 0 6px 14px -4px rgb(0 0 0 / 0.14)',
           }}
         >
-          <Outlet />
-        </main>
-      </div>
-
-      {/* Page-controlled right panel — structural, flush with viewport edges */}
-      {rightSidebar && (
-        <div className="hidden md:flex shrink-0">
-          {rightSidebar}
+          {leftPanel && <div className="shrink-0 flex">{leftPanel}</div>}
+          <main className="flex-1 min-w-0 flex flex-col overflow-hidden">
+            <Outlet />
+          </main>
+          {rightSidebar && <div className="shrink-0 flex">{rightSidebar}</div>}
         </div>
-      )}
+      </div>
     </div>
   )
 }
