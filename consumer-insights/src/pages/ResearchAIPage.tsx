@@ -372,7 +372,7 @@ function InputBox({
   }
 
   return (
-    <div className="rounded-2xl bg-card shadow-sm overflow-visible">
+    <div className="rounded-2xl bg-card border border-border shadow-sm overflow-visible">
       {/* Textarea area with revolving placeholder */}
       <div className="relative px-4 pt-3 pb-1">
         {!input && (
@@ -393,7 +393,7 @@ function InputBox({
       </div>
 
       {/* Bottom row: chips left, send right */}
-      <div className="flex items-center gap-1.5 px-3 pb-2.5 border-t border-border pt-2">
+      <div className="flex items-center gap-1.5 px-3 pb-2.5 pt-2">
         {/* Source chip */}
         <SourceChip value={sourceMode} onChange={setSourceMode} />
 
