@@ -30,14 +30,20 @@ const now = new Date()
 const daysAgo = (d: number) => new Date(now.getTime() - d * 24 * 60 * 60 * 1000).toISOString()
 
 const MOCK_HISTORY: ChatHistoryEntry[] = [
-  { id: 'h-1', firstMessage: 'What customer feedback are you reviewing today for the recent app update?', createdAt: daysAgo(1) },
-  { id: 'h-2', firstMessage: 'Which consumer demographics are you focusing on for the upcoming holiday sales campaign?', createdAt: daysAgo(2) },
-  { id: 'h-3', firstMessage: 'What devices do Gen Z users prefer for online shopping?', createdAt: daysAgo(4) },
-  { id: 'h-4', firstMessage: 'Brand awareness trends for sustainable products in 2024', createdAt: daysAgo(6) },
-  { id: 'h-5', firstMessage: 'What customer behavior data do you need regarding online shopping habits?', createdAt: daysAgo(12) },
-  { id: 'h-6', firstMessage: 'Which audience has the highest purchase intent for fitness equipment?', createdAt: daysAgo(18) },
-  { id: 'h-7', firstMessage: 'How do high-income homeowners compare to average consumers for home improvement?', createdAt: daysAgo(22) },
-  { id: 'h-8', firstMessage: 'What are the key differences between Millennial and Gen Z shoppers?', createdAt: daysAgo(28) },
+  // Today
+  { id: 'h-1', firstMessage: 'What is the purchase intent for premium headphones among 25–34 year-olds in Germany?', createdAt: daysAgo(0.2) },
+  { id: 'h-2', firstMessage: 'Which streaming platforms have the highest brand recall among Millennials in the UK?', createdAt: daysAgo(0.5) },
+
+  // Past 7 days
+  { id: 'h-3', firstMessage: 'What are Gen Z consumer attitudes toward sustainable brands in Western Europe?', createdAt: daysAgo(2) },
+  { id: 'h-4', firstMessage: 'Which age group streams the most music on mobile in the US?', createdAt: daysAgo(3) },
+  { id: 'h-5', firstMessage: 'How does brand loyalty differ between Millennials and Gen Z in the fashion category?', createdAt: daysAgo(5) },
+
+  // Older
+  { id: 'h-6', firstMessage: 'Compare EV purchase intent across Germany, France, and the US', createdAt: daysAgo(10) },
+  { id: 'h-7', firstMessage: 'NPS benchmark for digital banking apps in Southeast Asia', createdAt: daysAgo(16) },
+  { id: 'h-8', firstMessage: 'Which income bracket spends the most on home fitness equipment in 2024?', createdAt: daysAgo(22) },
+  { id: 'h-9', firstMessage: 'Gen Z attitude toward loyalty programs in retail — key drivers and drop-off points', createdAt: daysAgo(29) },
 ]
 
 export const useAIStore = create<AIStore>()(
