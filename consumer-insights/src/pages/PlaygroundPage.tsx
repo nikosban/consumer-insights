@@ -580,6 +580,40 @@ function IconsPage() {
   )
 }
 
+// ── Color page helpers ──────────────────────────────────────────────────────
+
+function TokenRow({ token, lightHex, darkHex, lightRef, darkRef, usage }: {
+  token: string; lightHex: string; darkHex: string; lightRef: string; darkRef: string; usage: string
+}) {
+  return (
+    <div className="grid grid-cols-[140px_60px_60px_120px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+      <code className="text-xs font-mono text-foreground">{token}</code>
+      <div className="flex items-center gap-1.5">
+        <div className="w-5 h-5 rounded border border-black/[0.10] shrink-0" style={{ background: lightHex }} />
+      </div>
+      <div className="flex items-center gap-1.5">
+        <div className="w-5 h-5 rounded border border-white/[0.12] shrink-0" style={{ background: darkHex }} />
+      </div>
+      <span className="text-xs font-mono text-muted-foreground">{lightRef}</span>
+      <span className="text-xs font-mono text-muted-foreground">{darkRef}</span>
+      <span className="text-xs text-secondary-foreground">{usage}</span>
+    </div>
+  )
+}
+
+function TokenHeader() {
+  return (
+    <div className="grid grid-cols-[140px_60px_60px_120px_120px_1fr] gap-3 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
+      <span>Token</span>
+      <span>Light</span>
+      <span>Dark</span>
+      <span>Light ref</span>
+      <span>Dark ref</span>
+      <span>Usage</span>
+    </div>
+  )
+}
+
 function ColorPage() {
   return (
     <>
@@ -593,159 +627,177 @@ function ColorPage() {
           <li>Keep saturated color visually scarce so it retains meaning</li>
           <li>Do not communicate status, selection, or category through color alone</li>
           <li>Blue text implies interaction — do not use it for passive labels</li>
+          <li>In light mode, never use a zinc shade below 500 for text</li>
         </ul>
       </Section>
 
-      {/* ── Palette ── */}
+      {/* ── Palette foundations ── */}
       <Section title="Palette foundations">
-        <div className="rounded-xl border border-border overflow-hidden mb-4 pb-px">
-          <div className="grid grid-cols-[120px_1fr_1fr] gap-4 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
-            <span>Family</span><span>Role</span><span>Key shades in use</span>
-          </div>
-          {[
-            { family: 'Zinc', role: 'Neutral foundation — all surfaces, text, borders, icons', shades: '50 · 100 · 200 · 400 · 600 · 950' },
-            { family: 'Brand blue', role: 'Primary interaction, links, focus, selected states', shades: '500 (#1A72E7) · 600 (#0666E5) · 700 · 800' },
-            { family: 'Blue', role: 'Informational states (separate token from brand)', shades: '50 · 100 · 300 · 600 · 700' },
-            { family: 'Emerald', role: 'Success — healthy status, valid, confirmed positive', shades: '50 · 300 · 600 · 700' },
-            { family: 'Amber', role: 'Warning — non-blocking risk, attention, partial', shades: '50 · 300 · 600 · 800' },
-            { family: 'Red', role: 'Danger — errors, failed states, destructive actions', shades: '50 · 300 · 600 · 700' },
-            { family: 'Chart palette', role: 'Data visualization only — not for UI controls', shades: 'violet · cyan · orange · fuchsia · teal · indigo · lime' },
-          ].map(({ family, role, shades }) => (
-            <div key={family} className="grid grid-cols-[120px_1fr_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-start hover:bg-muted/20 transition-colors py-3">
-              <span className="text-xs font-medium text-foreground">{family}</span>
-              <span className="text-xs text-foreground">{role}</span>
-              <span className="text-xs font-mono text-foreground">{shades}</span>
-            </div>
-          ))}
-        </div>
-        <p className="text-xs text-foreground">Extend the palette only when an existing raw value cannot support the required semantic role. Do not mix Zinc and Gray as competing neutral foundations.</p>
-      </Section>
-
-      {/* ── Semantic tokens ── */}
-      <Section title="Semantic tokens — light theme">
         <div className="space-y-6">
-          {/* Background */}
+          {/* Zinc scale */}
           <div>
-            <p className="text-xs font-medium text-foreground mb-2">Background</p>
-            <div className="rounded-xl border border-border overflow-hidden">
-              <div className="grid grid-cols-[24px_180px_120px_1fr] gap-3 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
-                <span />  <span>Token</span><span>Palette ref</span><span>Usage</span>
-              </div>
+            <p className="text-xs font-medium text-foreground mb-2">Zinc — neutral foundation</p>
+            <div className="flex gap-1 flex-wrap">
               {[
-                { sw: 'bg-background border border-border', token: 'background.default', ref: 'white', usage: 'Main content, cards, popovers' },
-                { sw: 'bg-muted', token: 'background.submerged', ref: 'zinc.50', usage: 'Sidebar, table headers, filter areas, inspector panels' },
-                { sw: 'bg-accent', token: 'background.neutral.subtle-hovered', ref: 'zinc.100', usage: 'Hover states on rows, menu items, buttons' },
-                { sw: 'bg-primary/10', token: 'background.brand.subtle', ref: 'blue.50', usage: 'Selected rows, active nav tint, chip background' },
-                { sw: 'bg-primary', token: 'background.brand.bold', ref: 'brand.600', usage: 'Primary buttons, checked controls, active badges' },
-                { sw: 'bg-destructive/10', token: 'background.danger.subtle', ref: 'red.50', usage: 'Destructive hover, error notice background' },
-                { sw: 'bg-destructive', token: 'background.danger.bold', ref: 'red.600', usage: 'Destructive button fill' },
-              ].map(({ sw, token, ref, usage }) => (
-                <div key={token} className="grid grid-cols-[24px_180px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors py-3">
-                  <div className={cn('w-4 h-4 rounded shrink-0 border border-black/[0.06]', sw)} />
-                  <code className="text-xs text-foreground">{token}</code>
-                  <span className="text-xs font-mono text-foreground">{ref}</span>
-                  <span className="text-xs text-foreground">{usage}</span>
+                { shade: '50',  hex: '#fafafa' },
+                { shade: '100', hex: '#f4f4f5' },
+                { shade: '200', hex: '#e4e4e7' },
+                { shade: '300', hex: '#d4d4d8' },
+                { shade: '400', hex: '#a1a1aa' },
+                { shade: '500', hex: '#71717a' },
+                { shade: '600', hex: '#52525b' },
+                { shade: '700', hex: '#3f3f46' },
+                { shade: '800', hex: '#27272a' },
+                { shade: '900', hex: '#18181b' },
+                { shade: '950', hex: '#09090b' },
+              ].map(({ shade, hex }) => (
+                <div key={shade} className="flex flex-col items-center gap-1">
+                  <div className="w-10 h-10 rounded-lg border border-black/[0.08]" style={{ background: hex }} />
+                  <span className="text-[10px] font-mono text-muted-foreground">{shade}</span>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Brand scale */}
+          <div>
+            <p className="text-xs font-medium text-foreground mb-2">Brand blue</p>
+            <div className="flex gap-1 flex-wrap">
+              {[
+                { shade: '500', hex: '#1A72E7' },
+                { shade: '600', hex: '#0666E5' },
+                { shade: '700', hex: '#055BCC' },
+                { shade: '800', hex: '#0550B3' },
+              ].map(({ shade, hex }) => (
+                <div key={shade} className="flex flex-col items-center gap-1">
+                  <div className="w-10 h-10 rounded-lg border border-black/[0.08]" style={{ background: hex }} />
+                  <span className="text-[10px] font-mono text-muted-foreground">{shade}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Semantic families table */}
+          <div className="rounded-xl border border-border overflow-hidden">
+            <div className="grid grid-cols-[120px_1fr_1fr] gap-4 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
+              <span>Family</span><span>Role</span><span>Key shades in use</span>
+            </div>
+            {[
+              { family: 'Zinc',         role: 'Neutral foundation — surfaces, text, borders, icons', shades: '50 · 100 · 300 · 400 · 500 · 600 · 800 · 900 · 950' },
+              { family: 'Brand blue',   role: 'Primary interaction, links, focus, selected states',  shades: '500 (#1A72E7) · 600 (#0666E5) · 700 · 800' },
+              { family: 'Blue',         role: 'Informational states — separate from brand',           shades: '50 · 100 · 300 · 600 · 700' },
+              { family: 'Emerald',      role: 'Success — healthy, valid, confirmed positive',         shades: '50 · 300 · 600 · 700' },
+              { family: 'Amber',        role: 'Warning — non-blocking risk, attention, partial',      shades: '50 · 300 · 600 · 800' },
+              { family: 'Red',          role: 'Danger — errors, failed states, destructive',          shades: '50 · 300 · 600 · 700' },
+              { family: 'Chart palette',role: 'Data visualization only — not for UI controls',        shades: 'violet · cyan · orange · fuchsia · teal · indigo · lime' },
+            ].map(({ family, role, shades }) => (
+              <div key={family} className="grid grid-cols-[120px_1fr_1fr] gap-4 px-4 py-2.5 border-b border-border/40 last:border-0 items-start hover:bg-muted/20 transition-colors">
+                <span className="text-xs font-medium text-foreground">{family}</span>
+                <span className="text-xs text-secondary-foreground">{role}</span>
+                <span className="text-xs font-mono text-muted-foreground">{shades}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      {/* ── Semantic tokens — both modes ── */}
+      <Section title="Semantic tokens — light & dark">
+        <div className="space-y-6">
+
+          {/* Surface */}
+          <div>
+            <p className="text-xs font-medium text-foreground mb-2">Surface</p>
+            <div className="rounded-xl border border-border overflow-hidden">
+              <TokenHeader />
+              <TokenRow token="background"      lightHex="#ffffff"  darkHex="#18181b"  lightRef="white"    darkRef="zinc-900"  usage="Page canvas behind all content" />
+              <TokenRow token="card"            lightHex="#ffffff"  darkHex="#18181b"  lightRef="white"    darkRef="zinc-900"  usage="Card and sheet surfaces" />
+              <TokenRow token="popover"         lightHex="#ffffff"  darkHex="#27272a"  lightRef="white"    darkRef="zinc-800"  usage="Dropdowns, tooltips, popovers" />
+              <TokenRow token="muted"           lightHex="#fafafa"  darkHex="#27272a"  lightRef="zinc-50"  darkRef="zinc-800"  usage="Sidebar, table headers, submerged panels" />
+              <TokenRow token="accent"          lightHex="#f4f4f5"  darkHex="#27272a"  lightRef="zinc-100" darkRef="zinc-800"  usage="Hover backgrounds on rows, menu items" />
+              <TokenRow token="secondary"       lightHex="#fafafa"  darkHex="#27272a"  lightRef="zinc-50"  darkRef="zinc-800"  usage="Secondary surfaces, inactive tabs" />
+              <TokenRow token="sidebar"         lightHex="#fafafa"  darkHex="#09090b"  lightRef="zinc-50"  darkRef="zinc-950"  usage="Navigation sidebar background" />
             </div>
           </div>
 
           {/* Text */}
           <div>
-            <p className="text-xs font-medium text-foreground mb-2">Text</p>
+            <p className="text-xs font-medium text-foreground mb-2">Text — three-tier hierarchy</p>
             <div className="rounded-xl border border-border overflow-hidden">
-              <div className="grid grid-cols-[24px_160px_120px_1fr] gap-3 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
-                <span /><span>Token</span><span>Palette ref</span><span>Usage</span>
-              </div>
-              {[
-                { sw: 'bg-foreground',          token: 'text.default',    ref: 'zinc.950', usage: 'Headings, body, row titles, primary labels' },
-                { sw: 'bg-zinc-600',            token: 'text.subtle',     ref: 'zinc.600', usage: 'Secondary descriptions, sidebar nav' },
-                { sw: 'bg-muted-foreground',    token: 'text.subtlest',   ref: 'zinc.400', usage: 'Placeholders, meta, helper text, disabled labels' },
-                { sw: 'bg-primary',             token: 'text.brand/link', ref: 'brand.600', usage: 'Links, interactive labels — implies clickable' },
-                { sw: 'bg-destructive',         token: 'text.danger',     ref: 'red.700',  usage: 'Error messages, destructive confirmations' },
-                { sw: 'bg-emerald-700',         token: 'text.success',    ref: 'emerald.700', usage: 'Success messages, positive confirmations' },
-                { sw: 'bg-amber-800',           token: 'text.warning',    ref: 'amber.800', usage: 'Warning messages, attention states' },
-              ].map(({ sw, token, ref, usage }) => (
-                <div key={token} className="grid grid-cols-[24px_160px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors py-3">
-                  <div className={cn('w-4 h-4 rounded shrink-0 border border-black/[0.06]', sw)} />
-                  <code className="text-xs text-foreground">{token}</code>
-                  <span className="text-xs font-mono text-foreground">{ref}</span>
-                  <span className="text-xs text-foreground">{usage}</span>
-                </div>
-              ))}
+              <TokenHeader />
+              <TokenRow token="foreground"              lightHex="#09090b"  darkHex="#fafafa"  lightRef="zinc-950" darkRef="zinc-50"  usage="Primary: headings, body, list titles, anything the user acts on" />
+              <TokenRow token="secondary-foreground"    lightHex="#52525b"  darkHex="#d4d4d8"  lightRef="zinc-600" darkRef="zinc-300" usage="Secondary: descriptions, nav labels, chip text, table subtitles" />
+              <TokenRow token="muted-foreground"        lightHex="#71717a"  darkHex="#a1a1aa"  lightRef="zinc-500" darkRef="zinc-400" usage="Metadata only: timestamps, placeholders, helper hints, disabled" />
+              <TokenRow token="card-foreground"         lightHex="#09090b"  darkHex="#fafafa"  lightRef="zinc-950" darkRef="zinc-50"  usage="Text on card surfaces (inherits foreground)" />
+              <TokenRow token="popover-foreground"      lightHex="#09090b"  darkHex="#fafafa"  lightRef="zinc-950" darkRef="zinc-50"  usage="Text on popover surfaces" />
+              <TokenRow token="primary"                 lightHex="#0666E5"  darkHex="#0666E5"  lightRef="brand-600" darkRef="brand-600" usage="Interactive labels, links — implies clickable" />
+              <TokenRow token="primary-foreground"      lightHex="#ffffff"  darkHex="#ffffff"  lightRef="white"    darkRef="white"   usage="Text/icons on primary (brand blue) fills" />
+              <TokenRow token="accent-foreground"       lightHex="#52525b"  darkHex="#d4d4d8"  lightRef="zinc-600" darkRef="zinc-300" usage="Text on accent (hover) backgrounds" />
+              <TokenRow token="sidebar-foreground"      lightHex="#52525b"  darkHex="#d4d4d8"  lightRef="zinc-600" darkRef="zinc-300" usage="Text inside the sidebar" />
+              <TokenRow token="destructive"             lightHex="#dc2626"  darkHex="#ef4444"  lightRef="red-600"  darkRef="red-500"  usage="Error text, destructive confirmations" />
             </div>
           </div>
 
-          {/* Border */}
+          {/* Border & Input */}
           <div>
-            <p className="text-xs font-medium text-foreground mb-2">Border</p>
+            <p className="text-xs font-medium text-foreground mb-2">Border & Input</p>
             <div className="rounded-xl border border-border overflow-hidden">
-              <div className="grid grid-cols-[24px_160px_120px_1fr] gap-3 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
-                <span /><span>Token</span><span>Palette ref</span><span>Usage</span>
-              </div>
-              {[
-                { sw: 'border-2 border-black/[0.06]', token: 'border.subtle',   ref: 'alpha.black.8',   usage: 'Sidebar, floating surface edges' },
-                { sw: 'border-2 border-black/[0.12]', token: 'border.default',  ref: 'alpha.black.12',  usage: 'Cards, inputs, dividers — standard use' },
-                { sw: 'border-2 border-black/[0.18]', token: 'border.strong',   ref: 'alpha.black.18',  usage: 'Emphasized boundaries' },
-                { sw: 'border-2 border-primary',      token: 'border.brand',    ref: 'brand.600',        usage: 'Focus rings, selected inputs, active filters' },
-                { sw: 'border-2 border-destructive',  token: 'border.danger',   ref: 'red.300',          usage: 'Invalid input, error state borders' },
-              ].map(({ sw, token, ref, usage }) => (
-                <div key={token} className="grid grid-cols-[24px_160px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors py-3">
-                  <div className={cn('w-4 h-4 rounded shrink-0', sw)} />
-                  <code className="text-xs text-foreground">{token}</code>
-                  <span className="text-xs font-mono text-foreground">{ref}</span>
-                  <span className="text-xs text-foreground">{usage}</span>
-                </div>
-              ))}
+              <TokenHeader />
+              <TokenRow token="border"  lightHex="rgba(0,0,0,0.12)"   darkHex="rgba(255,255,255,0.10)"  lightRef="black/12%"   darkRef="white/10%"  usage="Cards, inputs, dividers — standard use" />
+              <TokenRow token="input"   lightHex="rgba(0,0,0,0.12)"   darkHex="rgba(255,255,255,0.10)"  lightRef="black/12%"   darkRef="white/10%"  usage="Input field borders" />
+              <TokenRow token="ring"    lightHex="#0666E5"             darkHex="#1A72E7"                 lightRef="brand-600"   darkRef="brand-500"  usage="Focus rings on interactive elements" />
+              <TokenRow token="sidebar-border" lightHex="rgba(0,0,0,0.08)" darkHex="rgba(255,255,255,0.07)" lightRef="black/8%" darkRef="white/7%" usage="Sidebar edges and dividers" />
             </div>
           </div>
+
         </div>
       </Section>
 
       {/* ── Chart categorical palette ── */}
       <Section title="Chart categorical palette">
-        <p className="text-sm text-foreground mb-3">8 distinct hues for unordered categorical series. Brand blue is always series 1. Assign the same category the same color across related views. Group minor categories into "Other" (zinc.500).</p>
-        <div className="rounded-xl border border-border overflow-hidden mb-4 pb-px">
-          <div className="grid grid-cols-[24px_80px_120px_1fr] gap-3 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
-            <span /><span>Series</span><span>Value</span><span>Hue</span>
+        <p className="text-sm text-secondary-foreground mb-3">8 distinct hues for unordered categorical series. Brand blue is always series 1. Assign the same category the same color across related views. Group minor categories into "Other" (zinc-500).</p>
+        <div className="rounded-xl border border-border overflow-hidden mb-4">
+          <div className="grid grid-cols-[24px_60px_120px_120px_1fr] gap-3 text-xs font-medium text-foreground bg-muted/50 px-4 py-2 border-b border-border">
+            <span /><span>Series</span><span>Light</span><span>Dark</span><span>Hue</span>
           </div>
           {[
-            { hex: '#0666E5', series: 'cat.1', hue: 'Brand blue' },
-            { hex: '#7C3AED', series: 'cat.2', hue: 'Violet' },
-            { hex: '#0891B2', series: 'cat.3', hue: 'Cyan' },
-            { hex: '#EA580C', series: 'cat.4', hue: 'Orange' },
-            { hex: '#C026D3', series: 'cat.5', hue: 'Fuchsia' },
-            { hex: '#0D9488', series: 'cat.6', hue: 'Teal' },
-            { hex: '#4F46E5', series: 'cat.7', hue: 'Indigo' },
-            { hex: '#65A30D', series: 'cat.8', hue: 'Lime' },
-            { hex: '#a1a1aa', series: 'other', hue: 'Zinc.400 — grouped "Other"' },
-          ].map(({ hex, series, hue }) => (
-            <div key={series} className="grid grid-cols-[24px_80px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors py-3">
-              <div className="w-4 h-4 rounded shrink-0" style={{ background: hex }} />
+            { series: 'cat.1', lightHex: '#0666E5', darkHex: '#1A72E7', hue: 'Brand blue' },
+            { series: 'cat.2', lightHex: '#7C3AED', darkHex: '#8B5CF6', hue: 'Violet' },
+            { series: 'cat.3', lightHex: '#0891B2', darkHex: '#22D3EE', hue: 'Cyan' },
+            { series: 'cat.4', lightHex: '#EA580C', darkHex: '#FB923C', hue: 'Orange' },
+            { series: 'cat.5', lightHex: '#C026D3', darkHex: '#E879F9', hue: 'Fuchsia' },
+            { series: 'cat.6', lightHex: '#0D9488', darkHex: '#2DD4BF', hue: 'Teal' },
+            { series: 'cat.7', lightHex: '#4F46E5', darkHex: '#818CF8', hue: 'Indigo' },
+            { series: 'cat.8', lightHex: '#65A30D', darkHex: '#A3E635', hue: 'Lime' },
+            { series: 'other', lightHex: '#71717a', darkHex: '#a1a1aa', hue: 'Zinc — grouped "Other"' },
+          ].map(({ series, lightHex, darkHex, hue }) => (
+            <div key={series} className="grid grid-cols-[24px_60px_120px_120px_1fr] gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 items-center hover:bg-muted/20 transition-colors">
+              <div className="w-4 h-4 rounded shrink-0" style={{ background: lightHex }} />
               <code className="text-xs text-foreground">{series}</code>
-              <code className="text-xs font-mono text-foreground">{hex}</code>
-              <span className="text-xs text-foreground">{hue}</span>
+              <code className="text-xs font-mono text-muted-foreground">{lightHex}</code>
+              <code className="text-xs font-mono text-muted-foreground">{darkHex}</code>
+              <span className="text-xs text-secondary-foreground">{hue}</span>
             </div>
           ))}
         </div>
-        <p className="text-xs text-foreground">Avoid assigning Emerald, Amber, or Red to neutral categories — users interpret these as success, warning, and danger.</p>
+        <p className="text-xs text-muted-foreground">Avoid assigning Emerald, Amber, or Red to neutral categories — users interpret these as success, warning, and danger.</p>
       </Section>
 
       {/* ── Semantic color usage ── */}
       <Section title="Semantic color usage">
         <div className="grid grid-cols-2 gap-3">
           {[
-            { label: 'Brand / Interaction', color: 'bg-primary', usage: 'Primary actions, links, focus, checked controls, active filters, active navigation' },
-            { label: 'Information', color: 'bg-blue-600', usage: 'Neutral notices, explanatory alerts, informational system states — separate token from brand' },
-            { label: 'Success', color: 'bg-emerald-600', usage: 'Successful completion, healthy status, valid input, confirmed positive outcomes' },
-            { label: 'Warning', color: 'bg-amber-500', usage: 'Non-blocking risk, attention-required states, partial completion' },
-            { label: 'Danger', color: 'bg-destructive', usage: 'Errors, failed states, invalid input, destructive actions, critical problems' },
+            { label: 'Brand / Interaction', color: 'bg-primary',     usage: 'Primary actions, links, focus, checked controls, active filters, active navigation' },
+            { label: 'Information',         color: 'bg-blue-600',    usage: 'Neutral notices, explanatory alerts, informational system states — separate token from brand' },
+            { label: 'Success',             color: 'bg-emerald-600', usage: 'Successful completion, healthy status, valid input, confirmed positive outcomes' },
+            { label: 'Warning',             color: 'bg-amber-500',   usage: 'Non-blocking risk, attention-required states, partial completion' },
+            { label: 'Danger',              color: 'bg-destructive',  usage: 'Errors, failed states, invalid input, destructive actions, critical problems' },
           ].map(({ label, color, usage }) => (
             <div key={label} className="flex items-start gap-3 rounded-lg border border-border p-3">
               <div className={cn('w-3 h-3 rounded-full mt-0.5 shrink-0', color)} />
               <div>
                 <p className="text-xs font-medium text-foreground mb-0.5">{label}</p>
-                <p className="text-xs text-foreground">{usage}</p>
+                <p className="text-xs text-secondary-foreground">{usage}</p>
               </div>
             </div>
           ))}
@@ -755,10 +807,10 @@ function ColorPage() {
 
       {/* ── Decision rule ── */}
       <Section title="Decision rule">
-        <p className="text-sm text-foreground mb-3">Before applying a non-neutral color, identify its exact meaning:</p>
+        <p className="text-sm text-secondary-foreground mb-3">Before applying a non-neutral color, identify its exact meaning:</p>
         <div className="flex flex-wrap gap-2">
           {['Brand or interaction', 'Selection', 'Information', 'Success', 'Warning', 'Danger', 'Data meaning', 'Meaningful grouping'].map((m, i) => (
-            <span key={m} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border text-xs text-muted-foreground">
+            <span key={m} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border text-xs text-secondary-foreground">
               <span className="text-xs font-medium text-foreground tabular-nums">{i + 1}.</span> {m}
             </span>
           ))}
@@ -779,6 +831,8 @@ function ColorPage() {
           <li>Large saturated surfaces without a strong reason</li>
           <li>Colored outer glows</li>
           <li>Category colors that conflict with success, warning, or danger meanings</li>
+          <li>Any zinc shade below 500 for text in light mode</li>
+          <li>text-muted-foreground on content the user needs to read or act on</li>
         </ul>
       </Section>
     </>
