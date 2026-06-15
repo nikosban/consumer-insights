@@ -20,6 +20,8 @@ type AIStore = {
   clearHandoff: () => void
   reset: () => void
   loadConversation: (msgs: AIMessage[]) => void
+  removeHistory: (id: string) => void
+  clearHistory: () => void
 }
 
 const initialConversation: AIConversation = {
@@ -31,20 +33,27 @@ const now = new Date()
 const daysAgo = (d: number) => new Date(now.getTime() - d * 24 * 60 * 60 * 1000).toISOString()
 
 const MOCK_HISTORY: ChatHistoryEntry[] = [
-  // Today
-  { id: 'h-1', firstMessage: 'What is the purchase intent for premium headphones among 25–34 year-olds in Germany?', createdAt: daysAgo(0.2) },
-  { id: 'h-2', firstMessage: 'Which streaming platforms have the highest brand recall among Millennials in the UK?', createdAt: daysAgo(0.5) },
-
-  // Past 7 days
-  { id: 'h-3', firstMessage: 'What are Gen Z consumer attitudes toward sustainable brands in Western Europe?', createdAt: daysAgo(2) },
-  { id: 'h-4', firstMessage: 'Which age group streams the most music on mobile in the US?', createdAt: daysAgo(3) },
-  { id: 'h-5', firstMessage: 'How does brand loyalty differ between Millennials and Gen Z in the fashion category?', createdAt: daysAgo(5) },
+  // Recent
+  { id: 'h-1',  firstMessage: 'What is the purchase intent for premium headphones among 25–34 year-olds in Germany?', createdAt: daysAgo(0.1) },
+  { id: 'h-2',  firstMessage: 'Which streaming platforms have the highest brand recall among Millennials in the UK?', createdAt: daysAgo(0.4) },
+  { id: 'h-3',  firstMessage: 'What is the adoption rate of AI productivity tools among knowledge workers in North America?', createdAt: daysAgo(0.8) },
+  { id: 'h-4',  firstMessage: 'How do TikTok and Instagram compare as social commerce purchase drivers among 18–30 year-olds?', createdAt: daysAgo(1.5) },
+  { id: 'h-5',  firstMessage: 'What are Gen Z consumer attitudes toward sustainable brands in Western Europe?', createdAt: daysAgo(2) },
+  { id: 'h-6',  firstMessage: 'Which age group streams the most music on mobile in the US?', createdAt: daysAgo(3) },
+  { id: 'h-7',  firstMessage: 'Which markets show the strongest international travel intent for summer 2025?', createdAt: daysAgo(4) },
+  { id: 'h-8',  firstMessage: 'How does brand loyalty differ between Millennials and Gen Z in the fashion category?', createdAt: daysAgo(5) },
+  { id: 'h-9',  firstMessage: 'Top health & wellness purchase categories among 35–50 year-olds in Scandinavia', createdAt: daysAgo(6) },
 
   // Older
-  { id: 'h-6', firstMessage: 'Compare EV purchase intent across Germany, France, and the US', createdAt: daysAgo(10) },
-  { id: 'h-7', firstMessage: 'NPS benchmark for digital banking apps in Southeast Asia', createdAt: daysAgo(16) },
-  { id: 'h-8', firstMessage: 'Which income bracket spends the most on home fitness equipment in 2024?', createdAt: daysAgo(22) },
-  { id: 'h-9', firstMessage: 'Gen Z attitude toward loyalty programs in retail — key drivers and drop-off points', createdAt: daysAgo(29) },
+  { id: 'h-10', firstMessage: 'Compare EV purchase intent across Germany, France, and the US', createdAt: daysAgo(10) },
+  { id: 'h-11', firstMessage: 'NPS benchmark for digital banking apps in Southeast Asia', createdAt: daysAgo(13) },
+  { id: 'h-12', firstMessage: 'Gaming hardware upgrade intent among PC gamers in the US — 2024 vs. 2023', createdAt: daysAgo(16) },
+  { id: 'h-13', firstMessage: 'Which income bracket spends the most on home fitness equipment in 2024?', createdAt: daysAgo(19) },
+  { id: 'h-14', firstMessage: 'Food delivery app satisfaction and churn drivers in urban Southeast Asia', createdAt: daysAgo(22) },
+  { id: 'h-15', firstMessage: 'Gen Z attitude toward loyalty programs in retail — key drivers and drop-off points', createdAt: daysAgo(25) },
+  { id: 'h-16', firstMessage: 'Brand trust levels for plant-based food brands in Germany vs. the Netherlands', createdAt: daysAgo(29) },
+  { id: 'h-17', firstMessage: 'How do subscription fatigue levels compare across streaming, SaaS, and news in the UK?', createdAt: daysAgo(34) },
+  { id: 'h-18', firstMessage: 'Luxury travel intent among HNW individuals in the Middle East — key motivations', createdAt: daysAgo(41) },
 ]
 
 export const useAIStore = create<AIStore>()(
@@ -97,6 +106,11 @@ export const useAIStore = create<AIStore>()(
       history: newHistory,
     }
     }),
+
+  removeHistory: (id) =>
+    set((s) => ({ history: s.history.filter((h) => h.id !== id) })),
+
+  clearHistory: () => set({ history: [] }),
   }),
-  { name: 'ci-ai', partialize: () => ({}) }
+  { name: 'ci-ai', partialize: (s) => ({ history: s.history }) }
 ))
