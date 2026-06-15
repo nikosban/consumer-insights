@@ -59,7 +59,6 @@ const gridBgStyle: React.CSSProperties = {
   backgroundSize: '36px 36px',
   WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 40%, transparent 70%)',
   maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 40%, transparent 70%)',
-  zIndex: -1,
 }
 
 // ─── Use-case tiles ───────────────────────────────────────────────────────────
@@ -146,8 +145,8 @@ function InlineHistory({ onSelect }: { onSelect: (q: string) => void }) {
   const hasAny = today.length + past7.length + older.length > 0
   if (!hasAny) return null
   return (
-    <div className="mt-6">
-      <p className="text-xs font-semibold text-foreground mb-2">Recent chats</p>
+    <div className="mt-8">
+      <p className="px-3 text-xs font-semibold text-foreground mb-2">Recent chats</p>
       <HistoryGroup label="Today"       entries={today}  onSelect={onSelect} />
       <HistoryGroup label="Past 7 days" entries={past7}  onSelect={onSelect} />
       <HistoryGroup label="Older"       entries={older}  onSelect={onSelect} />
@@ -1562,7 +1561,7 @@ export default function ResearchAIPage() {
         <div style={gridBgStyle} aria-hidden />
         {isEmpty ? (
           /* ── Empty / home state ── */
-          <div className="flex-1 overflow-y-auto">
+          <div className="relative flex-1 overflow-y-auto">
             <div className="flex flex-col items-center justify-center min-h-full py-12 px-8">
               <div className="w-full max-w-[640px]">
 
@@ -1583,7 +1582,7 @@ export default function ResearchAIPage() {
                 </p>
 
                 {/* Use-case tiles */}
-                <div className="grid grid-cols-3 gap-2 mt-6">
+                <div className="grid grid-cols-3 gap-3 mt-8">
                   {USE_CASES.map(({ Icon, title, desc, color }) => (
                     <UseCaseTile
                       key={title}
