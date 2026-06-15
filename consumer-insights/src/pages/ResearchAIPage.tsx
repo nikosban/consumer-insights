@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useLayout } from '@/components/layout/LayoutContext'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAIStore } from '@/store/aiStore'
 import { useAudienceStore } from '@/store/audienceStore'
 import { useDashboardStore } from '@/store/dashboardStore'
@@ -18,12 +18,7 @@ import type {
   AudienceCardData, DataWidgetCardData, Audience, AIMessage, Widget,
   ProcessingStep, BenchmarkPanelData, AudienceDraftData,
 } from '@/types'
-import {
-  Send, Sparkles, ChevronDown,
-  Users, Globe, TrendingUp, SquarePen, MessageSquare, BarChart2,
-  Check, LayoutDashboard, ExternalLink, ChevronRight, ArrowUpRight,
-  Crown, Plus, Download, Copy, LineChart, Table2, BarChart3,
-} from 'lucide-react'
+import { IconSend, IconSparkles, IconChevronDown, IconUsers, IconGlobe, IconTrendingUp, IconEdit, IconMessage, IconChartBar, IconCheck, IconLayoutDashboard, IconExternalLink, IconChevronRight, IconArrowUpRight, IconCrown, IconPlus, IconDownload, IconCopy, IconChartLine, IconTable, IconTrash, IconX } from '@tabler/icons-react'
 import type { WidgetType } from '@/types'
 import { cn } from '@/lib/utils'
 import { toast } from '@/components/ui/Toaster'
@@ -65,9 +60,9 @@ const gridBgStyle: React.CSSProperties = {
 // ─── Use-case tiles ───────────────────────────────────────────────────────────
 
 const USE_CASES = [
-  { Icon: Users,       title: 'Audience Profiler',  desc: 'Build and explore precise audience segments',  color: '#F97316' },
-  { Icon: Globe,       title: 'Geomarket Brief',    desc: 'Compare consumer behaviour across regions',    color: '#22C55E' },
-  { Icon: TrendingUp,  title: 'Brand Position',     desc: 'Benchmark awareness and competitive standing', color: '#A855F7' },
+  { Icon: IconUsers,       title: 'Audience Profiler',  desc: 'Build and explore precise audience segments',  color: '#F97316' },
+  { Icon: IconGlobe,       title: 'Geomarket Brief',    desc: 'Compare consumer behaviour across regions',    color: '#22C55E' },
+  { Icon: IconTrendingUp,  title: 'Brand Position',     desc: 'Benchmark awareness and competitive standing', color: '#A855F7' },
 ]
 
 function UseCaseTile({ Icon, title, desc, color, onClick }: { Icon: React.ElementType; title: string; desc: string; color: string; onClick: () => void }) {
@@ -116,14 +111,24 @@ function groupHistory(history: ChatHistoryEntry[]) {
 }
 
 function HistoryRow({ entry, onSelect }: { entry: ChatHistoryEntry; onSelect: (q: string) => void }) {
+  const { removeHistory } = useAIStore()
   return (
-    <button
-      onClick={() => onSelect(entry.firstMessage)}
-      className="flex items-center gap-2 w-full text-left px-3 py-2 rounded-md transition-colors hover:bg-accent group"
-    >
-      <span className="flex-1 truncate text-xs text-foreground">{entry.firstMessage}</span>
-      <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{formatDate(entry.createdAt)}</span>
-    </button>
+    <div className="flex items-center gap-1 px-1 rounded-md transition-colors hover:bg-accent group">
+      <button
+        onClick={() => onSelect(entry.firstMessage)}
+        className="flex items-center gap-2 flex-1 min-w-0 text-left py-2 pl-2"
+      >
+        <span className="flex-1 truncate text-xs text-foreground">{entry.firstMessage}</span>
+        <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{formatDate(entry.createdAt)}</span>
+      </button>
+      <button
+        onClick={(e) => { e.stopPropagation(); removeHistory(entry.id) }}
+        title="Delete"
+        className="shrink-0 opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded text-muted-foreground hover:text-destructive transition-all"
+      >
+        <IconX size={11} strokeWidth={2} />
+      </button>
+    </div>
   )
 }
 
@@ -154,19 +159,30 @@ function InlineHistory({ onSelect }: { onSelect: (q: string) => void }) {
 
 /** Right sidebar shown during an active conversation */
 function ChatHistoryPanel({ onSelect, onNew }: { onSelect: (q: string) => void; onNew: () => void }) {
-  const { history } = useAIStore()
+  const { history, clearHistory } = useAIStore()
   const { recent, older } = groupHistory(history)
   return (
     <aside className="w-[220px] shrink-0 flex flex-col border-l border-border bg-sidebar h-full overflow-hidden">
       <div className="flex items-center justify-between px-3 h-14 border-b border-border shrink-0">
         <span className="text-xs font-semibold text-muted-foreground tracking-wide">Chat history</span>
-        <button
-          onClick={onNew}
-          title="New chat"
-          className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-primary text-white hover:bg-primary/90 transition-colors"
-        >
-          <SquarePen size={12} />
-        </button>
+        <div className="flex items-center gap-1">
+          {history.length > 0 && (
+            <button
+              onClick={clearHistory}
+              title="Clear history"
+              className="inline-flex items-center justify-center w-7 h-7 rounded-md text-muted-foreground hover:text-destructive hover:bg-accent transition-colors"
+            >
+              <IconTrash size={12} strokeWidth={2} />
+            </button>
+          )}
+          <button
+            onClick={onNew}
+            title="New chat"
+            className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-primary text-white hover:bg-primary/90 transition-colors"
+          >
+            <IconEdit size={12} strokeWidth={2} />
+          </button>
+        </div>
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto py-2">
         <HistoryGroup label="Recent" entries={recent} onSelect={onSelect} />
@@ -222,9 +238,9 @@ function RevolvingPlaceholder() {
 // ─── Source chip + contextual chips ──────────────────────────────────────────
 
 const SOURCE_OPTIONS = [
-  { value: 'general',  label: 'General Chat',      icon: MessageSquare },
-  { value: 'consumer', label: 'Consumer Insights', icon: BarChart2     },
-  { value: 'market',   label: 'Market Insights',   icon: Globe         },
+  { value: 'general',  label: 'General Chat',      icon: IconMessage   },
+  { value: 'consumer', label: 'Consumer Insights', icon: IconChartBar  },
+  { value: 'market',   label: 'Market Insights',   icon: IconGlobe     },
 ] as const
 type SourceMode = 'general' | 'consumer' | 'market'
 
@@ -259,7 +275,7 @@ function ContextChip({ label, value, options, onChange }: {
         )}
       >
         <span>{value}</span>
-        <ChevronDown size={10} className="shrink-0" />
+        <IconChevronDown size={10} className="shrink-0" strokeWidth={2} />
       </button>
       {open && (
         <div className="absolute bottom-full left-0 mb-1 z-20 bg-popover border border-border rounded-xl shadow-lg py-1 min-w-[160px]">
@@ -298,7 +314,7 @@ function SourceChip({ value, onChange }: { value: SourceMode; onChange: (v: Sour
       >
         <CurrentIcon size={11} className="shrink-0" />
         <span>{current.label}</span>
-        <ChevronDown size={10} className="shrink-0" />
+        <IconChevronDown size={10} className="shrink-0" strokeWidth={2} />
       </button>
       {open && (
         <div className="absolute bottom-full left-0 mb-1 z-20 bg-popover border border-border rounded-xl shadow-lg py-1 min-w-[180px]">
@@ -404,7 +420,7 @@ function InputBox({
           disabled={!input.trim() || isStreaming}
           className="w-[30px] h-[30px] rounded-[6px] bg-foreground text-background flex items-center justify-center shrink-0 transition-opacity disabled:opacity-30"
         >
-          <Send className="h-3.5 w-3.5" />
+          <IconSend className="h-3.5 w-3.5" strokeWidth={2} />
         </button>
       </div>
     </div>
@@ -504,11 +520,11 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
             </span>
             <button title="Export PNG" onClick={() => cardRef.current && exportElAsPng(cardRef.current, card.name)}
               className="w-6 h-6 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
-              <Download size={12} />
+              <IconDownload size={12} strokeWidth={2} />
             </button>
             <button title={copied ? 'Copied!' : 'Copy image'} onClick={handleCopy}
               className={cn('w-6 h-6 flex items-center justify-center rounded transition-colors', copied ? 'text-green-600' : 'hover:bg-muted text-muted-foreground hover:text-foreground')}>
-              {copied ? <Check size={12} /> : <Copy size={12} />}
+              {copied ? <IconCheck size={12} strokeWidth={2} /> : <IconCopy size={12} strokeWidth={2} />}
             </button>
           </div>
         </div>
@@ -516,11 +532,11 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
         {/* Stats chips */}
         <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
           <span className="inline-flex items-center gap-1 text-[11px] text-secondary-foreground bg-muted rounded-full px-2 py-0.5">
-            <Users size={10} className="shrink-0" />
+            <IconUsers size={10} className="shrink-0" strokeWidth={2} />
             {card.sampleSize.toLocaleString()} respondents
           </span>
           <span className="inline-flex items-center gap-1 text-[11px] text-secondary-foreground bg-muted rounded-full px-2 py-0.5">
-            <Globe size={10} className="shrink-0" />
+            <IconGlobe size={10} className="shrink-0" strokeWidth={2} />
             {card.region}
           </span>
         </div>
@@ -569,7 +585,7 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
                 : 'bg-primary text-white hover:bg-primary/90'
             )}
           >
-            {saved ? <Check size={11} /> : <Users size={11} />}
+            {saved ? <IconCheck size={11} strokeWidth={2} /> : <IconUsers size={11} strokeWidth={2} />}
             {saved ? 'Audience created' : 'Create draft audience'}
           </button>
 
@@ -584,7 +600,7 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
                   : 'border-border bg-background text-foreground hover:bg-accent'
               )}
             >
-              {addedToDash ? <Check size={11} /> : <LayoutDashboard size={11} />}
+              {addedToDash ? <IconCheck size={11} strokeWidth={2} /> : <IconLayoutDashboard size={11} strokeWidth={2} />}
               {addedToDash ? 'Added' : 'Add to Dashboard'}
             </button>
 
@@ -608,7 +624,7 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
           className="w-full flex items-center justify-center gap-1 h-7 text-xs text-muted-foreground hover:text-primary transition-colors"
         >
           Open in Audience Builder
-          <ArrowUpRight size={11} className="shrink-0" />
+          <IconArrowUpRight size={11} className="shrink-0" strokeWidth={2} />
         </button>
 
         {/* Go to Dashboard strip */}
@@ -620,7 +636,7 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
               className="flex items-center gap-1 text-xs font-medium text-green-700 hover:text-green-900 transition-colors shrink-0"
             >
               Go there
-              <ExternalLink size={10} />
+              <IconExternalLink size={10} strokeWidth={2} />
             </button>
           </div>
         )}
@@ -632,9 +648,9 @@ function AudienceCardMessage({ card }: { card: AudienceCardData }) {
 // ─── Viz type switcher ────────────────────────────────────────────────────────
 
 const VIZ_TYPES: { type: WidgetType; Icon: React.ElementType; label: string }[] = [
-  { type: 'bar',   Icon: BarChart3,  label: 'Bar'   },
-  { type: 'line',  Icon: LineChart,  label: 'Line'  },
-  { type: 'table', Icon: Table2,     label: 'Table' },
+  { type: 'bar',   Icon: IconChartBar,   label: 'Bar'   },
+  { type: 'line',  Icon: IconChartLine,  label: 'Line'  },
+  { type: 'table', Icon: IconTable,      label: 'Table' },
 ]
 
 function VizSwitcher({ value, onChange }: { value: WidgetType; onChange: (t: WidgetType) => void }) {
@@ -739,11 +755,11 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
             <VizSwitcher value={vizType} onChange={setVizType} />
             <button title="Export PNG" onClick={() => cardRef.current && exportElAsPng(cardRef.current, card.title)}
               className="w-6 h-6 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
-              <Download size={12} />
+              <IconDownload size={12} strokeWidth={2} />
             </button>
             <button title={copied ? 'Copied!' : 'Copy image'} onClick={handleCopy}
               className={cn('w-6 h-6 flex items-center justify-center rounded transition-colors', copied ? 'text-green-600' : 'hover:bg-muted text-muted-foreground hover:text-foreground')}>
-              {copied ? <Check size={12} /> : <Copy size={12} />}
+              {copied ? <IconCheck size={12} strokeWidth={2} /> : <IconCopy size={12} strokeWidth={2} />}
             </button>
           </div>
         </div>
@@ -772,7 +788,7 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
                   : 'border border-border bg-background text-foreground hover:bg-accent'
               )}
             >
-              {addedToDash ? <Check size={11} /> : <LayoutDashboard size={11} />}
+              {addedToDash ? <IconCheck size={11} strokeWidth={2} /> : <IconLayoutDashboard size={11} strokeWidth={2} />}
               {addedToDash ? 'Added to Dashboard' : 'Add to Dashboard'}
             </button>
             {dashPickerOpen && (
@@ -791,7 +807,7 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
             <span className="text-xs text-green-800">Added to <span className="font-medium">{addedToDash.name}</span></span>
             <button onClick={() => navigate(`/dashboards/${addedToDash.id}`)}
               className="flex items-center gap-1 text-xs font-medium text-green-700 hover:text-green-900 transition-colors shrink-0">
-              Go there <ExternalLink size={10} />
+              Go there <IconExternalLink size={10} strokeWidth={2} />
             </button>
           </div>
         )}
@@ -814,23 +830,21 @@ function MessageActions({ text }: { text: string }) {
   }
 
   return (
-    <div className="flex items-center gap-0.5 mt-1 pl-1">
+    <div className="flex items-center gap-0.5 mt-1">
       <button
-        title={copied ? 'Copied!' : 'Copy response'}
+        title={copied ? 'Copied!' : 'Copy'}
         onClick={handleCopy}
-        className={cn('flex items-center gap-1 h-6 px-1.5 rounded text-[11px] transition-colors',
+        className={cn('flex items-center justify-center h-6 w-6 rounded transition-colors',
           copied ? 'text-green-600' : 'text-muted-foreground hover:text-foreground hover:bg-muted')}
       >
-        {copied ? <Check size={11} /> : <Copy size={11} />}
-        {copied ? 'Copied' : 'Copy'}
+        {copied ? <IconCheck size={12} strokeWidth={2} /> : <IconCopy size={12} strokeWidth={2} />}
       </button>
       <button
         title="Edit and resend"
         onClick={() => document.dispatchEvent(new CustomEvent('set-chat-input', { detail: text }))}
-        className="flex items-center gap-1 h-6 px-1.5 rounded text-[11px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        className="flex items-center justify-center h-6 w-6 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
       >
-        <SquarePen size={11} />
-        Edit
+        <IconEdit size={12} strokeWidth={2} />
       </button>
     </div>
   )
@@ -840,17 +854,23 @@ function MessageActions({ text }: { text: string }) {
 
 function FollowUpChips({ suggestions, onSend }: { suggestions: string[]; onSend: (q: string) => void }) {
   return (
-    <div className="flex flex-wrap gap-2 mt-3">
-      {suggestions.map(q => (
-        <button
-          key={q}
-          onClick={() => onSend(q)}
-          className="flex items-center gap-1.5 text-xs text-primary border border-primary/25 bg-primary/5 rounded-full px-3 py-1.5 hover:bg-primary/10 hover:border-primary/40 transition-colors"
-        >
-          <ChevronRight size={11} className="shrink-0" />
-          {q}
-        </button>
-      ))}
+    <div className="mt-5">
+      <div className="flex items-center gap-1.5 mb-2.5">
+        <IconSparkles size={12} strokeWidth={2} className="text-muted-foreground shrink-0" />
+        <span className="text-xs text-muted-foreground">Query suggestions</span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {suggestions.map(q => (
+          <button
+            key={q}
+            onClick={() => onSend(q)}
+            className="flex items-center gap-1.5 text-xs text-primary border border-primary/25 bg-primary/5 rounded-full px-3 py-1.5 hover:bg-primary/10 hover:border-primary/40 transition-colors"
+          >
+            <IconChevronRight size={11} className="shrink-0" strokeWidth={2} />
+            {q}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
@@ -879,7 +899,7 @@ function ProcessingStepsDisplay({ steps }: { steps: ProcessingStep[] }) {
               : 'Processing'
           }
         </span>
-        <ChevronDown size={12} className={cn('text-muted-foreground transition-transform shrink-0', expanded && 'rotate-180')} />
+        <IconChevronDown size={12} className={cn('text-muted-foreground transition-transform shrink-0', expanded && 'rotate-180')} strokeWidth={2} />
       </button>
 
       {/* expandable body */}
@@ -888,7 +908,7 @@ function ProcessingStepsDisplay({ steps }: { steps: ProcessingStep[] }) {
           {steps.map((step, i) => (
             <div key={i} className={cn('flex items-center gap-2 text-xs transition-opacity duration-300', step.status === 'pending' ? 'opacity-30' : 'opacity-100')}>
               <div className="shrink-0 w-4 h-4 flex items-center justify-center">
-                {step.status === 'done' && <Check size={11} className="text-green-600" />}
+                {step.status === 'done' && <IconCheck size={11} className="text-green-600" strokeWidth={2} />}
                 {step.status === 'active' && (
                   <svg className="animate-spin h-3 w-3 text-primary" viewBox="0 0 24 24" fill="none">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -940,7 +960,7 @@ function BenchmarkPanel({ panel, onCreateDraft }: { panel: BenchmarkPanelData; o
               </span>
               {seg.isBestMatch && (
                 <span className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-1.5 py-0.5 leading-none">
-                  <Crown size={8} />
+                  <IconCrown size={8} strokeWidth={2} />
                   Best
                 </span>
               )}
@@ -971,7 +991,7 @@ function BenchmarkPanel({ panel, onCreateDraft }: { panel: BenchmarkPanelData; o
 
             {/* universe */}
             <div className="flex items-center gap-1 text-[10px] text-secondary-foreground">
-              <Users size={9} />
+              <IconUsers size={9} strokeWidth={2} />
               {seg.universe}
             </div>
           </div>
@@ -985,7 +1005,7 @@ function BenchmarkPanel({ panel, onCreateDraft }: { panel: BenchmarkPanelData; o
           onClick={onCreateDraft}
           className="flex items-center gap-1.5 h-8 px-4 rounded-lg bg-primary text-white text-xs font-medium hover:bg-primary/90 transition-colors active:scale-[0.98]"
         >
-          <Plus size={11} />
+          <IconPlus size={11} strokeWidth={2} />
           Create Audience Draft
         </button>
       </div>
@@ -1063,11 +1083,11 @@ function WidgetClusterCard({ card, index }: { card: DataWidgetCardData; index: n
             <VizSwitcher value={vizType} onChange={setVizType} />
             <button title="Export PNG" onClick={() => cardRef.current && exportElAsPng(cardRef.current, card.title)}
               className="w-6 h-6 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
-              <Download size={12} />
+              <IconDownload size={12} strokeWidth={2} />
             </button>
             <button title={copied ? 'Copied!' : 'Copy image'} onClick={handleCopy}
               className={cn('w-6 h-6 flex items-center justify-center rounded transition-colors', copied ? 'text-green-600' : 'hover:bg-muted text-muted-foreground hover:text-foreground')}>
-              {copied ? <Check size={12} /> : <Copy size={12} />}
+              {copied ? <IconCheck size={12} strokeWidth={2} /> : <IconCopy size={12} strokeWidth={2} />}
             </button>
           </div>
         </div>
@@ -1095,7 +1115,7 @@ function WidgetClusterCard({ card, index }: { card: DataWidgetCardData; index: n
                 : 'border border-border bg-background text-foreground hover:bg-accent'
             )}
           >
-            {addedToDash ? <Check size={11} /> : <LayoutDashboard size={11} />}
+            {addedToDash ? <IconCheck size={11} strokeWidth={2} /> : <IconLayoutDashboard size={11} strokeWidth={2} />}
             {addedToDash ? `Added to ${addedToDash.name}` : 'Add to Dashboard'}
           </button>
           {dashPickerOpen && (
@@ -1105,7 +1125,7 @@ function WidgetClusterCard({ card, index }: { card: DataWidgetCardData; index: n
         {addedToDash && (
           <button onClick={() => navigate(`/dashboards/${addedToDash.id}`)}
             className="mt-1.5 w-full flex items-center justify-center gap-1 text-xs text-green-700 hover:text-green-900 transition-colors">
-            View dashboard <ExternalLink size={10} />
+            View dashboard <IconExternalLink size={10} strokeWidth={2} />
           </button>
         )}
       </div>
@@ -1160,7 +1180,7 @@ function DashboardPickerDropdown({ dashboards, onSelect, label, direction = 'dow
           className="w-full text-left px-3 py-2 text-xs text-foreground hover:bg-accent transition-colors flex items-center justify-between gap-2"
         >
           <span className="truncate">{d.name}</span>
-          <ChevronRight size={11} className="shrink-0 text-muted-foreground" />
+          <IconChevronRight size={11} className="shrink-0 text-muted-foreground" strokeWidth={2} />
         </button>
       ))}
       <div className="border-t border-border mt-1 pt-1">
@@ -1179,7 +1199,7 @@ function DashboardPickerDropdown({ dashboards, onSelect, label, direction = 'dow
               disabled={!newName.trim()}
               className="h-6 w-6 flex items-center justify-center rounded-md bg-primary text-white disabled:opacity-40 shrink-0"
             >
-              <Check size={11} />
+              <IconCheck size={11} strokeWidth={2} />
             </button>
           </div>
         ) : (
@@ -1187,7 +1207,7 @@ function DashboardPickerDropdown({ dashboards, onSelect, label, direction = 'dow
             onClick={() => setCreating(true)}
             className="w-full text-left px-3 py-2 text-xs text-primary font-medium hover:bg-primary/5 transition-colors flex items-center gap-1.5"
           >
-            <Plus size={11} />
+            <IconPlus size={11} strokeWidth={2} />
             New dashboard
           </button>
         )}
@@ -1233,7 +1253,7 @@ function AudienceDraftCard({ draft }: { draft: AudienceDraftData }) {
           onClick={handleOpenBuilder}
           className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition-colors"
         >
-          <SquarePen size={10} />
+          <IconEdit size={10} strokeWidth={2} />
           Edit
         </button>
       </div>
@@ -1265,7 +1285,7 @@ function AudienceDraftCard({ draft }: { draft: AudienceDraftData }) {
           className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg border border-border text-xs font-medium text-foreground hover:bg-accent transition-colors"
         >
           Open in Audience Builder
-          <ArrowUpRight size={10} />
+          <IconArrowUpRight size={10} strokeWidth={2} />
         </button>
         <button
           onClick={handleSave}
@@ -1276,7 +1296,7 @@ function AudienceDraftCard({ draft }: { draft: AudienceDraftData }) {
               : 'bg-primary text-white hover:bg-primary/90 active:scale-[0.98]'
           )}
         >
-          {saved ? <Check size={11} /> : <Users size={11} />}
+          {saved ? <IconCheck size={11} strokeWidth={2} /> : <IconUsers size={11} strokeWidth={2} />}
           {saved ? 'Saved' : 'Save to My Audiences'}
         </button>
       </div>
@@ -1303,12 +1323,15 @@ function MessageBubble({ msg, onSend, onCreateDraft }: {
 
   if (isUser) {
     return (
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-end mb-4 group">
         <div className="max-w-xl ml-12">
           <div className="rounded-2xl rounded-br-sm px-4 py-3 text-sm leading-relaxed bg-primary text-primary-foreground">
             {msg.content.split('\n').map((line, i, arr) => (
               <span key={i}>{renderMarkdown(line)}{i < arr.length - 1 && <br />}</span>
             ))}
+          </div>
+          <div className="flex justify-end mt-1">
+            <MessageActions text={msg.content} />
           </div>
         </div>
       </div>
@@ -1318,9 +1341,9 @@ function MessageBubble({ msg, onSend, onCreateDraft }: {
   // Assistant message
   return (
     <div className="flex justify-start mb-4">
-      {/* Avatar */}
-      <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center mr-2 shrink-0 mt-1">
-        <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
+      {/* Avatar — aligned with top of first content block */}
+      <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center mr-2 shrink-0">
+        <IconSparkles className="h-3.5 w-3.5 text-primary-foreground" strokeWidth={2} />
       </div>
 
       <div className="max-w-xl mr-8 w-full">
@@ -1329,13 +1352,10 @@ function MessageBubble({ msg, onSend, onCreateDraft }: {
           <ProcessingStepsDisplay steps={msg.processingSteps} />
         )}
 
-        {/* Text bubble — only show if there's content OR if not an ev_demo with only steps visible */}
+        {/* Text bubble */}
         {(msg.content || (!msg.processingSteps && !msg.audienceDraft)) && (
-          <div className={cn('mt-3', !msg.content && 'hidden')}>
-            <div className={cn(
-              'rounded-2xl rounded-bl-sm px-4 py-3 text-sm leading-relaxed bg-muted text-foreground',
-              !msg.isStreaming && (msg.audienceCard || msg.dataWidget) && 'mb-3',
-            )}>
+          <div className={cn(!msg.content && 'hidden')}>
+            <div className="rounded-2xl rounded-bl-sm px-4 py-3 text-sm leading-relaxed bg-muted text-foreground">
               {msg.isStreaming ? (
                 <span>
                   {renderMarkdown(msg.content)}
@@ -1348,46 +1368,51 @@ function MessageBubble({ msg, onSend, onCreateDraft }: {
               )}
             </div>
             {!msg.isStreaming && msg.content && (
-              <MessageActions text={msg.content} />
+              <div className="flex justify-end">
+                <MessageActions text={msg.content} />
+              </div>
             )}
           </div>
         )}
 
         {/* Benchmark panel (EV demo) */}
         {!msg.isStreaming && msg.benchmarkPanel && (
-          <BenchmarkPanel panel={msg.benchmarkPanel} onCreateDraft={onCreateDraft} />
+          <div className="mt-4">
+            <BenchmarkPanel panel={msg.benchmarkPanel} onCreateDraft={onCreateDraft} />
+          </div>
         )}
 
         {/* Widget cluster (EV demo) */}
         {!msg.isStreaming && msg.widgetCluster && msg.widgetCluster.length > 0 && (
-          <WidgetCluster widgets={msg.widgetCluster} />
+          <div className="mt-4">
+            <WidgetCluster widgets={msg.widgetCluster} />
+          </div>
         )}
 
-        {/* Audience draft card (EV demo step 6) */}
+        {/* Audience draft card */}
         {msg.audienceDraft && (
-          <AudienceDraftCard draft={msg.audienceDraft} />
+          <div className="mt-2">
+            <AudienceDraftCard draft={msg.audienceDraft} />
+          </div>
         )}
 
         {/* Audience card */}
         {!msg.isStreaming && msg.audienceCard && (
-          <AudienceCardMessage card={msg.audienceCard} />
+          <div className="mt-2">
+            <AudienceCardMessage card={msg.audienceCard} />
+          </div>
         )}
 
         {/* Data widget card */}
         {!msg.isStreaming && msg.dataWidget && (
-          <DataWidgetCardMessage card={msg.dataWidget} />
+          <div className="mt-2">
+            <DataWidgetCardMessage card={msg.dataWidget} />
+          </div>
         )}
 
         {/* Follow-up suggestion chips */}
         {!msg.isStreaming && msg.suggestedFollowUps && msg.suggestedFollowUps.length > 0 && (
           <FollowUpChips suggestions={msg.suggestedFollowUps} onSend={onSend} />
-        )}
-
-        {/* Attribution */}
-        {!msg.isStreaming && msg.attribution && (
-          <p className="text-xs text-muted-foreground mt-1.5 px-1">
-            Based on Statista survey data, {msg.attribution}
-          </p>
         )}
       </div>
     </div>
@@ -1397,8 +1422,8 @@ function MessageBubble({ msg, onSend, onCreateDraft }: {
 function StreamingSkeleton() {
   return (
     <div className="flex justify-start mb-4">
-      <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center mr-2 shrink-0 mt-1">
-        <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
+      <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center mr-2 shrink-0">
+        <IconSparkles className="h-3.5 w-3.5 text-primary-foreground" strokeWidth={2} />
       </div>
       <div className="space-y-2 max-w-xs">
         <Skeleton className="h-4 w-64" /><Skeleton className="h-4 w-48" /><Skeleton className="h-4 w-56" />
@@ -1415,6 +1440,8 @@ export default function ResearchAIPage() {
   const [input, setInput] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const autoSubmittedRef = useRef(false)
+  const [searchParams] = useSearchParams()
 
   const isEmpty = conversation.messages.length === 0
 
@@ -1443,6 +1470,15 @@ export default function ResearchAIPage() {
   }, [conversation.messages, isStreaming])
 
   useEffect(() => { return () => { if (intervalRef.current) clearInterval(intervalRef.current) } }, [])
+
+  useEffect(() => {
+    const q = searchParams.get('q')?.trim()
+    if (q && isEmpty && !autoSubmittedRef.current) {
+      autoSubmittedRef.current = true
+      handleSend(q)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   function handleCreateDraft() {
     addMessage({
