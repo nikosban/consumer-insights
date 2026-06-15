@@ -12,12 +12,19 @@ function AppShell() {
   const { leftPanel, rightSidebar } = useLayout()
 
   return (
-    <div className="flex h-screen bg-sidebar overflow-hidden">
+    <div className="flex h-screen bg-sidebar overflow-hidden p-2 gap-2">
 
-      {/* Desktop left sidebar */}
+      {/* Desktop left sidebar — plain column, blends into bg-sidebar */}
       <aside className="hidden md:flex shrink-0">
         <WorkspaceSidebar />
       </aside>
+
+      {/* Optional left panel — plain column */}
+      {leftPanel && (
+        <div className="hidden md:flex shrink-0">
+          {leftPanel}
+        </div>
+      )}
 
       {/* Mobile: top bar with hamburger + sheet sidebar */}
       <div className="md:hidden flex flex-col flex-1 overflow-hidden">
@@ -42,21 +49,22 @@ function AppShell() {
         </main>
       </div>
 
-      {/* Desktop: padded compound card — leftPanel + main + rightSidebar all share the same top edge */}
-      <div className="hidden md:flex flex-1 min-w-0 p-2">
-        <div
-          className="flex flex-1 min-w-0 bg-background rounded-lg border border-border overflow-hidden"
-          style={{
-            boxShadow: '0 1px 2px rgb(0 0 0 / 0.08), 0 6px 14px -4px rgb(0 0 0 / 0.14)',
-          }}
-        >
-          {leftPanel && <div className="shrink-0 flex">{leftPanel}</div>}
-          <main className="flex-1 min-w-0 flex flex-col overflow-hidden">
-            <Outlet />
-          </main>
-          {rightSidebar && <div className="shrink-0 flex">{rightSidebar}</div>}
+      {/* Main content — the floating card */}
+      <main
+        className="hidden md:flex flex-1 min-w-0 flex-col bg-background rounded-lg border border-border overflow-hidden"
+        style={{
+          boxShadow: '0 1px 2px rgb(0 0 0 / 0.08), 0 6px 14px -4px rgb(0 0 0 / 0.14)',
+        }}
+      >
+        <Outlet />
+      </main>
+
+      {/* Optional right sidebar — plain column */}
+      {rightSidebar && (
+        <div className="hidden md:flex shrink-0">
+          {rightSidebar}
         </div>
-      </div>
+      )}
     </div>
   )
 }
