@@ -598,9 +598,9 @@ function AIQueryInput({ onApply }: { onApply: (f: FilterGroup) => void }) {
           placeholder={AI_EXAMPLES[0]}
         />
         {!query.trim() && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground/50 pointer-events-none select-none">
+          <kbd className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center gap-0.5 h-5 px-1.5 rounded border border-border bg-background text-muted-foreground text-[10px] leading-none shadow-[var(--btn-raised-light-rest)] pointer-events-none select-none font-mono">
             ↵ Enter
-          </span>
+          </kbd>
         )}
       </div>
 
