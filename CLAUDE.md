@@ -50,6 +50,14 @@ These apply unconditionally to every line of UI code written or reviewed:
 - Do not stack multiple `box-shadow` layers beyond the three-layer system.
 - No colored outer glows.
 
+## Components
+
+**Always use existing components. Never inline their styles.**
+
+- Before writing any interactive UI element (button, chip, badge, input, etc.), check `src/components/ui/` for an existing component.
+- If a component exists, import and use it — never copy its styles into inline Tailwind classes.
+- If no component exists for the pattern needed: propose it first, get approval, then create the component in `src/components/ui/` and add it to `PlaygroundPage.tsx` before using it anywhere.
+
 ## Git
 
 - Never add `Co-Authored-By: Claude` or any AI trailer to commit messages.

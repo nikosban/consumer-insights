@@ -31,6 +31,11 @@ import {
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { cn } from '@/lib/utils'
 import { generateChartData } from '@/data/fakeGenerators'
+import {
+  DataWidgetCard, AudienceCard, AudienceDraftCard, BenchmarkPanel,
+  WidgetCluster, ProcessingStepsDisplay, FollowUpChips, MessageActions, VizSwitcher,
+} from '@/components/app/chat'
+import type { DataWidgetCardData, AudienceCardData, AudienceDraftData, BenchmarkPanelData, ProcessingStep } from '@/types'
 
 // ─── Nav structure ────────────────────────────────────────────────────────────
 
@@ -50,6 +55,7 @@ type PageId =
   | 'empty-state'
   | 'switcher'
   | 'layout'
+  | 'chat'
 
 const NAV: { group: string; items: { id: PageId; label: string }[] }[] = [
   {
@@ -72,6 +78,7 @@ const NAV: { group: string; items: { id: PageId; label: string }[] }[] = [
       { id: 'chip',        label: 'Chip'        },
       { id: 'card',         label: 'Card'         },
       { id: 'chart-widget', label: 'Chart Widget' },
+      { id: 'chat',         label: 'Chat'         },
       { id: 'empty-state',  label: 'Empty State'  },
       { id: 'switcher',     label: 'Switcher'     },
       { id: 'layout',      label: 'Layout'      },
@@ -3032,6 +3039,172 @@ function ChartWidgetPage() {
   )
 }
 
+// ─── Chat page ────────────────────────────────────────────────────────────────
+
+const DEMO_DATA_WIDGET: DataWidgetCardData = {
+  title: 'Premium Headphone Purchase Intent by Age — Germany',
+  metric: 'purchase_intent',
+  subtitle: 'Purchase intent among 25–34 year-olds',
+  source: 'Statista Consumer Insights',
+  chartType: 'bar',
+  chartData: generateChartData('bar', false, undefined, 'demo-widget'),
+}
+
+const DEMO_AUDIENCE_CARD: AudienceCardData = {
+  name: 'Urban Millennials DE',
+  subtitle: 'High-income urban consumers interested in premium brands',
+  confidence: 87,
+  sampleSize: 4200,
+  region: 'Germany',
+  demographics: [
+    { label: 'Age',    value: '28–38' },
+    { label: 'Gender', value: '52% Female' },
+    { label: 'Income', value: '€60k+' },
+  ],
+  behaviors: [
+    { label: 'Online shopping', value: '4× / week' },
+    { label: 'Brand loyalty',   value: 'High' },
+    { label: 'Sustainability',  value: 'Important' },
+  ],
+  prefill: { name: 'Urban Millennials DE', filters: { id: 'fg-empty', operator: 'AND', conditions: [] } },
+}
+
+const DEMO_AUDIENCE_DRAFT: AudienceDraftData = {
+  name: 'Urban Millennials DE — Refined',
+  inheritedFrom: 'Urban Millennials DE',
+  filters: [
+    { label: 'Age',    value: '28–38' },
+    { label: 'Region', value: 'Germany' },
+    { label: 'Income', value: '€60k+' },
+  ],
+  prefill: { name: 'Urban Millennials DE — Refined', filters: { id: 'fg-empty', operator: 'AND', conditions: [] } },
+}
+
+const DEMO_BENCHMARK: BenchmarkPanelData = {
+  segments: [
+    { name: 'Tech-First Millennials', ageRange: '25–34', descriptor: 'Early adopters, high digital spend', intentScore: 78, isBestMatch: true, universe: '2.1M' },
+    { name: 'Premium Lifestyle',      ageRange: '35–44', descriptor: 'Brand-conscious, quality-driven',   intentScore: 61, isBestMatch: false, universe: '1.8M' },
+    { name: 'Value Seekers',          ageRange: '45–54', descriptor: 'Price-sensitive, deal-driven',      intentScore: 42, isBestMatch: false, universe: '3.4M' },
+  ],
+  nudge: 'Tech-First Millennials show the highest intent score and best match with your target market.',
+}
+
+const DEMO_STEPS: ProcessingStep[] = [
+  { label: 'Loading dataset',    value: 'Consumer Insights DE 2024', status: 'done'    },
+  { label: 'Filtering segment',  value: '25–34 year-olds',           status: 'done'    },
+  { label: 'Running analysis',   value: 'Purchase intent model',     status: 'active'  },
+  { label: 'Generating insight', value: '',                           status: 'pending' },
+]
+
+const DEMO_WIDGET_CLUSTER: DataWidgetCardData[] = [
+  { title: 'Brand Recall — UK Millennials', metric: 'brand_recall',    chartType: 'bar',  subtitle: 'Unaided recall %', source: 'Statista Consumer Insights', chartData: generateChartData('bar',  false, undefined, 'demo-cluster-1') },
+  { title: 'Purchase Intent by Platform',   metric: 'purchase_intent', chartType: 'line', subtitle: 'Monthly trend',    source: 'Statista Consumer Insights', chartData: generateChartData('line', false, undefined, 'demo-cluster-2') },
+]
+
+function ChatPage() {
+  return (
+    <>
+      <PageHeader
+        title="Chat"
+        description="Components used in the Research AI chat interface — cards, message UI, and interaction primitives."
+      />
+
+      <Section title="Message bubbles">
+        <div className="flex flex-col gap-4 max-w-2xl">
+          {/* User message */}
+          <div className="flex justify-end group">
+            <div className="max-w-xl ml-12">
+              <div className="rounded-2xl rounded-br-sm px-4 py-3 text-sm leading-relaxed bg-primary text-primary-foreground">
+                What is the purchase intent for premium headphones among 25–34 year-olds in Germany?
+              </div>
+              <div className="flex justify-end mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <MessageActions text="What is the purchase intent for premium headphones among 25–34 year-olds in Germany?" role="user" />
+              </div>
+            </div>
+          </div>
+          {/* Assistant message */}
+          <div className="flex justify-start group">
+            <div className="w-full min-w-0">
+              <div className="max-w-xl rounded-2xl rounded-bl-sm px-4 py-3 text-sm leading-relaxed bg-muted text-foreground">
+                <strong>58% of 25–34 year-olds in Germany</strong> express high or very high purchase intent for premium headphones in the next 12 months — well above the all-age average of 41%.
+              </div>
+              <div className="max-w-xl flex justify-end mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <MessageActions text="58% of 25–34 year-olds in Germany..." role="assistant" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      <Section title="DataWidgetCard">
+        <div className="max-w-2xl">
+          <DataWidgetCard card={DEMO_DATA_WIDGET} />
+        </div>
+      </Section>
+
+      <Section title="AudienceCard">
+        <AudienceCard card={DEMO_AUDIENCE_CARD} />
+      </Section>
+
+      <Section title="AudienceDraftCard">
+        <AudienceDraftCard draft={DEMO_AUDIENCE_DRAFT} />
+      </Section>
+
+      <Section title="BenchmarkPanel">
+        <div className="max-w-2xl">
+          <BenchmarkPanel panel={DEMO_BENCHMARK} onCreateDraft={() => {}} />
+        </div>
+      </Section>
+
+      <Section title="WidgetCluster">
+        <div className="max-w-xl">
+          <WidgetCluster widgets={DEMO_WIDGET_CLUSTER} />
+        </div>
+      </Section>
+
+      <Section title="ProcessingStepsDisplay">
+        <div className="max-w-md space-y-3">
+          <p className="text-xs text-muted-foreground">Active (click to expand)</p>
+          <ProcessingStepsDisplay steps={DEMO_STEPS} />
+          <p className="text-xs text-muted-foreground mt-4">All done</p>
+          <ProcessingStepsDisplay steps={DEMO_STEPS.map(s => ({ ...s, status: 'done' as const }))} />
+        </div>
+      </Section>
+
+      <Section title="FollowUpChips">
+        <div className="max-w-xl">
+          <FollowUpChips
+            suggestions={[
+              'Which brands lead in consideration among this segment?',
+              'How does this compare to the UK market?',
+              'Break down by income level within the 25–34 group',
+            ]}
+            onSend={() => {}}
+          />
+        </div>
+      </Section>
+
+      <Section title="MessageActions">
+        <Row label="User (copy + edit)">
+          <MessageActions text="Sample user message" role="user" />
+        </Row>
+        <Row label="Assistant (thumbs + copy)">
+          <MessageActions text="Sample assistant response" role="assistant" />
+        </Row>
+      </Section>
+
+      <Section title="VizSwitcher">
+        <VizSwitcherDemo />
+      </Section>
+    </>
+  )
+}
+
+function VizSwitcherDemo() {
+  const [viz, setViz] = useState<'bar' | 'line' | 'table'>('bar')
+  return <VizSwitcher value={viz} onChange={v => setViz(v as 'bar' | 'line' | 'table')} />
+}
+
 // ─── Page map ─────────────────────────────────────────────────────────────────
 
 const PAGES: Record<PageId, React.ReactNode> = {
@@ -3047,6 +3220,7 @@ const PAGES: Record<PageId, React.ReactNode> = {
   'chip':        <ChipPage />,
   'card':          <CardPage />,
   'chart-widget':  <ChartWidgetPage />,
+  'chat':          <ChatPage />,
   'empty-state':   <EmptyStatePage />,
   'switcher':      <SwitcherPage />,
   'layout':      <LayoutPage />,
