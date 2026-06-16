@@ -57,6 +57,7 @@ type PageId =
   | 'layout'
   | 'chat'
   | 'dashboards'
+  | 'analysis'
 
 const NAV: { group: string; items: { id: PageId; label: string }[] }[] = [
   {
@@ -81,6 +82,7 @@ const NAV: { group: string; items: { id: PageId; label: string }[] }[] = [
       { id: 'chart-widget', label: 'Chart Widget' },
       { id: 'chat',         label: 'Chat'         },
       { id: 'dashboards',   label: 'Dashboards'   },
+      { id: 'analysis',     label: 'Analysis'     },
       { id: 'empty-state',  label: 'Empty State'  },
       { id: 'switcher',     label: 'Switcher'     },
       { id: 'layout',      label: 'Layout'      },
@@ -3701,6 +3703,185 @@ function DashboardsPage() {
   )
 }
 
+// ─── Analysis page ────────────────────────────────────────────────────────────
+
+function UnderlineTabsDemo() {
+  const [active, setActive] = useState<'report' | 'slides'>('report')
+  return (
+    <div className="space-y-4 max-w-lg">
+      <div className="flex gap-0 border-b border-border">
+        {(['report', 'slides'] as const).map(t => (
+          <button
+            key={t}
+            onClick={() => setActive(t)}
+            className={cn(
+              'px-4 py-2 text-sm font-medium capitalize border-b-2 -mb-px transition-colors',
+              active === t
+                ? 'border-primary text-primary'
+                : 'border-transparent text-secondary-foreground hover:text-foreground'
+            )}
+          >
+            {t === 'slides' ? 'Slides preview' : 'Report'}
+          </button>
+        ))}
+      </div>
+      <p className="text-xs text-muted-foreground">Active tab: <span className="font-medium text-foreground">{active}</span></p>
+    </div>
+  )
+}
+
+const DEMO_SUGGESTIONS = [
+  { id: 's1', heading: 'Trend Analysis',   description: 'How the key metric has shifted over time and what is driving the change.' },
+  { id: 's2', heading: 'Competitive Landscape', description: 'How your brand compares to direct competitors on awareness and intent.' },
+  { id: 's3', heading: 'Segment Deep-Dive', description: 'Which audience segments over- or under-index on the selected metric.' },
+]
+
+function SectionSuggestionsDemo() {
+  const [added, setAdded] = useState<Set<string>>(new Set())
+  const visible = DEMO_SUGGESTIONS.filter(s => !added.has(s.id))
+  return (
+    <div className="max-w-lg space-y-2">
+      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Add a section</p>
+      {visible.length === 0 && (
+        <p className="text-xs text-muted-foreground italic">All sections added.</p>
+      )}
+      {visible.map(s => (
+        <button
+          key={s.id}
+          onClick={() => setAdded(prev => new Set([...prev, s.id]))}
+          className="w-full flex items-start gap-3 rounded-lg border border-border bg-background px-4 py-3 text-left transition-colors hover:bg-accent hover:border-primary/30"
+        >
+          <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground">
+            <span className="text-[10px] font-bold">+</span>
+          </div>
+          <div>
+            <p className="text-sm font-medium">{s.heading}</p>
+            <p className="text-xs text-secondary-foreground mt-0.5">{s.description}</p>
+          </div>
+        </button>
+      ))}
+      {added.size > 0 && (
+        <button onClick={() => setAdded(new Set())} className="text-xs text-muted-foreground hover:text-foreground transition-colors mt-1">
+          Reset
+        </button>
+      )}
+    </div>
+  )
+}
+
+const DEMO_SLIDE_CHARTS: Widget[] = [
+  { id: 'sl-w1', type: 'bar',  title: 'Brand Awareness by Age', audienceId: '', metric: 'brand_awareness', breakdown: 'age_group', createdAt: '2025-01-01T00:00:00Z' },
+  { id: 'sl-w2', type: 'line', title: 'Purchase Intent Trend',  audienceId: '', metric: 'purchase_intent', createdAt: '2025-01-01T00:00:00Z' },
+]
+
+const DEMO_SLIDES = [
+  {
+    id: 'title',
+    isTitle: true,
+    heading: 'Consumer Insights — DACH Q2 2025',
+    content: 'Consumer Insights Report',
+    charts: [] as Widget[],
+  },
+  {
+    id: 'trend',
+    isTitle: false,
+    heading: 'Trend Analysis',
+    content: 'Brand awareness among 25–34 year-olds in Germany rose 8pp YoY, reaching 74% — the highest recorded level. The sharpest gains were among urban consumers, driven by a shift to mobile-first brand discovery.\n\nPurchase intent followed a similar trajectory, up 5pp to 61%, with the strongest uplift among income brackets above €60k.',
+    charts: DEMO_SLIDE_CHARTS,
+  },
+  {
+    id: 'segment',
+    isTitle: false,
+    heading: 'Segment Deep-Dive',
+    content: 'Tech-First Millennials (25–34) show the highest intent score at 78%, well above the 55% market average. Value Seekers (45–54) are significantly below at 42%.\n\nGender split is near-even across all high-intent segments.',
+    charts: [] as Widget[],
+  },
+]
+
+function SlidePreviewDemo() {
+  return (
+    <div className="flex flex-col gap-6 max-w-[700px]">
+      {DEMO_SLIDES.map((slide, idx) => (
+        <div key={slide.id} className="flex gap-4 items-start">
+          <span className="text-xs text-muted-foreground mt-3 w-5 shrink-0 text-right">{idx + 1}</span>
+          <div
+            className="flex-1 rounded-xl border border-border bg-background overflow-hidden shadow-sm"
+            style={{ aspectRatio: '16/9', position: 'relative' }}
+          >
+            {slide.isTitle ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-primary px-8 text-center">
+                <p className="text-white font-semibold text-lg leading-tight">{slide.heading}</p>
+                <p className="text-white/60 text-xs mt-2">{slide.content}</p>
+              </div>
+            ) : (
+              <div className="absolute inset-0 flex gap-0">
+                <div className={cn('flex flex-col justify-start p-5 overflow-hidden', slide.charts.length > 0 ? 'w-[45%]' : 'w-full')}>
+                  <p className="text-[11px] font-semibold text-primary mb-2 uppercase tracking-wide truncate">{slide.heading}</p>
+                  <p className="text-[10px] text-foreground leading-[1.55] line-clamp-[10] whitespace-pre-line">{slide.content}</p>
+                </div>
+                {slide.charts.length > 0 && (
+                  <div className="w-[55%] flex flex-col gap-1 p-3 pl-0">
+                    {slide.charts.map(w => (
+                      <div key={w.id} className="flex-1 rounded-lg border border-border bg-muted/20 px-2 pt-1 pb-0 overflow-hidden">
+                        <p className="text-[8px] font-medium text-muted-foreground truncate mb-0.5">{w.title}</p>
+                        <div className="h-full pb-2">
+                          <ChartRenderer
+                            widget={w}
+                            data={generateChartData(w.type, false, undefined, w.id, w.metric, w.breakdown)}
+                            height={80}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function AnalysisPage() {
+  return (
+    <>
+      <PageHeader
+        title="Analysis"
+        description="UI patterns used in the Analyses list and Analysis detail view."
+      />
+
+      <Section title="Underline tabs">
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground max-w-xl">
+            Tab bar with a bottom-border indicator. Used to switch between Report and Slides preview in the Analysis detail page. Active tab gets primary color + border; inactive is secondary-foreground.
+          </p>
+          <UnderlineTabsDemo />
+        </div>
+      </Section>
+
+      <Section title="Section suggestion cards">
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground max-w-xl">
+            Action cards for adding report sections. Circle + badge on the left, heading + description on the right. Cards disappear after being clicked (click Reset to restore).
+          </p>
+          <SectionSuggestionsDemo />
+        </div>
+      </Section>
+
+      <Section title="Slide preview cards">
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground max-w-xl">
+            16:9 slide previews with slide number in the left margin. Title slide: solid primary background, white text. Content slides: 45% text column + 55% chart column. Charts render at 80px height.
+          </p>
+          <SlidePreviewDemo />
+        </div>
+      </Section>
+    </>
+  )
+}
+
 // ─── Page map ─────────────────────────────────────────────────────────────────
 
 const PAGES: Record<PageId, React.ReactNode> = {
@@ -3718,6 +3899,7 @@ const PAGES: Record<PageId, React.ReactNode> = {
   'chart-widget':  <ChartWidgetPage />,
   'chat':          <ChatPage />,
   'dashboards':    <DashboardsPage />,
+  'analysis':      <AnalysisPage />,
   'empty-state':   <EmptyStatePage />,
   'switcher':      <SwitcherPage />,
   'layout':      <LayoutPage />,
