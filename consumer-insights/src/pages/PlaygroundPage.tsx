@@ -2999,6 +2999,139 @@ function DashboardWidgetDemo() {
   )
 }
 
+// ── Simple table with heatmap ─────────────────────────────────────────────────
+
+function SimpleTableHeatmapDemo() {
+  const [heatmap, setHeatmap] = useState(true)
+  const widget: Widget = {
+    id: 'pg-table-heatmap',
+    type: 'table',
+    title: 'Brand Awareness by Category',
+    audienceId: '',
+    metric: 'brand_awareness',
+    createdAt: '2025-01-01T00:00:00Z',
+  }
+  const data = generateChartData('table', false, undefined, 'pg-table-heatmap', 'brand_awareness', undefined, 'Insurance')
+  return (
+    <div className="space-y-3 max-w-sm">
+      <label className="flex items-center gap-2 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={heatmap}
+          onChange={e => setHeatmap(e.target.checked)}
+          className="h-3.5 w-3.5 accent-primary cursor-pointer"
+        />
+        <span className="text-xs text-foreground">Heatmap</span>
+      </label>
+      <div className="border border-border rounded-lg overflow-hidden">
+        <ChartRenderer widget={widget} data={data} heatmap={heatmap} />
+      </div>
+    </div>
+  )
+}
+
+// ── Crosstab table ────────────────────────────────────────────────────────────
+
+import type { CrossTabConfig } from '@/types'
+
+const CROSSTAB_COLS = [
+  { key: 'showTotal',     label: 'Total'     },
+  { key: 'showUniverse',  label: 'Universe'  },
+  { key: 'showResponses', label: 'Responses' },
+  { key: 'showPctCol',    label: '% Col'     },
+  { key: 'showPctRow',    label: '% Row'     },
+  { key: 'showIndex',     label: 'Index'     },
+] as const
+
+function CrosstabDemo() {
+  const [heatmap, setHeatmap] = useState(false)
+  const [cfg, setCfg] = useState<CrossTabConfig>({
+    showTotal: true,
+    showUniverse: true,
+    showResponses: true,
+    showPctCol: true,
+    showPctRow: true,
+    showIndex: true,
+  })
+
+  const widget: Widget = {
+    id: 'pg-crosstab',
+    type: 'table',
+    title: 'Brand Awareness',
+    audienceId: '',
+    metric: 'brand_awareness',
+    crossDimensionLabel: 'Age group',
+    createdAt: '2025-01-01T00:00:00Z',
+  }
+  const data = generateChartData('table', false, 'Age group', 'pg-crosstab', 'brand_awareness', undefined, 'Insurance')
+
+  function toggle(key: keyof CrossTabConfig) {
+    setCfg(c => ({ ...c, [key]: !c[key] }))
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-4 flex-wrap">
+        {CROSSTAB_COLS.map(({ key, label }) => (
+          <label key={key} className="flex items-center gap-1.5 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={cfg[key]}
+              onChange={() => toggle(key)}
+              className="h-3.5 w-3.5 accent-primary cursor-pointer"
+            />
+            <span className="text-xs text-foreground">{label}</span>
+          </label>
+        ))}
+        <label className="flex items-center gap-1.5 cursor-pointer ml-2 pl-2 border-l border-border">
+          <input
+            type="checkbox"
+            checked={heatmap}
+            onChange={e => setHeatmap(e.target.checked)}
+            className="h-3.5 w-3.5 accent-primary cursor-pointer"
+          />
+          <span className="text-xs text-foreground">Heatmap</span>
+        </label>
+      </div>
+      <div className="border border-border rounded-lg overflow-hidden">
+        <ChartRenderer widget={widget} data={data} heatmap={heatmap} crossTabConfig={cfg} />
+      </div>
+    </div>
+  )
+}
+
+// ── Scorecard with benchmark ──────────────────────────────────────────────────
+
+function ScorecardDemo() {
+  const [benchmark, setBenchmark] = useState(true)
+  const widget: Widget = {
+    id: 'pg-scorecard',
+    type: 'scorecard',
+    title: 'Brand Awareness',
+    audienceId: '',
+    metric: 'brand_awareness',
+    benchmarkAudienceId: benchmark ? 'bench' : undefined,
+    createdAt: '2025-01-01T00:00:00Z',
+  }
+  const data = generateChartData('scorecard', benchmark, undefined, `pg-scorecard:${benchmark}`)
+  return (
+    <div className="space-y-3">
+      <label className="flex items-center gap-2 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={benchmark}
+          onChange={e => setBenchmark(e.target.checked)}
+          className="h-3.5 w-3.5 accent-primary cursor-pointer"
+        />
+        <span className="text-xs text-foreground">Show benchmark delta</span>
+      </label>
+      <div className="border border-border rounded-lg overflow-hidden max-w-xs">
+        <ChartRenderer widget={widget} data={data} height={160} />
+      </div>
+    </div>
+  )
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 function ChartWidgetPage() {
@@ -3033,6 +3166,33 @@ function ChartWidgetPage() {
             Full-width view rendered when a chart is selected in the Charts page sidebar. Includes a toolbar with Share/Save actions and a Properties panel with chart type picker, metric, category, breakdown, benchmark toggle, and heatmap toggle. All controls below are live.
           </p>
           <ChartsPageWidgetDemo />
+        </div>
+      </Section>
+
+      <Section title="Simple table — heatmap">
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground max-w-xl">
+            Survey percentage table with optional heatmap coloring. Blue opacity scales with value — higher % = deeper blue. Toggle below.
+          </p>
+          <SimpleTableHeatmapDemo />
+        </div>
+      </Section>
+
+      <Section title="Crosstab table">
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground max-w-xl">
+            Pivot table with a cross-dimension (e.g. Age group). Column groups are collapsible — click any group header to expand/collapse its sub-columns. Toggle which sub-columns appear and enable heatmap on % Col values.
+          </p>
+          <CrosstabDemo />
+        </div>
+      </Section>
+
+      <Section title="Scorecard — with benchmark">
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground max-w-xl">
+            KPI scorecard with optional benchmark delta. The delta shows directional change vs. benchmark audience as a colored pill (green = above, red = below).
+          </p>
+          <ScorecardDemo />
         </div>
       </Section>
     </>
