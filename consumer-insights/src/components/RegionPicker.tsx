@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Plus, Pencil, Trash2, Check, ChevronDown, Globe } from 'lucide-react'
+import { IconPlus, IconPencil, IconTrash, IconCheck, IconChevronDown, IconGlobe } from '@tabler/icons-react'
 import { useRegionStore, ALL_COUNTRIES, COUNTRY_CODE } from '@/store/regionStore'
 import type { Region } from '@/store/regionStore'
 import { cn } from '@/lib/utils'
@@ -57,7 +57,7 @@ function RegionRow({
         'h-4 w-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors',
         selected ? 'border-primary bg-primary' : 'border-border',
       )}>
-        {selected && <Check className="h-2.5 w-2.5 text-white" strokeWidth={3} />}
+        {selected && <IconCheck className="h-2.5 w-2.5 text-white" strokeWidth={2} />}
       </div>
 
       <div className="flex-1 min-w-0">
@@ -78,13 +78,13 @@ function RegionRow({
             onClick={(e) => { e.stopPropagation(); onEdit?.() }}
             className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground"
           >
-            <Pencil className="h-3 w-3" />
+            <IconPencil className="h-3 w-3" strokeWidth={2} />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onDelete?.() }}
             className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
           >
-            <Trash2 className="h-3 w-3" />
+            <IconTrash className="h-3 w-3" strokeWidth={2} />
           </button>
         </div>
       )}
@@ -242,7 +242,7 @@ export function RegionPicker({ value, onChange }: RegionPickerProps) {
           open ? 'border-ring ring-2 ring-ring/30 bg-background' : 'border-input bg-background hover:border-ring/50',
         )}
       >
-        <Globe className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+        <IconGlobe className="h-3.5 w-3.5 text-muted-foreground shrink-0" strokeWidth={2} />
         <span className="font-medium text-foreground truncate">{selected?.name ?? 'Select region'}</span>
         {selected && (
           <span className="flex items-center gap-0.5 ml-1 shrink-0">
@@ -254,7 +254,7 @@ export function RegionPicker({ value, onChange }: RegionPickerProps) {
             )}
           </span>
         )}
-        <ChevronDown className={cn('h-3.5 w-3.5 text-muted-foreground ml-auto shrink-0 transition-transform', open && 'rotate-180')} />
+        <IconChevronDown className={cn('h-3.5 w-3.5 text-muted-foreground ml-auto shrink-0 transition-transform', open && 'rotate-180')} strokeWidth={2} />
       </button>
 
       {/* Dropdown */}
@@ -318,7 +318,7 @@ export function RegionPicker({ value, onChange }: RegionPickerProps) {
                   onClick={() => setCreating(true)}
                   className="flex items-center gap-1.5 w-full px-2 py-1.5 text-xs text-primary hover:bg-primary/5 rounded-lg transition-colors"
                 >
-                  <Plus className="h-3.5 w-3.5" />
+                  <IconPlus className="h-3.5 w-3.5" strokeWidth={2} />
                   Create region
                 </button>
               )}

@@ -3,7 +3,7 @@ import { useProjectStore } from '@/store/projectStore'
 import { Button } from '@/components/ui/button'
 import { ResourceCard, PageShell } from '@/components/app'
 import EmptyState from '@/components/EmptyState'
-import { Plus, Folder } from 'lucide-react'
+import { IconPlus, IconFolder } from '@tabler/icons-react'
 
 export default function WorkspacePage() {
   const navigate = useNavigate()
@@ -29,7 +29,7 @@ export default function WorkspacePage() {
           <p className="text-sm text-muted-foreground">Organise your dashboards and analyses into folders</p>
         </div>
         <Button onClick={handleNewWorkspace}>
-          <Plus className="h-4 w-4 mr-1" />
+          <IconPlus className="h-4 w-4 mr-1" strokeWidth={2} />
           New Workspace
         </Button>
       </div>
@@ -46,7 +46,7 @@ export default function WorkspacePage() {
           {projects.map((project) => (
             <ResourceCard
               key={project.id}
-              icon={<Folder className="h-4 w-4" />}
+              icon={<IconFolder className="h-4 w-4" strokeWidth={2} />}
               title={project.name}
               meta={`${project.savedAnalyses.length} ${project.savedAnalyses.length === 1 ? 'analysis' : 'analyses'} · ${project.dashboardIds.length} ${project.dashboardIds.length === 1 ? 'dashboard' : 'dashboards'}`}
               date={`Created ${new Date(project.createdAt).toLocaleDateString()}`}

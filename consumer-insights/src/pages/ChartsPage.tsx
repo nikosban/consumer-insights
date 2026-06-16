@@ -9,11 +9,9 @@ import { useDashboardStore } from '@/store/dashboardStore'
 import { useWidgetStore } from '@/store/widgetStore'
 import { Chip, FieldGroup, SectionLabel, Toolbar, ToolbarActions } from '@/components/app'
 import { Button } from '@/components/ui/button'
-import {
-  X, BarChart2, TrendingUp, PieChart, Table2, Hash,
-  ChevronRight, ChevronDown, LayoutDashboard, BookmarkPlus, Check, Share2, Trash2,
-} from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+import { IconX, IconChartBar, IconTrendingUp, IconChartPie, IconTable, IconHash, IconChevronRight, IconChevronDown, IconLayoutDashboard, IconBookmarkPlus, IconCheck, IconShare, IconTrash } from '@tabler/icons-react'
+
+type TablerIcon = React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>
 import { cn } from '@/lib/utils'
 
 // ─── Chart library data ───────────────────────────────────────────────────────
@@ -98,12 +96,12 @@ const CHART_LIBRARY: LibraryChart[] = RAW.map((item, i) => {
 
 // ─── Chart type meta ──────────────────────────────────────────────────────────
 
-const CHART_TYPES: { type: WidgetType; label: string; Icon: LucideIcon }[] = [
-  { type: 'table',     label: 'Table',     Icon: Table2     },
-  { type: 'bar',       label: 'Bar',       Icon: BarChart2  },
-  { type: 'line',      label: 'Line',      Icon: TrendingUp },
-  { type: 'pie',       label: 'Pie',       Icon: PieChart   },
-  { type: 'scorecard', label: 'Scorecard', Icon: Hash       },
+const CHART_TYPES: { type: WidgetType; label: string; Icon: TablerIcon }[] = [
+  { type: 'table',     label: 'Table',     Icon: IconTable     },
+  { type: 'bar',       label: 'Bar',       Icon: IconChartBar  },
+  { type: 'line',      label: 'Line',      Icon: IconTrendingUp },
+  { type: 'pie',       label: 'Pie',       Icon: IconChartPie  },
+  { type: 'scorecard', label: 'Scorecard', Icon: IconHash      },
 ]
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
@@ -201,8 +199,8 @@ function ChartSidebar({
               className="flex items-center gap-1.5 w-full px-3 py-1.5 text-xs text-sidebar-foreground hover:bg-white/70 transition-colors"
             >
               {savedOpen
-                ? <ChevronDown size={11} className="shrink-0 text-muted-foreground" />
-                : <ChevronRight size={11} className="shrink-0 text-muted-foreground" />
+                ? <IconChevronDown size={11} className="shrink-0 text-muted-foreground" strokeWidth={2} />
+                : <IconChevronRight size={11} className="shrink-0 text-muted-foreground" strokeWidth={2} />
               }
               <span className="truncate font-medium">Saved</span>
               <span className="ml-auto text-[10px] text-muted-foreground tabular-nums shrink-0">{savedCharts.length}</span>
@@ -257,8 +255,8 @@ function ChartSidebar({
                 className="flex items-center gap-1.5 w-full px-3 py-1.5 text-xs text-sidebar-foreground hover:bg-white/70 transition-colors"
               >
                 {isOpen
-                  ? <ChevronDown size={11} className="shrink-0 text-muted-foreground" />
-                  : <ChevronRight size={11} className="shrink-0 text-muted-foreground" />
+                  ? <IconChevronDown size={11} className="shrink-0 text-muted-foreground" strokeWidth={2} />
+                  : <IconChevronRight size={11} className="shrink-0 text-muted-foreground" strokeWidth={2} />
                 }
                 <span className="truncate font-medium">{group.label}</span>
                 <span className="ml-auto text-[10px] text-muted-foreground tabular-nums shrink-0">{charts.length}</span>
@@ -360,7 +358,7 @@ function PropertiesPanel({
           onClick={onClose}
           className="p-1 rounded text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
         >
-          <X className="h-4 w-4" />
+          <IconX className="h-4 w-4" strokeWidth={2} />
         </button>
       </div>
 
@@ -781,7 +779,7 @@ export default function ChartsPage() {
               {/* Left: breadcrumb + title */}
               <div className="flex flex-col min-w-0">
                 <p className="text-[10px] text-muted-foreground leading-none mb-0.5">{selected.category}</p>
-                <h1 className="text-sm font-semibold text-gray-900 truncate">{selected.title}</h1>
+                <h1 className="text-sm font-semibold text-foreground truncate">{selected.title}</h1>
               </div>
 
               <ToolbarActions>
@@ -795,16 +793,16 @@ export default function ChartsPage() {
                       setSelected(null)
                     }}
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <IconTrash className="h-3.5 w-3.5" strokeWidth={2} />
                     Delete
                   </Button>
                 )}
                 <Button variant="outline" size="toolbar">
-                  <Share2 className="h-3.5 w-3.5" />
+                  <IconShare className="h-3.5 w-3.5" strokeWidth={2} />
                   Share
                 </Button>
                 <Button variant="outline" size="toolbar" onClick={() => setSaveOpen(true)}>
-                  <BookmarkPlus className="h-3.5 w-3.5" />
+                  <IconBookmarkPlus className="h-3.5 w-3.5" strokeWidth={2} />
                   Save
                 </Button>
                 <div className="relative" ref={addToDashRef}>
@@ -812,7 +810,7 @@ export default function ChartsPage() {
                     size="toolbar"
                     onClick={() => setDashMenuOpen(o => !o)}
                   >
-                    <LayoutDashboard className="h-3.5 w-3.5" />
+                    <IconLayoutDashboard className="h-3.5 w-3.5" strokeWidth={2} />
                     Add to dashboard
                   </Button>
                   {dashMenuOpen && (
@@ -827,7 +825,7 @@ export default function ChartsPage() {
                           className="flex items-center justify-between gap-2 w-full px-3 py-2 text-xs text-left hover:bg-accent transition-colors"
                         >
                           <span className="truncate">{d.name}</span>
-                          {addedDash === d.id && <Check className="h-3 w-3 text-green-600 shrink-0" />}
+                          {addedDash === d.id && <IconCheck className="h-3 w-3 text-green-600 shrink-0" strokeWidth={2} />}
                         </button>
                       ))}
                       {creatingDash ? (
@@ -890,7 +888,7 @@ export default function ChartsPage() {
           /* Empty state */
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <BarChart2 className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+              <IconChartBar className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" strokeWidth={2} />
               <p className="text-sm font-medium text-muted-foreground">Select a chart from the sidebar</p>
               <p className="text-xs text-muted-foreground/60 mt-1">Click any item in the tree to open it here</p>
             </div>

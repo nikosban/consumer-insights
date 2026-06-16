@@ -1,6 +1,6 @@
 import { Outlet, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import { Menu } from 'lucide-react'
+import { IconMenu2 } from '@tabler/icons-react'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import WorkspaceSidebar from './WorkspaceSidebar'
 import { LayoutProvider, useLayout } from './LayoutContext'
@@ -31,7 +31,7 @@ function AppShell() {
         <Toolbar>
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger className="inline-flex items-center justify-center rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground">
-              <Menu className="h-5 w-5" />
+              <IconMenu2 className="h-5 w-5" strokeWidth={2} />
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-56">
               <WorkspaceSidebar />

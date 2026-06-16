@@ -15,7 +15,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import type { Widget, ChartData, CrossTabConfig } from '@/types'
-import { TrendingUp, TrendingDown, ChevronRight, ChevronDown } from 'lucide-react'
+import { IconTrendingUp, IconTrendingDown, IconChevronRight, IconChevronDown } from '@tabler/icons-react'
 
 type ChartRendererProps = {
   widget: Widget
@@ -219,8 +219,8 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
         {diff !== null && (
           <div className={`flex items-center font-medium ${compact ? 'gap-0.5 text-xs' : 'gap-1 text-sm'} ${diff >= 0 ? 'text-green-600' : 'text-destructive'}`}>
             {diff >= 0
-              ? <TrendingUp className={compact ? 'h-3 w-3' : 'h-4 w-4'} />
-              : <TrendingDown className={compact ? 'h-3 w-3' : 'h-4 w-4'} />}
+              ? <IconTrendingUp className={compact ? 'h-3 w-3' : 'h-4 w-4'} strokeWidth={2} />
+              : <IconTrendingDown className={compact ? 'h-3 w-3' : 'h-4 w-4'} strokeWidth={2} />}
             {diff >= 0 ? '+' : ''}{diff} vs benchmark
           </div>
         )}
@@ -282,8 +282,8 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
                   >
                     <span className="inline-flex items-center gap-1 justify-end">
                       {isTotalExpanded
-                        ? <ChevronDown className="h-3 w-3 shrink-0" />
-                        : <ChevronRight className="h-3 w-3 shrink-0" />}
+                        ? <IconChevronDown className="h-3 w-3 shrink-0" strokeWidth={2} />
+                        : <IconChevronRight className="h-3 w-3 shrink-0" strokeWidth={2} />}
                       Total
                     </span>
                   </th>
@@ -299,8 +299,8 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
                     >
                       <span className="inline-flex items-center gap-1 justify-end">
                         {isExp
-                          ? <ChevronDown className="h-3 w-3 shrink-0" />
-                          : <ChevronRight className="h-3 w-3 shrink-0" />}
+                          ? <IconChevronDown className="h-3 w-3 shrink-0" strokeWidth={2} />
+                          : <IconChevronRight className="h-3 w-3 shrink-0" strokeWidth={2} />}
                         {s.name}
                       </span>
                     </th>

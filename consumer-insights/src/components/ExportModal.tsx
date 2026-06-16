@@ -9,7 +9,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { useDashboardStore } from '@/store/dashboardStore'
 import { useWidgetStore } from '@/store/widgetStore'
-import { FileText, Presentation } from 'lucide-react'
+import { IconFileText, IconPresentation } from '@tabler/icons-react'
 import { toast } from '@/components/ui/Toaster'
 
 type ExportModalProps = {
@@ -91,7 +91,7 @@ export default function ExportModal({ dashboardId, open, onClose }: ExportModalP
             onClick={handleExportPPTX}
             disabled={exporting !== null}
           >
-            <Presentation className="h-5 w-5 text-primary" />
+            <IconPresentation className="h-5 w-5 text-primary" strokeWidth={2} />
             <div className="text-left">
               <div className="font-medium">Export as PPTX</div>
               <div className="text-xs text-secondary-foreground">One slide per widget</div>
@@ -103,7 +103,7 @@ export default function ExportModal({ dashboardId, open, onClose }: ExportModalP
             onClick={handleExportPDF}
             disabled={exporting !== null}
           >
-            <FileText className="h-5 w-5 text-primary" />
+            <IconFileText className="h-5 w-5 text-primary" strokeWidth={2} />
             <div className="text-left">
               <div className="font-medium">Export as PDF</div>
               <div className="text-xs text-secondary-foreground">Full dashboard as a single page</div>

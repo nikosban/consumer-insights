@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useDashboardStore } from '@/store/dashboardStore'
-import { Link2, Check, Globe, Lock } from 'lucide-react'
+import { IconLink, IconCheck, IconGlobe, IconLock } from '@tabler/icons-react'
 import { toast } from '@/components/ui/Toaster'
 
 type ShareModalProps = {
@@ -51,10 +51,14 @@ export default function ShareModal({ dashboardId, open, onClose }: ShareModalPro
           <DialogDescription>Share this dashboard with teammates or via a link.</DialogDescription>
         </DialogHeader>
 
+        <div className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
+          Demo mode — sharing is simulated. No data leaves this browser.
+        </div>
+
         {/* Public toggle */}
         <div className="flex items-center justify-between rounded-lg border border-border p-3 mt-1">
           <div className="flex items-center gap-2.5">
-            {isShared ? <Globe className="h-4 w-4 text-primary" /> : <Lock className="h-4 w-4 text-muted-foreground" />}
+            {isShared ? <IconGlobe className="h-4 w-4 text-primary" strokeWidth={2} /> : <IconLock className="h-4 w-4 text-muted-foreground" strokeWidth={2} />}
             <div>
               <p className="text-sm font-medium">{isShared ? 'Public link' : 'Private'}</p>
               <p className="text-xs text-secondary-foreground">
@@ -81,7 +85,7 @@ export default function ShareModal({ dashboardId, open, onClose }: ShareModalPro
               {shareUrl}
             </div>
             <Button size="sm" variant="outline" onClick={handleCopy} className="shrink-0 gap-1.5">
-              {copied ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Link2 className="h-3.5 w-3.5" />}
+              {copied ? <IconCheck className="h-3.5 w-3.5 text-green-600" strokeWidth={2} /> : <IconLink className="h-3.5 w-3.5" strokeWidth={2} />}
               {copied ? 'Copied' : 'Copy'}
             </Button>
           </div>
@@ -106,7 +110,7 @@ export default function ShareModal({ dashboardId, open, onClose }: ShareModalPro
             <div className="mt-2 flex flex-col gap-1">
               {invited.map(addr => (
                 <div key={addr} className="flex items-center gap-2 text-xs text-secondary-foreground">
-                  <Check className="h-3 w-3 text-green-600" />
+                  <IconCheck className="h-3 w-3 text-green-600" strokeWidth={2} />
                   {addr}
                 </div>
               ))}

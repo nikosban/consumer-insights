@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { Check, X, Info } from 'lucide-react'
+import { IconCheck, IconX, IconInfoCircle } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
 
 type ToastKind = 'success' | 'error' | 'info'
@@ -38,9 +38,9 @@ export const toast = {
 }
 
 const KIND_STYLES: Record<ToastKind, { icon: React.ReactNode; cls: string }> = {
-  success: { icon: <Check size={13} />, cls: 'text-green-600' },
-  error:   { icon: <X size={13} />,     cls: 'text-destructive' },
-  info:    { icon: <Info size={13} />,  cls: 'text-primary' },
+  success: { icon: <IconCheck size={13} strokeWidth={2} />, cls: 'text-green-600' },
+  error:   { icon: <IconX size={13} strokeWidth={2} />,     cls: 'text-destructive' },
+  info:    { icon: <IconInfoCircle size={13} strokeWidth={2} />,  cls: 'text-primary' },
 }
 
 export function Toaster() {
@@ -59,7 +59,7 @@ export function Toaster() {
             onClick={() => dismiss(t.id)}
             className="shrink-0 ml-1 p-0.5 rounded text-muted-foreground/50 hover:text-muted-foreground transition-colors"
           >
-            <X size={11} />
+            <IconX size={11} strokeWidth={2} />
           </button>
         </div>
       ))}

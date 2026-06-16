@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import ReactDOM from 'react-dom'
-import { ChevronDown, Check } from 'lucide-react'
+import { IconChevronDown, IconCheck } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
 
 type Props = {
@@ -68,15 +68,15 @@ export function ValuePicker({ options, value, onChange }: Props) {
                 type="button"
                 onClick={() => toggle(opt)}
                 className={cn(
-                  'w-full flex items-center gap-2.5 px-3 py-1.5 text-xs text-left transition-colors hover:bg-gray-50',
-                  checked ? 'text-primary' : 'text-gray-700'
+                  'w-full flex items-center gap-2.5 px-3 py-1.5 text-xs text-left transition-colors hover:bg-accent',
+                  checked ? 'text-primary' : 'text-secondary-foreground'
                 )}
               >
                 <span className={cn(
                   'shrink-0 w-3.5 h-3.5 rounded border flex items-center justify-center',
                   checked ? 'bg-primary border-primary' : 'border-gray-300'
                 )}>
-                  {checked && <Check className="w-2.5 h-2.5 text-white" />}
+                  {checked && <IconCheck className="w-2.5 h-2.5 text-white" strokeWidth={2} />}
                 </span>
                 {opt}
               </button>
@@ -95,12 +95,12 @@ export function ValuePicker({ options, value, onChange }: Props) {
         onClick={() => open ? setOpen(false) : openPanel()}
         className={cn(
           'inline-flex items-center justify-between gap-1.5 h-8 w-44 rounded-md border border-input bg-background px-2.5 text-xs text-left transition-colors',
-          'hover:bg-accent hover:text-gray-900',
+          'hover:bg-accent hover:text-foreground',
           open && 'ring-2 ring-ring ring-offset-0'
         )}
       >
         {label}
-        <ChevronDown className={cn('h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform', open && 'rotate-180')} />
+        <IconChevronDown className={cn('h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform', open && 'rotate-180')} strokeWidth={2} />
       </button>
       {panel}
     </>

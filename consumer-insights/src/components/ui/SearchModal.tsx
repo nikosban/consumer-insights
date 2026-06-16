@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Users, LayoutDashboard, FileText, BarChart2 } from 'lucide-react'
+import { IconSearch, IconUsers, IconLayoutDashboard, IconFileText, IconChartBar } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
 import { useAudienceStore } from '@/store/audienceStore'
 import { useDashboardStore } from '@/store/dashboardStore'
@@ -22,7 +22,7 @@ const ALL_CHARTS: Result[] = ATTRIBUTE_GROUPS.flatMap(g =>
     label: attr,
     meta: g.label,
     group: 'Charts',
-    icon: <BarChart2 className="h-3.5 w-3.5" />,
+    icon: <IconChartBar className="h-3.5 w-3.5" strokeWidth={2} />,
     href: '/charts',
   }))
 )
@@ -58,7 +58,7 @@ export default function SearchModal() {
       .filter(a => a.name.toLowerCase().includes(q) || a.description?.toLowerCase().includes(q))
       .map(a => ({
         id: a.id, label: a.name, meta: a.region ?? undefined,
-        group: 'Audiences', icon: <Users className="h-3.5 w-3.5" />,
+        group: 'Audiences', icon: <IconUsers className="h-3.5 w-3.5" strokeWidth={2} />,
         href: `/audiences/${a.id}/edit`,
       }))
 
@@ -66,7 +66,7 @@ export default function SearchModal() {
       .filter(d => d.name.toLowerCase().includes(q))
       .map(d => ({
         id: d.id, label: d.name, meta: `${d.widgets.length} widgets`,
-        group: 'Dashboards', icon: <LayoutDashboard className="h-3.5 w-3.5" />,
+        group: 'Dashboards', icon: <IconLayoutDashboard className="h-3.5 w-3.5" strokeWidth={2} />,
         href: `/dashboards/${d.id}`,
       }))
 
@@ -75,7 +75,7 @@ export default function SearchModal() {
       .filter(a => a.name.toLowerCase().includes(q))
       .map(a => ({
         id: a.id, label: a.name, meta: `${a.sections?.length ?? 0} sections`,
-        group: 'Analyses', icon: <FileText className="h-3.5 w-3.5" />,
+        group: 'Analyses', icon: <IconFileText className="h-3.5 w-3.5" strokeWidth={2} />,
         href: `/analyses/${a.id}`,
       }))
 
@@ -114,7 +114,7 @@ export default function SearchModal() {
       <div className="relative w-full max-w-[560px] mx-4 rounded-xl overflow-hidden shadow-2xl" style={{ backgroundColor: 'oklch(0.236 0.015 220)' }}>
         {/* Input */}
         <div className="flex items-center gap-3 px-4 py-3 border-b" style={{ borderColor: 'oklch(0.325 0.020 220)' }}>
-          <Search className="h-4 w-4 shrink-0" style={{ color: 'oklch(0.648 0.022 220)' }} />
+          <IconSearch className="h-4 w-4 shrink-0" strokeWidth={2} style={{ color: 'oklch(0.648 0.022 220)' }} />
           <input
             ref={inputRef}
             value={query}

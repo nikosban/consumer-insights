@@ -11,7 +11,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from '@/components/ui/select'
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
+import { IconArrowLeft, IconPlus, IconTrash } from '@tabler/icons-react'
 import { RegionPicker } from '@/components/RegionPicker'
 import { fakeAudienceSize, formatAudienceSize } from '@/data/fakeGenerators'
 import type { FilterGroup, FilterCondition, Audience } from '@/types'
@@ -174,7 +174,7 @@ function GroupEditor({ group, onChange, depth = 0 }: GroupEditorProps) {
                 onClick={() => removeItem(index)}
                 className="absolute top-0 right-0 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
               >
-                <Trash2 className="h-3.5 w-3.5" />
+                <IconTrash className="h-3.5 w-3.5" strokeWidth={2} />
               </Button>
             </div>
           )
@@ -240,7 +240,7 @@ function GroupEditor({ group, onChange, depth = 0 }: GroupEditorProps) {
               onClick={() => removeItem(index)}
               className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
             >
-              <Trash2 className="h-3.5 w-3.5" />
+              <IconTrash className="h-3.5 w-3.5" strokeWidth={2} />
             </Button>
           </div>
         )
@@ -249,11 +249,11 @@ function GroupEditor({ group, onChange, depth = 0 }: GroupEditorProps) {
       <div className="flex gap-2 pt-1">
         <Button type="button" variant="ghost" size="sm" className="text-xs h-7"
           onClick={() => onChange({ ...group, conditions: [...group.conditions, newCondition()] })}>
-          <Plus className="h-3.5 w-3.5 mr-1" /> Add condition
+          <IconPlus className="h-3.5 w-3.5 mr-1" strokeWidth={2} /> Add condition
         </Button>
         <Button type="button" variant="ghost" size="sm" className="text-xs h-7"
           onClick={() => onChange({ ...group, conditions: [...group.conditions, newGroup()] })}>
-          <Plus className="h-3.5 w-3.5 mr-1" /> Add group
+          <IconPlus className="h-3.5 w-3.5 mr-1" strokeWidth={2} /> Add group
         </Button>
       </div>
     </div>
@@ -491,7 +491,16 @@ export default function AudienceBuilderPage() {
   const [editingTitle, setEditingTitle] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
 
+  function hasValidFilter(group: FilterGroup): boolean {
+    return group.conditions.some(c =>
+      isFilterGroup(c) ? hasValidFilter(c) : (c.value !== null && c.value !== undefined && c.value !== '' && !(Array.isArray(c.value) && c.value.length === 0))
+    )
+  }
+
+  const canSave = name.trim().length > 0 && hasValidFilter(filters)
+
   function handleSave() {
+    if (!canSave) return
     const now = new Date().toISOString()
     if (isEditing && id) {
       update(id, { name, description, region, filters, updatedAt: now })
@@ -514,7 +523,7 @@ export default function AudienceBuilderPage() {
             onClick={() => navigate('/audiences')}
             className="inline-flex items-center justify-center w-8 h-8 rounded border border-border bg-background text-muted-foreground hover:bg-accent hover:text-foreground transition-colors shrink-0"
           >
-            <IconWrapper><ArrowLeft size={ICON_SIZES.body} /></IconWrapper>
+            <IconWrapper><IconArrowLeft size={ICON_SIZES.body} strokeWidth={2} /></IconWrapper>
           </button>
 
           {editingTitle ? (
@@ -538,9 +547,14 @@ export default function AudienceBuilderPage() {
             </h1>
           )}
         </div>
-        <Button onClick={handleSave} disabled={!name.trim()} className="shrink-0">
-          {isEditing ? 'Save Changes' : 'Save Audience'}
-        </Button>
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          <Button onClick={handleSave} disabled={!canSave}>
+            {isEditing ? 'Save Changes' : 'Save Audience'}
+          </Button>
+          {name.trim() && !hasValidFilter(filters) && (
+            <p className="text-xs text-muted-foreground">Add at least one filter with a value</p>
+          )}
+        </div>
       </div>
 
       {/* Top fields */}

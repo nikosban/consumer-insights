@@ -3,13 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useProjectStore } from '@/store/projectStore'
 import { useDashboardStore } from '@/store/dashboardStore'
 import { useWidgetStore } from '@/store/widgetStore'
-import { ArrowLeft, LayoutDashboard, FileText, Presentation, Download } from 'lucide-react'
+import { IconArrowLeft, IconLayoutDashboard, IconFileText, IconPresentation, IconDownload } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { IconWrapper, ICON_SIZES } from '@/components/ui/IconWrapper'
 import { cn } from '@/lib/utils'
 import type { AnalysisSection, Widget } from '@/types'
 import ChartRenderer from '@/components/charts/ChartRenderer'
+import EmptyState from '@/components/EmptyState'
 import { generateChartData } from '@/data/fakeGenerators'
 import { toast } from '@/components/ui/Toaster'
 
@@ -159,14 +160,14 @@ function ExportAnalysisModal({
         </DialogHeader>
         <div className="flex flex-col gap-3 pt-2">
           <Button variant="outline" className="justify-start gap-3 h-14" onClick={handlePPTX} disabled={exporting !== null}>
-            <Presentation className="h-5 w-5 text-primary" />
+            <IconPresentation className="h-5 w-5 text-primary" strokeWidth={2} />
             <div className="text-left">
               <div className="font-medium">Export as PPTX</div>
               <div className="text-xs text-muted-foreground">One slide per section</div>
             </div>
           </Button>
           <Button variant="outline" className="justify-start gap-3 h-14" onClick={handlePDF} disabled={exporting !== null}>
-            <FileText className="h-5 w-5 text-primary" />
+            <IconFileText className="h-5 w-5 text-primary" strokeWidth={2} />
             <div className="text-left">
               <div className="font-medium">Export as PDF</div>
               <div className="text-xs text-muted-foreground">Full report as a single document</div>
@@ -200,7 +201,12 @@ export default function AnalysisDetailPage() {
   if (!entry) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <p className="text-sm text-muted-foreground">Analysis not found.</p>
+        <EmptyState
+          title="Analysis not found"
+          description="This analysis may have been deleted or the link is incorrect."
+          ctaLabel="Back to projects"
+          onCta={() => navigate(-1)}
+        />
       </div>
     )
   }
@@ -274,9 +280,9 @@ export default function AnalysisDetailPage() {
           <div className="flex items-center gap-3 mb-5">
             <button
               onClick={() => navigate('/analyses')}
-              className="inline-flex items-center justify-center w-8 h-8 rounded border border-border bg-background text-gray-600 hover:bg-accent hover:text-gray-900 transition-colors shrink-0"
+              className="inline-flex items-center justify-center w-8 h-8 rounded border border-border bg-background text-muted-foreground hover:bg-accent hover:text-foreground transition-colors shrink-0"
             >
-              <IconWrapper><ArrowLeft size={ICON_SIZES.body} /></IconWrapper>
+              <IconWrapper><IconArrowLeft size={ICON_SIZES.body} strokeWidth={2} /></IconWrapper>
             </button>
             <div className="flex-1 min-w-0">
               <h1 className="text-xl font-bold truncate">{analysis.name}</h1>
@@ -285,7 +291,7 @@ export default function AnalysisDetailPage() {
               </p>
             </div>
             <Button variant="outline" size="sm" className="shrink-0 gap-1.5" onClick={() => setExportOpen(true)}>
-              <Download className="h-3.5 w-3.5" />
+              <IconDownload className="h-3.5 w-3.5" strokeWidth={2} />
               Export
             </Button>
           </div>
@@ -339,7 +345,7 @@ export default function AnalysisDetailPage() {
 
               {sections.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-20 text-center gap-3">
-                  <Presentation className="h-8 w-8 text-muted-foreground/30" />
+                  <IconPresentation className="h-8 w-8 text-muted-foreground/30" strokeWidth={2} />
                   <p className="text-sm font-medium text-secondary-foreground">No sections yet</p>
                   <p className="text-xs text-muted-foreground/60">Add a section below to build the report</p>
                 </div>
@@ -432,7 +438,7 @@ export default function AnalysisDetailPage() {
       {linkedDashboard && (
         <div className="w-56 shrink-0 border-l border-border overflow-y-auto bg-muted/30 px-4 py-6">
           <div className="flex items-center gap-2 mb-3">
-            <LayoutDashboard className="h-3.5 w-3.5 text-muted-foreground" />
+            <IconLayoutDashboard className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2} />
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Source</p>
           </div>
           <button

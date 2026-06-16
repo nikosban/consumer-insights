@@ -11,19 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import EmptyState from '@/components/EmptyState'
-import {
-  Trash2,
-  Pencil,
-  Check,
-  X,
-  LayoutDashboard,
-  FileText,
-  Presentation,
-  Sparkles,
-  ChevronRight,
-  Loader2,
-  Upload,
-} from 'lucide-react'
+import { IconTrash, IconPencil, IconCheck, IconX, IconLayoutDashboard, IconFileText, IconPresentation, IconSparkles, IconChevronRight, IconLoader2, IconUpload } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
 import type { Analysis, Widget, ChartData, WidgetType } from '@/types'
 import { ResourceCard, IconBtn, PageShell } from '@/components/app'
@@ -325,7 +313,7 @@ function AnalysesTab({
                 return (
                   <ResourceCard
                     key={analysis.id}
-                    icon={<FileText className="h-4 w-4" />}
+                    icon={<IconFileText className="h-4 w-4" strokeWidth={2} />}
                     title={analysis.name}
                     meta={[
                       `${analysis.sections?.length ?? 0} section${(analysis.sections?.length ?? 0) !== 1 ? 's' : ''}`,
@@ -334,8 +322,8 @@ function AnalysesTab({
                     date={new Date(analysis.createdAt).toLocaleDateString()}
                     actions={
                       <>
-                        <IconBtn icon={<ChevronRight className="h-3 w-3" />} label="Open" onClick={() => goToDetail(analysis.id)} />
-                        <IconBtn icon={<Trash2 className="h-3 w-3" />} label="Delete" destructive onClick={() => removeAnalysis(project.id, analysis.id)} />
+                        <IconBtn icon={<IconChevronRight className="h-3 w-3" strokeWidth={2} />} label="Open" onClick={() => goToDetail(analysis.id)} />
+                        <IconBtn icon={<IconTrash className="h-3 w-3" strokeWidth={2} />} label="Delete" destructive onClick={() => removeAnalysis(project.id, analysis.id)} />
                       </>
                     }
                     onClick={() => goToDetail(analysis.id)}
@@ -353,7 +341,7 @@ function AnalysesTab({
                     changeMode({ type: 'create', dashboardId: dashboards[0]?.id ?? '', template: 'summary', generating: false })
                   }
                 >
-                  <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                  <IconSparkles className="h-3.5 w-3.5 mr-1.5" strokeWidth={2} />
                   New Analysis
                 </Button>
               </div>
@@ -370,7 +358,7 @@ function AnalysesTab({
     if (mode.generating) {
       return (
         <div className="flex flex-col items-center justify-center py-20 gap-3 text-muted-foreground">
-          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <IconLoader2 className="h-6 w-6 animate-spin text-primary" strokeWidth={2} />
           <p className="text-sm">Generating your analysis…</p>
         </div>
       )
@@ -402,7 +390,7 @@ function AnalysesTab({
                 )}
               >
                 <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/8 text-primary shrink-0">
-                  <LayoutDashboard className="h-3.5 w-3.5" />
+                  <IconLayoutDashboard className="h-3.5 w-3.5" strokeWidth={2} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium">{d.name}</p>
@@ -449,7 +437,7 @@ function AnalysesTab({
           disabled={!mode.dashboardId}
           onClick={handleGenerate}
         >
-          <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+          <IconSparkles className="h-3.5 w-3.5 mr-1.5" strokeWidth={2} />
           Generate Analysis
         </Button>
       </div>
@@ -495,9 +483,9 @@ function AnalysesTab({
           <CardContent className="pb-4">
             <div className="grid grid-cols-2 gap-3">
               {widgetData.scorecards.map(d => (
-                <div key={d.widget.id} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                <div key={d.widget.id} className="bg-muted rounded-lg p-3 border border-border">
                   <p className="text-xs text-secondary-foreground">{d.widget.title}</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">{d.data.series[0].values[0]}%</p>
+                  <p className="text-2xl font-semibold text-foreground mt-1">{d.data.series[0].values[0]}%</p>
                   {d.data.series[1] && (
                     <p className="text-xs text-muted-foreground mt-0.5">Benchmark {d.data.series[1].values[0]}%</p>
                   )}
@@ -521,7 +509,7 @@ function AnalysesTab({
                   onClick={() => { setEditingSection(sec.id); setEditContent(sec.content) }}
                   className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <Pencil className="h-3.5 w-3.5" />
+                  <IconPencil className="h-3.5 w-3.5" strokeWidth={2} />
                 </button>
               )}
             </CardHeader>
@@ -536,7 +524,7 @@ function AnalysesTab({
                       return (
                         <div key={label} className="flex items-center gap-2">
                           <span className="text-xs text-secondary-foreground w-20 shrink-0 truncate">{label}</span>
-                          <div className="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
                             <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: brandColor, opacity: 0.75 }} />
                           </div>
                           <span className="text-xs text-secondary-foreground w-8 tabular-nums text-right">{paired.data.series[0].values[li]}%</span>
@@ -558,10 +546,10 @@ function AnalysesTab({
                   />
                   <div className="flex gap-2">
                     <Button size="sm" onClick={() => saveSection(sec.id)}>
-                      <Check className="h-3.5 w-3.5 mr-1" /> Save
+                      <IconCheck className="h-3.5 w-3.5 mr-1" strokeWidth={2} /> Save
                     </Button>
                     <Button size="sm" variant="ghost" onClick={() => setEditingSection(null)}>
-                      <X className="h-3.5 w-3.5 mr-1" /> Cancel
+                      <IconX className="h-3.5 w-3.5 mr-1" strokeWidth={2} /> Cancel
                     </Button>
                   </div>
                 </div>
@@ -578,11 +566,11 @@ function AnalysesTab({
       {/* Export */}
       <div className="flex gap-3 pt-1">
         <Button variant="outline" className="flex-1" disabled={exporting !== null} onClick={() => exportPDF(analysis)}>
-          {exporting === 'pdf' ? <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" /> : <FileText className="h-3.5 w-3.5 mr-2" />}
+          {exporting === 'pdf' ? <IconLoader2 className="h-3.5 w-3.5 mr-2 animate-spin" strokeWidth={2} /> : <IconFileText className="h-3.5 w-3.5 mr-2" strokeWidth={2} />}
           Download PDF
         </Button>
         <Button variant="outline" className="flex-1" disabled={exporting !== null} onClick={() => exportPPTX(analysis)}>
-          {exporting === 'pptx' ? <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" /> : <Presentation className="h-3.5 w-3.5 mr-2" />}
+          {exporting === 'pptx' ? <IconLoader2 className="h-3.5 w-3.5 mr-2 animate-spin" strokeWidth={2} /> : <IconPresentation className="h-3.5 w-3.5 mr-2" strokeWidth={2} />}
           Download PPTX
         </Button>
       </div>
@@ -590,11 +578,11 @@ function AnalysesTab({
 
     {/* ── Customization panel ───────────────────────────────────────────── */}
     <div className="w-56 shrink-0 sticky top-6 space-y-1">
-      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide px-1 mb-3">Customization</p>
+      <p className="text-xs font-semibold text-muted-foreground uppercase px-1 mb-3">Customization</p>
 
       {/* Brand color */}
       <div className="rounded-xl border border-border bg-white p-4 space-y-3">
-        <p className="text-xs font-medium text-gray-700">Brand color</p>
+        <p className="text-xs font-medium text-secondary-foreground">Brand color</p>
         <div className="flex items-center gap-2">
           <label className="relative cursor-pointer">
             <span
@@ -618,7 +606,7 @@ function AnalysesTab({
               title={c}
               className={cn(
                 'w-5 h-5 rounded-full border-2 transition-transform hover:scale-110',
-                brandColor.toLowerCase() === c.toLowerCase() ? 'border-gray-700 scale-110' : 'border-transparent'
+                brandColor.toLowerCase() === c.toLowerCase() ? 'border-foreground scale-110' : 'border-transparent'
               )}
               style={{ backgroundColor: c }}
             />
@@ -628,10 +616,10 @@ function AnalysesTab({
 
       {/* Logo */}
       <div className="rounded-xl border border-border bg-white p-4 space-y-3">
-        <p className="text-xs font-medium text-gray-700">Logo</p>
+        <p className="text-xs font-medium text-secondary-foreground">Logo</p>
         {brandLogo ? (
           <div className="space-y-2">
-            <div className="flex items-center justify-center h-12 bg-gray-50 rounded-lg border border-border">
+            <div className="flex items-center justify-center h-12 bg-muted rounded-lg border border-border">
               <img src={brandLogo} className="max-h-10 max-w-[120px] object-contain" alt="logo" />
             </div>
             <button
@@ -643,9 +631,9 @@ function AnalysesTab({
           </div>
         ) : (
           <label className="flex flex-col items-center gap-1.5 px-3 py-4 rounded-lg border border-dashed border-border text-xs text-muted-foreground hover:border-primary hover:text-primary cursor-pointer transition-colors">
-            <Upload className="h-4 w-4" />
+            <IconUpload className="h-4 w-4" strokeWidth={2} />
             <span>Upload logo</span>
-            <span className="text-[10px] text-gray-400">PNG, SVG, JPG</span>
+            <span className="text-xs text-muted-foreground">PNG, SVG, JPG</span>
             <input
               type="file"
               accept="image/*"
@@ -742,12 +730,12 @@ export default function ProjectDetailPage() {
               {projectDashboards.map((d) => (
                 <ResourceCard
                   key={d.id}
-                  icon={<LayoutDashboard className="h-4 w-4" />}
+                  icon={<IconLayoutDashboard className="h-4 w-4" strokeWidth={2} />}
                   title={d.name}
                   meta={`${d.widgets.length} widget${d.widgets.length !== 1 ? 's' : ''}`}
                   date={`Updated ${new Date(d.updatedAt).toLocaleDateString()}`}
                   actions={
-                    <IconBtn icon={<Trash2 className="h-3 w-3" />} label="Remove from project" destructive onClick={() => unlinkDashboard(proj.id, d.id)} />
+                    <IconBtn icon={<IconTrash className="h-3 w-3" strokeWidth={2} />} label="Remove from project" destructive onClick={() => unlinkDashboard(proj.id, d.id)} />
                   }
                   onClick={() => navigate(`/dashboards/${d.id}`)}
                 />

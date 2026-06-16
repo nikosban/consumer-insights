@@ -1,4 +1,4 @@
-import { X } from 'lucide-react'
+import { IconX } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
 
 type ChipProps = {
@@ -28,7 +28,7 @@ export function Chip({ label, onRemove, onClick, variant = 'default', className 
           onClick={onRemove}
           className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground transition-colors"
         >
-          <X className="h-3 w-3" />
+          <IconX className="h-3 w-3" strokeWidth={2} />
         </button>
       )}
     </Tag>

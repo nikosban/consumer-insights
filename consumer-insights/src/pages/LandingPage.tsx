@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Globe, Star, Mail, ChevronDown } from 'lucide-react'
+import { IconSearch, IconGlobe, IconStar, IconMail, IconChevronDown } from '@tabler/icons-react'
 
 // Screenshot saved locally — no longer subject to Figma asset expiry
 const APP_SCREENSHOT_URL = '/hero-screenshot.png'
@@ -166,7 +166,7 @@ export default function LandingPage() {
                     className="flex items-center gap-2 h-10 pl-3 pr-2 rounded-md text-sm font-medium text-white/90 hover:bg-white/10 transition-colors"
                   >
                     {link}
-                    <ChevronDown className="h-3.5 w-3.5 opacity-70" />
+                    <IconChevronDown className="h-3.5 w-3.5 opacity-70" strokeWidth={2} />
                   </button>
                 ))}
               </nav>
@@ -175,7 +175,7 @@ export default function LandingPage() {
             {/* Right — search, icon actions, CTA */}
             <div className="flex items-center gap-3">
               <button className="hidden sm:flex items-center gap-1.5 h-10 px-3 rounded-md text-sm font-medium text-white/90 hover:bg-white/10 transition-colors">
-                <Search className="h-3.5 w-3.5" />
+                <IconSearch className="h-3.5 w-3.5" strokeWidth={2} />
                 <kbd className="flex items-center gap-0.5 border border-white/[0.14] rounded px-1 h-5 text-[11px] font-medium">
                   <span>⌘</span><span>K</span>
                 </kbd>
@@ -186,13 +186,13 @@ export default function LandingPage() {
 
               <div className="flex items-center">
                 <button className="h-10 px-3 rounded-md text-white/90 hover:bg-white/10 transition-colors">
-                  <Globe className="h-3.5 w-3.5" />
+                  <IconGlobe className="h-3.5 w-3.5" strokeWidth={2} />
                 </button>
                 <button className="h-10 px-3 rounded-md text-white/90 hover:bg-white/10 transition-colors">
-                  <Star className="h-3.5 w-3.5" />
+                  <IconStar className="h-3.5 w-3.5" strokeWidth={2} />
                 </button>
                 <button className="h-10 px-3 rounded-md text-white/90 hover:bg-white/10 transition-colors">
-                  <Mail className="h-3.5 w-3.5" />
+                  <IconMail className="h-3.5 w-3.5" strokeWidth={2} />
                 </button>
               </div>
 

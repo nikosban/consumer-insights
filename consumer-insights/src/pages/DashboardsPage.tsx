@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ResourceCard, IconBtn, PageShell } from '@/components/app'
 import EmptyState from '@/components/EmptyState'
-import { Plus, LayoutDashboard, Pencil, Trash2 } from 'lucide-react'
+import { IconPlus, IconLayoutDashboard, IconPencil, IconTrash } from '@tabler/icons-react'
 
 export default function DashboardsPage() {
   const navigate = useNavigate()
@@ -18,7 +18,7 @@ export default function DashboardsPage() {
           <p className="text-sm text-secondary-foreground">Build and share interactive dashboards</p>
         </div>
         <Button onClick={() => navigate('/dashboards/new')}>
-          <Plus className="h-4 w-4 mr-1" />
+          <IconPlus className="h-4 w-4 mr-1" strokeWidth={2} />
           New Dashboard
         </Button>
       </div>
@@ -35,7 +35,7 @@ export default function DashboardsPage() {
           {dashboards.map((d) => (
             <ResourceCard
               key={d.id}
-              icon={<LayoutDashboard className="h-4 w-4" />}
+              icon={<IconLayoutDashboard className="h-4 w-4" strokeWidth={2} />}
               title={d.name}
               meta={
                 <>
@@ -48,8 +48,8 @@ export default function DashboardsPage() {
               date={`Updated ${new Date(d.updatedAt).toLocaleDateString()}`}
               actions={
                 <>
-                  <IconBtn icon={<Pencil className="h-3 w-3" />} label="Edit" onClick={() => navigate(`/dashboards/${d.id}`)} />
-                  <IconBtn icon={<Trash2 className="h-3 w-3" />} label="Delete" destructive onClick={() => remove(d.id)} />
+                  <IconBtn icon={<IconPencil className="h-3 w-3" strokeWidth={2} />} label="Edit" onClick={() => navigate(`/dashboards/${d.id}`)} />
+                  <IconBtn icon={<IconTrash className="h-3 w-3" strokeWidth={2} />} label="Delete" destructive onClick={() => remove(d.id)} />
                 </>
               }
               onClick={() => navigate(`/dashboards/${d.id}`)}

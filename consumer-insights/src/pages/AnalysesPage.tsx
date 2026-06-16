@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useProjectStore } from '@/store/projectStore'
 import { ResourceCard, PageShell } from '@/components/app'
 import EmptyState from '@/components/EmptyState'
-import { FileText } from 'lucide-react'
+import { IconFileText } from '@tabler/icons-react'
 
 export default function AnalysesPage() {
   const navigate = useNavigate()
@@ -29,7 +29,7 @@ export default function AnalysesPage() {
           {analyses.map(({ analysis, project }) => (
             <ResourceCard
               key={analysis.id}
-              icon={<FileText className="h-4 w-4" />}
+              icon={<IconFileText className="h-4 w-4" strokeWidth={2} />}
               title={analysis.name}
               meta={`${analysis.sections?.length ?? 0} ${(analysis.sections?.length ?? 0) === 1 ? 'section' : 'sections'} · ${project.name}`}
               date={`Created ${new Date(analysis.createdAt).toLocaleDateString()}`}

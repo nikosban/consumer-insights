@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import ReactDOM from 'react-dom'
-import { ChevronDown } from 'lucide-react'
+import { IconChevronDown } from '@tabler/icons-react'
 import { ATTRIBUTE_GROUPS } from '@/types'
 import { cn } from '@/lib/utils'
 
@@ -64,7 +64,7 @@ export function AttributePicker({ value, onSelect }: Props) {
           className="fixed z-50 flex rounded-xl border border-border bg-white shadow-xl overflow-hidden"
         >
           {/* Left: categories */}
-          <div className="w-48 shrink-0 border-r border-border bg-gray-50 py-1.5 overflow-y-auto max-h-72">
+          <div className="w-48 shrink-0 border-r border-border bg-muted py-1.5 overflow-y-auto max-h-72">
             {ATTRIBUTE_GROUPS.map(g => (
               <button
                 key={g.label}
@@ -75,7 +75,7 @@ export function AttributePicker({ value, onSelect }: Props) {
                   'w-full text-left px-3 py-1.5 text-xs transition-colors',
                   hoveredCategory === g.label
                     ? 'bg-primary text-primary-foreground font-medium'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    : 'text-secondary-foreground hover:bg-accent'
                 )}
               >
                 {g.label}
@@ -97,7 +97,7 @@ export function AttributePicker({ value, onSelect }: Props) {
                   'w-full text-left px-3 py-1.5 text-xs transition-colors',
                   attr === value
                     ? 'bg-primary/10 text-primary font-medium'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    : 'text-secondary-foreground hover:bg-accent'
                 )}
               >
                 {attr}
@@ -117,12 +117,12 @@ export function AttributePicker({ value, onSelect }: Props) {
         onClick={() => (open ? setOpen(false) : openPanel())}
         className={cn(
           'inline-flex items-center justify-between gap-1.5 h-8 w-52 rounded-md border border-input bg-background px-2.5 text-xs text-left transition-colors',
-          'hover:bg-accent hover:text-gray-900',
+          'hover:bg-accent hover:text-foreground',
           open && 'ring-2 ring-ring ring-offset-0'
         )}
       >
         <span className="truncate">{value}</span>
-        <ChevronDown className={cn('h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform', open && 'rotate-180')} />
+        <IconChevronDown className={cn('h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform', open && 'rotate-180')} strokeWidth={2} />
       </button>
       {panel}
     </>

@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAudienceStore } from '@/store/audienceStore'
 import { Button } from '@/components/ui/button'
 import EmptyState from '@/components/EmptyState'
-import { Plus, Users, Pencil, Copy, Trash2, Share2 } from 'lucide-react'
+import { IconPlus, IconUsers, IconPencil, IconCopy, IconTrash, IconShare } from '@tabler/icons-react'
 import { ResourceCard, IconBtn, PageShell } from '@/components/app'
 import { toast } from '@/components/ui/Toaster'
 
@@ -18,7 +18,7 @@ export default function AudiencesPage() {
           <p className="text-sm text-muted-foreground">Define and manage audience segments</p>
         </div>
         <Button onClick={() => navigate('/audiences/new')}>
-          <Plus className="h-4 w-4 mr-1" />
+          <IconPlus className="h-4 w-4 mr-1" strokeWidth={2} />
           New Audience
         </Button>
       </div>
@@ -36,23 +36,23 @@ export default function AudiencesPage() {
             {audiences.map((audience) => (
               <ResourceCard
                 key={audience.id}
-                icon={<Users className="h-4 w-4" />}
+                icon={<IconUsers className="h-4 w-4" strokeWidth={2} />}
                 title={audience.name}
                 meta={[audience.region, audience.isShared ? 'Shared' : null, audience.description].filter(Boolean).join(' · ') || undefined}
                 date={undefined}
                 actions={
                   <>
-                    <IconBtn icon={<Pencil size={12} />} label="Edit" onClick={() => navigate(`/audiences/${audience.id}/edit`)} />
-                    <IconBtn icon={<Copy size={12} />} label="Duplicate" onClick={() => { duplicate(audience.id); toast.success('Audience duplicated') }} />
+                    <IconBtn icon={<IconPencil size={12} strokeWidth={2} />} label="Edit" onClick={() => navigate(`/audiences/${audience.id}/edit`)} />
+                    <IconBtn icon={<IconCopy size={12} strokeWidth={2} />} label="Duplicate" onClick={() => { duplicate(audience.id); toast.success('Audience duplicated') }} />
                     <IconBtn
-                      icon={<Share2 size={12} />}
+                      icon={<IconShare size={12} strokeWidth={2} />}
                       label={audience.isShared ? 'Unshare' : 'Share'}
                       onClick={() => {
                         update(audience.id, { isShared: !audience.isShared })
                         toast.success(audience.isShared ? 'Audience set to private' : 'Audience shared with team')
                       }}
                     />
-                    <IconBtn icon={<Trash2 size={12} />} label="Delete" destructive onClick={() => { remove(audience.id); toast.success('Audience deleted') }} />
+                    <IconBtn icon={<IconTrash size={12} strokeWidth={2} />} label="Delete" destructive onClick={() => { remove(audience.id); toast.success('Audience deleted') }} />
                   </>
                 }
                 onClick={() => navigate(`/audiences/${audience.id}/edit`)}
