@@ -51,67 +51,7 @@ function newGroup(): FilterGroup {
   return { id: `fg-${Date.now()}-${Math.random()}`, operator: 'AND', conditions: [newCondition()] }
 }
 
-// ─── World map dither canvas ──────────────────────────────────────────────────
-// 72×36 equirectangular land mask — 1 = land, 0 = ocean.
-// Generated from a Natural Earth simplified outline at 5° resolution.
-// Each row = 72 bits packed as 9 hex bytes (big-endian, MSB = west).
-const MAP_ROWS = 36
-const MAP_COLS = 72
-const MAP_HEX: string[] = [
-  '000000000000000000', // row 0  — 90°N (Arctic ocean)
-  '000000000000000000', // row 1
-  '003c7e3c00000003e0', // row 2  — Greenland / N. Europe tip
-  '007efe7f00001c07f8', // row 3
-  '00fcff7f80003c0ff0', // row 4
-  '01fcffffe0007c1ff8', // row 5  — N. America / N. Europe
-  '03f8ffffe000fc3ffc', // row 6
-  '07f8ffffc001fc7ffe', // row 7
-  '0ff0ffff80007cfffc', // row 8
-  '1fe0fffe00003cfffc', // row 9
-  '3fc0fff800001cfffc', // row 10
-  '3f80ffe0000018fffc', // row 11
-  '3f00ffc0000018fffc', // row 12 — mid-latitudes
-  '3e00ff80000018fffe', // row 13
-  '3c00ff0000001cfffc', // row 14
-  '3c00fe0000000cfffc', // row 15
-  '3800fc0000000cfff8', // row 16
-  '3800f80000000cffe0', // row 17
-  '1c00f000000004ffc0', // row 18
-  '0e00e000000000ff80', // row 19
-  '0600c000000000ff00', // row 20 — tropics
-  '0200800000001ffe00', // row 21
-  '020000000001fffc00', // row 22
-  '000000000003fff800', // row 23
-  '000000000007fff000', // row 24
-  '00000000000fffc000', // row 25
-  '00000000001fff8000', // row 26 — S. America / S. Africa
-  '00000000003fff0000', // row 27
-  '00000000007ffe0000', // row 28
-  '0000000000fffe0000', // row 29
-  '0000000000fffc0000', // row 30
-  '000000000007f00000', // row 31
-  '000000000001800000', // row 32
-  '000000000000000000', // row 33
-  '000000000000000000', // row 34
-  '000000000000000000', // row 35 — 90°S (Antarctica omitted)
-]
-
-// Decode hex rows into a flat boolean land mask
-function buildLandMask(): Uint8Array {
-  const mask = new Uint8Array(MAP_ROWS * MAP_COLS)
-  for (let row = 0; row < MAP_ROWS; row++) {
-    const hex = MAP_HEX[row]
-    for (let col = 0; col < MAP_COLS; col++) {
-      const byteIdx = Math.floor(col / 4)
-      const bitIdx  = 3 - (col % 4)
-      const nibble  = parseInt(hex[byteIdx] ?? '0', 16)
-      mask[row * MAP_COLS + col] = (nibble >> bitIdx) & 1
-    }
-  }
-  return mask
-}
-
-const LAND_MASK = buildLandMask()
+// ─── Bayer dither canvas ──────────────────────────────────────────────────────
 
 function DitherCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -119,33 +59,28 @@ function DitherCanvas() {
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')!
+    const bayer = [
+      [ 0/16,  8/16,  2/16, 10/16],
+      [12/16,  4/16, 14/16,  6/16],
+      [ 3/16, 11/16,  1/16,  9/16],
+      [15/16,  7/16, 13/16,  5/16],
+    ]
     const BLOCK = 4
-    // Blue-noise approximation: two high-frequency trig fields XOR'd
     let frame = 0
     let rafId: number
-    function isLand(col: number, row: number): boolean {
-      const mr = Math.round((row / (canvas!.height / BLOCK)) * (MAP_ROWS - 1))
-      const mc = Math.round((col / (canvas!.width  / BLOCK)) * (MAP_COLS - 1))
-      return LAND_MASK[Math.min(mr, MAP_ROWS-1) * MAP_COLS + Math.min(mc, MAP_COLS-1)] === 1
-    }
     function render() {
       const W = canvas!.width, H = canvas!.height
       const cols = Math.ceil(W / BLOCK), rows = Math.ceil(H / BLOCK)
       ctx.clearRect(0, 0, W, H)
-      const t = frame * 0.008
+      const t = frame * 0.012
+      const pulse = 0.45 + 0.2 * Math.sin(t * 0.7)
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
-          if (!isLand(c, r)) continue
           const nx = c / cols, ny = r / rows
-          // Blue-noise field: sum of incommensurate trig terms
-          const n =
-            0.5 + 0.25 * Math.sin(nx * 17.3 + t * 1.1) * Math.cos(ny * 13.7 - t * 0.7)
-                + 0.25 * Math.sin(nx * 31.1 - t * 0.9) * Math.cos(ny * 23.3 + t * 1.3)
-          // Threshold — moderate density, animated shimmer
-          const threshold = 0.42 + 0.12 * Math.sin(t * 0.5 + nx * 4 + ny * 6)
-          if (n > threshold) {
-            const alpha = 0.18 + 0.12 * n
-            ctx.fillStyle = `rgba(255,255,255,${alpha.toFixed(2)})`
+          const gradient = pulse * Math.pow(1 - ny, 0.7)
+          const v = gradient + 0.08 * Math.sin(nx * 6 + t) * Math.cos(ny * 2 - t * 0.5)
+          if (v > bayer[r % 4][c % 4]) {
+            ctx.fillStyle = 'rgba(255,255,255,0.18)'
             ctx.fillRect(c * BLOCK, r * BLOCK, BLOCK, BLOCK)
           }
         }
