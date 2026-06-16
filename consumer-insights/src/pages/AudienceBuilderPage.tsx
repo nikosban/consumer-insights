@@ -205,7 +205,7 @@ function PreviewCard({
         {/* Title + description */}
         <div className="mb-4">
           <p className="text-sm font-semibold text-white">Respondent preview</p>
-          <p className="text-xs text-blue-300 mt-1 leading-relaxed">
+          <p className="text-xs text-white/60 mt-1 leading-relaxed">
             Estimated reach based on your current region and filters.
           </p>
         </div>
@@ -218,11 +218,11 @@ function PreviewCard({
           <div className="mb-3 space-y-1.5">
             {breakdown.map((row, i) => (
               <div key={i} className="flex items-baseline justify-between gap-2">
-                <span className="text-[11px] text-blue-300 truncate min-w-0">{row.label}</span>
+                <span className="text-[11px] text-white/60 truncate min-w-0">{row.label}</span>
                 <span className={cn(
                   'text-[11px] tabular-nums shrink-0 font-medium',
                   row.delta === null ? 'text-white' :
-                  row.delta < 0 ? 'text-blue-300' : 'text-emerald-400'
+                  row.delta < 0 ? 'text-white/60' : 'text-emerald-400'
                 )}>
                   {row.delta === null
                     ? formatAudienceSize(row.running)
@@ -240,12 +240,12 @@ function PreviewCard({
 
         {/* Count */}
         <div className="mb-1">
-          <p className="text-xs text-blue-300 mb-1">Estimated respondents</p>
+          <p className="text-xs text-white/60 mb-1">Estimated respondents</p>
           <p className="text-[32px] leading-[40px] font-semibold text-white tabular-nums">
             {formatAudienceSize(size)}
           </p>
           {!hasFilters && (
-            <p className="text-xs text-blue-400 mt-1">Updates as you adjust filters</p>
+            <p className="text-xs text-white/50 mt-1">Updates as you adjust filters</p>
           )}
         </div>
 
@@ -264,26 +264,26 @@ function PreviewCard({
 
         {/* Suggested actions */}
         <div className="mt-4 pt-3 border-t border-white/15 space-y-0.5">
-          <p className="text-[10px] font-semibold text-blue-400/70 uppercase tracking-wider mb-2">Use this audience</p>
+          <p className="text-[10px] font-semibold text-white/40 uppercase tracking-wider mb-2">Use this audience</p>
           <button
             onClick={() => navigate('/charts')}
-            className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-blue-200 hover:text-white hover:bg-white/10 transition-colors"
+            className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-white/70 hover:text-white hover:bg-white/10 transition-colors"
           >
-            <IconChartBar size={13} strokeWidth={2} className="shrink-0 text-blue-400" />
+            <IconChartBar size={13} strokeWidth={2} className="shrink-0 text-white/50" />
             Benchmark audience
           </button>
           <button
             onClick={() => navigate('/dashboards')}
-            className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-blue-200 hover:text-white hover:bg-white/10 transition-colors"
+            className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-white/70 hover:text-white hover:bg-white/10 transition-colors"
           >
-            <IconLayoutDashboard size={13} strokeWidth={2} className="shrink-0 text-blue-400" />
+            <IconLayoutDashboard size={13} strokeWidth={2} className="shrink-0 text-white/50" />
             Apply to a dashboard
           </button>
           <button
             onClick={() => navigate('/chat', { state: { audienceName } })}
-            className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-blue-200 hover:text-white hover:bg-white/10 transition-colors"
+            className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-white/70 hover:text-white hover:bg-white/10 transition-colors"
           >
-            <IconMessage size={13} strokeWidth={2} className="shrink-0 text-blue-400" />
+            <IconMessage size={13} strokeWidth={2} className="shrink-0 text-white/50" />
             Apply to Research AI
           </button>
         </div>
