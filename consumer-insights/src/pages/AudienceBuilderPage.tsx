@@ -590,22 +590,18 @@ function AIQueryInput({ onApply }: { onApply: (f: FilterGroup) => void }) {
         </p>
       </div>
 
-      <div className="flex gap-2">
+      <div className="relative">
         <HighlightedInput
           value={query}
           onChange={setQuery}
           onKeyDown={e => { if (e.key === 'Enter') apply(query) }}
           placeholder={AI_EXAMPLES[0]}
         />
-        <Button
-          type="button"
-          size="sm"
-          className="h-8 text-xs px-3 shrink-0"
-          disabled={!query.trim()}
-          onClick={() => apply(query)}
-        >
-          Generate rules
-        </Button>
+        {!query.trim() && (
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground/50 pointer-events-none select-none">
+            ↵ Enter
+          </span>
+        )}
       </div>
 
       <div>
