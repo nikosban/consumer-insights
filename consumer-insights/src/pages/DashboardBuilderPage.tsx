@@ -1633,7 +1633,7 @@ export default function DashboardBuilderPage() {
                   if (qId && qLabel) addQuestionAsWidget({ id: qId, label: qLabel })
                 }}
               >
-                <Plus className="h-4 w-4 opacity-60" />
+                <IconPlus className="h-4 w-4 opacity-60" strokeWidth={2} />
                 <span className="text-xs font-medium">{isDragOver ? 'Drop to add widget' : 'Drop here to add as new widget'}</span>
               </div>
             )}

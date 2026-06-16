@@ -18,7 +18,7 @@ import type {
   AudienceCardData, DataWidgetCardData, Audience, AIMessage, Widget,
   ProcessingStep, BenchmarkPanelData, AudienceDraftData,
 } from '@/types'
-import { IconSend, IconSparkles, IconChevronDown, IconUsers, IconGlobe, IconTrendingUp, IconEdit, IconMessage, IconChartBar, IconCheck, IconLayoutDashboard, IconExternalLink, IconChevronRight, IconArrowUpRight, IconCrown, IconPlus, IconDownload, IconCopy, IconChartLine, IconTable, IconTrash, IconX, IconMessagePlus } from '@tabler/icons-react'
+import { IconSend, IconSparkles, IconChevronDown, IconUsers, IconGlobe, IconTrendingUp, IconEdit, IconMessage, IconChartBar, IconCheck, IconLayoutDashboard, IconExternalLink, IconChevronRight, IconArrowUpRight, IconCrown, IconPlus, IconDownload, IconCopy, IconChartLine, IconTable, IconTrash, IconX, IconMessagePlus, IconAlertTriangleFilled, IconThumbUp, IconThumbDown } from '@tabler/icons-react'
 import type { WidgetType } from '@/types'
 import { cn } from '@/lib/utils'
 import { toast } from '@/components/ui/Toaster'
@@ -113,18 +113,18 @@ function groupHistory(history: ChatHistoryEntry[]) {
 function HistoryRow({ entry, onSelect }: { entry: ChatHistoryEntry; onSelect: (q: string) => void }) {
   const { removeHistory } = useAIStore()
   return (
-    <div className="flex items-center gap-1 px-1 rounded-md transition-colors hover:bg-accent group">
+    <div className="flex items-center px-1 rounded-md transition-colors hover:bg-accent group">
       <button
         onClick={() => onSelect(entry.firstMessage)}
-        className="flex items-center gap-2 flex-1 min-w-0 text-left py-2 pl-2"
+        className="flex items-center gap-2 flex-1 min-w-0 text-left py-2 pl-2 pr-1"
       >
         <span className="flex-1 truncate text-xs text-foreground">{entry.firstMessage}</span>
-        <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{formatDate(entry.createdAt)}</span>
+        <span className="shrink-0 text-xs text-muted-foreground tabular-nums group-hover:hidden">{formatDate(entry.createdAt)}</span>
       </button>
       <button
         onClick={(e) => { e.stopPropagation(); removeHistory(entry.id) }}
         title="Delete"
-        className="shrink-0 opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded text-muted-foreground hover:text-destructive transition-all"
+        className="shrink-0 hidden group-hover:flex w-5 h-5 items-center justify-center rounded text-muted-foreground hover:text-destructive transition-colors"
       >
         <IconX size={11} strokeWidth={2} />
       </button>
@@ -268,7 +268,7 @@ function ContextChip({ label, value, options, onChange }: {
         type="button"
         onClick={() => setOpen(o => !o)}
         className={cn(
-          'h-[26px] px-2 rounded-[6px] border text-xs flex items-center gap-1 cursor-pointer transition-colors',
+          'h-[30px] px-2 rounded-[6px] border text-xs flex items-center gap-1 cursor-pointer transition-colors',
           isDefault
             ? 'bg-sidebar border-border text-muted-foreground hover:border-primary/40'
             : 'bg-primary/5 border-primary/30 text-primary'
@@ -310,7 +310,7 @@ function SourceChip({ value, onChange }: { value: SourceMode; onChange: (v: Sour
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="h-[26px] px-2 rounded-[6px] bg-sidebar border border-border text-xs flex items-center gap-1 cursor-pointer transition-colors hover:border-primary/40 text-muted-foreground"
+        className="h-[30px] px-2 rounded-[6px] bg-sidebar border border-border text-xs flex items-center gap-1 cursor-pointer transition-colors hover:border-primary/40 text-muted-foreground"
       >
         <CurrentIcon size={11} className="shrink-0" />
         <span>{current.label}</span>
@@ -827,7 +827,7 @@ function DataWidgetCardMessage({ card }: { card: DataWidgetCardData }) {
 
 // ─── Message action bar (copy / edit) ────────────────────────────────────────
 
-function MessageActions({ text }: { text: string }) {
+function MessageActions({ text, role = 'user' }: { text: string; role?: 'user' | 'assistant' }) {
   const [copied, setCopied] = useState(false)
 
   function handleCopy() {
@@ -836,6 +836,33 @@ function MessageActions({ text }: { text: string }) {
       .catch(() => toast.error('Copy failed'))
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
+  }
+
+  if (role === 'assistant') {
+    return (
+      <div className="flex items-center gap-0.5 mt-1">
+        <button
+          title="This response was good"
+          className="flex items-center justify-center h-6 w-6 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        >
+          <IconThumbUp size={12} strokeWidth={2} />
+        </button>
+        <button
+          title="This response was not good"
+          className="flex items-center justify-center h-6 w-6 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        >
+          <IconThumbDown size={12} strokeWidth={2} />
+        </button>
+        <button
+          title={copied ? 'Copied!' : 'Copy'}
+          onClick={handleCopy}
+          className={cn('flex items-center justify-center h-6 w-6 rounded transition-colors',
+            copied ? 'text-green-600' : 'text-muted-foreground hover:text-foreground hover:bg-muted')}
+        >
+          {copied ? <IconCheck size={12} strokeWidth={2} /> : <IconCopy size={12} strokeWidth={2} />}
+        </button>
+      </div>
+    )
   }
 
   return (
@@ -868,14 +895,14 @@ function FollowUpChips({ suggestions, onSend }: { suggestions: string[]; onSend:
         <IconSparkles size={12} strokeWidth={2} className="text-muted-foreground shrink-0" />
         <span className="text-xs text-muted-foreground">Query suggestions</span>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col gap-2">
         {suggestions.map(q => (
           <button
             key={q}
             onClick={() => onSend(q)}
-            className="flex items-center gap-1.5 text-xs text-secondary-foreground border border-border bg-transparent rounded-lg px-3 py-1.5 hover:bg-accent hover:text-foreground transition-colors"
+            className="flex items-center gap-1.5 text-xs text-primary bg-transparent rounded-lg px-3 py-1.5 hover:bg-primary/8 active:bg-primary/12 transition-colors text-left w-full"
           >
-            <IconMessagePlus size={11} className="shrink-0 text-muted-foreground" strokeWidth={2} />
+            <IconMessagePlus size={11} className="shrink-0 text-primary/70" strokeWidth={2} />
             {q}
           </button>
         ))}
@@ -1377,8 +1404,8 @@ function MessageBubble({ msg, onSend, onCreateDraft }: {
               )}
             </div>
             {!msg.isStreaming && msg.content && (
-              <div className="flex justify-end">
-                <MessageActions text={msg.content} />
+              <div className="max-w-xl flex justify-end">
+                <MessageActions text={msg.content} role="assistant" />
               </div>
             )}
           </div>
@@ -1627,7 +1654,8 @@ export default function ResearchAIPage() {
                   isStreaming={isStreaming} onSend={() => handleSend()}
                 />
 
-                <p className="text-xs text-muted-foreground mt-2.5 text-center">
+                <p className="text-xs text-muted-foreground mt-2.5 text-center flex items-center justify-center gap-1">
+                  <IconAlertTriangleFilled size={11} strokeWidth={2} className="shrink-0 text-muted-foreground/70" />
                   Our AI can make mistakes. Please check important information.
                 </p>
 
@@ -1668,7 +1696,8 @@ export default function ResearchAIPage() {
                   isStreaming={isStreaming} onSend={() => handleSend()}
                   rows={2}
                 />
-                <p className="text-xs text-muted-foreground mt-2 text-center">
+                <p className="text-xs text-muted-foreground mt-2 text-center flex items-center justify-center gap-1">
+                  <IconAlertTriangleFilled size={11} strokeWidth={2} className="shrink-0 text-muted-foreground/70" />
                   Our AI can make mistakes. Please check important information.
                 </p>
               </div>

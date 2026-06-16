@@ -21,14 +21,12 @@ import { Chip } from '@/components/app/Chip'
 import { Toolbar, ToolbarActions, ResourceCard, IconBtn } from '@/components/app'
 import EmptyState from '@/components/EmptyState'
 import {
-  LayoutDashboard, FileText, Users, BarChart2, Trash2,
-  Pencil, Copy, Plus, Share2, BookmarkPlus, RefreshCw,
-  ChevronRight, Sparkles,
-} from 'lucide-react'
-import {
   IconPlus, IconDownload, IconTrash, IconCheck, IconArrowRight,
   IconLoader2, IconShare, IconX,
   IconLayoutSidebarRightCollapse, IconLayoutSidebarRightExpand,
+  IconLayoutDashboard, IconFileText, IconUsers, IconChartBar,
+  IconPencil, IconCopy, IconBookmarkPlus, IconRefresh,
+  IconChevronRight, IconSparkles,
 } from '@tabler/icons-react'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { cn } from '@/lib/utils'
@@ -129,7 +127,7 @@ function AudienceStyleRow() {
         <p className="text-xs text-secondary-foreground mt-0.5 line-clamp-1">High-income urban consumers interested in premium brands</p>
       </div>
       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-        {[<Pencil key="p" />, <Copy key="c" />, <Trash2 key="t" />].map((icon, i) => (
+        {[<IconPencil key="p" strokeWidth={2} />, <IconCopy key="c" strokeWidth={2} />, <IconTrash key="t" strokeWidth={2} />].map((icon, i) => (
           <button key={i} className={cn(
             'inline-flex items-center justify-center w-7 h-7 rounded border border-border bg-background text-muted-foreground transition-colors',
             i === 2 ? 'hover:bg-red-50 hover:border-red-200 hover:text-destructive' : 'hover:bg-accent hover:text-foreground'
@@ -144,14 +142,14 @@ function DashboardStyleRow() {
   return (
     <div className="group flex items-center gap-3 py-3 rounded-xl hover:bg-accent transition-colors cursor-pointer -mx-3 px-3">
       <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/8 text-primary shrink-0">
-        <LayoutDashboard className="h-3.5 w-3.5" />
+        <IconLayoutDashboard className="h-3.5 w-3.5" strokeWidth={2} />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-foreground">Q1 Audience Overview</p>
         <p className="text-xs text-muted-foreground mt-0.5">3 widgets · Updated 3/15/2025</p>
       </div>
       <button className="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center justify-center w-7 h-7 rounded border border-border bg-background text-muted-foreground hover:bg-red-50 hover:border-red-200 hover:text-destructive">
-        <Trash2 className="h-3 w-3" />
+        <IconTrash className="h-3 w-3" strokeWidth={2} />
       </button>
     </div>
   )
@@ -161,7 +159,7 @@ function WidgetDragRow() {
   return (
     <div className="group flex items-center gap-2 px-3 py-2 hover:bg-primary/5 transition-colors cursor-grab active:cursor-grabbing rounded-md">
       <div className="flex items-center justify-center w-6 h-6 rounded bg-primary/8 text-primary shrink-0">
-        <BarChart2 className="h-3 w-3" />
+        <IconChartBar className="h-3 w-3" strokeWidth={2} />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-xs font-medium text-foreground truncate">Purchase Intent by Brand</p>
@@ -542,7 +540,7 @@ function IconsPage() {
             <div key={label} className="flex items-start gap-6">
               <div className={cls}>
                 <span className={iconCls}>
-                  <LayoutDashboard />
+                  <IconLayoutDashboard strokeWidth={2} />
                 </span>
                 Dashboard
               </div>
@@ -1877,14 +1875,14 @@ function CardPage() {
         <Row label="With actions">
           <div className="w-full max-w-lg">
             <ResourceCard
-              icon={<LayoutDashboard />}
+              icon={<IconLayoutDashboard strokeWidth={2} />}
               title="Q1 Audience Overview"
               meta="3 widgets"
               date="Updated 3/15/2025"
               actions={
                 <>
-                  <IconBtn icon={<Pencil className="h-3 w-3" />} label="Edit" onClick={() => {}} />
-                  <IconBtn icon={<Trash2 className="h-3 w-3" />} label="Delete" destructive onClick={() => {}} />
+                  <IconBtn icon={<IconPencil className="h-3 w-3" strokeWidth={2} />} label="Edit" onClick={() => {}} />
+                  <IconBtn icon={<IconTrash className="h-3 w-3" strokeWidth={2} />} label="Delete" destructive onClick={() => {}} />
                 </>
               }
               onClick={() => {}}
@@ -1894,14 +1892,14 @@ function CardPage() {
         <Row label="Analysis">
           <div className="w-full max-w-lg">
             <ResourceCard
-              icon={<FileText />}
+              icon={<IconFileText strokeWidth={2} />}
               title="Q1 Audience Overview — Summary"
               meta="3 sections · Q1 Audience Overview"
               date="3/15/2025"
               actions={
                 <>
-                  <IconBtn icon={<ChevronRight className="h-3 w-3" />} label="Open" onClick={() => {}} />
-                  <IconBtn icon={<Trash2 className="h-3 w-3" />} label="Delete" destructive onClick={() => {}} />
+                  <IconBtn icon={<IconChevronRight className="h-3 w-3" strokeWidth={2} />} label="Open" onClick={() => {}} />
+                  <IconBtn icon={<IconTrash className="h-3 w-3" strokeWidth={2} />} label="Delete" destructive onClick={() => {}} />
                 </>
               }
               onClick={() => {}}
@@ -1911,7 +1909,7 @@ function CardPage() {
         <Row label="No actions">
           <div className="w-full max-w-lg">
             <ResourceCard
-              icon={<Users />}
+              icon={<IconUsers strokeWidth={2} />}
               title="Millennials 25–34 DE"
               meta="Germany · 2.4M universe"
               date="Created 1/3/2025"
@@ -2313,11 +2311,11 @@ function LayoutPage() {
               <span className="text-sm font-semibold text-foreground">Dashboards</span>
               <ToolbarActions>
                 <Button variant="secondary" size="toolbar">
-                  <Share2 className="h-3.5 w-3.5" strokeWidth={2} />
+                  <IconShare className="h-3.5 w-3.5" strokeWidth={2} />
                   Share
                 </Button>
                 <Button size="toolbar">
-                  <Plus className="h-3.5 w-3.5" strokeWidth={2} />
+                  <IconPlus className="h-3.5 w-3.5" strokeWidth={2} />
                   New
                 </Button>
               </ToolbarActions>
@@ -2333,19 +2331,19 @@ function LayoutPage() {
               </div>
               <ToolbarActions>
                 <Button variant="secondary" size="toolbar">
-                  <Trash2 className="h-3.5 w-3.5" strokeWidth={2} />
+                  <IconTrash className="h-3.5 w-3.5" strokeWidth={2} />
                   Delete
                 </Button>
                 <Button variant="secondary" size="toolbar">
-                  <Share2 className="h-3.5 w-3.5" strokeWidth={2} />
+                  <IconShare className="h-3.5 w-3.5" strokeWidth={2} />
                   Share
                 </Button>
                 <Button variant="secondary" size="toolbar">
-                  <BookmarkPlus className="h-3.5 w-3.5" strokeWidth={2} />
+                  <IconBookmarkPlus className="h-3.5 w-3.5" strokeWidth={2} />
                   Save
                 </Button>
                 <Button size="toolbar">
-                  <LayoutDashboard className="h-3.5 w-3.5" strokeWidth={2} />
+                  <IconLayoutDashboard className="h-3.5 w-3.5" strokeWidth={2} />
                   Add to dashboard
                 </Button>
               </ToolbarActions>
@@ -2483,7 +2481,7 @@ function LayoutPage() {
               <div className="h-14 flex items-center justify-between px-4 border-b border-sidebar-border shrink-0">
                 <span className="text-xs font-semibold text-muted-foreground">Properties</span>
                 <button className="p-1 rounded text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
-                  <Plus className="h-3.5 w-3.5 rotate-45" strokeWidth={2} />
+                  <IconPlus className="h-3.5 w-3.5 rotate-45" strokeWidth={2} />
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -2527,7 +2525,7 @@ function LayoutPage() {
               </div>
               <ToolbarActions>
                 <Button size="toolbar">
-                  <Plus className="h-3.5 w-3.5" strokeWidth={2} />
+                  <IconPlus className="h-3.5 w-3.5" strokeWidth={2} />
                   New dashboard
                 </Button>
               </ToolbarActions>
@@ -2949,7 +2947,7 @@ function DashboardWidgetDemo() {
       <div className="px-4 shrink-0 border-b border-border/40">
         {summary ? (
           <div className="flex items-start gap-2 py-2.5">
-            <Sparkles className="h-3 w-3 text-primary/50 shrink-0 mt-0.5" />
+            <IconSparkles className="h-3 w-3 text-primary/50 shrink-0 mt-0.5" strokeWidth={2} />
             <p className="text-xs text-secondary-foreground leading-relaxed flex-1">{summary}</p>
             <button onClick={() => setSummary(null)} className="shrink-0 text-muted-foreground/40 hover:text-muted-foreground transition-colors">
               <IconX size={12} stroke={2} />
@@ -2962,8 +2960,8 @@ function DashboardWidgetDemo() {
             className="flex items-center gap-1.5 py-2 text-xs text-secondary-foreground/50 hover:text-primary transition-colors disabled:opacity-40"
           >
             {generating
-              ? <><RefreshCw className="h-3 w-3 animate-spin" /><span>Generating…</span></>
-              : <><Sparkles className="h-3 w-3" /><span>Add AI summary</span></>}
+              ? <><IconRefresh className="h-3 w-3 animate-spin" strokeWidth={2} /><span>Generating…</span></>
+              : <><IconSparkles className="h-3 w-3" strokeWidth={2} /><span>Add AI summary</span></>}
           </button>
         )}
       </div>

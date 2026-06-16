@@ -40,10 +40,6 @@ const MOCK_HISTORY: ChatHistoryEntry[] = [
   { id: 'h-4',  firstMessage: 'How do TikTok and Instagram compare as social commerce purchase drivers among 18–30 year-olds?', createdAt: daysAgo(1.5) },
   { id: 'h-5',  firstMessage: 'What are Gen Z consumer attitudes toward sustainable brands in Western Europe?', createdAt: daysAgo(2) },
   { id: 'h-6',  firstMessage: 'Which age group streams the most music on mobile in the US?', createdAt: daysAgo(3) },
-  { id: 'h-7',  firstMessage: 'Which markets show the strongest international travel intent for summer 2025?', createdAt: daysAgo(4) },
-  { id: 'h-8',  firstMessage: 'How does brand loyalty differ between Millennials and Gen Z in the fashion category?', createdAt: daysAgo(5) },
-  { id: 'h-9',  firstMessage: 'Top health & wellness purchase categories among 35–50 year-olds in Scandinavia', createdAt: daysAgo(6) },
-
   // Older
   { id: 'h-10', firstMessage: 'Compare EV purchase intent across Germany, France, and the US', createdAt: daysAgo(10) },
   { id: 'h-11', firstMessage: 'NPS benchmark for digital banking apps in Southeast Asia', createdAt: daysAgo(13) },
