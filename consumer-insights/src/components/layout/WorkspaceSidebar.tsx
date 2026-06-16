@@ -105,8 +105,10 @@ export default function WorkspaceSidebar() {
       {/* Header */}
       <div className="h-14 flex items-center gap-1 px-3 border-b border-sidebar-border shrink-0">
         {!collapsed && (
-          <button
-            onClick={() => navigate('/')}
+          <a
+            href="https://statista-ci-lp.netlify.app/"
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center flex-1 min-w-0 overflow-hidden"
           >
             <img
@@ -117,7 +119,7 @@ export default function WorkspaceSidebar() {
               style={{ height: 18 }}
               draggable={false}
             />
-          </button>
+          </a>
         )}
         <div className={cn('shrink-0', collapsed && 'flex-1 flex justify-center')}>
           <Button

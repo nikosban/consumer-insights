@@ -51,7 +51,67 @@ function newGroup(): FilterGroup {
   return { id: `fg-${Date.now()}-${Math.random()}`, operator: 'AND', conditions: [newCondition()] }
 }
 
-// ─── Bayer dither canvas (same pattern as dashboard AI card) ─────────────────
+// ─── World map dither canvas ──────────────────────────────────────────────────
+// 72×36 equirectangular land mask — 1 = land, 0 = ocean.
+// Generated from a Natural Earth simplified outline at 5° resolution.
+// Each row = 72 bits packed as 9 hex bytes (big-endian, MSB = west).
+const MAP_ROWS = 36
+const MAP_COLS = 72
+const MAP_HEX: string[] = [
+  '000000000000000000', // row 0  — 90°N (Arctic ocean)
+  '000000000000000000', // row 1
+  '003c7e3c00000003e0', // row 2  — Greenland / N. Europe tip
+  '007efe7f00001c07f8', // row 3
+  '00fcff7f80003c0ff0', // row 4
+  '01fcffffe0007c1ff8', // row 5  — N. America / N. Europe
+  '03f8ffffe000fc3ffc', // row 6
+  '07f8ffffc001fc7ffe', // row 7
+  '0ff0ffff80007cfffc', // row 8
+  '1fe0fffe00003cfffc', // row 9
+  '3fc0fff800001cfffc', // row 10
+  '3f80ffe0000018fffc', // row 11
+  '3f00ffc0000018fffc', // row 12 — mid-latitudes
+  '3e00ff80000018fffe', // row 13
+  '3c00ff0000001cfffc', // row 14
+  '3c00fe0000000cfffc', // row 15
+  '3800fc0000000cfff8', // row 16
+  '3800f80000000cffe0', // row 17
+  '1c00f000000004ffc0', // row 18
+  '0e00e000000000ff80', // row 19
+  '0600c000000000ff00', // row 20 — tropics
+  '0200800000001ffe00', // row 21
+  '020000000001fffc00', // row 22
+  '000000000003fff800', // row 23
+  '000000000007fff000', // row 24
+  '00000000000fffc000', // row 25
+  '00000000001fff8000', // row 26 — S. America / S. Africa
+  '00000000003fff0000', // row 27
+  '00000000007ffe0000', // row 28
+  '0000000000fffe0000', // row 29
+  '0000000000fffc0000', // row 30
+  '000000000007f00000', // row 31
+  '000000000001800000', // row 32
+  '000000000000000000', // row 33
+  '000000000000000000', // row 34
+  '000000000000000000', // row 35 — 90°S (Antarctica omitted)
+]
+
+// Decode hex rows into a flat boolean land mask
+function buildLandMask(): Uint8Array {
+  const mask = new Uint8Array(MAP_ROWS * MAP_COLS)
+  for (let row = 0; row < MAP_ROWS; row++) {
+    const hex = MAP_HEX[row]
+    for (let col = 0; col < MAP_COLS; col++) {
+      const byteIdx = Math.floor(col / 4)
+      const bitIdx  = 3 - (col % 4)
+      const nibble  = parseInt(hex[byteIdx] ?? '0', 16)
+      mask[row * MAP_COLS + col] = (nibble >> bitIdx) & 1
+    }
+  }
+  return mask
+}
+
+const LAND_MASK = buildLandMask()
 
 function DitherCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -59,29 +119,33 @@ function DitherCanvas() {
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')!
-    const bayer = [
-      [ 0/16,  8/16,  2/16, 10/16],
-      [12/16,  4/16, 14/16,  6/16],
-      [ 3/16, 11/16,  1/16,  9/16],
-      [15/16,  7/16, 13/16,  5/16],
-    ]
     const BLOCK = 4
+    // Blue-noise approximation: two high-frequency trig fields XOR'd
     let frame = 0
     let rafId: number
+    function isLand(col: number, row: number): boolean {
+      const mr = Math.round((row / (canvas!.height / BLOCK)) * (MAP_ROWS - 1))
+      const mc = Math.round((col / (canvas!.width  / BLOCK)) * (MAP_COLS - 1))
+      return LAND_MASK[Math.min(mr, MAP_ROWS-1) * MAP_COLS + Math.min(mc, MAP_COLS-1)] === 1
+    }
     function render() {
       const W = canvas!.width, H = canvas!.height
       const cols = Math.ceil(W / BLOCK), rows = Math.ceil(H / BLOCK)
       ctx.clearRect(0, 0, W, H)
-      const t = frame * 0.012
-      const pulse = 0.45 + 0.2 * Math.sin(t * 0.7)
+      const t = frame * 0.008
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
+          if (!isLand(c, r)) continue
           const nx = c / cols, ny = r / rows
-          const gradient = pulse * Math.pow(1 - ny, 0.7)
-          const v = gradient + 0.08 * Math.sin(nx * 6 + t) * Math.cos(ny * 2 - t * 0.5)
-          if (v > bayer[r % 4][c % 4]) {
-            // Primary blue at low opacity — visible on the light blue surface
-            ctx.fillStyle = 'rgba(4,82,200,0.09)'
+          // Blue-noise field: sum of incommensurate trig terms
+          const n =
+            0.5 + 0.25 * Math.sin(nx * 17.3 + t * 1.1) * Math.cos(ny * 13.7 - t * 0.7)
+                + 0.25 * Math.sin(nx * 31.1 - t * 0.9) * Math.cos(ny * 23.3 + t * 1.3)
+          // Threshold — moderate density, animated shimmer
+          const threshold = 0.42 + 0.12 * Math.sin(t * 0.5 + nx * 4 + ny * 6)
+          if (n > threshold) {
+            const alpha = 0.18 + 0.12 * n
+            ctx.fillStyle = `rgba(255,255,255,${alpha.toFixed(2)})`
             ctx.fillRect(c * BLOCK, r * BLOCK, BLOCK, BLOCK)
           }
         }
@@ -95,9 +159,9 @@ function DitherCanvas() {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 w-full h-full"
-      width={560}
-      height={600}
+      className="absolute inset-0 w-full h-full opacity-80"
+      width={280}
+      height={480}
       style={{ imageRendering: 'pixelated' }}
     />
   )
@@ -194,8 +258,8 @@ function PreviewCard({
   const isLow = size < LOW_THRESHOLD
 
   return (
-    <div className="rounded-xl overflow-hidden flex flex-col h-full relative" style={{ background: 'hsl(215 100% 96%)' }}>
-      {/* Full-bleed Bayer dither background */}
+    <div className="rounded-xl overflow-hidden bg-blue-950 flex flex-col h-full relative">
+      {/* World map dither */}
       <div className="absolute inset-0 pointer-events-none">
         <DitherCanvas />
       </div>
@@ -203,8 +267,8 @@ function PreviewCard({
       <div className="relative z-10 p-5 flex-1 flex flex-col min-h-0">
         {/* Title + description */}
         <div className="mb-4">
-          <p className="text-sm font-semibold text-foreground">Respondent preview</p>
-          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+          <p className="text-sm font-semibold text-white">Respondent preview</p>
+          <p className="text-xs text-blue-300 mt-1 leading-relaxed">
             Estimated reach based on your current region and filters.
           </p>
         </div>
@@ -217,11 +281,11 @@ function PreviewCard({
           <div className="mb-3 space-y-1.5">
             {breakdown.map((row, i) => (
               <div key={i} className="flex items-baseline justify-between gap-2">
-                <span className="text-[11px] text-muted-foreground truncate min-w-0">{row.label}</span>
+                <span className="text-[11px] text-blue-300 truncate min-w-0">{row.label}</span>
                 <span className={cn(
                   'text-[11px] tabular-nums shrink-0 font-medium',
-                  row.delta === null ? 'text-secondary-foreground' :
-                  row.delta < 0 ? 'text-muted-foreground' : 'text-primary'
+                  row.delta === null ? 'text-white' :
+                  row.delta < 0 ? 'text-blue-300' : 'text-emerald-400'
                 )}>
                   {row.delta === null
                     ? formatAudienceSize(row.running)
@@ -230,59 +294,59 @@ function PreviewCard({
                 </span>
               </div>
             ))}
-            <div className="border-t border-border pt-1.5 flex items-baseline justify-between gap-2">
-              <span className="text-[11px] font-semibold text-foreground">Total</span>
-              <span className="text-[11px] font-semibold text-foreground tabular-nums">{formatAudienceSize(size)}</span>
+            <div className="border-t border-white/15 pt-1.5 flex items-baseline justify-between gap-2">
+              <span className="text-[11px] font-semibold text-white">Total</span>
+              <span className="text-[11px] font-semibold text-white tabular-nums">{formatAudienceSize(size)}</span>
             </div>
           </div>
         )}
 
         {/* Count */}
         <div className="mb-1">
-          <p className="text-xs text-muted-foreground mb-1">Estimated respondents</p>
-          <p className="text-[32px] leading-[40px] font-semibold text-foreground tabular-nums">
+          <p className="text-xs text-blue-300 mb-1">Estimated respondents</p>
+          <p className="text-[32px] leading-[40px] font-semibold text-white tabular-nums">
             {formatAudienceSize(size)}
           </p>
           {!hasFilters && (
-            <p className="text-xs text-muted-foreground mt-1">Updates as you adjust filters</p>
+            <p className="text-xs text-blue-400 mt-1">Updates as you adjust filters</p>
           )}
         </div>
 
         {/* Low sample warning */}
         {isLow && (
-          <div className="mt-3 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5">
+          <div className="mt-3 rounded-lg bg-amber-500/15 border border-amber-400/25 px-3 py-2.5">
             <div className="flex items-start gap-1.5 mb-1">
-              <IconAlertTriangle size={11} strokeWidth={2} className="text-amber-600 shrink-0 mt-0.5" />
-              <p className="text-[11px] font-medium text-amber-800">Sample size may be too small</p>
+              <IconAlertTriangle size={11} strokeWidth={2} className="text-amber-300 shrink-0 mt-0.5" />
+              <p className="text-[11px] font-medium text-amber-200">Sample size may be too small</p>
             </div>
-            <p className="text-[10px] text-amber-700 leading-relaxed">
+            <p className="text-[10px] text-amber-300/80 leading-relaxed">
               Try broadening the age range, removing a filter, or switching to Global.
             </p>
           </div>
         )}
 
         {/* Suggested actions */}
-        <div className="mt-4 pt-3 border-t border-border/60 space-y-0.5">
-          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Use this audience</p>
+        <div className="mt-4 pt-3 border-t border-white/15 space-y-0.5">
+          <p className="text-[10px] font-semibold text-blue-400/70 uppercase tracking-wider mb-2">Use this audience</p>
           <button
             onClick={() => navigate('/charts')}
-            className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-secondary-foreground hover:text-primary hover:bg-primary/8 transition-colors"
+            className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-blue-200 hover:text-white hover:bg-white/10 transition-colors"
           >
-            <IconChartBar size={13} strokeWidth={2} className="shrink-0 text-primary" />
+            <IconChartBar size={13} strokeWidth={2} className="shrink-0 text-blue-400" />
             Benchmark audience
           </button>
           <button
             onClick={() => navigate('/dashboards')}
-            className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-secondary-foreground hover:text-primary hover:bg-primary/8 transition-colors"
+            className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-blue-200 hover:text-white hover:bg-white/10 transition-colors"
           >
-            <IconLayoutDashboard size={13} strokeWidth={2} className="shrink-0 text-primary" />
+            <IconLayoutDashboard size={13} strokeWidth={2} className="shrink-0 text-blue-400" />
             Apply to a dashboard
           </button>
           <button
             onClick={() => navigate('/chat', { state: { audienceName } })}
-            className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-secondary-foreground hover:text-primary hover:bg-primary/8 transition-colors"
+            className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-blue-200 hover:text-white hover:bg-white/10 transition-colors"
           >
-            <IconMessage size={13} strokeWidth={2} className="shrink-0 text-primary" />
+            <IconMessage size={13} strokeWidth={2} className="shrink-0 text-blue-400" />
             Apply to Research AI
           </button>
         </div>
