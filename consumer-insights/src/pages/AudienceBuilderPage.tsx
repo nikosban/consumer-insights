@@ -213,40 +213,37 @@ function PreviewCard({
         {/* Spacer pushes count + breakdown to bottom */}
         <div className="flex-1" />
 
-        {/* Breakdown funnel */}
-        {hasFilters && (
-          <div className="mb-3 space-y-1.5">
-            {breakdown.map((row, i) => (
-              <div key={i} className="flex items-baseline justify-between gap-2">
-                <span className="text-[11px] text-white/60 truncate min-w-0">{row.label}</span>
-                <span className={cn(
-                  'text-[11px] tabular-nums shrink-0 font-medium',
-                  row.delta === null ? 'text-white' :
-                  row.delta < 0 ? 'text-white/60' : 'text-emerald-400'
-                )}>
-                  {row.delta === null
-                    ? formatAudienceSize(row.running)
-                    : `${row.delta < 0 ? '−' : '+'}${formatAudienceSize(Math.abs(row.delta))}`
-                  }
-                </span>
-              </div>
-            ))}
+        {/* Breakdown funnel — always shown */}
+        <div className="mb-3 space-y-1.5">
+          {breakdown.map((row, i) => (
+            <div key={i} className="flex items-baseline justify-between gap-2">
+              <span className="text-[11px] text-white/60 truncate min-w-0">{row.label}</span>
+              <span className={cn(
+                'text-[11px] tabular-nums shrink-0 font-medium',
+                row.delta === null ? 'text-white' :
+                row.delta < 0 ? 'text-white/60' : 'text-emerald-400'
+              )}>
+                {row.delta === null
+                  ? formatAudienceSize(row.running)
+                  : `${row.delta < 0 ? '−' : '+'}${formatAudienceSize(Math.abs(row.delta))}`
+                }
+              </span>
+            </div>
+          ))}
+          {hasFilters && (
             <div className="border-t border-white/15 pt-1.5 flex items-baseline justify-between gap-2">
               <span className="text-[11px] font-semibold text-white">Total</span>
               <span className="text-[11px] font-semibold text-white tabular-nums">{formatAudienceSize(size)}</span>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Count */}
+        {/* Big count */}
         <div className="mb-1">
           <p className="text-xs text-white/60 mb-1">Estimated respondents</p>
           <p className="text-[32px] leading-[40px] font-semibold text-white tabular-nums">
             {formatAudienceSize(size)}
           </p>
-          {!hasFilters && (
-            <p className="text-xs text-white/50 mt-1">Updates as you adjust filters</p>
-          )}
         </div>
 
         {/* Low sample warning */}
@@ -641,7 +638,7 @@ export default function AudienceBuilderPage() {
   )
   const [audienceSize, setAudienceSize] = useState(() => fakeAudienceSize())
   const refreshSize = useCallback(() => setAudienceSize(fakeAudienceSize()), [])
-  useEffect(() => { refreshSize() }, [filters, refreshSize])
+  useEffect(() => { refreshSize() }, [filters, region, refreshSize])
 
   const [editingTitle, setEditingTitle] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
