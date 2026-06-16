@@ -51,62 +51,55 @@ function newGroup(): FilterGroup {
   return { id: `fg-${Date.now()}-${Math.random()}`, operator: 'AND', conditions: [newCondition()] }
 }
 
-// ─── Halftone illustration ────────────────────────────────────────────────────
+// ─── Bayer dither canvas (same pattern as dashboard AI card) ─────────────────
 
-function HalftoneIllustration() {
-  const cols = 20
-  const rows = 12
-  const W = 220
-  const H = 132
-  const cw = W / cols
-  const ch = H / rows
-  const maxR = cw * 0.46
-
-  type Dot = { x: number; y: number; size: number; delay: number }
-  const dots: Dot[] = []
-
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const nx = c / (cols - 1)
-      const ny = r / (rows - 1)
-
-      const band1 = 0.38 + Math.sin(nx * Math.PI * 1.4 + 0.4) * 0.30
-      const band2 = 0.62 + Math.cos(nx * Math.PI * 1.0 - 0.6) * 0.22
-      const d1 = Math.max(0, 1 - Math.abs(ny - band1) / 0.26)
-      const d2 = Math.max(0, 1 - Math.abs(ny - band2) / 0.20)
-      const density = Math.max(d1, d2)
-
-      if (density < 0.09) continue
-
-      const x = (c + 0.5) * cw
-      const y = (r + 0.5) * ch
-      const size = maxR * 2 * density
-      const delay = ((c * 110 + r * 80) % 2200)
-      dots.push({ x, y, size, delay })
+function DitherCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')!
+    const bayer = [
+      [ 0/16,  8/16,  2/16, 10/16],
+      [12/16,  4/16, 14/16,  6/16],
+      [ 3/16, 11/16,  1/16,  9/16],
+      [15/16,  7/16, 13/16,  5/16],
+    ]
+    const BLOCK = 4
+    let frame = 0
+    let rafId: number
+    function render() {
+      const W = canvas!.width, H = canvas!.height
+      const cols = Math.ceil(W / BLOCK), rows = Math.ceil(H / BLOCK)
+      ctx.clearRect(0, 0, W, H)
+      const t = frame * 0.012
+      const pulse = 0.45 + 0.2 * Math.sin(t * 0.7)
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const nx = c / cols, ny = r / rows
+          const gradient = pulse * Math.pow(1 - ny, 0.7)
+          const v = gradient + 0.08 * Math.sin(nx * 6 + t) * Math.cos(ny * 2 - t * 0.5)
+          if (v > bayer[r % 4][c % 4]) {
+            // Primary blue at low opacity — visible on the light blue surface
+            ctx.fillStyle = 'rgba(4,82,200,0.09)'
+            ctx.fillRect(c * BLOCK, r * BLOCK, BLOCK, BLOCK)
+          }
+        }
+      }
+      frame++
+      rafId = requestAnimationFrame(render)
     }
-  }
-
+    render()
+    return () => cancelAnimationFrame(rafId)
+  }, [])
   return (
-    <div className="w-full h-full bg-[#0452C8]">
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-full">
-        {dots.map((d, i) => (
-          <rect
-            key={i}
-            x={d.x - d.size / 2}
-            y={d.y - d.size / 2}
-            width={d.size}
-            height={d.size}
-            rx="1.5"
-            fill="white"
-            style={{
-              transformOrigin: `${d.x}px ${d.y}px`,
-              animation: `dotPulse 5s ease-in-out infinite`,
-              animationDelay: `${d.delay}ms`,
-            }}
-          />
-        ))}
-      </svg>
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full"
+      width={560}
+      height={600}
+      style={{ imageRendering: 'pixelated' }}
+    />
   )
 }
 
@@ -201,29 +194,34 @@ function PreviewCard({
   const isLow = size < LOW_THRESHOLD
 
   return (
-    <div className="rounded-xl overflow-hidden bg-[#0452C8] flex flex-col h-full relative">
-      {/* Full-bleed halftone background */}
+    <div className="rounded-xl overflow-hidden flex flex-col h-full relative" style={{ background: 'hsl(215 100% 96%)' }}>
+      {/* Full-bleed Bayer dither background */}
       <div className="absolute inset-0 pointer-events-none">
-        <HalftoneIllustration />
+        <DitherCanvas />
       </div>
 
-      {/* Count + breakdown */}
       <div className="relative z-10 p-5 flex-1 flex flex-col min-h-0">
-        <p className="text-xs text-blue-200 mb-1">Estimated respondents</p>
-        <p className="text-[28px] leading-[36px] font-semibold text-white tabular-nums">
-          {formatAudienceSize(size)}
-        </p>
+        {/* Title + description */}
+        <div className="mb-4">
+          <p className="text-sm font-semibold text-foreground">Respondent preview</p>
+          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+            Estimated reach based on your current region and filters.
+          </p>
+        </div>
+
+        {/* Spacer pushes count + breakdown to bottom */}
+        <div className="flex-1" />
 
         {/* Breakdown funnel */}
         {hasFilters && (
-          <div className="mt-3 space-y-1.5">
+          <div className="mb-3 space-y-1.5">
             {breakdown.map((row, i) => (
               <div key={i} className="flex items-baseline justify-between gap-2">
-                <span className="text-[11px] text-blue-200 truncate min-w-0">{row.label}</span>
+                <span className="text-[11px] text-muted-foreground truncate min-w-0">{row.label}</span>
                 <span className={cn(
                   'text-[11px] tabular-nums shrink-0 font-medium',
-                  row.delta === null ? 'text-white' :
-                  row.delta < 0 ? 'text-blue-300' : 'text-emerald-300'
+                  row.delta === null ? 'text-secondary-foreground' :
+                  row.delta < 0 ? 'text-muted-foreground' : 'text-primary'
                 )}>
                   {row.delta === null
                     ? formatAudienceSize(row.running)
@@ -232,55 +230,59 @@ function PreviewCard({
                 </span>
               </div>
             ))}
-            <div className="border-t border-white/15 pt-1.5 flex items-baseline justify-between gap-2">
-              <span className="text-[11px] font-semibold text-white">Total</span>
-              <span className="text-[11px] font-semibold text-white tabular-nums">{formatAudienceSize(size)}</span>
+            <div className="border-t border-border pt-1.5 flex items-baseline justify-between gap-2">
+              <span className="text-[11px] font-semibold text-foreground">Total</span>
+              <span className="text-[11px] font-semibold text-foreground tabular-nums">{formatAudienceSize(size)}</span>
             </div>
           </div>
         )}
 
-        {!hasFilters && (
-          <p className="text-xs text-blue-300 mt-2">Updates as you adjust filters</p>
-        )}
+        {/* Count */}
+        <div className="mb-1">
+          <p className="text-xs text-muted-foreground mb-1">Estimated respondents</p>
+          <p className="text-[32px] leading-[40px] font-semibold text-foreground tabular-nums">
+            {formatAudienceSize(size)}
+          </p>
+          {!hasFilters && (
+            <p className="text-xs text-muted-foreground mt-1">Updates as you adjust filters</p>
+          )}
+        </div>
 
         {/* Low sample warning */}
         {isLow && (
-          <div className="mt-3 rounded-lg bg-amber-500/20 border border-amber-400/30 px-3 py-2.5">
+          <div className="mt-3 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5">
             <div className="flex items-start gap-1.5 mb-1">
-              <IconAlertTriangle size={11} strokeWidth={2} className="text-amber-300 shrink-0 mt-0.5" />
-              <p className="text-[11px] font-medium text-amber-200">Sample size may be too small</p>
+              <IconAlertTriangle size={11} strokeWidth={2} className="text-amber-600 shrink-0 mt-0.5" />
+              <p className="text-[11px] font-medium text-amber-800">Sample size may be too small</p>
             </div>
-            <p className="text-[10px] text-amber-300/80 leading-relaxed">
+            <p className="text-[10px] text-amber-700 leading-relaxed">
               Try broadening the age range, removing a filter, or switching to Global.
             </p>
           </div>
         )}
 
-        {/* Spacer */}
-        <div className="flex-1" />
-
         {/* Suggested actions */}
-        <div className="mt-4 pt-3 border-t border-white/15 space-y-1.5">
-          <p className="text-[10px] font-semibold text-blue-300/70 uppercase tracking-wider mb-2">Use this audience</p>
+        <div className="mt-4 pt-3 border-t border-border/60 space-y-0.5">
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Use this audience</p>
           <button
             onClick={() => navigate('/charts')}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-xs text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+            className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-secondary-foreground hover:text-primary hover:bg-primary/8 transition-colors"
           >
-            <IconChartBar size={13} strokeWidth={2} className="shrink-0 text-blue-300" />
+            <IconChartBar size={13} strokeWidth={2} className="shrink-0 text-primary" />
             Benchmark audience
           </button>
           <button
             onClick={() => navigate('/dashboards')}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-xs text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+            className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-secondary-foreground hover:text-primary hover:bg-primary/8 transition-colors"
           >
-            <IconLayoutDashboard size={13} strokeWidth={2} className="shrink-0 text-blue-300" />
+            <IconLayoutDashboard size={13} strokeWidth={2} className="shrink-0 text-primary" />
             Apply to a dashboard
           </button>
           <button
             onClick={() => navigate('/chat', { state: { audienceName } })}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-xs text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+            className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-secondary-foreground hover:text-primary hover:bg-primary/8 transition-colors"
           >
-            <IconMessage size={13} strokeWidth={2} className="shrink-0 text-blue-300" />
+            <IconMessage size={13} strokeWidth={2} className="shrink-0 text-primary" />
             Apply to Research AI
           </button>
         </div>
