@@ -44,12 +44,6 @@ const MOCK_HISTORY: ChatHistoryEntry[] = [
   { id: 'h-10', firstMessage: 'Compare EV purchase intent across Germany, France, and the US', createdAt: daysAgo(10) },
   { id: 'h-11', firstMessage: 'NPS benchmark for digital banking apps in Southeast Asia', createdAt: daysAgo(13) },
   { id: 'h-12', firstMessage: 'Gaming hardware upgrade intent among PC gamers in the US — 2024 vs. 2023', createdAt: daysAgo(16) },
-  { id: 'h-13', firstMessage: 'Which income bracket spends the most on home fitness equipment in 2024?', createdAt: daysAgo(19) },
-  { id: 'h-14', firstMessage: 'Food delivery app satisfaction and churn drivers in urban Southeast Asia', createdAt: daysAgo(22) },
-  { id: 'h-15', firstMessage: 'Gen Z attitude toward loyalty programs in retail — key drivers and drop-off points', createdAt: daysAgo(25) },
-  { id: 'h-16', firstMessage: 'Brand trust levels for plant-based food brands in Germany vs. the Netherlands', createdAt: daysAgo(29) },
-  { id: 'h-17', firstMessage: 'How do subscription fatigue levels compare across streaming, SaaS, and news in the UK?', createdAt: daysAgo(34) },
-  { id: 'h-18', firstMessage: 'Luxury travel intent among HNW individuals in the Middle East — key motivations', createdAt: daysAgo(41) },
 ]
 
 export const useAIStore = create<AIStore>()(

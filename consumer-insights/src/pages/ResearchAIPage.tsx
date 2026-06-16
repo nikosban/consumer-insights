@@ -110,7 +110,7 @@ function groupHistory(history: ChatHistoryEntry[]) {
   return { recent, older }
 }
 
-function HistoryRow({ entry, onSelect }: { entry: ChatHistoryEntry; onSelect: (q: string) => void }) {
+function HistoryRow({ entry, onSelect, hideDate }: { entry: ChatHistoryEntry; onSelect: (q: string) => void; hideDate?: boolean }) {
   const { removeHistory } = useAIStore()
   return (
     <div className="flex items-center px-1 rounded-md transition-colors hover:bg-accent group">
@@ -119,25 +119,27 @@ function HistoryRow({ entry, onSelect }: { entry: ChatHistoryEntry; onSelect: (q
         className="flex items-center gap-2 flex-1 min-w-0 text-left py-2 pl-2 pr-1"
       >
         <span className="flex-1 truncate text-xs text-foreground">{entry.firstMessage}</span>
-        <span className="shrink-0 text-xs text-muted-foreground tabular-nums group-hover:hidden">{formatDate(entry.createdAt)}</span>
+        {!hideDate && (
+          <span className="shrink-0 text-xs text-muted-foreground tabular-nums group-hover:hidden">{formatDate(entry.createdAt)}</span>
+        )}
       </button>
       <button
         onClick={(e) => { e.stopPropagation(); removeHistory(entry.id) }}
         title="Delete"
         className="shrink-0 hidden group-hover:flex w-5 h-5 items-center justify-center rounded text-muted-foreground hover:text-destructive transition-colors"
       >
-        <IconX size={11} strokeWidth={2} />
+        <IconTrash size={11} strokeWidth={2} />
       </button>
     </div>
   )
 }
 
-function HistoryGroup({ label, entries, onSelect }: { label: string; entries: ChatHistoryEntry[]; onSelect: (q: string) => void }) {
+function HistoryGroup({ label, entries, onSelect, hideDate }: { label: string; entries: ChatHistoryEntry[]; onSelect: (q: string) => void; hideDate?: boolean }) {
   if (entries.length === 0) return null
   return (
     <div className="mb-1">
       <p className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase">{label}</p>
-      {entries.map(entry => <HistoryRow key={entry.id} entry={entry} onSelect={onSelect} />)}
+      {entries.map(entry => <HistoryRow key={entry.id} entry={entry} onSelect={onSelect} hideDate={hideDate} />)}
     </div>
   )
 }
@@ -185,8 +187,8 @@ function ChatHistoryPanel({ onSelect, onNew }: { onSelect: (q: string) => void; 
         </div>
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto py-2">
-        <HistoryGroup label="Recent" entries={recent} onSelect={onSelect} />
-        <HistoryGroup label="Older"  entries={older}  onSelect={onSelect} />
+        <HistoryGroup label="Recent" entries={recent} onSelect={onSelect} hideDate />
+        <HistoryGroup label="Older"  entries={older}  onSelect={onSelect} hideDate />
         {recent.length + older.length === 0 && (
           <p className="px-3 py-4 text-xs text-muted-foreground text-center">No chat history yet</p>
         )}
@@ -1366,7 +1368,7 @@ function MessageBubble({ msg, onSend, onCreateDraft }: {
               <span key={i}>{renderMarkdown(line)}{i < arr.length - 1 && <br />}</span>
             ))}
           </div>
-          <div className="flex justify-end mt-1">
+          <div className="flex justify-end mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <MessageActions text={msg.content} />
           </div>
         </div>
@@ -1376,12 +1378,7 @@ function MessageBubble({ msg, onSend, onCreateDraft }: {
 
   // Assistant message
   return (
-    <div className="flex justify-start mb-4">
-      {/* Avatar — aligned with top of first content block */}
-      <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center mr-2 shrink-0">
-        <IconSparkles className="h-3.5 w-3.5 text-primary-foreground" strokeWidth={2} />
-      </div>
-
+    <div className="flex justify-start mb-4 group">
       <div className="w-full min-w-0">
         {/* Processing steps (EV demo) */}
         {msg.processingSteps && msg.processingSteps.length > 0 && (
@@ -1404,7 +1401,7 @@ function MessageBubble({ msg, onSend, onCreateDraft }: {
               )}
             </div>
             {!msg.isStreaming && msg.content && (
-              <div className="max-w-xl flex justify-end">
+              <div className="max-w-xl flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                 <MessageActions text={msg.content} role="assistant" />
               </div>
             )}
@@ -1634,8 +1631,6 @@ export default function ResearchAIPage() {
 
       {/* Main content */}
       <div className="relative flex flex-col flex-1 overflow-hidden">
-        {/* Grid background — scoped to content area only */}
-        <div style={gridBgStyle} aria-hidden />
         {isEmpty ? (
           /* ── Empty / home state ── */
           <div className="relative flex-1 overflow-y-auto">
