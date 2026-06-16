@@ -7,7 +7,7 @@
  * Components:  Button · Badge · Input · Chip · Card · Empty State · Layout
  */
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import ChartRenderer from '@/components/charts/ChartRenderer'
 import type { Widget, ChartData } from '@/types'
 import { Button } from '@/components/ui/button'
@@ -25,7 +25,7 @@ import {
   IconLoader2, IconShare, IconX,
   IconLayoutSidebarRightCollapse, IconLayoutSidebarRightExpand,
   IconLayoutDashboard, IconFileText, IconUsers, IconChartBar,
-  IconPencil, IconCopy, IconBookmarkPlus, IconRefresh,
+  IconPencil, IconCopy, IconBookmarkPlus, IconRefresh, IconArrowUp,
   IconChevronRight, IconSparkles,
 } from '@tabler/icons-react'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
@@ -56,6 +56,7 @@ type PageId =
   | 'switcher'
   | 'layout'
   | 'chat'
+  | 'dashboards'
 
 const NAV: { group: string; items: { id: PageId; label: string }[] }[] = [
   {
@@ -79,6 +80,7 @@ const NAV: { group: string; items: { id: PageId; label: string }[] }[] = [
       { id: 'card',         label: 'Card'         },
       { id: 'chart-widget', label: 'Chart Widget' },
       { id: 'chat',         label: 'Chat'         },
+      { id: 'dashboards',   label: 'Dashboards'   },
       { id: 'empty-state',  label: 'Empty State'  },
       { id: 'switcher',     label: 'Switcher'     },
       { id: 'layout',      label: 'Layout'      },
@@ -3365,6 +3367,340 @@ function VizSwitcherDemo() {
   return <VizSwitcher value={viz} onChange={v => setViz(v as 'bar' | 'line' | 'table')} />
 }
 
+// ─── Dashboards page ──────────────────────────────────────────────────────────
+
+type DashPeriod = { year: string; wave: string }
+
+function formatPeriod(p: DashPeriod) {
+  if (p.year === 'All' && p.wave === 'All') return 'All periods'
+  if (p.wave === 'All') return p.year
+  return `${p.year} ${p.wave}`
+}
+
+function DashContextChip({ label, value, options, onChange }: {
+  label: string; value: string; options: string[]
+  onChange: (v: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    function close(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', close)
+    return () => document.removeEventListener('mousedown', close)
+  }, [])
+  const isDefault = value === options[0]
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className={cn(
+          'h-[26px] px-2.5 rounded-[6px] border flex items-center gap-1 text-xs transition-colors',
+          isDefault ? 'border-border bg-sidebar text-secondary-foreground hover:border-primary/40' : 'border-primary/30 bg-primary/5 text-primary'
+        )}
+      >
+        <span>{label}: {value}</span>
+        <IconChevronRight size={9} strokeWidth={2} className="shrink-0 rotate-90" />
+      </button>
+      {open && (
+        <div className="absolute top-full mt-1 left-0 z-30 bg-popover border border-border rounded-xl shadow-lg py-1 min-w-[180px]">
+          <p className="px-3 py-1 text-[10px] font-semibold text-muted-foreground">{label}</p>
+          {options.map(opt => (
+            <button key={opt} onClick={() => { onChange(opt); setOpen(false) }}
+              className={cn('w-full text-left px-3 py-2 text-xs hover:bg-accent transition-colors',
+                opt === value ? 'text-primary font-medium' : 'text-foreground'
+              )}
+            >{opt}</button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function DashPeriodChip({ value, onChange }: { value: DashPeriod; onChange: (v: DashPeriod) => void }) {
+  const [open, setOpen] = useState(false)
+  const [draft, setDraft] = useState(value)
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    function close(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', close)
+    return () => document.removeEventListener('mousedown', close)
+  }, [])
+  const isDefault = value.year === 'All' && value.wave === 'All'
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => { setDraft(value); setOpen(o => !o) }}
+        className={cn(
+          'h-[26px] px-2.5 rounded-[6px] border flex items-center gap-1 text-xs transition-colors',
+          isDefault ? 'border-border bg-sidebar text-secondary-foreground hover:border-primary/40' : 'border-primary/30 bg-primary/5 text-primary'
+        )}
+      >
+        <span>{formatPeriod(value)}</span>
+        <IconChevronRight size={9} strokeWidth={2} className="shrink-0 rotate-90" />
+      </button>
+      {open && (
+        <div className="absolute top-full mt-1 left-0 z-30 bg-popover border border-border rounded-xl shadow-lg p-3 min-w-[260px]">
+          <p className="text-[10px] font-semibold text-muted-foreground mb-1.5">YEAR</p>
+          <div className="flex gap-1 mb-3 flex-wrap">
+            {['All', '2022', '2023', '2024', '2025'].map(y => (
+              <button key={y} onClick={() => setDraft(d => ({ ...d, year: y }))}
+                className={cn('h-7 px-2.5 rounded text-xs font-medium transition-colors',
+                  draft.year === y ? 'bg-primary text-white' : 'bg-muted text-secondary-foreground hover:bg-muted/70'
+                )}
+              >{y}</button>
+            ))}
+          </div>
+          <p className="text-[10px] font-semibold text-muted-foreground mb-1.5">WAVE</p>
+          <div className="flex gap-1 mb-3">
+            {['All', 'Q1', 'Q2', 'Q3', 'Q4'].map(w => (
+              <button key={w} onClick={() => setDraft(d => ({ ...d, wave: w }))}
+                className={cn('h-7 px-2.5 rounded text-xs font-medium transition-colors',
+                  draft.wave === w ? 'bg-primary text-white' : 'bg-muted text-secondary-foreground hover:bg-muted/70'
+                )}
+              >{w}</button>
+            ))}
+          </div>
+          <div className="flex items-center justify-between border-t border-border pt-2">
+            <span className="text-xs text-muted-foreground">{formatPeriod(draft)}</span>
+            <button onClick={() => { onChange(draft); setOpen(false) }}
+              className="h-7 px-3 rounded bg-primary text-white text-xs font-medium hover:bg-primary/90 transition-colors"
+            >Apply</button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function WidgetFilterPill({ value, isOverride, onReset }: {
+  value: string; isOverride: boolean; onReset?: () => void
+}) {
+  return (
+    <div className={cn(
+      'h-7 flex items-center rounded-full border text-xs font-medium',
+      isOverride ? 'bg-primary/8 border-primary/25 text-primary pr-1' : 'bg-background border-border text-foreground pr-2.5 shadow-sm'
+    )}>
+      <span className="pl-3 pr-1">{value}</span>
+      <IconChevronRight size={9} strokeWidth={2} className="shrink-0 opacity-50 rotate-90" />
+      {isOverride && onReset && (
+        <button onClick={onReset}
+          className="ml-1 h-4 w-4 flex items-center justify-center rounded-full hover:bg-primary/15 transition-colors"
+        >
+          <IconX size={9} strokeWidth={2} />
+        </button>
+      )}
+    </div>
+  )
+}
+
+function DitherCanvasDemo() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')!
+    const bayer = [
+      [ 0/16,  8/16,  2/16, 10/16],
+      [12/16,  4/16, 14/16,  6/16],
+      [ 3/16, 11/16,  1/16,  9/16],
+      [15/16,  7/16, 13/16,  5/16],
+    ]
+    const BLOCK = 4
+    let frame = 0
+    let rafId: number
+    function render() {
+      const W = canvas!.width, H = canvas!.height
+      const cols = Math.ceil(W / BLOCK), rows = Math.ceil(H / BLOCK)
+      ctx.clearRect(0, 0, W, H)
+      const t = frame * 0.012
+      const pulse = 0.45 + 0.2 * Math.sin(t * 0.7)
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const nx = c / cols, ny = r / rows
+          const gradient = pulse * Math.pow(1 - ny, 0.7)
+          const v = gradient + 0.08 * Math.sin(nx * 6 + t) * Math.cos(ny * 2 - t * 0.5)
+          if (v > bayer[r % 4][c % 4]) {
+            ctx.fillStyle = 'rgba(255,255,255,0.18)'
+            ctx.fillRect(c * BLOCK, r * BLOCK, BLOCK, BLOCK)
+          }
+        }
+      }
+      frame++
+      rafId = requestAnimationFrame(render)
+    }
+    render()
+    return () => cancelAnimationFrame(rafId)
+  }, [])
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" width={440} height={220} style={{ imageRendering: 'pixelated' }} />
+}
+
+function AIPromptCardDemo() {
+  const [query, setQuery] = useState('')
+  const [loading, setLoading] = useState(false)
+  function handleSubmit() {
+    if (!query.trim() || loading) return
+    setLoading(true)
+    setQuery('')
+    setTimeout(() => setLoading(false), 1400)
+  }
+  return (
+    <div className="relative overflow-hidden rounded-xl flex flex-col" style={{ background: '#000', width: 440, height: 220, maxWidth: '100%' }}>
+      <DitherCanvasDemo />
+      <div className="relative z-10 flex items-start justify-between px-5 pt-5">
+        <span className="text-sm font-semibold text-white">Ask AI to build a widget</span>
+      </div>
+      <div className="flex-1" />
+      <div className="relative z-10 px-4 pb-4 pt-3">
+        <div className="flex items-center rounded-lg border border-white/15 overflow-hidden" style={{ background: 'rgba(0,0,0,0.65)' }}>
+          <input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+            placeholder="e.g. Show gender breakdown of smartphone usage…"
+            className="flex-1 h-10 px-3 text-sm text-white focus:outline-none"
+            style={{ background: 'transparent', color: '#fff' }}
+          />
+          <button
+            onClick={handleSubmit}
+            disabled={!query.trim() || loading}
+            className="h-10 w-10 flex items-center justify-center border-l border-white/15 text-white/60 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors shrink-0"
+          >
+            {loading
+              ? <IconRefresh className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
+              : <IconArrowUp className="h-3.5 w-3.5" strokeWidth={2} />
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ContextChipsDemo() {
+  const [audience, setAudience] = useState('All audiences')
+  const [region, setRegion]     = useState('Global')
+  const [period, setPeriod]     = useState<DashPeriod>({ year: 'All', wave: 'All' })
+  return (
+    <div className="flex items-center gap-2 flex-wrap">
+      <DashContextChip label="Audience" value={audience} options={['All audiences', 'Urban Millennials DE', 'Tech-First Millennials', 'Value Seekers']} onChange={setAudience} />
+      <DashContextChip label="Region"   value={region}   options={['Global', 'Germany', 'United States', 'United Kingdom', 'France']} onChange={setRegion} />
+      <DashPeriodChip  value={period}   onChange={setPeriod} />
+    </div>
+  )
+}
+
+function WidgetFilterPillsDemo() {
+  const [audienceOverride, setAudienceOverride] = useState(true)
+  const [regionOverride, setRegionOverride]     = useState(false)
+  return (
+    <div className="space-y-3">
+      <div>
+        <p className="text-[10px] font-semibold text-muted-foreground mb-2">Default (inherits from dashboard)</p>
+        <div className="flex items-center gap-2">
+          <WidgetFilterPill value="All audiences" isOverride={false} />
+          <WidgetFilterPill value="Global"        isOverride={false} />
+          <WidgetFilterPill value="All periods"   isOverride={false} />
+        </div>
+      </div>
+      <div>
+        <p className="text-[10px] font-semibold text-muted-foreground mb-2">With widget-level overrides (blue = overridden, × resets to dashboard default)</p>
+        <div className="flex items-center gap-2">
+          <WidgetFilterPill value="Urban Millennials DE" isOverride={audienceOverride} onReset={() => setAudienceOverride(false)} />
+          <WidgetFilterPill value="Germany"              isOverride={regionOverride}   onReset={() => setRegionOverride(false)} />
+          <WidgetFilterPill value="2024 Q2"              isOverride={true} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DashboardsPage() {
+  return (
+    <>
+      <PageHeader
+        title="Dashboards"
+        description="UI patterns used in the Dashboards list and Dashboard Builder."
+      />
+
+      <Section title="Dashboard list">
+        <div className="flex flex-col gap-2 max-w-2xl">
+          <ResourceCard
+            icon={<IconLayoutDashboard className="h-4 w-4" strokeWidth={2} />}
+            title="Consumer Insights — DACH Overview"
+            meta={<>4 widgets</>}
+            date="Updated 12 Jun 2026"
+            actions={
+              <>
+                <IconBtn icon={<IconPencil className="h-3 w-3" strokeWidth={2} />} label="Edit" onClick={() => {}} />
+                <IconBtn icon={<IconTrash className="h-3 w-3" strokeWidth={2} />} label="Delete" destructive onClick={() => {}} />
+              </>
+            }
+            onClick={() => {}}
+          />
+          <ResourceCard
+            icon={<IconLayoutDashboard className="h-4 w-4" strokeWidth={2} />}
+            title="Brand Awareness Q2 2025"
+            meta={<>7 widgets <Badge className="ml-2 text-[10px] bg-primary/10 text-primary border-0 align-middle">Shared</Badge></>}
+            date="Updated 9 Jun 2026"
+            actions={
+              <>
+                <IconBtn icon={<IconPencil className="h-3 w-3" strokeWidth={2} />} label="Edit" onClick={() => {}} />
+                <IconBtn icon={<IconTrash className="h-3 w-3" strokeWidth={2} />} label="Delete" destructive onClick={() => {}} />
+              </>
+            }
+            onClick={() => {}}
+          />
+          <ResourceCard
+            icon={<IconLayoutDashboard className="h-4 w-4" strokeWidth={2} />}
+            title="Mobile Audience Segments"
+            meta={<>2 widgets</>}
+            date="Updated 1 Jun 2026"
+            actions={
+              <>
+                <IconBtn icon={<IconPencil className="h-3 w-3" strokeWidth={2} />} label="Edit" onClick={() => {}} />
+                <IconBtn icon={<IconTrash className="h-3 w-3" strokeWidth={2} />} label="Delete" destructive onClick={() => {}} />
+              </>
+            }
+            onClick={() => {}}
+          />
+        </div>
+      </Section>
+
+      <Section title="Context chips">
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground max-w-xl">
+            Dashboard-level Audience, Region, and Period selectors shown in the builder toolbar. Default state has a neutral border; a non-default selection turns the chip blue. All dropdowns are interactive.
+          </p>
+          <ContextChipsDemo />
+        </div>
+      </Section>
+
+      <Section title="Widget filter chips">
+        <div className="space-y-4">
+          <p className="text-xs text-muted-foreground max-w-xl">
+            Per-widget filter overrides shown above each widget card in the builder. Default chips inherit dashboard-level context. Overridden chips turn blue and gain a × reset button to restore the dashboard default.
+          </p>
+          <WidgetFilterPillsDemo />
+        </div>
+      </Section>
+
+      <Section title="AI prompt card">
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground max-w-xl">
+            The "Ask AI to build a widget" card shown on the dashboard canvas. Animated dithered canvas background, dark input at the bottom. Type and press Enter or the send button to simulate submission.
+          </p>
+          <AIPromptCardDemo />
+        </div>
+      </Section>
+    </>
+  )
+}
+
 // ─── Page map ─────────────────────────────────────────────────────────────────
 
 const PAGES: Record<PageId, React.ReactNode> = {
@@ -3381,6 +3717,7 @@ const PAGES: Record<PageId, React.ReactNode> = {
   'card':          <CardPage />,
   'chart-widget':  <ChartWidgetPage />,
   'chat':          <ChatPage />,
+  'dashboards':    <DashboardsPage />,
   'empty-state':   <EmptyStatePage />,
   'switcher':      <SwitcherPage />,
   'layout':      <LayoutPage />,
