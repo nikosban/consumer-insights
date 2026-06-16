@@ -11,9 +11,12 @@ import {
   SelectItem,
   SelectTrigger,
 } from '@/components/ui/select'
-import { IconArrowLeft, IconPlus, IconTrash } from '@tabler/icons-react'
+import {
+  IconArrowLeft, IconPlus, IconTrash,
+  IconAlertTriangle, IconChartBar, IconLayoutDashboard, IconMessage,
+} from '@tabler/icons-react'
 import { RegionPicker } from '@/components/RegionPicker'
-import { fakeAudienceSize, formatAudienceSize } from '@/data/fakeGenerators'
+import { fakeAudienceSize, formatAudienceSize } from '@/data/chartGenerators'
 import type { FilterGroup, FilterCondition, Audience } from '@/types'
 import { ATTRIBUTE_OPTIONS } from '@/types'
 import { IconWrapper, ICON_SIZES } from '@/components/ui/IconWrapper'
@@ -67,7 +70,6 @@ function HalftoneIllustration() {
       const nx = c / (cols - 1)
       const ny = r / (rows - 1)
 
-      // Two overlapping flowing bands
       const band1 = 0.38 + Math.sin(nx * Math.PI * 1.4 + 0.4) * 0.30
       const band2 = 0.62 + Math.cos(nx * Math.PI * 1.0 - 0.6) * 0.22
       const d1 = Math.max(0, 1 - Math.abs(ny - band1) / 0.26)
@@ -79,7 +81,6 @@ function HalftoneIllustration() {
       const x = (c + 0.5) * cw
       const y = (r + 0.5) * ch
       const size = maxR * 2 * density
-      // Wave delay: diagonal ripple
       const delay = ((c * 110 + r * 80) % 2200)
       dots.push({ x, y, size, delay })
     }
@@ -109,20 +110,180 @@ function HalftoneIllustration() {
   )
 }
 
+// ─── Filter breakdown helpers ─────────────────────────────────────────────────
+
+const REGION_LABELS: Record<string, string> = {
+  us: 'United States', de: 'Germany', uk: 'United Kingdom',
+  fr: 'France', global: 'Global', Global: 'Global',
+}
+
+const REGION_BASE: Record<string, number> = {
+  us: 3_600_000, de: 820_000, uk: 680_000,
+  fr: 540_000, global: 8_200_000, Global: 8_200_000,
+}
+
+const ATTR_REDUCTION: Record<string, number> = {
+  'Age (basic)': 0.38, 'Age (detailed)': 0.38,
+  'Gender': 0.46,
+  'Income bracket': 0.32,
+  'Purchase frequency': 0.28,
+  'Device type': 0.35,
+  'Education level': 0.30,
+  'Household size': 0.25,
+}
+
+function hasValue(c: FilterCondition): boolean {
+  return c.value !== null && c.value !== undefined && c.value !== '' &&
+    !(Array.isArray(c.value) && c.value.length === 0)
+}
+
+function flattenConditions(group: FilterGroup): FilterCondition[] {
+  const out: FilterCondition[] = []
+  for (const item of group.conditions) {
+    if (isFilterGroup(item)) out.push(...flattenConditions(item))
+    else if (hasValue(item)) out.push(item)
+  }
+  return out
+}
+
+function conditionLabel(c: FilterCondition): string {
+  const val = Array.isArray(c.value)
+    ? c.value.slice(0, 2).join(', ') + (c.value.length > 2 ? '…' : '')
+    : String(c.value)
+  return `${c.attribute}: ${val}`
+}
+
+type BreakdownRow = { label: string; running: number; delta: number | null }
+
+function buildBreakdown(region: string, filters: FilterGroup, total: number): BreakdownRow[] {
+  const base = REGION_BASE[region] ?? 8_200_000
+  const conditions = flattenConditions(filters)
+
+  // If no active conditions, just return region base → total
+  if (conditions.length === 0) {
+    return [{ label: REGION_LABELS[region] ?? region, running: base, delta: null }]
+  }
+
+  // Distribute reductions so the final step lands close to `total`
+  const rows: BreakdownRow[] = [
+    { label: REGION_LABELS[region] ?? region, running: base, delta: null },
+  ]
+  let running = base
+  const gap = base - total
+  const reductions = conditions.map((c) => ATTR_REDUCTION[c.attribute] ?? 0.33)
+  const reductionSum = reductions.reduce((s, r) => s + r, 0)
+
+  for (let i = 0; i < conditions.length; i++) {
+    const share = reductionSum > 0 ? reductions[i] / reductionSum : 1 / conditions.length
+    const delta = Math.round(gap * share)
+    running = Math.max(0, running - delta)
+    rows.push({ label: conditionLabel(conditions[i]), running, delta: -delta })
+  }
+
+  // Snap last row to exact total
+  rows[rows.length - 1].running = total
+
+  return rows
+}
+
 // ─── Preview card ─────────────────────────────────────────────────────────────
 
-function PreviewCard({ size }: { size: number }) {
+const LOW_THRESHOLD = 200_000
+
+function PreviewCard({
+  size, region, filters, audienceName,
+}: {
+  size: number; region: string; filters: FilterGroup; audienceName: string
+}) {
+  const navigate = useNavigate()
+  const breakdown = buildBreakdown(region, filters, size)
+  const hasFilters = flattenConditions(filters).length > 0
+  const isLow = size < LOW_THRESHOLD
+
   return (
-    <div className="rounded-2xl overflow-hidden bg-[#0452C8] sticky top-6">
-      <div className="h-44 overflow-hidden">
+    <div className="rounded-2xl overflow-hidden bg-[#0452C8] flex flex-col h-full">
+      {/* Halftone header */}
+      <div className="h-32 shrink-0 overflow-hidden">
         <HalftoneIllustration />
       </div>
-      <div className="p-4">
-        <p className="text-xs text-blue-200">Estimated respondents</p>
-        <p className="text-[28px] leading-[36px] font-bold text-white mt-1 tabular-nums">
+
+      {/* Count + breakdown */}
+      <div className="p-4 flex-1 flex flex-col min-h-0">
+        <p className="text-xs text-blue-200 mb-1">Estimated respondents</p>
+        <p className="text-[28px] leading-[36px] font-semibold text-white tabular-nums">
           {formatAudienceSize(size)}
         </p>
-        <p className="text-xs text-blue-300 mt-2">Updates as you adjust filters</p>
+
+        {/* Breakdown funnel */}
+        {hasFilters && (
+          <div className="mt-3 space-y-1.5">
+            {breakdown.map((row, i) => (
+              <div key={i} className="flex items-baseline justify-between gap-2">
+                <span className="text-[11px] text-blue-200 truncate min-w-0">{row.label}</span>
+                <span className={cn(
+                  'text-[11px] tabular-nums shrink-0 font-medium',
+                  row.delta === null ? 'text-white' :
+                  row.delta < 0 ? 'text-blue-300' : 'text-emerald-300'
+                )}>
+                  {row.delta === null
+                    ? formatAudienceSize(row.running)
+                    : `${row.delta < 0 ? '−' : '+'}${formatAudienceSize(Math.abs(row.delta))}`
+                  }
+                </span>
+              </div>
+            ))}
+            <div className="border-t border-white/15 pt-1.5 flex items-baseline justify-between gap-2">
+              <span className="text-[11px] font-semibold text-white">Total</span>
+              <span className="text-[11px] font-semibold text-white tabular-nums">{formatAudienceSize(size)}</span>
+            </div>
+          </div>
+        )}
+
+        {!hasFilters && (
+          <p className="text-xs text-blue-300 mt-2">Updates as you adjust filters</p>
+        )}
+
+        {/* Low sample warning */}
+        {isLow && (
+          <div className="mt-3 rounded-lg bg-amber-500/20 border border-amber-400/30 px-3 py-2.5">
+            <div className="flex items-start gap-1.5 mb-1">
+              <IconAlertTriangle size={11} strokeWidth={2} className="text-amber-300 shrink-0 mt-0.5" />
+              <p className="text-[11px] font-medium text-amber-200">Sample size may be too small</p>
+            </div>
+            <p className="text-[10px] text-amber-300/80 leading-relaxed">
+              Try broadening the age range, removing a filter, or switching to Global.
+            </p>
+          </div>
+        )}
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Suggested actions */}
+        <div className="mt-4 pt-3 border-t border-white/15 space-y-1.5">
+          <p className="text-[10px] font-semibold text-blue-300/70 uppercase tracking-wider mb-2">Use this audience</p>
+          <button
+            onClick={() => navigate('/charts')}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-xs text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <IconChartBar size={13} strokeWidth={2} className="shrink-0 text-blue-300" />
+            Benchmark audience
+          </button>
+          <button
+            onClick={() => navigate('/dashboards')}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-xs text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <IconLayoutDashboard size={13} strokeWidth={2} className="shrink-0 text-blue-300" />
+            Apply to a dashboard
+          </button>
+          <button
+            onClick={() => navigate('/chat', { state: { audienceName } })}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-xs text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <IconMessage size={13} strokeWidth={2} className="shrink-0 text-blue-300" />
+            Apply to Research AI
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -269,13 +430,11 @@ function parseQuery(query: string): FilterGroup {
   const cid = () => `ai-c-${Date.now()}-${n++}`
   const gid = () => `ai-g-${Date.now()}-${n++}`
 
-  // Gender
   if (/\b(women|female)\b/.test(q))
     items.push({ id: cid(), attribute: 'Gender', operator: 'in', value: ['Female'] })
   else if (/\b(men|male)\b/.test(q))
     items.push({ id: cid(), attribute: 'Gender', operator: 'in', value: ['Male'] })
 
-  // Age — broad 30-49 range first, then specific brackets
   if (/30.{0,4}49/.test(q))
     items.push({ id: cid(), attribute: 'Age (basic)', operator: 'in', value: ['30 - 39 years', '40 - 49 years'] })
   else if (/18.{0,4}29|gen.?z/.test(q))
@@ -289,32 +448,27 @@ function parseQuery(query: string): FilterGroup {
   else if (/millennial/.test(q))
     items.push({ id: cid(), attribute: 'Age (basic)', operator: 'in', value: ['30 - 39 years', '40 - 49 years'] })
 
-  // Income
   if (/\b(high.?income|wealthy|affluent|100k|150k)\b/.test(q))
     items.push({ id: cid(), attribute: 'Income bracket', operator: 'in', value: ['$100k–$150k', '$150k+'] })
   else if (/\bmiddle.?(income|class)\b/.test(q))
     items.push({ id: cid(), attribute: 'Income bracket', operator: 'in', value: ['$50k–$75k', '$75k–$100k'] })
 
-  // Shopping frequency + device: if "or" appears between them, nest as OR group
   const hasOr = /\bor\b/.test(q)
   const hasFreq = /\b(daily|weekly|frequent|often|regular)\b/.test(q)
   const hasDevice = /\b(mobile|smartphone|desktop|tablet)\b/.test(q)
 
   if (hasOr && hasFreq && hasDevice) {
     const orItems: FilterCondition[] = []
-
     if (/\b(daily|every day)\b/.test(q))
       orItems.push({ id: cid(), attribute: 'Purchase frequency', operator: 'in', value: ['Daily'] })
     else if (/\bweekly\b/.test(q))
       orItems.push({ id: cid(), attribute: 'Purchase frequency', operator: 'in', value: ['Daily', 'Weekly'] })
     else if (/\b(frequent|often|regular)\b/.test(q))
       orItems.push({ id: cid(), attribute: 'Purchase frequency', operator: 'in', value: ['Daily', 'Weekly', 'Bi-weekly'] })
-
     if (/\b(mobile|smartphone)\b/.test(q))
       orItems.push({ id: cid(), attribute: 'Device type', operator: 'in', value: ['Mobile'] })
     else if (/\bdesktop\b/.test(q))
       orItems.push({ id: cid(), attribute: 'Device type', operator: 'in', value: ['Desktop'] })
-
     if (orItems.length > 1)
       items.push({ id: gid(), operator: 'OR', conditions: orItems })
     else
@@ -326,7 +480,6 @@ function parseQuery(query: string): FilterGroup {
       items.push({ id: cid(), attribute: 'Purchase frequency', operator: 'in', value: ['Daily', 'Weekly'] })
     else if (/\b(frequent|often|regular)\b/.test(q))
       items.push({ id: cid(), attribute: 'Purchase frequency', operator: 'in', value: ['Daily', 'Weekly', 'Bi-weekly'] })
-
     if (/\b(mobile|smartphone)\b/.test(q))
       items.push({ id: cid(), attribute: 'Device type', operator: 'in', value: ['Mobile'] })
     else if (/\bdesktop\b/.test(q))
@@ -352,16 +505,13 @@ const KEYWORD_PATTERNS: Array<{ re: RegExp; cls: string }> = [
 function tokenise(text: string): HighlightToken[] {
   type Span = { start: number; end: number; cls: string }
   const spans: Span[] = []
-
   for (const { re, cls } of KEYWORD_PATTERNS) {
     const r = new RegExp(re.source, re.flags)
     let m: RegExpExecArray | null
     while ((m = r.exec(text)) !== null)
       spans.push({ start: m.index, end: m.index + m[0].length, cls })
   }
-
   spans.sort((a, b) => a.start - b.start)
-
   const tokens: HighlightToken[] = []
   let cursor = 0
   for (const { start, end, cls } of spans) {
@@ -385,10 +535,8 @@ function HighlightedInput({
   placeholder?: string
 }) {
   const tokens = tokenise(value)
-
   return (
-    <div className="relative flex-1 h-8 rounded-md border-0 bg-[#FDFDFD] shadow-[var(--field-shadow)] focus-within:shadow-[var(--field-shadow-focus)] transition-shadow">
-      {/* Highlight overlay */}
+    <div className="relative flex-1 h-8 rounded-md border border-white/20 bg-black/40 focus-within:border-white/40 transition-colors">
       <div
         aria-hidden
         className="absolute inset-0 flex items-center px-3 text-xs pointer-events-none overflow-hidden whitespace-pre select-none"
@@ -396,19 +544,18 @@ function HighlightedInput({
         {value
           ? tokens.map((t, i) =>
               t.cls
-                ? <mark key={i} className={cn('rounded px-0.5 bg-opacity-80', t.cls)} style={{ background: 'inherit' }}>{t.text}</mark>
-                : <span key={i}>{t.text}</span>
+                ? <mark key={i} className={cn('rounded px-0.5', t.cls)}>{t.text}</mark>
+                : <span key={i} className="text-white">{t.text}</span>
             )
-          : <span className="text-muted-foreground">{placeholder}</span>
+          : <span className="text-white/40">{placeholder}</span>
         }
       </div>
-      {/* Actual input — transparent text, visible caret */}
       <input
         value={value}
         onChange={e => onChange(e.target.value)}
         onKeyDown={onKeyDown}
-        className="absolute inset-0 w-full h-full px-3 text-xs bg-transparent text-transparent caret-gray-900 rounded-md focus:outline-none"
-        style={{ caretColor: 'var(--color-foreground)' }}
+        className="absolute inset-0 w-full h-full px-3 text-xs bg-transparent text-transparent caret-white rounded-md focus:outline-none"
+        style={{ caretColor: '#fff' }}
         spellCheck={false}
         autoComplete="off"
       />
@@ -433,34 +580,55 @@ function AIQueryInput({ onApply }: { onApply: (f: FilterGroup) => void }) {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-muted p-4 space-y-3">
-      <span className="text-xs font-semibold text-secondary-foreground">Describe your audience</span>
-      <div className="flex gap-2">
-        <HighlightedInput
-          value={query}
-          onChange={setQuery}
-          onKeyDown={e => { if (e.key === 'Enter') apply(query) }}
-          placeholder={AI_EXAMPLES[0]}
-        />
-        <Button
-          type="button"
-          size="sm"
-          className="h-8 text-xs px-3 shrink-0"
-          disabled={!query.trim()}
-          onClick={() => apply(query)}
-        >
-          Generate rules
-        </Button>
+    <div className="relative rounded-xl overflow-hidden" style={{ background: '#0452C8' }}>
+      {/* Halftone background */}
+      <div className="absolute inset-0 opacity-60 pointer-events-none">
+        <HalftoneIllustration />
       </div>
-      <div className="flex flex-wrap gap-1.5">
-        {AI_EXAMPLES.map(ex => (
-          <Chip
-            key={ex}
-            label={ex}
-            variant="suggestion"
-            onClick={() => { setQuery(ex); apply(ex) }}
+
+      {/* Content */}
+      <div className="relative z-10 p-4 flex flex-col gap-4">
+        {/* Title + description */}
+        <div>
+          <p className="text-sm font-semibold text-white">Generate from description</p>
+          <p className="text-xs text-white/60 mt-1 leading-relaxed">
+            Describe your audience in plain language — we'll generate the filter rules automatically.
+          </p>
+        </div>
+
+        {/* Input + button */}
+        <div className="flex gap-2">
+          <HighlightedInput
+            value={query}
+            onChange={setQuery}
+            onKeyDown={e => { if (e.key === 'Enter') apply(query) }}
+            placeholder={AI_EXAMPLES[0]}
           />
-        ))}
+          <Button
+            type="button"
+            size="sm"
+            className="h-8 text-xs px-3 shrink-0 bg-white text-[#0452C8] hover:bg-white/90 border-0"
+            disabled={!query.trim()}
+            onClick={() => apply(query)}
+          >
+            Generate rules
+          </Button>
+        </div>
+
+        {/* Examples */}
+        <div>
+          <p className="text-[10px] font-semibold text-white/50 uppercase tracking-wider mb-2">Examples</p>
+          <div className="flex flex-wrap gap-1.5">
+            {AI_EXAMPLES.map(ex => (
+              <Chip
+                key={ex}
+                label={ex}
+                variant="suggestion"
+                onClick={() => { setQuery(ex); apply(ex) }}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -472,16 +640,16 @@ export default function AudienceBuilderPage() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const location = useLocation()
-  const { audiences, add, update } = useAudienceStore()
+  const { audiences, add, update, remove } = useAudienceStore()
 
   const isEditing = Boolean(id)
   const existing = id ? audiences.find((a) => a.id === id) : null
   const prefill = (location.state as LocationState | null)?.prefill
 
-  const [name, setName]             = useState(existing?.name ?? prefill?.name ?? '')
+  const [name, setName]               = useState(existing?.name ?? prefill?.name ?? '')
   const [description, setDescription] = useState(existing?.description ?? prefill?.description ?? '')
-  const [region, setRegion]         = useState<string>(existing?.region ?? prefill?.region ?? 'us')
-  const [filters, setFilters]       = useState<FilterGroup>(
+  const [region, setRegion]           = useState<string>(existing?.region ?? prefill?.region ?? 'us')
+  const [filters, setFilters]         = useState<FilterGroup>(
     existing?.filters ?? (prefill?.filters as FilterGroup | undefined) ?? newGroup()
   )
   const [audienceSize, setAudienceSize] = useState(() => fakeAudienceSize())
@@ -490,6 +658,20 @@ export default function AudienceBuilderPage() {
 
   const [editingTitle, setEditingTitle] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
+
+  // Dirty tracking
+  const savedRef = useRef({
+    name: existing?.name ?? prefill?.name ?? '',
+    description: existing?.description ?? prefill?.description ?? '',
+    region: existing?.region ?? prefill?.region ?? 'us',
+    filters: JSON.stringify(existing?.filters ?? prefill?.filters ?? newGroup()),
+  })
+  const isDirty = !isEditing || (
+    name !== savedRef.current.name ||
+    description !== savedRef.current.description ||
+    region !== savedRef.current.region ||
+    JSON.stringify(filters) !== savedRef.current.filters
+  )
 
   function hasValidFilter(group: FilterGroup): boolean {
     return group.conditions.some(c =>
@@ -504,11 +686,19 @@ export default function AudienceBuilderPage() {
     const now = new Date().toISOString()
     if (isEditing && id) {
       update(id, { name, description, region, filters, updatedAt: now })
+      savedRef.current = { name, description, region, filters: JSON.stringify(filters) }
       toast.success('Audience updated')
     } else {
       add({ id: `aud-${Date.now()}`, name, description, region, filters, isShared: false, createdAt: now, updatedAt: now })
       toast.success('Audience created')
+      navigate('/audiences')
     }
+  }
+
+  function handleDelete() {
+    if (!isEditing || !id) return
+    remove(id)
+    toast.success('Audience deleted')
     navigate('/audiences')
   }
 
@@ -547,12 +737,18 @@ export default function AudienceBuilderPage() {
             </h1>
           )}
         </div>
-        <div className="flex flex-col items-end gap-1 shrink-0">
-          <Button onClick={handleSave} disabled={!canSave}>
-            {isEditing ? 'Save Changes' : 'Save Audience'}
-          </Button>
-          {name.trim() && !hasValidFilter(filters) && (
-            <p className="text-xs text-muted-foreground">Add at least one filter with a value</p>
+
+        <div className="flex items-center gap-2 shrink-0">
+          {isEditing && (
+            <Button variant="secondary" onClick={handleDelete}>
+              <IconTrash className="h-3.5 w-3.5" strokeWidth={2} />
+              Delete audience
+            </Button>
+          )}
+          {isDirty && (
+            <Button variant="secondary" onClick={handleSave} disabled={!canSave}>
+              {isEditing ? 'Save changes' : 'Save audience'}
+            </Button>
           )}
         </div>
       </div>
@@ -577,7 +773,7 @@ export default function AudienceBuilderPage() {
       <div className="h-px bg-border mb-8" />
 
       {/* AI input + Rules + Preview side by side */}
-      <div className="flex gap-6 items-start">
+      <div className="flex gap-6 items-stretch">
         <div className="flex-1 min-w-0 space-y-5">
           <AIQueryInput onApply={setFilters} />
           <div className="flex items-center gap-3">
@@ -588,7 +784,12 @@ export default function AudienceBuilderPage() {
           <GroupEditor group={filters} onChange={setFilters} />
         </div>
         <div className="w-72 shrink-0">
-          <PreviewCard size={audienceSize} />
+          <PreviewCard
+            size={audienceSize}
+            region={region}
+            filters={filters}
+            audienceName={name.trim() || 'New Audience'}
+          />
         </div>
       </div>
 
