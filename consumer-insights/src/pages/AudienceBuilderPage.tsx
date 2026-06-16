@@ -194,10 +194,12 @@ function PreviewCard({
 
   return (
     <div className="rounded-xl overflow-hidden bg-blue-950 flex flex-col h-full relative">
-      {/* World map dither */}
+      {/* Bayer dither */}
       <div className="absolute inset-0 pointer-events-none">
         <DitherCanvas />
       </div>
+      {/* Gradient scrim — clears text areas at top and bottom */}
+      <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-blue-950 via-transparent to-blue-950" />
 
       <div className="relative z-10 p-5 flex-1 flex flex-col min-h-0">
         {/* Title + description */}
