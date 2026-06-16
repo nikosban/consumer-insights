@@ -201,14 +201,14 @@ function PreviewCard({
   const isLow = size < LOW_THRESHOLD
 
   return (
-    <div className="rounded-2xl overflow-hidden bg-[#0452C8] flex flex-col h-full">
-      {/* Halftone header */}
-      <div className="h-32 shrink-0 overflow-hidden">
+    <div className="rounded-xl overflow-hidden bg-[#0452C8] flex flex-col h-full relative">
+      {/* Full-bleed halftone background */}
+      <div className="absolute inset-0 pointer-events-none">
         <HalftoneIllustration />
       </div>
 
       {/* Count + breakdown */}
-      <div className="p-4 flex-1 flex flex-col min-h-0">
+      <div className="relative z-10 p-5 flex-1 flex flex-col min-h-0">
         <p className="text-xs text-blue-200 mb-1">Estimated respondents</p>
         <p className="text-[28px] leading-[36px] font-semibold text-white tabular-nums">
           {formatAudienceSize(size)}
@@ -536,7 +536,7 @@ function HighlightedInput({
 }) {
   const tokens = tokenise(value)
   return (
-    <div className="relative flex-1 h-8 rounded-md border border-white/20 bg-black/40 focus-within:border-white/40 transition-colors">
+    <div className="relative flex-1 h-8 rounded-md border border-border bg-background focus-within:border-primary/50 transition-colors">
       <div
         aria-hidden
         className="absolute inset-0 flex items-center px-3 text-xs pointer-events-none overflow-hidden whitespace-pre select-none"
@@ -545,17 +545,16 @@ function HighlightedInput({
           ? tokens.map((t, i) =>
               t.cls
                 ? <mark key={i} className={cn('rounded px-0.5', t.cls)}>{t.text}</mark>
-                : <span key={i} className="text-white">{t.text}</span>
+                : <span key={i} className="text-foreground">{t.text}</span>
             )
-          : <span className="text-white/40">{placeholder}</span>
+          : <span className="text-muted-foreground">{placeholder}</span>
         }
       </div>
       <input
         value={value}
         onChange={e => onChange(e.target.value)}
         onKeyDown={onKeyDown}
-        className="absolute inset-0 w-full h-full px-3 text-xs bg-transparent text-transparent caret-white rounded-md focus:outline-none"
-        style={{ caretColor: '#fff' }}
+        className="absolute inset-0 w-full h-full px-3 text-xs bg-transparent text-transparent caret-foreground rounded-md focus:outline-none"
         spellCheck={false}
         autoComplete="off"
       />
@@ -580,54 +579,43 @@ function AIQueryInput({ onApply }: { onApply: (f: FilterGroup) => void }) {
   }
 
   return (
-    <div className="relative rounded-xl overflow-hidden" style={{ background: '#0452C8' }}>
-      {/* Halftone background */}
-      <div className="absolute inset-0 opacity-60 pointer-events-none">
-        <HalftoneIllustration />
+    <div className="space-y-3">
+      <div>
+        <p className="text-sm font-semibold text-foreground">Generate from description</p>
+        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+          Describe your audience in plain language — we'll generate the filter rules automatically.
+        </p>
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 p-4 flex flex-col gap-4">
-        {/* Title + description */}
-        <div>
-          <p className="text-sm font-semibold text-white">Generate from description</p>
-          <p className="text-xs text-white/60 mt-1 leading-relaxed">
-            Describe your audience in plain language — we'll generate the filter rules automatically.
-          </p>
-        </div>
+      <div className="flex gap-2">
+        <HighlightedInput
+          value={query}
+          onChange={setQuery}
+          onKeyDown={e => { if (e.key === 'Enter') apply(query) }}
+          placeholder={AI_EXAMPLES[0]}
+        />
+        <Button
+          type="button"
+          size="sm"
+          className="h-8 text-xs px-3 shrink-0"
+          disabled={!query.trim()}
+          onClick={() => apply(query)}
+        >
+          Generate rules
+        </Button>
+      </div>
 
-        {/* Input + button */}
-        <div className="flex gap-2">
-          <HighlightedInput
-            value={query}
-            onChange={setQuery}
-            onKeyDown={e => { if (e.key === 'Enter') apply(query) }}
-            placeholder={AI_EXAMPLES[0]}
-          />
-          <Button
-            type="button"
-            size="sm"
-            className="h-8 text-xs px-3 shrink-0 bg-white text-[#0452C8] hover:bg-white/90 border-0"
-            disabled={!query.trim()}
-            onClick={() => apply(query)}
-          >
-            Generate rules
-          </Button>
-        </div>
-
-        {/* Examples */}
-        <div>
-          <p className="text-[10px] font-semibold text-white/50 uppercase tracking-wider mb-2">Examples</p>
-          <div className="flex flex-wrap gap-1.5">
-            {AI_EXAMPLES.map(ex => (
-              <Chip
-                key={ex}
-                label={ex}
-                variant="suggestion"
-                onClick={() => { setQuery(ex); apply(ex) }}
-              />
-            ))}
-          </div>
+      <div>
+        <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider mb-2">Examples</p>
+        <div className="flex flex-wrap gap-1.5">
+          {AI_EXAMPLES.map(ex => (
+            <Chip
+              key={ex}
+              label={ex}
+              variant="suggestion"
+              onClick={() => { setQuery(ex); apply(ex) }}
+            />
+          ))}
         </div>
       </div>
     </div>
@@ -753,44 +741,46 @@ export default function AudienceBuilderPage() {
         </div>
       </div>
 
-      {/* Top fields */}
-      <div className="max-w-[560px] space-y-5 mb-8">
-        <FieldGroup label="Region">
-          <RegionPicker value={region} onChange={setRegion} />
-        </FieldGroup>
-        <FieldGroup label="Description">
-          <Textarea
-            id="aud-desc"
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            placeholder="Describe this audience segment…"
-            rows={2}
-            className="resize-none"
-          />
-        </FieldGroup>
-      </div>
+      {/* 2-column grid */}
+      <div className="grid grid-cols-[1fr_280px] gap-8 items-stretch">
+        {/* Left column */}
+        <div className="space-y-6 min-w-0">
+          <div className="space-y-5">
+            <FieldGroup label="Region">
+              <RegionPicker value={region} onChange={setRegion} />
+            </FieldGroup>
+            <FieldGroup label="Description">
+              <Textarea
+                id="aud-desc"
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                placeholder="Describe this audience segment…"
+                rows={2}
+                className="resize-none"
+              />
+            </FieldGroup>
+          </div>
 
-      <div className="h-px bg-border mb-8" />
+          <div className="h-px bg-border" />
 
-      {/* AI input + Rules + Preview side by side */}
-      <div className="flex gap-6 items-stretch">
-        <div className="flex-1 min-w-0 space-y-5">
           <AIQueryInput onApply={setFilters} />
+
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-border" />
             <span className="text-xs text-muted-foreground shrink-0">or build manually</span>
             <div className="flex-1 h-px bg-border" />
           </div>
+
           <GroupEditor group={filters} onChange={setFilters} />
         </div>
-        <div className="w-72 shrink-0">
-          <PreviewCard
-            size={audienceSize}
-            region={region}
-            filters={filters}
-            audienceName={name.trim() || 'New Audience'}
-          />
-        </div>
+
+        {/* Right column — preview card fills full height */}
+        <PreviewCard
+          size={audienceSize}
+          region={region}
+          filters={filters}
+          audienceName={name.trim() || 'New Audience'}
+        />
       </div>
 
     </div>
