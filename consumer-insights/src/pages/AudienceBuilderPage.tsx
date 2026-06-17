@@ -715,7 +715,7 @@ export default function AudienceBuilderPage() {
           </Button>
         )}
         {isDirty && (
-          <Button size="toolbar" onClick={handleSave} disabled={!canSave}>
+          <Button variant="secondary" size="toolbar" onClick={handleSave} disabled={!canSave}>
             {isEditing ? 'Save changes' : 'Save audience'}
           </Button>
         )}
