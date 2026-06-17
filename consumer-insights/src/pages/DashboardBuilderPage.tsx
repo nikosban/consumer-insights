@@ -40,7 +40,7 @@ import type { Audience } from '@/types'
 
 type TablerIcon = React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>
 import { cn } from '@/lib/utils'
-import { Chip, FieldGroup, SectionLabel } from '@/components/app'
+import { Chip, FieldGroup, SectionLabel, Breadcrumb, BreadcrumbItem } from '@/components/app'
 import { toast } from '@/components/ui/Toaster'
 import { useLayout } from '@/components/layout/LayoutContext'
 
@@ -1291,17 +1291,11 @@ export default function DashboardBuilderPage() {
         {/* ── Three-section toolbar ── */}
         <div className="h-14 flex items-center px-4 gap-4 border-b border-border shrink-0 bg-background">
 
-          {/* Left: breadcrumb (static — title is editable in the canvas below) */}
-          <div className="flex items-center gap-1 text-sm min-w-0 shrink-0">
-            <button
-              onClick={() => navigate('/dashboards')}
-              className="text-secondary-foreground hover:text-foreground transition-colors whitespace-nowrap"
-            >Dashboards</button>
-            <IconChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" strokeWidth={2} />
-            <span className="text-sm font-medium truncate max-w-40 text-foreground">
-              {name || 'Untitled Dashboard'}
-            </span>
-          </div>
+          {/* Left: breadcrumb */}
+          <Breadcrumb>
+            <BreadcrumbItem onClick={() => navigate('/dashboards')}>Dashboards</BreadcrumbItem>
+            <BreadcrumbItem current>{name || 'Untitled Dashboard'}</BreadcrumbItem>
+          </Breadcrumb>
 
           {/* Centre: context chips */}
           <div className="flex-1 flex items-center justify-center gap-2">

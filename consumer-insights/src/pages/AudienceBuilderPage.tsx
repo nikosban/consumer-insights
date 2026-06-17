@@ -4,7 +4,7 @@ import { useAudienceStore } from '@/store/audienceStore'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Chip, FieldGroup, SegmentedControl } from '@/components/app'
+import { Chip, FieldGroup, SegmentedControl, Toolbar, ToolbarActions, Breadcrumb, BreadcrumbItem } from '@/components/app'
 import {
   Select,
   SelectContent,
@@ -12,14 +12,13 @@ import {
   SelectTrigger,
 } from '@/components/ui/select'
 import {
-  IconArrowLeft, IconPlus, IconTrash,
+  IconPlus, IconTrash,
   IconAlertTriangle, IconChartBar, IconLayoutDashboard, IconMessage,
 } from '@tabler/icons-react'
 import { RegionPicker } from '@/components/RegionPicker'
 import { fakeAudienceSize, formatAudienceSize } from '@/data/chartGenerators'
 import type { FilterGroup, FilterCondition, Audience } from '@/types'
 import { ATTRIBUTE_OPTIONS } from '@/types'
-import { IconWrapper, ICON_SIZES } from '@/components/ui/IconWrapper'
 import { cn } from '@/lib/utils'
 import { AttributePicker } from '@/components/AttributePicker'
 import { ValuePicker } from '@/components/ValuePicker'
@@ -687,55 +686,44 @@ export default function AudienceBuilderPage() {
   }
 
   return (
+    <>
+    <Toolbar>
+      <Breadcrumb>
+        <BreadcrumbItem onClick={() => navigate('/audiences')}>Audiences</BreadcrumbItem>
+        {editingTitle ? (
+          <input
+            ref={titleInputRef}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onBlur={() => setEditingTitle(false)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') setEditingTitle(false) }}
+            placeholder="Audience name…"
+            className="text-sm font-medium text-foreground bg-transparent border-b border-primary outline-none min-w-0 max-w-48 placeholder:text-muted-foreground"
+            autoFocus
+          />
+        ) : (
+          <BreadcrumbItem current onClick={() => setEditingTitle(true)} className="cursor-text hover:opacity-70 transition-opacity">
+            {name.trim() || (isEditing ? 'Untitled' : 'New Audience')}
+          </BreadcrumbItem>
+        )}
+      </Breadcrumb>
+      <ToolbarActions>
+        {isEditing && (
+          <Button variant="secondary" size="toolbar" onClick={handleDelete}>
+            <IconTrash className="h-3.5 w-3.5" strokeWidth={2} />
+            Delete audience
+          </Button>
+        )}
+        {isDirty && (
+          <Button size="toolbar" onClick={handleSave} disabled={!canSave}>
+            {isEditing ? 'Save changes' : 'Save audience'}
+          </Button>
+        )}
+      </ToolbarActions>
+    </Toolbar>
+
     <div className="flex-1 overflow-y-auto">
     <div className="px-6 py-10 max-w-[960px] mx-auto pb-10">
-
-      {/* Header */}
-      <div className="flex items-center justify-between gap-3 mb-8">
-        <div className="flex items-center gap-3 min-w-0">
-          <button
-            onClick={() => navigate('/audiences')}
-            className="inline-flex items-center justify-center w-8 h-8 rounded border border-border bg-background text-muted-foreground hover:bg-accent hover:text-foreground transition-colors shrink-0"
-          >
-            <IconWrapper><IconArrowLeft size={ICON_SIZES.body} strokeWidth={2} /></IconWrapper>
-          </button>
-
-          {editingTitle ? (
-            <input
-              ref={titleInputRef}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              onBlur={() => setEditingTitle(false)}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') setEditingTitle(false) }}
-              placeholder="Audience name…"
-              className="text-[24px] leading-[36px] font-semibold text-foreground bg-transparent border-b-2 border-primary outline-none min-w-0 w-full placeholder:text-muted-foreground"
-              autoFocus
-            />
-          ) : (
-            <h1
-              onClick={() => setEditingTitle(true)}
-              title="Click to rename"
-              className="text-[24px] leading-[36px] font-semibold text-foreground cursor-text hover:opacity-70 transition-opacity truncate select-none"
-            >
-              {name.trim() || (isEditing ? 'Untitled' : 'New Audience')}
-            </h1>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          {isEditing && (
-            <Button variant="secondary" onClick={handleDelete}>
-              <IconTrash className="h-3.5 w-3.5" strokeWidth={2} />
-              Delete audience
-            </Button>
-          )}
-          {isDirty && (
-            <Button variant="secondary" onClick={handleSave} disabled={!canSave}>
-              {isEditing ? 'Save changes' : 'Save audience'}
-            </Button>
-          )}
-        </div>
-      </div>
 
       {/* 2-column grid */}
       <div className="grid grid-cols-[1fr_280px] gap-8 items-stretch">
@@ -781,5 +769,6 @@ export default function AudienceBuilderPage() {
 
     </div>
     </div>
+    </>
   )
 }

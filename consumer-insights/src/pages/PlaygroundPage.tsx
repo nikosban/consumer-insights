@@ -18,7 +18,7 @@ import { SelectField } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, Radio } from '@/components/ui/radio'
 import { Chip } from '@/components/app/Chip'
-import { Toolbar, ToolbarActions, ResourceCard, IconBtn } from '@/components/app'
+import { Toolbar, ToolbarActions, ResourceCard, IconBtn, Breadcrumb, BreadcrumbItem } from '@/components/app'
 import EmptyState from '@/components/EmptyState'
 import {
   IconPlus, IconDownload, IconTrash, IconCheck, IconArrowRight,
@@ -2329,6 +2329,23 @@ function LayoutPage() {
                   <IconPlus className="h-3.5 w-3.5" strokeWidth={2} />
                   New
                 </Button>
+              </ToolbarActions>
+            </Toolbar>
+          </div>
+
+          <p className="text-xs text-muted-foreground">Breadcrumb</p>
+          <div className="rounded-lg border border-border overflow-hidden">
+            <Toolbar>
+              <Breadcrumb>
+                <BreadcrumbItem onClick={() => {}}>Audiences</BreadcrumbItem>
+                <BreadcrumbItem current>Millennial Shoppers</BreadcrumbItem>
+              </Breadcrumb>
+              <ToolbarActions>
+                <Button variant="secondary" size="toolbar">
+                  <IconTrash className="h-3.5 w-3.5" strokeWidth={2} />
+                  Delete
+                </Button>
+                <Button size="toolbar">Save changes</Button>
               </ToolbarActions>
             </Toolbar>
           </div>
