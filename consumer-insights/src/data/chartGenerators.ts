@@ -315,10 +315,13 @@ function surveyTableData(metric?: string, category?: string): ChartData {
 // Extra aliases for RAW chart titles and variant strings not matching any question label exactly.
 // QUESTION_VALUES (derived from surveyData.ts) is the primary source of truth.
 const DIMENSION_ALIASES: Record<string, string[]> = {
-  // Survey details
+  // Survey details (RAW chart titles + catalog question labels)
   'Survey country':                        ['US', 'Germany', 'UK', 'France', 'Australia'],
+  'Survey country distribution':           ['US', 'Germany', 'UK', 'France', 'Australia'],
   'Survey year':                           ['2022', '2023', '2024', '2025', '2026'],
   'Survey wave':                           ['Q1', 'Q2', 'Q3', 'Q4'],
+  'Responses by survey wave':              ['Q1', 'Q2', 'Q3', 'Q4'],
+  'Internet usage over time':              ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
 
   // Demographics aliases (RAW chart title variants)
   'Gender split':                          ['Male', 'Female', 'Non-binary'],
