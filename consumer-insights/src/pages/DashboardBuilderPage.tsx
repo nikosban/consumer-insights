@@ -49,6 +49,11 @@ import { useLayout } from '@/components/layout/LayoutContext'
 type DashPeriod = { year: string; wave: string }
 
 const QUESTION_WIDGET_OVERRIDES: Record<string, Partial<Widget>> = {
+  'sq-gen-breakdown': { type: 'bar', metric: 'category_penetration', breakdown: 'Generational breakdown', title: 'Generational Breakdown' },
+  'sq-gen-z':         { type: 'pie', metric: 'category_penetration', breakdown: 'Gen Z profile',          title: 'Gen Z Profile'          },
+  'sq-millennial':    { type: 'pie', metric: 'category_penetration', breakdown: 'Millennial profile',     title: 'Millennial Profile'     },
+  'sq-gen-x':         { type: 'pie', metric: 'category_penetration', breakdown: 'Generation X profile',   title: 'Generation X Profile'   },
+  'sq-boomer':        { type: 'pie', metric: 'category_penetration', breakdown: 'Baby Boomer profile',    title: 'Baby Boomer Profile'    },
   'pop-ev':       { type: 'bar', metric: 'purchase_intent',       breakdown: 'EV Purchase Intent %',   title: 'EV Purchase Intent'        },
   'pop-cartype':  { type: 'pie', metric: 'category_penetration',  breakdown: 'Car ownership status',   title: 'Car Ownership Status'      },
   'pop-sustain':  { type: 'bar', metric: 'category_penetration',  breakdown: 'Settlement type',        title: 'Sustainability Interest'   },
