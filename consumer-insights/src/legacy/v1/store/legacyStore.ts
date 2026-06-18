@@ -23,10 +23,19 @@ interface TargetGroupSelection {
   item: string
 }
 
+interface SelectionGroup {
+  catId: string
+  catLabel: string
+  intraOp: 'AND' | 'OR'
+  interOp: 'AND' | 'OR'
+  items: TargetGroupSelection[]
+}
+
 interface TargetGroup {
   id: string
   name: string
   selections: TargetGroupSelection[]
+  selectionGroups?: SelectionGroup[]
 }
 
 interface LegacyState {
@@ -80,7 +89,7 @@ interface LegacyState {
   // Target group actions
   openTargetGroupModal: (id: 'create' | string) => void
   closeTargetGroupModal: () => void
-  saveTargetGroup: (draft: { id?: string; name: string; selections: TargetGroupSelection[] }) => void
+  saveTargetGroup: (draft: { id?: string; name: string; selections: TargetGroupSelection[]; selectionGroups?: SelectionGroup[] }) => void
   deleteTargetGroup: (id: string) => void
   applyFilterGroup: (id: string | null) => void
 }
@@ -178,11 +187,12 @@ export const useLegacyStore = create<LegacyState>()(
       openTargetGroupModal: (id) => set({ targetGroupModalId: id }),
       closeTargetGroupModal: () => set({ targetGroupModalId: null }),
       saveTargetGroup: (draft) => set(s => {
+        const patch = { name: draft.name, selections: draft.selections, selectionGroups: draft.selectionGroups }
         if (draft.id) {
-          return { targetGroups: s.targetGroups.map(g => g.id === draft.id ? { ...g, name: draft.name, selections: draft.selections } : g) }
+          return { targetGroups: s.targetGroups.map(g => g.id === draft.id ? { ...g, ...patch } : g) }
         }
-        const id = `tg-${Date.now()}`
-        return { targetGroups: [...s.targetGroups, { id, name: draft.name, selections: draft.selections }] }
+        const id = draft.id ?? `tg-${Date.now()}`
+        return { targetGroups: [...s.targetGroups, { id, ...patch }] }
       }),
       deleteTargetGroup: (id) => set(s => ({
         targetGroups: s.targetGroups.filter(g => g.id !== id),

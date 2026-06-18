@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useDeepLink } from './hooks/useDeepLink'
 import GlobalNavbar from './components/GlobalNavbar/GlobalNavbar'
 import Sidebar from './components/Sidebar/Sidebar'
 import ControlsPanel from './components/Controls/ControlsPanel'
@@ -11,6 +12,7 @@ import { useLegacyStore } from './store/legacyStore'
 import s from './App.module.css'
 
 export default function LegacyAppInner({ rootRef }) {
+  useDeepLink()
   const rowItems    = useLegacyStore(s => s.rowItems)
   const detailsName = useLegacyStore(s => s.detailsName)
   const isDragging  = useLegacyStore(s => s.isDragging)
