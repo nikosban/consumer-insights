@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { stagger, fadeUp } from '../variants'
 import { CTAPrimary, CTASecondary } from '../components/LandingCTA'
 import { LandingNav } from '../components/LandingNav'
 
 export function Hero() {
+  const navigate = useNavigate()
   return (
     <section className="relative bg-background overflow-hidden">
       <LandingNav />
@@ -58,7 +60,7 @@ export function Hero() {
                 →
               </span>
             </CTAPrimary>
-            <CTASecondary>
+            <CTASecondary onClick={() => navigate('/consumer_insights_v2/research-ai')}>
               Try the assistant
             </CTASecondary>
           </motion.div>

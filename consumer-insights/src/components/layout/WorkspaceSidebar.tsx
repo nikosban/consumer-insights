@@ -106,9 +106,7 @@ export default function WorkspaceSidebar() {
       <div className="h-14 flex items-center gap-1 px-3 border-b border-sidebar-border shrink-0">
         {!collapsed && (
           <a
-            href="https://statista-ci-lp.netlify.app/"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/"
             className="flex items-center flex-1 min-w-0 overflow-hidden"
           >
             <img
