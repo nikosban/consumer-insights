@@ -1,0 +1,101 @@
+/* ── Research AI full-page layout ── */
+.root {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  font-family: 'Open Sans', system-ui, sans-serif;
+}
+
+/* Main body — sidebar + content, fills remaining height */
+.body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Sidebar — absolute so it overlays without displacing content */
+.sidebarWrap {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  transition: width 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+/* Start page wrapper — fills body, transition matches sidebar */
+.startWrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  min-height: 0;
+  transition: padding-left 0.3s ease-in-out;
+}
+
+/* Chat content area */
+.contentArea {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  transition: padding-left 0.3s ease-in-out;
+  padding: 16px 16px 0;
+  align-items: flex-start;
+}
+
+/* Chat column */
+.chatCol {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.laneScroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+.laneScroll::-webkit-scrollbar { width: 6px; }
+.laneScroll::-webkit-scrollbar-track { background: transparent; }
+.laneScroll::-webkit-scrollbar-thumb { background: #c4c4c4; border-radius: 40px; }
+
+/* Prompt bar */
+.promptWrap {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.promptBar {
+  padding: 12px 24px 0;
+  max-width: 720px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.infoNote {
+  max-width: 720px;
+  width: 100%;
+  padding: 8px 24px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #7b94a3;
+  font-family: 'Open Sans', system-ui, sans-serif;
+  box-sizing: border-box;
+}

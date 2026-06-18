@@ -1,0 +1,241 @@
+/* ── Left Sidebar ── */
+.aside {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: white;
+  border-right: 1px solid #c4c4c4;
+  transition: width 0.3s ease-in-out;
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Mode switcher pill */
+.modeSwitcher {
+  display: flex;
+  align-items: center;
+  background: #eef0f3;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+  flex-shrink: 0;
+  margin-bottom: 4px;
+}
+
+.modeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 30px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0f2741;
+  white-space: nowrap;
+  transition: background 0.15s, box-shadow 0.15s, flex 0.2s;
+  background: transparent;
+}
+
+.modeBtnActive {
+  background: white;
+  box-shadow: 0 1px 3px rgba(15,39,65,0.12);
+  padding: 0 10px;
+  flex: 1;
+}
+
+.notifDot {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 1.5px solid white;
+  pointer-events: none;
+}
+
+/* Action row (new chat + collapse) */
+.actionRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.newChatBtn {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #455f7c;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.15s;
+}
+.newChatBtn:hover { background: #f5f8fb; }
+
+.collapseBtn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.collapseBtn:hover { background: rgba(0,85,170,0.06); }
+
+/* History scroll area */
+.historyList {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 8px;
+  padding-left: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.historyList::-webkit-scrollbar { width: 6px; }
+.historyList::-webkit-scrollbar-track { background: transparent; }
+.historyList::-webkit-scrollbar-thumb { background: #c4c4c4; border-radius: 40px; }
+.historyList::-webkit-scrollbar-thumb:hover { background: #a0aab4; }
+
+.historyGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.historyGroupLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: #8fa3b1;
+  padding: 8px 8px 4px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.historyItem {
+  text-align: left;
+  font-size: 14px;
+  color: #455f7c;
+  line-height: 22px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 3px 8px;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: system-ui, -apple-system, sans-serif;
+  transition: background 0.12s, color 0.12s;
+}
+.historyItem:hover { background: #f5f8fb; color: #0f2741; }
+
+/* Account footer */
+.footer {
+  flex-shrink: 0;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.accountBtn {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 8px 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  text-align: left;
+  width: 100%;
+  transition: background 0.15s;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+.accountBtn:hover { background: #f5f8fb; }
+
+.accountLabel {
+  font-size: 11px;
+  color: #455f7c;
+  line-height: 16px;
+}
+
+.accountName {
+  font-size: 16px;
+  color: #455f7c;
+  line-height: 24px;
+}
+
+/* Collapsed variant */
+.collapsedInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 16px 8px;
+}
+
+.collapsedTop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.collapsedBottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.iconBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.iconBtn:hover { background: #f5f8fb; }
