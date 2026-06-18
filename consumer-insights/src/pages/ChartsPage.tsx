@@ -705,6 +705,8 @@ export default function ChartsPage() {
   const [isDragOver, setIsDragOver] = useState(false)
 
   const { dashboards, add: addDashboard, updateLayout } = useDashboardStore()
+  const { audiences } = useAudienceStore()
+  const selectedAudienceName = audiences.find(a => a.id === audienceId)?.name
   const { add: addWidget, remove: removeWidget } = useWidgetStore()
 
   // Close dashboard popover on outside click
@@ -746,16 +748,20 @@ export default function ChartsPage() {
     const type = effectiveType
 
     const cat = selected.category
+    const audName = selectedAudienceName
+    const audSeed = audienceId || undefined
     // Benchmark chart uses static data for bar view — skip generation
     const baseData = selected.id === 'benchmark-ev-intent' && type === 'bar'
       ? selected.data
-      : generateChartData(type, false, crossAttrs[0] || undefined, `${selected.id}:${audienceId}`, undefined, undefined, cat)
+      : generateChartData(type, false, crossAttrs[0] || undefined, `${selected.id}:${audienceId}`, undefined, undefined, cat, audName, undefined, audSeed)
     const data = isCrossTab && crossAttrs.length > 1
       ? {
           ...baseData,
-          series: crossAttrs.flatMap(attr =>
-            generateChartData('table', false, attr, selected.id, undefined, undefined, cat).series
-          ),
+          series: crossAttrs.flatMap(attr => {
+            const colData = generateChartData('table', false, attr, selected.id, undefined, undefined, cat, audName, undefined, audSeed)
+            // Audience series only appears once (from first col attr); subsequent attrs contribute dimension series only
+            return colData.series.filter(s => !s.isAudience || attr === crossAttrs[0])
+          }),
         }
       : baseData
 

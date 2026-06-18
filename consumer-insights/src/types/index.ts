@@ -71,6 +71,7 @@ export type ChartSeries = {
   populations?: number[]; // in millions
   indexValues?: number[]; // index (100 = average)
   baseN?: number;         // group respondent base
+  isAudience?: boolean;   // true for the audience filter column
 };
 
 export type ChartData = {

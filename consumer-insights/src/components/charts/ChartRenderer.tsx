@@ -290,11 +290,14 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
                 )}
                 {data.series.map((s) => {
                   const isExp = expandedGroups.has(s.name)
+                  const audClass = s.isAudience
+                    ? 'bg-primary/8 text-primary border-primary/20'
+                    : ''
                   return (
                     <th
                       key={s.name}
                       colSpan={isExp ? colsPerGroup : 1}
-                      className={`${thBase} border-l border-border cursor-pointer hover:bg-muted/70 transition-colors select-none`}
+                      className={`${thBase} border-l border-border cursor-pointer hover:bg-muted/70 transition-colors select-none ${audClass}`}
                       onClick={() => toggleGroup(s.name)}
                     >
                       <span className="inline-flex items-center gap-1 justify-end">
@@ -373,6 +376,7 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
                           {rowData.series.map((s) => {
                             const isExp = expandedGroups.has(s.name)
                             const visibleCols = isExp ? dataSubCols : dataSubCols.filter(c => c.key === 'pctcol')
+                            const audCellClass = s.isAudience ? ' bg-primary/5' : ''
                             return (
                               <React.Fragment key={s.name}>
                                 {visibleCols.map((col, ci) => {
@@ -382,8 +386,10 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
                                   } else if (col.key === 'resp') {
                                     cellContent = <span className="text-secondary-foreground">{s.absolutes?.[i] ?? 0}</span>
                                   } else if (col.key === 'pctcol') {
-                                    cellContent = <span className="text-secondary-foreground">{s.values[i]}%</span>
-                                    if (heatmap) return (
+                                    cellContent = s.isAudience
+                                      ? <span className="font-medium text-primary">{s.values[i]}%</span>
+                                      : <span className="text-secondary-foreground">{s.values[i]}%</span>
+                                    if (heatmap && !s.isAudience) return (
                                       <td key={col.key} className={`${tdBase}${ci === 0 ? ' border-l border-border/40' : ''}`}
                                         style={{ background: heatmapBg(s.values[i]) }}>
                                         {cellContent}
@@ -402,7 +408,7 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
                                     )
                                   }
                                   return (
-                                    <td key={col.key} className={`${tdBase}${ci === 0 ? ' border-l border-border/40' : ''}`}>
+                                    <td key={col.key} className={`${tdBase}${ci === 0 ? ' border-l border-border/40' : ''}${audCellClass}`}>
                                       {cellContent}
                                     </td>
                                   )

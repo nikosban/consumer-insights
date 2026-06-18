@@ -416,7 +416,14 @@ export const DIMENSION_VALUES: Record<string, string[]> = {
 
 const POP_SCALE = 22500 // respondents-to-population multiplier (fake)
 
-function crosstableData(dimensionLabel: string, rowLabels?: string[], metric?: string, category?: string): ChartData {
+function crosstableData(
+  dimensionLabel: string,
+  rowLabels?: string[],
+  metric?: string,
+  category?: string,
+  audienceName?: string,
+  audienceSeed?: string,
+): ChartData {
   const answers: string[] = rowLabels ?? (category ? CATEGORY_LABELS[category] : undefined) ?? (metric ? METRIC_LABELS[metric] : undefined) ?? DEFAULT_SURVEY_LABELS.slice(0, 5)
   const dimensions = DIMENSION_VALUES[dimensionLabel] ?? ['Group A', 'Group B', 'Group C']
 
@@ -428,6 +435,7 @@ function crosstableData(dimensionLabel: string, rowLabels?: string[], metric?: s
 
   const groupPercents = dimensions.map(() => answers.map(() => rand(5, 45)))
 
+  // Market total — represents all respondents, used as the benchmark baseline
   const totalPercents = answers.map((_: string, ai: number) => {
     const weightedSum = groupPercents.reduce((sum: number, gp: number[], gi: number) => sum + gp[ai] * groupNs[gi], 0)
     return Math.round(weightedSum / TOTAL_N)
@@ -440,7 +448,7 @@ function crosstableData(dimensionLabel: string, rowLabels?: string[], metric?: s
       name: dim,
       values: percents,
       absolutes: percents.map((p: number) => Math.round((p * groupN) / 100)),
-      populations: percents.map((p: number) => Math.round((p * groupN * POP_SCALE) / 1e8) / 10), // millions, 1dp
+      populations: percents.map((p: number) => Math.round((p * groupN * POP_SCALE) / 1e8) / 10),
       indexValues: percents.map((p: number, ai: number) =>
         totalPercents[ai] > 0 ? Math.round((p / totalPercents[ai]) * 100) : 100
       ),
@@ -448,9 +456,35 @@ function crosstableData(dimensionLabel: string, rowLabels?: string[], metric?: s
     }
   })
 
+  // Audience column — over-indexes on first answers (high intent/positive),
+  // under-indexes on last answers (low intent/negative). Uses a separate RNG
+  // so it doesn't disrupt the main seeded sequence.
+  let audienceSeries = undefined
+  if (audienceName && audienceSeed) {
+    const audRng = mulberry32(hashString(audienceSeed + ':aud'))
+    const AUDIENCE_N = Math.round(TOTAL_N * 0.15) // ~1,290 respondents in this segment
+    const audiencePercents = totalPercents.map((mkt, i) => {
+      // Boost scales from +70% on answer[0] down to −20% on the last answer
+      const boostFactor = 1.7 - (i / Math.max(answers.length - 1, 1)) * 0.9
+      const noise = audRng() * 0.16 - 0.08 // ±8% noise
+      return Math.min(96, Math.max(3, Math.round(mkt * (boostFactor + noise))))
+    })
+    audienceSeries = {
+      name: audienceName,
+      values: audiencePercents,
+      absolutes: audiencePercents.map((p: number) => Math.round((p * AUDIENCE_N) / 100)),
+      populations: audiencePercents.map((p: number) => Math.round((p * AUDIENCE_N * POP_SCALE) / 1e8) / 10),
+      indexValues: audiencePercents.map((p: number, ai: number) =>
+        totalPercents[ai] > 0 ? Math.round((p / totalPercents[ai]) * 100) : 100
+      ),
+      baseN: AUDIENCE_N,
+      isAudience: true,
+    }
+  }
+
   return {
     labels: answers,
-    series,
+    series: audienceSeries ? [audienceSeries, ...series] : series,
     totalSeries: {
       values: totalPercents,
       absolutes: totalPercents.map((p: number) => Math.round((p * TOTAL_N) / 100)),
@@ -487,9 +521,10 @@ export function generateChartData(
   category?: string,
   audienceName?: string,
   benchmarkName?: string,
+  audienceSeed?: string,
 ): ChartData {
   seedRng(seed ? `${seed}:${type}:${crossDimensionLabel ?? ''}` : undefined)
-  if (type === 'table' && crossDimensionLabel) return crosstableData(crossDimensionLabel, undefined, metric, category)
+  if (type === 'table' && crossDimensionLabel) return crosstableData(crossDimensionLabel, undefined, metric, category, audienceName, audienceSeed)
   switch (type) {
     case 'bar':       return barData(hasBenchmark, breakdown, audienceName, benchmarkName)
     case 'line':      return lineData()
