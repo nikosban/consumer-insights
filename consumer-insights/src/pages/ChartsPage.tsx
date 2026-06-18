@@ -685,7 +685,7 @@ export default function ChartsPage() {
 
   // Chart config state — lifted here so both panel and centre share it
   const [activeType, setActiveType]       = useState<WidgetType>(benchmarkAudience ? 'bar' : 'table')
-  const [audienceId, setAudienceId]       = useState<string>('')
+  const [audienceId, setAudienceId]       = useState<string>(benchmarkAudience?.id ?? '')
   const [crossAttrs, setCrossAttrs]       = useState<string[]>([])
   const [crossTabConfig, setCrossTabConfig] = useState<CrossTabConfig>(DEFAULT_CROSSTAB_CONFIG)
   const [heatmap, setHeatmap] = useState(false)
@@ -726,9 +726,6 @@ export default function ChartsPage() {
     if (selected) {
       const isBenchmark = selected.id === 'benchmark-ev-intent'
       setActiveType(isBenchmark ? 'bar' : 'table')
-      // Benchmark chart embeds both audiences as series — no filter needed.
-      // Other charts show full-market data; user can add a filter manually.
-      setAudienceId('')
       setCrossAttrs([])
       setCrossTabConfig(DEFAULT_CROSSTAB_CONFIG)
       setExtraRows([])
