@@ -152,6 +152,7 @@
 }
 
 .navBtn:hover { background: rgba(255, 255, 255, 0.08); }
+a.navBtn { text-decoration: none; }
 
 .navLabel {
   font-size: 16px;

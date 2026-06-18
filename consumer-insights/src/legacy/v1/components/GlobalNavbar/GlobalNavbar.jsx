@@ -4,7 +4,7 @@ import s from './GlobalNavbar.module.css'
 const NAV_ITEMS = [
   { label: 'Statistics',   hasChevron: true  },
   { label: 'Insights',     hasChevron: true  },
-  { label: 'Research AI',  hasChevron: false },
+  { label: 'Research AI',  hasChevron: false, href: 'https://ci-mode-experiment.netlify.app/' },
   { label: 'Connect',      hasChevron: true, badge: 'New' },
   { label: 'Daily Data',   hasChevron: true  },
   { label: 'Services',     hasChevron: true  },
@@ -40,7 +40,12 @@ export default function GlobalNavbar({ userName = 'Nikolaos Banis' }) {
 
         <div className={s.bottom}>
           <nav className={s.navLeft}>
-            {NAV_ITEMS.map(item => (
+            {NAV_ITEMS.map(item => item.href ? (
+              <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer" className={s.navBtn}>
+                <span className={s.navLabel}>{item.label}</span>
+                {item.badge && <span className={s.badge}>{item.badge}</span>}
+              </a>
+            ) : (
               <button key={item.label} className={s.navBtn}>
                 <span className={s.navLabel}>{item.label}</span>
                 {item.badge && <span className={s.badge}>{item.badge}</span>}
