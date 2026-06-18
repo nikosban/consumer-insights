@@ -5,6 +5,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import WorkspaceSidebar from './WorkspaceSidebar'
 import { LayoutProvider, useLayout } from './LayoutContext'
 import { Toolbar } from '@/components/app'
+import VersionSwitcherFab from '@/components/app/VersionSwitcherFab'
 import { useDemoMode } from '@/demo/useDemoMode'
 import type { DemoModeHandle } from '@/demo/useDemoMode'
 import DemoOverlay from '@/demo/DemoOverlay'
@@ -82,6 +83,7 @@ export default function AppLayout() {
     <DemoContext.Provider value={demo}>
       <LayoutProvider>
         <AppShell />
+        <VersionSwitcherFab />
         <DemoOverlay demo={demo} />
       </LayoutProvider>
     </DemoContext.Provider>

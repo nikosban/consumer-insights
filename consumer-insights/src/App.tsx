@@ -8,6 +8,7 @@ import VersionSwitcherFab from '@/components/app/VersionSwitcherFab'
 function FabMount() {
   const { pathname } = useLocation()
   if (pathname === '/') return null
+  if (pathname.startsWith('/research-ai') || pathname.startsWith('/analyses') || pathname.startsWith('/audiences') || pathname.startsWith('/dashboards') || pathname.startsWith('/charts') || pathname.startsWith('/playground')) return null
   return <VersionSwitcherFab />
 }
 
