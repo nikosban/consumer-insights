@@ -91,15 +91,16 @@ function groupHistory(history: ChatHistoryEntry[]) {
   return { recent, older }
 }
 
-function HistoryRow({ entry, onSelect, hideDate }: { entry: ChatHistoryEntry; onSelect: (q: string) => void; hideDate?: boolean }) {
+function HistoryRow({ entry, onSelect, hideDate, isActive }: { entry: ChatHistoryEntry; onSelect: (q: string) => void; hideDate?: boolean; isActive?: boolean }) {
   const { removeHistory } = useAIStore()
   return (
-    <div className="flex items-center px-1 rounded-md transition-colors hover:bg-accent group">
+    <div className={`flex items-center px-1 rounded-md transition-colors group ${isActive ? 'bg-accent' : 'hover:bg-accent'}`}>
       <button
         onClick={() => onSelect(entry.firstMessage)}
         className="flex items-center gap-2 flex-1 min-w-0 text-left py-2 pl-2 pr-1"
       >
-        <span className="flex-1 truncate text-xs text-foreground">{entry.firstMessage}</span>
+        {isActive && <span className="shrink-0 w-1 h-1 rounded-full bg-primary" />}
+        <span className={`flex-1 truncate text-xs ${isActive ? 'text-foreground font-medium' : 'text-foreground'}`}>{entry.firstMessage}</span>
         {!hideDate && (
           <span className="shrink-0 text-xs text-muted-foreground tabular-nums group-hover:hidden">{formatDate(entry.createdAt)}</span>
         )}
@@ -115,12 +116,12 @@ function HistoryRow({ entry, onSelect, hideDate }: { entry: ChatHistoryEntry; on
   )
 }
 
-function HistoryGroup({ label, entries, onSelect, hideDate }: { label: string; entries: ChatHistoryEntry[]; onSelect: (q: string) => void; hideDate?: boolean }) {
+function HistoryGroup({ label, entries, onSelect, hideDate, activeId }: { label: string; entries: ChatHistoryEntry[]; onSelect: (q: string) => void; hideDate?: boolean; activeId?: string }) {
   if (entries.length === 0) return null
   return (
     <div className="mb-1">
       <p className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase">{label}</p>
-      {entries.map(entry => <HistoryRow key={entry.id} entry={entry} onSelect={onSelect} hideDate={hideDate} />)}
+      {entries.map(entry => <HistoryRow key={entry.id} entry={entry} onSelect={onSelect} hideDate={hideDate} isActive={entry.id === activeId} />)}
     </div>
   )
 }
@@ -141,7 +142,7 @@ function InlineHistory({ onSelect }: { onSelect: (q: string) => void }) {
 }
 
 /** Right sidebar shown during an active conversation */
-function ChatHistoryPanel({ onSelect, onNew }: { onSelect: (q: string) => void; onNew: () => void }) {
+function ChatHistoryPanel({ onSelect, onNew, activeId }: { onSelect: (q: string) => void; onNew: () => void; activeId?: string }) {
   const { history, clearHistory } = useAIStore()
   const { recent, older } = groupHistory(history)
   return (
@@ -168,8 +169,8 @@ function ChatHistoryPanel({ onSelect, onNew }: { onSelect: (q: string) => void; 
         </div>
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto py-2">
-        <HistoryGroup label="Recent" entries={recent} onSelect={onSelect} hideDate />
-        <HistoryGroup label="Older"  entries={older}  onSelect={onSelect} hideDate />
+        <HistoryGroup label="Recent" entries={recent} onSelect={onSelect} hideDate activeId={activeId} />
+        <HistoryGroup label="Older"  entries={older}  onSelect={onSelect} hideDate activeId={activeId} />
         {recent.length + older.length === 0 && (
           <p className="px-3 py-4 text-xs text-muted-foreground text-center">No chat history yet</p>
         )}
@@ -536,8 +537,9 @@ function StreamingSkeleton() {
 
 export default function ResearchAIPage() {
   const { setLeftPanel, setRightSidebar } = useLayout()
-  const { conversation, isStreaming, addMessage, updateLastAssistantMessage, setStreaming, reset, loadConversation } = useAIStore()
+  const { conversation, isStreaming, addMessage, updateLastAssistantMessage, setStreaming, reset, loadConversation, history } = useAIStore()
   const [input, setInput] = useState('')
+  const [activeEntryId, setActiveEntryId] = useState<string | undefined>(undefined)
   const scrollRef = useRef<HTMLDivElement>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const autoSubmittedRef = useRef(false)
@@ -546,6 +548,8 @@ export default function ResearchAIPage() {
   const isEmpty = conversation.messages.length === 0
 
   const handleSelect = useCallback((q: string) => {
+    const entry = history.find(e => e.firstMessage === q)
+    setActiveEntryId(entry?.id)
     const preset = PRESET_CONVERSATIONS[q]
     if (preset) {
       loadConversation(preset)
@@ -553,17 +557,17 @@ export default function ResearchAIPage() {
       reset()
       setInput(q)
     }
-  }, [loadConversation, reset])
+  }, [loadConversation, reset, history])
 
   useEffect(() => {
     setLeftPanel(null)
     if (!isEmpty) {
-      setRightSidebar(<ChatHistoryPanel onSelect={handleSelect} onNew={reset} />)
+      setRightSidebar(<ChatHistoryPanel onSelect={handleSelect} onNew={reset} activeId={activeEntryId} />)
     } else {
       setRightSidebar(null)
     }
     return () => { setLeftPanel(null); setRightSidebar(null) }
-  }, [isEmpty, handleSelect, reset, setLeftPanel, setRightSidebar])
+  }, [isEmpty, handleSelect, reset, setLeftPanel, setRightSidebar, activeEntryId])
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
