@@ -69,7 +69,7 @@ export function DataWidgetCard({ card }: { card: DataWidgetCardData }) {
   const delta = peakVal - avg
 
   return (
-    <div ref={cardRef} className="w-full rounded-2xl rounded-bl-sm border border-border bg-card shadow-sm overflow-hidden">
+    <div data-demo="chat-chart" ref={cardRef} className="w-full rounded-2xl rounded-bl-sm border border-border bg-card shadow-sm overflow-hidden">
       {/* Header */}
       <div className="px-4 pt-4 pb-3 border-b border-border">
         <div className="flex items-start justify-between gap-2">
@@ -123,8 +123,16 @@ export function DataWidgetCard({ card }: { card: DataWidgetCardData }) {
         <ChartRenderer widget={fakeWidget} data={card.chartData} height={220} />
       </div>
 
+      {/* Source */}
+      {card.source && (
+        <div data-demo="chat-sources" className="px-3 py-1.5 border-t border-border flex items-center gap-1">
+          <span className="text-[11px] text-muted-foreground">Source: </span>
+          <span className="text-[11px] font-medium text-secondary-foreground">{card.source}</span>
+        </div>
+      )}
+
       {/* Footer */}
-      <div className="px-3 py-2 border-t border-border flex items-center gap-1">
+      <div data-demo="chat-chart-toolbar" className="px-3 py-2 border-t border-border flex items-center gap-1">
         <VizSwitcher value={vizType} onChange={setVizType} />
         <button
           title="Export PNG"

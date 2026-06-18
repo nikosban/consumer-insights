@@ -252,7 +252,7 @@ function PreviewCard({
         </div>
 
         {/* Big count */}
-        <div className="mb-1">
+        <div className="mb-1" data-demo="builder-universe">
           <p className="text-xs font-medium text-white/75 mb-1">Estimated respondents</p>
           <p className="text-[32px] leading-[40px] font-semibold text-white tabular-nums">
             {formatAudienceSize(size)}
@@ -355,6 +355,7 @@ function GroupEditor({ group, onChange, depth = 0, onRemove }: GroupEditorProps)
           <div key={`sep-${index}`} className="flex items-center gap-2 ml-1">
             <button
               type="button"
+              data-demo="builder-logic"
               onClick={toggleOperator}
               className={cn(
                 'text-xs font-semibold px-2 py-0.5 rounded border transition-colors select-none',
@@ -766,7 +767,7 @@ export default function AudienceBuilderPage() {
           </Button>
         )}
         {isDirty && (
-          <Button variant="secondary" size="toolbar" onClick={handleSave} disabled={!canSave}>
+          <Button data-demo="builder-save" variant="secondary" size="toolbar" onClick={handleSave} disabled={!canSave}>
             {isEditing ? 'Save changes' : 'Save audience'}
           </Button>
         )}
@@ -781,9 +782,11 @@ export default function AudienceBuilderPage() {
         {/* Left column */}
         <div className="space-y-6 min-w-0">
           <div className="space-y-5">
+            <div data-demo="builder-region">
             <FieldGroup label="Region">
               <RegionPicker value={region} onChange={setRegion} />
             </FieldGroup>
+            </div>
             <FieldGroup label="Wave">
               <Select value={wave} onValueChange={(val) => val !== null && setWave(val)}>
                 <SelectTrigger className="h-8 text-xs">
@@ -799,6 +802,7 @@ export default function AudienceBuilderPage() {
             <FieldGroup label="Description">
               <Textarea
                 id="aud-desc"
+                data-demo="builder-input"
                 value={description}
                 onChange={e => setDescription(e.target.value)}
                 placeholder="Describe this audience segment…"

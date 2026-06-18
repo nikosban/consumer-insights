@@ -1317,7 +1317,7 @@ export default function DashboardBuilderPage() {
           {/* Right: actions */}
           <div className="flex items-center gap-2 shrink-0">
             {!isEditMode && (
-              <Button variant="outline" size="toolbar" onClick={() => setIsEditMode(true)}>
+              <Button data-demo="dashboard-edit" variant="outline" size="toolbar" onClick={() => setIsEditMode(true)}>
                 Edit
               </Button>
             )}
@@ -1336,13 +1336,13 @@ export default function DashboardBuilderPage() {
               </Button>
             )}
             {isEditMode ? (
-              <Button size="toolbar" onClick={() => setIsEditMode(false)}>
+              <Button data-demo="dashboard-done" size="toolbar" onClick={() => setIsEditMode(false)}>
                 Done
               </Button>
             ) : (
               <DropdownMenu>
                 <DropdownMenuTrigger>
-                  <Button variant="outline" size="toolbar">
+                  <Button data-demo="dashboard-export" variant="outline" size="toolbar">
                     Export
                   </Button>
                 </DropdownMenuTrigger>
@@ -1364,6 +1364,7 @@ export default function DashboardBuilderPage() {
         <div
           className={cn('flex-1 overflow-auto pb-4 transition-colors', isDragOver && isEditMode ? 'bg-primary/5' : 'bg-muted/20')}
           data-dashboard-canvas
+          data-demo="dashboard-grid"
           ref={canvasRef}
           onDragOver={isEditMode ? (e) => { e.preventDefault(); setIsDragOver(true) } : undefined}
           onDragLeave={isEditMode ? (e) => { if (!canvasRef.current?.contains(e.relatedTarget as Node)) setIsDragOver(false) } : undefined}
@@ -1449,6 +1450,7 @@ export default function DashboardBuilderPage() {
                   <div
                     key={pw.widgetId}
                     data-widget-id={pw.widgetId}
+                    data-demo="dashboard-widget"
                     onClick={(e) => { e.stopPropagation(); if (isEditMode) setSelectedWidgetId(pw.widgetId) }}
                     onDragEnter={isEditMode ? (e) => { e.preventDefault(); e.stopPropagation(); setDragOverWidgetId(pw.widgetId) } : undefined}
                     onDragOver={isEditMode ? (e) => { e.preventDefault(); e.stopPropagation() } : undefined}
@@ -1507,6 +1509,7 @@ export default function DashboardBuilderPage() {
                           <div className="relative flex items-center gap-2 px-4 py-3 shrink-0 border-b border-border/40">
                             {isEditMode && (
                               <span
+                                data-demo="dashboard-drag"
                                 className="drag-handle absolute left-1.5 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing text-muted-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                 onClick={(e) => e.stopPropagation()}
                               ><IconGripVertical className="h-4 w-4" strokeWidth={2} /></span>
@@ -1639,6 +1642,7 @@ export default function DashboardBuilderPage() {
                   <div className="flex items-center gap-3">
                     <div className="flex-1 h-px bg-border" />
                     <button
+                      data-demo="dashboard-ai"
                       onClick={() => setAiCardVisible(true)}
                       className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs text-muted-foreground hover:text-primary hover:bg-primary/5 border border-border hover:border-primary/30 transition-colors shrink-0"
                     >

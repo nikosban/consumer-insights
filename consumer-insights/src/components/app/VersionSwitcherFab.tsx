@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { IconSwitchHorizontal, IconCheck } from '@tabler/icons-react'
+import { IconSwitchHorizontal, IconCheck, IconPlayerPlay } from '@tabler/icons-react'
 import { VERSIONS, getActiveVersion, V3_VARIANT_KEY } from '@/config/versions'
+import { useDemoContext } from '@/components/layout/AppLayout'
 
 export default function VersionSwitcherFab() {
   const [open, setOpen]   = useState(false)
   const navigate          = useNavigate()
   const location          = useLocation()
   const ref               = useRef<HTMLDivElement>(null)
+  const demo              = useDemoContext()
 
   const activeVersion = getActiveVersion(location.pathname)
 
@@ -42,10 +44,24 @@ export default function VersionSwitcherFab() {
             overflow: 'hidden',
           }}
         >
-          <div style={{ padding: '0.5rem 0.75rem', borderBottom: '1px solid var(--border)' }}>
+          <div style={{ padding: '0.5rem 0.75rem', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               Version
             </span>
+            {demo && (
+              <button
+                onClick={() => { setOpen(false); demo.start() }}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 5,
+                  padding: '4px 10px', borderRadius: 6,
+                  background: 'var(--primary)', color: 'white',
+                  border: 'none', cursor: 'pointer', fontSize: '0.72rem', fontWeight: 600,
+                }}
+              >
+                <IconPlayerPlay size={11} stroke={2} />
+                Demo
+              </button>
+            )}
           </div>
           {VERSIONS.filter(v => !v.hidden).map((v, i) => {
             const isActive = activeVersion === v.id

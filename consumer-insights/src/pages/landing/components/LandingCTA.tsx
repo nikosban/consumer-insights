@@ -1,8 +1,7 @@
 import { cn } from '@/lib/utils'
 
-interface CTAProps {
+type CTAProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   children: React.ReactNode
-  onClick?: () => void
   className?: string
 }
 
@@ -10,10 +9,10 @@ interface CTAProps {
  * Primary landing CTA — dark fill, border beam, arrow slide.
  * Pill shape, beam rotates via @property --beam-angle + conic-gradient on ::before.
  */
-export function CTAPrimary({ children, onClick, className }: CTAProps) {
+export function CTAPrimary({ children, className, ...rest }: CTAProps) {
   return (
     <button
-      onClick={onClick}
+      {...rest}
       className={cn(
         'landing-cta-primary',
         'group relative inline-flex items-center gap-2 px-6 py-3 rounded-full',
@@ -33,10 +32,10 @@ export function CTAPrimary({ children, onClick, className }: CTAProps) {
 /**
  * Secondary landing CTA — outlined, border darkens on hover, arrow slide.
  */
-export function CTASecondary({ children, onClick, className }: CTAProps) {
+export function CTASecondary({ children, className, ...rest }: CTAProps) {
   return (
     <button
-      onClick={onClick}
+      {...rest}
       className={cn(
         'relative inline-flex items-center gap-2 px-6 py-3 rounded-full',
         'bg-transparent text-foreground text-sm font-medium border border-border',
