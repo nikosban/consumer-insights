@@ -58,10 +58,6 @@ const BREAKDOWN_LABELS: Record<string, string[]> = {
   'EV Purchase Intent %':         ['Very likely', 'Likely', 'Might', 'Comparing', 'Not interested'],
   'Settlement type':              ['Urban', 'Suburban', 'Rural'],
   'Generational breakdown':       ['Gen Z (18–27)', 'Millennials (28–43)', 'Gen X (44–59)', 'Baby Boomers (60–78)', 'Silent Gen (79+)'],
-  'Gen Z profile':                ['18–20', '21–23', '24–27'],
-  'Millennial profile':           ['28–32', '33–37', '38–43'],
-  'Generation X profile':         ['44–49', '50–54', '55–59'],
-  'Baby Boomer profile':          ['60–65', '66–71', '72–78'],
   'Country of residence (EV)':    ['Germany', 'France', 'United States'],
 }
 
@@ -319,6 +315,7 @@ export const DIMENSION_VALUES: Record<string, string[]> = {
   'Gender': ['Male', 'Female', 'Non-binary'],
   'Age distribution': ['18-24', '25-34', '35-44', '45-54', '55+'],
   'Country of residence': ['US', 'Germany', 'UK', 'France'],
+  'Generational breakdown': ['Gen Z (18–27)', 'Millennials (28–43)', 'Gen X (44–59)', 'Baby Boomers (60–78)'],
   'Country of residence (EV)': ['Germany', 'France', 'United States'],
   'Income bracket': ['<$25k', '$25-50k', '$50-100k', '$100k+'],
   'Smartphone type & OS': ['Android', 'iOS', 'Other'],
