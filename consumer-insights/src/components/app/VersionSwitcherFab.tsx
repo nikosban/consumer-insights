@@ -34,7 +34,7 @@ export default function VersionSwitcherFab() {
             position: 'absolute',
             bottom: 'calc(100% + 0.5rem)',
             right: 0,
-            width: '200px',
+            width: '320px',
             background: 'var(--card)',
             border: '1px solid var(--border)',
             borderRadius: 'var(--radius-lg)',
@@ -47,7 +47,7 @@ export default function VersionSwitcherFab() {
               Version
             </span>
           </div>
-          {VERSIONS.map(v => {
+          {VERSIONS.map((v, i) => {
             const isActive = activeVersion === v.id
             return (
               <button
@@ -55,32 +55,35 @@ export default function VersionSwitcherFab() {
                 onClick={() => { navigate(v.path); setOpen(false) }}
                 style={{
                   display: 'flex',
-                  alignItems: 'center',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
                   width: '100%',
-                  padding: '0.625rem 0.75rem',
-                  gap: '0.625rem',
+                  padding: '0.75rem',
+                  gap: '0.25rem',
                   background: isActive ? 'var(--accent)' : 'transparent',
                   border: 'none',
+                  borderTop: i > 0 ? '1px solid var(--border)' : 'none',
                   cursor: 'pointer',
                   textAlign: 'left',
                 }}
                 onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'var(--accent)' }}
                 onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'transparent' }}
               >
-                <span style={{
-                  minWidth: '2rem',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  color: isActive ? 'var(--foreground)' : 'var(--muted-foreground)',
-                }}>
-                  {v.label}
-                </span>
-                <span style={{ flex: 1, fontSize: '0.75rem', color: 'var(--secondary-foreground)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', width: '100%' }}>
+                  <span style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    color: isActive ? 'var(--foreground)' : 'var(--muted-foreground)',
+                  }}>
+                    {v.label}
+                  </span>
+                  {isActive && (
+                    <IconCheck size={12} stroke={2} style={{ color: 'var(--primary)', marginLeft: 'auto' }} />
+                  )}
+                </div>
+                <span style={{ fontSize: '0.75rem', color: 'var(--secondary-foreground)', lineHeight: 1.4 }}>
                   {v.description}
                 </span>
-                {isActive && (
-                  <IconCheck size={14} stroke={2} style={{ color: 'var(--primary)', flexShrink: 0 }} />
-                )}
               </button>
             )
           })}
