@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import logo from '../../assets/statista-consumer-insights-logo.svg'
 import s from './TopBar.module.css'
 
 const SURVEYS = [
@@ -28,9 +29,7 @@ export default function TopBar() {
     <header className={s.topbar}>
       <div className={s.left}>
         <a className={s.logo} href="#">
-          <span className={s.wordmark}>statista</span>
-          <span className={s.divider} />
-          <span className={s.product}>Consumer Insights</span>
+          <img src={logo} alt="Statista Consumer Insights" height="24" />
         </a>
         <div className={s.searchWrap}>
           <i className="ti ti-search" />

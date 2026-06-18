@@ -23,7 +23,8 @@ const AnalysesPage       = lazy(() => import('@/pages/AnalysesPage'))
 const AnalysisDetailPage = lazy(() => import('@/pages/AnalysisDetailPage'))
 const PlaygroundPage     = lazy(() => import('@/pages/PlaygroundPage'))
 const NotFoundPage       = lazy(() => import('@/pages/NotFoundPage'))
-const LegacyAppRoot      = lazy(() => import('@/legacy/LegacyAppRoot'))
+const LegacyAppRootV0    = lazy(() => import('@/legacy/v0/LegacyAppRoot'))
+const LegacyAppRootV1    = lazy(() => import('@/legacy/v1/LegacyAppRoot'))
 
 export default function App() {
   return (
@@ -48,7 +49,8 @@ export default function App() {
             <Route path="/playground" element={<PlaygroundPage />} />
           </Route>
           <Route path="/dashboards/:id/view" element={<DashboardViewPage />} />
-          <Route path="/consumer_insights_legacy" element={<LegacyAppRoot />} />
+          <Route path="/consumer_insights_v0" element={<LegacyAppRootV0 />} />
+          <Route path="/consumer_insights_v1" element={<LegacyAppRootV1 />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>

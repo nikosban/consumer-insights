@@ -4,7 +4,7 @@ import 'flag-icons/css/flag-icons.min.css'
 import './styles/globals.css'
 // @ts-ignore — JSX file without types
 import LegacyAppInner from './LegacyApp.jsx'
-import VersionSwitcherFab from '../components/app/VersionSwitcherFab'
+import VersionSwitcherFab from '../../components/app/VersionSwitcherFab'
 
 export default function LegacyAppRoot() {
   const rootRef = useRef<HTMLDivElement>(null)

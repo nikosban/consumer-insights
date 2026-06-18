@@ -1,0 +1,29 @@
+.legacy-root *, .legacy-root *::before, .legacy-root *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.legacy-root {
+  --color-surface:           #ffffff;
+  --color-surface-muted:     #f5f8fb;
+  --color-on-surface-strong: #0f2741;
+  --color-on-surface:        #455f7c;
+  --color-on-surface-muted:  #536979;
+  --color-outline:           #c4c4c4;
+  --color-primary:           #0666e5;
+  --color-primary-container: #e5f1ff;
+  --color-inverted:          #ffffff;
+  --color-disabled:          #7b94a3;
+
+  --font-sm:  12px;
+  --font-md:  14px;
+  --font-lg:  16px;
+  --lh-sm:    16px;
+  --lh-md:    20px;
+  --lh-lg:    24px;
+
+  height: 100%;
+  font-family: 'Open Sans', sans-serif;
+  font-size: var(--font-md);
+  color: var(--color-on-surface);
+  background: var(--color-surface);
+}
+
+.legacy-root.is-dragging * { user-select: none; }

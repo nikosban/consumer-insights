@@ -1,8 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { categories } from '../../data/sidebarData'
 import { useLegacyStore } from '../../store/legacyStore'
 import CatItem from './CatItem'
 import s from './Sidebar.module.css'
+
+const SURVEYS = [
+  'Global Survey',
+  'Digital Survey',
+  'Connected Consumer Survey',
+]
 
 let wasDragging = false
 
@@ -19,10 +25,49 @@ export default function Sidebar() {
 
   const [surveyDetailsOpen, setSurveyDetailsOpen] = useState(true)
   const [customGroupsOpen, setCustomGroupsOpen] = useState(true)
+  const [currentSurvey, setCurrentSurvey] = useState('Global Survey')
+  const [surveyOpen, setSurveyOpen] = useState(false)
+  const surveyRef = useRef(null)
+
+  useEffect(() => {
+    if (!surveyOpen) return
+    function handleClick(e) {
+      if (surveyRef.current && !surveyRef.current.contains(e.target)) setSurveyOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [surveyOpen])
 
   return (
     <aside className={s.sidebar}>
-      <div className={s.header}>Global Survey</div>
+      <div className={s.header} ref={surveyRef}>
+        <button
+          className={`${s.surveyTrigger} ${surveyOpen ? s.surveyTriggerOpen : ''}`}
+          onClick={() => setSurveyOpen(o => !o)}
+        >
+          {currentSurvey}
+          <i className="ti ti-chevron-down" />
+        </button>
+        {surveyOpen && (
+          <div className={s.surveyDropdown}>
+            {SURVEYS.map(sv => (
+              <div
+                key={sv}
+                className={`${s.surveyOption} ${sv === currentSurvey ? s.surveyOptionActive : ''}`}
+                onClick={() => { setCurrentSurvey(sv); setSurveyOpen(false) }}
+              >
+                {sv === currentSurvey && <i className="ti ti-check" style={{ fontSize: 14, color: 'var(--color-primary)' }} />}
+                {sv}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className={s.sidebarSearch}>
+        <i className="ti ti-search" />
+        <input className={s.sidebarSearchInput} type="text" placeholder="Search topics or brands…" />
+      </div>
 
       <div className={s.accordion} data-open={openAccordion === 'survey'}>
         <button className={s.accordionTrigger} onClick={() => setOpenAccordion('survey')}>
@@ -91,7 +136,17 @@ export default function Sidebar() {
             {customGroupsOpen && targetGroups.map(g => {
               const isApplied = appliedFilterGroupId === g.id
               return (
-                <div key={g.id} className={s.targetItem}>
+                <div
+                  key={g.id}
+                  className={s.targetItem}
+                  draggable
+                  onDragStart={e => {
+                    e.dataTransfer.setData('text/plain', JSON.stringify({ id: g.id, name: g.name, source: 'target-group' }))
+                    e.dataTransfer.effectAllowed = 'move'
+                    setIsDragging(true)
+                  }}
+                  onDragEnd={() => setIsDragging(false)}
+                >
                   <i className={`ti ti-grip-vertical ${s.dragHandle}`} />
                   <span className={s.dragLabel} title={g.name}>{g.name}</span>
                   <button

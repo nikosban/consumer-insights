@@ -1,0 +1,172 @@
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--color-surface);
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(15,39,65,0.08);
+  height: 44px;
+  padding: 0 0 0 8px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.drag {
+  color: var(--color-on-surface-muted);
+  font-size: 16px;
+  cursor: grab;
+  flex-shrink: 0;
+  margin-right: 4px;
+}
+
+.label {
+  flex: 1;
+  font-size: var(--font-md);
+  color: var(--color-on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 60px;
+  padding: 0 8px;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-left: 1px solid var(--color-outline);
+  background: transparent;
+  cursor: pointer;
+  color: var(--color-on-surface-muted);
+  font-size: 16px;
+  flex-shrink: 0;
+  transition: background 0.1s, color 0.1s;
+}
+.btn:hover   { background: var(--color-surface-muted); color: var(--color-on-surface); }
+.btnActive   { background: var(--color-primary-container); color: var(--color-primary); }
+
+/* Popover wrapper */
+.popoverWrap { position: relative; }
+
+/* Filter popover */
+.filterPopover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline);
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(15,39,65,0.12);
+  z-index: 300;
+  overflow: hidden;
+}
+
+.deselectAll {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-outline);
+  font-family: inherit;
+  font-size: var(--font-md);
+  color: var(--color-on-surface);
+  cursor: pointer;
+}
+.deselectAll:hover { background: var(--color-surface-muted); }
+
+.searchWrap {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--color-outline);
+  padding: 0 10px;
+  gap: 6px;
+}
+.searchInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: var(--font-md);
+  color: var(--color-on-surface);
+  background: transparent;
+  padding: 9px 0;
+}
+.searchIcon { color: var(--color-on-surface-muted); font-size: 16px; flex-shrink: 0; }
+.searchClear {
+  display: flex;
+  align-items: center;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-on-surface-muted);
+  font-size: 14px;
+  padding: 0;
+  flex-shrink: 0;
+}
+.searchClear:hover { color: var(--color-on-surface); }
+
+.answerList {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+.answerRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  cursor: pointer;
+  font-size: var(--font-md);
+  color: var(--color-on-surface);
+}
+.answerRow:hover { background: var(--color-surface-muted); }
+.answerCheck {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.noResults { display: block; padding: 10px 12px; font-size: var(--font-sm); color: var(--color-on-surface-muted); }
+
+/* Context menu */
+.contextMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: 200px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline);
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(15,39,65,0.12);
+  z-index: 300;
+  overflow: hidden;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 11px 14px;
+  border: none;
+  border-top: 1px solid var(--color-outline);
+  background: none;
+  font-family: inherit;
+  font-size: var(--font-md);
+  color: var(--color-on-surface);
+  cursor: pointer;
+  text-align: left;
+  gap: 8px;
+}
+.menuItem:first-child { border-top: none; }
+.menuItem:hover { background: var(--color-surface-muted); }
+.menuItem :global(.ti) { color: var(--color-on-surface-muted); font-size: 16px; flex-shrink: 0; }
+.menuItemMuted { color: var(--color-on-surface-muted); }

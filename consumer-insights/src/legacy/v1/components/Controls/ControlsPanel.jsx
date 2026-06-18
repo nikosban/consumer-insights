@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { IconLayoutBottombarCollapseFilled, IconLayoutBottombarExpandFilled } from '@tabler/icons-react'
 import { countries } from '../../data/countries'
 import { years } from '../../data/sidebarData'
 import { getCardData } from '../../data/cardData'
@@ -99,13 +100,41 @@ export default function ControlsPanel() {
 
   const colEnabled = rowItems.length > 0
 
+  const displayPanelRef = useRef(null)
+  useEffect(() => {
+    if (!displayOptionsOpen) return
+    function handleClick(e) {
+      if (displayPanelRef.current && !displayPanelRef.current.contains(e.target)) {
+        toggleDisplayOptionsOpen()
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [displayOptionsOpen, toggleDisplayOptionsOpen])
+
+  const [filterDragOver, setFilterDragOver] = useState(false)
+
+  function handleFilterDragOver(e) {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    setFilterDragOver(true)
+  }
+
+  function handleFilterDrop(e) {
+    e.preventDefault()
+    setFilterDragOver(false)
+    try {
+      const { id, source } = JSON.parse(e.dataTransfer.getData('text/plain'))
+      if (source === 'target-group' && id) applyFilterGroup(id)
+    } catch (_) {}
+  }
+
   return (
     <section className={`${s.controls} ${isDragging ? s.dragging : ''}`}>
       <div className={s.controlsBar}>
         <div className={s.filters}>
           <Dropdown
             id="country"
-            label="Country / Territory"
             value={<><span className={`fi ${selectedCountry.flag}`} /> {selectedCountry.name.length > 16 ? selectedCountry.name.slice(0, 14) + '…' : selectedCountry.name}</>}
             open={openDropdown === 'country'}
             onToggle={setOpenDropdown}
@@ -119,7 +148,6 @@ export default function ControlsPanel() {
 
           <Dropdown
             id="year"
-            label="Year"
             value={selectedYear}
             open={openDropdown === 'year'}
             onToggle={setOpenDropdown}
@@ -131,16 +159,16 @@ export default function ControlsPanel() {
             ))}
           </Dropdown>
 
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative' }} ref={displayPanelRef}>
             <button
-              className={`${s.iconBtn} ${displayOptionsOpen ? s.iconBtnOpen : ''}`}
+              className={`${s.customizeBtn} ${displayOptionsOpen ? s.customizeBtnOpen : ''}`}
               onClick={toggleDisplayOptionsOpen}
-              data-display-opts
             >
               <i className="ti ti-adjustments-horizontal" />
+              Customize View
             </button>
             {displayOptionsOpen && (
-              <div className={s.displayPanel} data-display-opts>
+              <div className={s.displayPanel}>
                 <div className={s.dopTitle}>CUSTOMIZE DATA VIEW</div>
                 <div className={s.dopSubtitle}>Your selection applies to all tables.</div>
                 {[
@@ -170,7 +198,15 @@ export default function ControlsPanel() {
         </div>
 
         <div className={s.actions}>
-          <Dropdown id="download" value="Download" open={openDropdown === 'download'} onToggle={setOpenDropdown} alignRight>
+          <button className={s.btnOutline} onClick={toggleSelectionHidden}>
+            {selectionHidden
+              ? <IconLayoutBottombarExpandFilled size={16} />
+              : <IconLayoutBottombarCollapseFilled size={16} />
+            }
+            <span>{selectionHidden ? 'Show Setup' : 'Hide Setup'}</span>
+          </button>
+
+          <Dropdown id="download" value="Download" open={openDropdown === 'download'} onToggle={setOpenDropdown} alignRight primary>
             <DropdownItem onClick={() => setOpenDropdown(null)}>
               <div><div className={s.itemTitle}>CSV-Export</div><div className={s.itemSub}>Download .csv-file</div></div>
             </DropdownItem>
@@ -178,11 +214,6 @@ export default function ControlsPanel() {
               <div><div className={s.itemTitle}>PPTX-Export</div><div className={s.itemSub}>Download .pptx-file</div></div>
             </DropdownItem>
           </Dropdown>
-
-          <button className={s.btnOutline} onClick={toggleSelectionHidden}>
-            <span>{selectionHidden ? 'Show selection' : 'Hide selection'}</span>
-            <i className={`ti ${selectionHidden ? 'ti-eye' : 'ti-eye-off'}`} />
-          </button>
         </div>
       </div>
 
@@ -195,7 +226,12 @@ export default function ControlsPanel() {
               <p className={s.dropLabel}>COLUMNS</p>
               <Zone zone="col" items={colItems} enabled={colEnabled} />
             </div>
-            <div className={`${s.dropZone} ${s.filterZone}`}>
+            <div
+              className={`${s.dropZone} ${s.filterZone} ${isDragging ? s.dropZoneActive : ''} ${filterDragOver ? s.zoneOver : ''}`}
+              onDragOver={handleFilterDragOver}
+              onDragLeave={() => setFilterDragOver(false)}
+              onDrop={handleFilterDrop}
+            >
               <p className={s.dropLabel}>FILTER</p>
               {appliedFilterGroup ? (
                 <div className={s.appliedFilter}>

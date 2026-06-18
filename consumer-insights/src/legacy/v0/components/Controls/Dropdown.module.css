@@ -40,8 +40,8 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: var(--font-sm);
-  line-height: var(--lh-sm);
+  font-size: var(--font-md);
+  line-height: var(--lh-md);
   color: var(--color-on-surface);
   white-space: nowrap;
   overflow: hidden;

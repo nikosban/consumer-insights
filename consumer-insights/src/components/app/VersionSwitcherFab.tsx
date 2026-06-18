@@ -1,11 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { IconSwitchHorizontal, IconCheck } from '@tabler/icons-react'
-
-const VERSIONS = [
-  { id: 'v0', label: 'V0', description: 'Current product', path: '/consumer_insights_legacy' },
-  { id: 'v4', label: 'V4', description: 'Feature preview', path: '/charts' },
-]
+import { VERSIONS, getActiveVersion } from '@/config/versions'
 
 export default function VersionSwitcherFab() {
   const [open, setOpen]   = useState(false)
@@ -13,7 +9,7 @@ export default function VersionSwitcherFab() {
   const location          = useLocation()
   const ref               = useRef<HTMLDivElement>(null)
 
-  const activeVersion = location.pathname.startsWith('/consumer_insights_legacy') ? 'v0' : 'v4'
+  const activeVersion = getActiveVersion(location.pathname)
 
   useEffect(() => {
     function handleOutside(e: MouseEvent) {
