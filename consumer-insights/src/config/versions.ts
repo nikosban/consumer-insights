@@ -6,10 +6,10 @@ export interface AppVersion {
 }
 
 export const VERSIONS: AppVersion[] = [
-  { id: 'v0', label: 'V0', description: 'Legacy baseline',  path: '/consumer_insights_v0' },
-  { id: 'v1', label: 'V1', description: 'Stable',           path: '/consumer_insights_v1' },
-  { id: 'v2', label: 'V2', description: 'Current',          path: '/consumer_insights_v2' },
-  { id: 'v3', label: 'V3', description: 'Feature preview',  path: '/charts' },
+  { id: 'v0', label: 'V0', description: 'Current Consumer Insights', path: '/consumer_insights_v0' },
+  { id: 'v1', label: 'V1', description: 'First application, connect to Research AI, uplift current major issues (Statistical and analytical flows), a more focused user interface', path: '/consumer_insights_v1' },
+  { id: 'v2', label: 'V2', description: 'Second iteration, expanding feature set and enchancing the user flow', path: '/consumer_insights_v2' },
+  { id: 'v3', label: 'V3', description: 'North Star, Integrated AI, Dashboards, Analysis and Export, Dedicated Target Group Builder', path: '/charts' },
 ]
 
 export function getActiveVersion(pathname: string): string {
