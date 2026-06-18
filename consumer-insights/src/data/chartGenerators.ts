@@ -1,4 +1,5 @@
 import type { ChartData, WidgetType } from '@/types';
+import { QUESTION_VALUES } from '@/data/surveyData';
 
 // ─── Audience size ────────────────────────────────────────────────────────────
 
@@ -311,170 +312,103 @@ function surveyTableData(metric?: string, category?: string): ChartData {
   return { labels, series: [{ name: 'Percent', values: percents }] }
 }
 
-export const DIMENSION_VALUES: Record<string, string[]> = {
-  // ── Characteristics & demographics ──
-  'Gender':                                ['Male', 'Female', 'Non-binary'],
+// Extra aliases for RAW chart titles and variant strings not matching any question label exactly.
+// QUESTION_VALUES (derived from surveyData.ts) is the primary source of truth.
+const DIMENSION_ALIASES: Record<string, string[]> = {
+  // Survey details
+  'Survey country':                        ['US', 'Germany', 'UK', 'France', 'Australia'],
+  'Survey year':                           ['2022', '2023', '2024', '2025', '2026'],
+  'Survey wave':                           ['Q1', 'Q2', 'Q3', 'Q4'],
+
+  // Demographics aliases (RAW chart title variants)
   'Gender split':                          ['Male', 'Female', 'Non-binary'],
   'Age distribution':                      ['18-24', '25-34', '35-44', '45-54', '55+'],
-  'Detailed age groups':                   ['18-20', '21-24', '25-29', '30-34', '35-39', '40-44', '45-54', '55-64', '65+'],
-  'Generational breakdown':                ['Gen Z (18–27)', 'Millennials (28–43)', 'Gen X (44–59)', 'Baby Boomers (60–78)'],
-  'Country of residence':                  ['US', 'Germany', 'UK', 'France'],
-  'Country of residence (EV)':             ['Germany', 'France', 'United States'],
   'Income distribution':                   ['<$25k', '$25–50k', '$50–75k', '$75–100k', '$100k+'],
-  'Income bracket':                        ['<$25k', '$25-50k', '$50-100k', '$100k+'],
   'Income bracket distribution':           ['<$25k', '$25–50k', '$50–75k', '$75–100k', '$100k+'],
-  'Education level':                       ['No formal', 'Secondary', 'Bachelor\'s', 'Postgraduate'],
-  'Employment status':                     ['Employed full-time', 'Employed part-time', 'Self-employed', 'Student', 'Retired', 'Unemployed'],
-  'Household size':                        ['1 person', '2 people', '3–4 people', '5+ people'],
   'Household size distribution':           ['1 person', '2 people', '3–4 people', '5+ people'],
 
-  // ── AI & smart technology ──
-  'AI awareness & usage':                  ['Heavy user', 'Occasional user', 'Aware but non-user', 'Unaware'],
-  'AI assistant adoption':                 ['Daily', 'Weekly', 'Monthly', 'Never'],
-  'AI assistant usage':                    ['Daily', 'Weekly', 'Monthly', 'Never'],
-  'Smart home device ownership':           ['Own 3+', 'Own 1–2', 'None'],
-  'Attitudes towards AI':                  ['Enthusiastic', 'Cautious optimist', 'Sceptical', 'Opposed'],
-  'Generative AI familiarity':             ['Expert', 'Regular user', 'Tried it', 'Heard of it', 'Unaware'],
+  // Country aliases
+  'Country of residence':                  ['US', 'Germany', 'UK', 'France'],
+  'Country of residence (EV)':             ['Germany', 'France', 'United States'],
 
-  // ── Consumer electronics ──
-  'Attitudes towards consumer electronics':['Very positive', 'Positive', 'Neutral', 'Negative'],
-  'Consumer electronics ownership':        ['5+ devices', '3–4 devices', '1–2 devices', 'None'],
-  'Computing and personal tech ownership': ['5+ devices', '3–4 devices', '1–2 devices', 'None'],
-  'Consumer electronics usage':            ['Daily', 'Several times a week', 'Weekly', 'Rarely'],
+  // AI
+  'AI assistant adoption':                 ['Daily', 'Weekly', 'Monthly', 'Never'],
+
+  // Consumer electronics extras
   'Device type breakdown':                 ['Smartphone', 'Laptop', 'Desktop', 'Tablet', 'Smart TV'],
   'Streaming device ownership':            ['Smart TV', 'Game console', 'Streaming stick', 'Smartphone/tablet', 'None'],
 
-  // ── Fashion ──
-  'Clothing & footwear spend':             ['<$50/mo', '$50–100/mo', '$100–200/mo', '$200+/mo'],
+  // Fashion extras
   'Clothing spend by age group':           ['18-24', '25-34', '35-44', '45-54', '55+'],
-  'Fashion interest & engagement':         ['Very interested', 'Somewhat interested', 'Neutral', 'Not interested'],
   'Fashion interest over time':            ['Growing', 'Stable', 'Declining'],
-  'Sustainable fashion attitudes':         ['Active buyer', 'Interested but passive', 'Indifferent', 'Sceptical'],
   'Sustainable fashion interest':          ['Very interested', 'Interested', 'Neutral', 'Not interested'],
-  'Fashion purchase channels':             ['Online only', 'Mostly online', 'Mostly in-store', 'In-store only'],
-  'Fashion brand awareness':               ['Aware of 10+', 'Aware of 5–9', 'Aware of 1–4', 'None'],
 
-  // ── Finance ──
-  'Investment behaviour':                  ['Active investor', 'Passive investor', 'Savings only', 'No investments'],
-  'Payment methods used':                  ['Card (credit/debit)', 'Digital wallet', 'Bank transfer', 'Cash'],
+  // Finance extras
   'Preferred payment methods':             ['Card (credit/debit)', 'Digital wallet', 'Bank transfer', 'Cash'],
-  'Banking & fintech usage':               ['Digital-first', 'Traditional bank', 'Mixed', 'Unbanked'],
-  'Crypto & digital asset awareness':      ['Owner', 'Interested', 'Aware but uninterested', 'Unaware'],
-  'Financial wellbeing':                   ['Comfortable', 'Managing', 'Struggling', 'In difficulty'],
+  'Payment method':                        ['Card (credit/debit)', 'Digital wallet', 'Bank transfer', 'Cash'],
 
-  // ── Food & consumption ──
-  'Food & beverage spend':                 ['<$200/mo', '$200–400/mo', '$400–600/mo', '$600+/mo'],
+  // Food extras
   'Monthly food spend':                    ['<$200/mo', '$200–400/mo', '$400–600/mo', '$600+/mo'],
-  'Organic food preference':               ['Always organic', 'Often organic', 'Sometimes', 'Never'],
-  'Restaurant & dining frequency':         ['Daily', 'Several times/week', 'Weekly', 'Monthly', 'Rarely'],
   'Restaurant visit frequency':            ['Daily', 'Several times/week', 'Weekly', 'Monthly', 'Rarely'],
-  'Food delivery usage':                   ['Weekly+', '2–3×/month', 'Monthly', 'Rarely', 'Never'],
-  'Dietary habits & restrictions':         ['Omnivore', 'Flexitarian', 'Vegetarian', 'Vegan', 'Other'],
 
-  // ── Health ──
-  'Health insurance type':                 ['Private', 'Public / state', 'Employer-provided', 'None'],
-  'Fitness activity level':                ['Daily', 'Several times/week', 'Weekly', 'Rarely', 'Never'],
+  // Health extras
   'Fitness activity frequency':            ['Daily', 'Several times/week', 'Weekly', 'Rarely', 'Never'],
-  'Health consciousness':                  ['Very', 'Somewhat', 'Neutral', 'Not very'],
   'Health consciousness level':            ['Very', 'Somewhat', 'Neutral', 'Not very'],
-  'Mental health awareness':               ['High awareness', 'Moderate', 'Low', 'Not engaged'],
-  'Supplement & vitamin usage':            ['Daily', 'Occasionally', 'Rarely', 'Never'],
 
-  // ── Housing & household equipment ──
-  'Housing type':                          ['House', 'Apartment', 'Condo', 'Other'],
+  // Housing extras
   'Housing type breakdown':                ['House', 'Apartment', 'Condo', 'Other'],
-  'Home ownership status':                 ['Own outright', 'Mortgaged', 'Renting', 'Other'],
-  'Household appliance ownership':         ['High-end (5+)', 'Mid-range (3–4)', 'Basic (1–2)', 'Minimal'],
-  'Home renovation intent':                ['Planning soon', 'Considering', 'No plans'],
 
-  // ── Insurance ──
-  'Attitudes towards insurances':          ['Proactive', 'Reactive', 'Indifferent', 'Avoidant'],
-  'Insurances owned by type':              ['Health', 'Car', 'Home', 'Life', 'Travel'],
+  // Insurance extras
   'Insurance types owned':                 ['Health', 'Car', 'Home', 'Life', 'Travel'],
-  'Insurance owner status':               ['Owner', 'Non-owner'],
   'Insurance ownership rate':              ['Owner', 'Non-owner'],
 
-  // ── Internet & smartphone ──
-  'Internet usage frequency':              ['Always on', 'Several hrs/day', '1–2 hrs/day', 'Occasionally'],
-  'Smartphone type & OS':                  ['Android', 'iOS', 'Other'],
+  // Internet extras
   'Smartphone OS distribution':            ['Android', 'iOS', 'Other'],
-  'Mobile data usage':                     ['Heavy (10GB+)', 'Moderate (5–10GB)', 'Light (<5GB)', 'Wi-Fi only'],
   'Mobile data usage by age':              ['18-24', '25-34', '35-44', '45-54', '55+'],
-  'Online activities':                     ['Shopping', 'Social media', 'News', 'Entertainment', 'Work'],
 
-  // ── Media & news ──
-  'News consumption habits':               ['Several times/day', 'Daily', 'Few times/week', 'Rarely'],
+  // Media extras
   'News consumption frequency':            ['Several times/day', 'Daily', 'Few times/week', 'Rarely'],
-  'Streaming subscriptions':               ['4+', '2–3', '1', 'None'],
   'Streaming subscription share':          ['4+', '2–3', '1', 'None'],
-  'Daily media time spent':                ['<1 hr', '1–2 hrs', '2–4 hrs', '4+ hrs'],
-  'Podcast listening habits':              ['Daily', 'Weekly', 'Occasionally', 'Never'],
 
-  // ── Mobility ──
-  'Primary transport mode':                ['Car', 'Public transit', 'Bicycle', 'Other'],
-  'Car ownership status':                  ['Own (ICE)', 'Own (EV/Hybrid)', 'Lease', 'No car'],
-  'Electric vehicle interest':             ['Very likely to buy', 'Likely', 'Undecided', 'Unlikely', 'Won\'t buy'],
-  'EV purchase intent':                    ['Very likely', 'Likely', 'Undecided', 'Unlikely', 'Won\'t buy'],
+  // Mobility extras
+  'EV purchase intent':                    ['Very likely', 'Likely', 'Undecided', 'Unlikely', "Won't buy"],
   'Sustainability interest':               ['Very interested', 'Interested', 'Neutral', 'Not interested'],
-  'Public transit usage':                  ['Daily', 'Several times/week', 'Occasionally', 'Never'],
   'Settlement type':                       ['Urban', 'Suburban', 'Rural'],
   'Travel frequency distribution':         ['6+ trips/yr', '3–5 trips/yr', '1–2 trips/yr', 'None'],
 
-  // ── Online shopping ──
-  'Online shopping spend':                 ['<$50/mo', '$50–150/mo', '$150–300/mo', '$300+/mo'],
+  // Online shopping extras
   'Monthly online spend':                  ['<$50/mo', '$50–150/mo', '$150–300/mo', '$300+/mo'],
-  'Purchase frequency':                    ['Daily', 'Weekly', '2–3×/month', 'Monthly', 'Rarely'],
-  'Preferred retailer':                    ['Amazon', 'Specialist e-tailer', 'Brand direct', 'Marketplace', 'In-store'],
-  'Returns behaviour':                     ['Frequent returner', 'Occasional', 'Rarely returns'],
 
-  // ── Personal care ──
-  'Personal care spend':                   ['<$30/mo', '$30–60/mo', '$60–100/mo', '$100+/mo'],
+  // Personal care extras
   'Personal care monthly spend':           ['<$30/mo', '$30–60/mo', '$60–100/mo', '$100+/mo'],
-  'Grooming frequency':                    ['Daily', 'Several times/week', 'Weekly', 'Less often'],
-  'Beauty brand usage':                    ['Luxury', 'Mid-range', 'Drug store / mass', 'No preference'],
 
-  // ── Print media & ePublishing ──
-  'Print media readership':                ['Daily', 'Weekly', 'Monthly', 'Never'],
-  'eBook & digital reading usage':         ['Heavy reader', 'Occasional', 'Rarely', 'Never'],
+  // Print media extras
   'eBook usage rate':                      ['Heavy reader', 'Occasional', 'Rarely', 'Never'],
-  'Magazine subscriptions':               ['3+', '1–2', 'None'],
 
-  // ── Retail shopping ──
-  'Retail shopping spend':                 ['<$100/mo', '$100–200/mo', '$200–400/mo', '$400+/mo'],
+  // Retail extras
   'Monthly retail spend':                  ['<$100/mo', '$100–200/mo', '$200–400/mo', '$400+/mo'],
-  'Store preference (online vs. in-store)':['Online only', 'Mostly online', 'Mixed', 'Mostly in-store', 'In-store only'],
   'Preferred store type':                  ['Online only', 'Mostly online', 'Mixed', 'Mostly in-store', 'In-store only'],
-  'Loyalty programme usage':               ['Active member 3+', 'Active member 1–2', 'Inactive member', 'Non-member'],
   'Loyalty programme membership':          ['Active member 3+', 'Active member 1–2', 'Inactive member', 'Non-member'],
 
-  // ── Services & eServices ──
-  'Service subscriptions':                 ['5+', '3–4', '1–2', 'None'],
+  // Services extras
   'Service subscriptions held':            ['5+', '3–4', '1–2', 'None'],
-  'Digital services usage':                ['Daily', 'Several times/week', 'Weekly', 'Rarely'],
-  'Gig economy & freelance usage':         ['Regular user', 'Occasional', 'Rarely', 'Never'],
 
-  // ── Social media & marketing ──
-  'Social media platforms used':           ['Facebook', 'Instagram', 'TikTok', 'YouTube'],
-  'Daily social media time':               ['<30 min', '30 min–1 hr', '1–2 hrs', '2–4 hrs', '4+ hrs'],
-  'Influencer engagement':                 ['Regular buyer', 'Occasional', 'Follower only', 'Not influenced'],
+  // Social media extras
   'Influencer engagement rate':            ['Regular buyer', 'Occasional', 'Follower only', 'Not influenced'],
-  'Attitudes towards advertising':         ['Receptive', 'Neutral', 'Ad-avoidant', 'Ad-blocker user'],
 
-  // ── Travel ──
-  'Annual trip frequency':                 ['6+ trips', '3–5 trips', '1–2 trips', 'None'],
+  // Travel extras
   'Annual trips taken':                    ['6+ trips', '3–5 trips', '1–2 trips', 'None'],
-  'Travel budget':                         ['<$1k', '$1–3k', '$3–6k', '$6k+'],
   'Travel budget distribution':            ['<$1k', '$1–3k', '$3–6k', '$6k+'],
-  'Accommodation preference':              ['Hotel', 'Vacation rental', 'Hostel', 'Staying with friends/family'],
-  'Travel planning channels':              ['Online OTA', 'Direct booking', 'Travel agent', 'App'],
 
-  // ── Video games ──
-  'Gaming frequency':                      ['Daily', 'Several times/week', 'Weekly', 'Rarely', 'Never'],
-  'Gaming platform':                       ['PC', 'Console', 'Mobile'],
+  // Gaming extras
   'Gaming platform split':                 ['PC', 'Console', 'Mobile'],
-  'Gaming spend':                          ['<$10/mo', '$10–30/mo', '$30–60/mo', '$60+/mo'],
   'Monthly gaming spend':                  ['<$10/mo', '$10–30/mo', '$30–60/mo', '$60+/mo'],
-  'Esports & streaming viewership':        ['Weekly+', 'Monthly', 'Occasionally', 'Never'],
+}
+
+// Merged map: question-catalog values take precedence, aliases fill in the rest.
+export const DIMENSION_VALUES: Record<string, string[]> = {
+  ...DIMENSION_ALIASES,
+  ...QUESTION_VALUES,
 }
 
 const POP_SCALE = 22500 // respondents-to-population multiplier (fake)
