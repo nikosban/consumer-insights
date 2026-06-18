@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useLayout } from '@/components/layout/LayoutContext'
 import { ATTRIBUTE_GROUPS, DEFAULT_CROSSTAB_CONFIG } from '@/types'
 import type { Widget, ChartData, WidgetType, CrossTabConfig } from '@/types'
@@ -8,6 +9,7 @@ import { useAudienceStore } from '@/store/audienceStore'
 import { useDashboardStore } from '@/store/dashboardStore'
 import { useWidgetStore } from '@/store/widgetStore'
 import { Chip, FieldGroup, SectionLabel, Toolbar, ToolbarActions } from '@/components/app'
+import { toast } from '@/components/ui/Toaster'
 import { Button } from '@/components/ui/button'
 import { IconX, IconChartBar, IconTrendingUp, IconChartPie, IconTable, IconHash, IconChevronRight, IconChevronDown, IconLayoutDashboard, IconBookmarkPlus, IconCheck, IconShare, IconTrash } from '@tabler/icons-react'
 
@@ -94,6 +96,40 @@ const CHART_LIBRARY: LibraryChart[] = RAW.map((item, i) => {
   return { id, title: item.t, category: item.c, type: item.ty, widget, data }
 })
 
+// Pre-built benchmark chart injected when arriving from Audience Builder
+const EV_BENCHMARK_CHART: LibraryChart = {
+  id: 'benchmark-ev-intent',
+  title: 'EV Purchase Intent by Audience Segment',
+  category: 'Mobility',
+  type: 'bar',
+  widget: {
+    id: 'benchmark-ev-intent',
+    type: 'bar',
+    title: 'EV Purchase Intent by Audience Segment',
+    breakdown: 'EV Purchase Intent %',
+    audienceId: 'aud-ev',
+    metric: 'purchase_intent',
+    createdAt: '',
+  },
+  data: {
+    labels: ['Urban Tech Professionals', 'Eco-Conscious Families', 'Green Premium Buyers', 'DE/FR/US Market avg'],
+    series: [
+      {
+        name: 'EV Purchase Intent %',
+        values: [62, 38, 34, 18],
+      },
+    ],
+  },
+}
+
+// Charts surfaced at the top of the sidebar for the EV demo flow
+const SUGGESTED_CHART_IDS = [
+  'benchmark-ev-intent',
+  'lib-32', // Primary transport mode (Mobility pie)
+  'lib-33', // Car ownership status (Mobility pie)
+  'lib-34', // Travel frequency distribution (Mobility bar)
+]
+
 // ─── Chart type meta ──────────────────────────────────────────────────────────
 
 const CHART_TYPES: { type: WidgetType; label: string; Icon: TablerIcon }[] = [
@@ -124,6 +160,7 @@ function ChartSidebar({
   const [openCategories, setOpenCategories] = useState<Set<string>>(
     () => new Set(ATTRIBUTE_GROUPS.map(g => g.label))
   )
+  const [suggestedOpen, setSuggestedOpen] = useState(true)
   const [savedOpen, setSavedOpen] = useState(true)
   const [search, setSearch] = useState('')
   const isResizing = useRef(false)
@@ -191,6 +228,45 @@ function ChartSidebar({
 
       {/* Tree */}
       <nav className="flex-1 overflow-y-auto py-2">
+        {/* Suggested section */}
+        {!search.trim() && (() => {
+          const suggestedCharts = SUGGESTED_CHART_IDS
+            .map(id => id === 'benchmark-ev-intent' ? EV_BENCHMARK_CHART : CHART_LIBRARY.find(c => c.id === id))
+            .filter((c): c is LibraryChart => Boolean(c))
+          return (
+            <div className="mb-1">
+              <button
+                onClick={() => setSuggestedOpen(o => !o)}
+                className="flex items-center gap-1.5 w-full px-3 py-1.5 text-xs text-sidebar-foreground hover:bg-white/70 transition-colors"
+              >
+                {suggestedOpen
+                  ? <IconChevronDown size={11} className="shrink-0 text-muted-foreground" strokeWidth={2} />
+                  : <IconChevronRight size={11} className="shrink-0 text-muted-foreground" strokeWidth={2} />
+                }
+                <span className="truncate font-medium">Suggested</span>
+              </button>
+              {suggestedOpen && suggestedCharts.map(chart => (
+                <button
+                  key={chart.id}
+                  draggable
+                  onDragStart={e => { e.dataTransfer.setData('text/plain', chart.title); e.dataTransfer.effectAllowed = 'copy' }}
+                  onClick={() => onSelect(chart)}
+                  className={cn(
+                    'flex items-center gap-2 w-full text-left pl-7 pr-3 py-1.5 text-xs rounded-md mx-1 transition-colors cursor-grab active:cursor-grabbing',
+                    selected?.id === chart.id
+                      ? 'bg-primary/8 text-primary font-semibold'
+                      : 'text-sidebar-foreground hover:bg-white/70',
+                  )}
+                  style={{ width: 'calc(100% - 8px)' }}
+                >
+                  <span className="truncate">{chart.title}</span>
+                </button>
+              ))}
+              <div className="mx-3 my-1 border-t border-border" />
+            </div>
+          )
+        })()}
+
         {/* Saved charts section */}
         {savedCharts.length > 0 && (
           <div className="mb-1">
@@ -596,11 +672,16 @@ function SaveDialog({
 
 export default function ChartsPage() {
   const { setLeftPanel } = useLayout()
-  const [selected, setSelected] = useState<LibraryChart | null>(null)
+  const location = useLocation()
+  const navigate = useNavigate()
+  const benchmarkAudience = (location.state as { benchmarkAudience?: { name: string } } | null)?.benchmarkAudience
+  const [selected, setSelected] = useState<LibraryChart | null>(
+    benchmarkAudience ? EV_BENCHMARK_CHART : null
+  )
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT)
 
   // Chart config state — lifted here so both panel and centre share it
-  const [activeType, setActiveType]       = useState<WidgetType>('table')
+  const [activeType, setActiveType]       = useState<WidgetType>(benchmarkAudience ? 'bar' : 'table')
   const [audienceId, setAudienceId]       = useState<string>('')
   const [crossAttrs, setCrossAttrs]       = useState<string[]>([])
   const [crossTabConfig, setCrossTabConfig] = useState<CrossTabConfig>(DEFAULT_CROSSTAB_CONFIG)
@@ -640,9 +721,10 @@ export default function ChartsPage() {
   // Reset chart config when selection changes — always default to table view
   useEffect(() => {
     if (selected) {
-      setActiveType('table')
-      setAudienceId('')
-      setCrossAttrs([])
+      const isBenchmark = selected.id === 'benchmark-ev-intent'
+      setActiveType(isBenchmark ? 'bar' : 'table')
+      setAudienceId(isBenchmark ? 'aud-ev' : '')
+      setCrossAttrs(isBenchmark ? ['Country of residence', 'Age distribution'] : [])
       setCrossTabConfig(DEFAULT_CROSSTAB_CONFIG)
       setExtraRows([])
       setHeatmap(false)
@@ -662,8 +744,10 @@ export default function ChartsPage() {
     const type = effectiveType
 
     const cat = selected.category
-    // Merge series from all cross-tab dimensions so every added column is visible
-    const baseData = generateChartData(type, false, crossAttrs[0] || undefined, `${selected.id}:${audienceId}`, undefined, undefined, cat)
+    // Benchmark chart uses static data for bar view — skip generation
+    const baseData = selected.id === 'benchmark-ev-intent' && type === 'bar'
+      ? selected.data
+      : generateChartData(type, false, crossAttrs[0] || undefined, `${selected.id}:${audienceId}`, undefined, undefined, cat)
     const data = isCrossTab && crossAttrs.length > 1
       ? {
           ...baseData,
@@ -705,11 +789,15 @@ export default function ChartsPage() {
     const existing = dash.widgets
     const newDashWidget = {
       widgetId: newId,
-      position: { x: (existing.length % 2) * 6, y: Math.floor(existing.length / 2) * 4, w: 6, h: 4 },
+      position: { x: (existing.length % 2) * 6, y: Math.floor(existing.length / 2) * 7, w: 6, h: 7 },
     }
     updateLayout(dashId, [...existing, newDashWidget])
     setAddedDash(dashId)
     setTimeout(() => { setAddedDash(null); setDashMenuOpen(false) }, 1200)
+    toast.success(`Added to "${dash.name}"`, {
+      label: 'Go to dashboard →',
+      onClick: () => navigate(`/dashboards/${dashId}`),
+    })
   }
 
   function handleAddToNewDashboard(dashName: string) {
@@ -726,6 +814,10 @@ export default function ChartsPage() {
     })
     setAddedDash(dashId)
     setTimeout(() => { setAddedDash(null); setDashMenuOpen(false) }, 1200)
+    toast.success(`Dashboard "${dashName}" created`, {
+      label: 'Go to dashboard →',
+      onClick: () => navigate(`/dashboards/${dashId}`),
+    })
   }
 
   function handleSaveConfirm(name: string) {

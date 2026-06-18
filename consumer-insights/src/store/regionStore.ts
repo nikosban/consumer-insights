@@ -28,6 +28,7 @@ const BUILT_IN: Region[] = [
   { id: 'dach',           name: 'DACH',            countries: ['Germany'],                                                                  isBuiltIn: true },
   { id: 'nordics',        name: 'Nordics',         countries: ['Sweden'],                                                                   isBuiltIn: true },
   { id: 'apac',           name: 'APAC',            countries: ['Australia', 'Japan', 'South Korea'],                                        isBuiltIn: true },
+  { id: 'de-fr-us',       name: 'DE · FR · US',    countries: ['Germany', 'France', 'United States'],                                       isBuiltIn: true },
   { id: 'latam',          name: 'LATAM',           countries: ['Brazil', 'Mexico'],                                                         isBuiltIn: true },
 ]
 

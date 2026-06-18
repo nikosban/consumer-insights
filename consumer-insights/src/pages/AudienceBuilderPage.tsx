@@ -276,7 +276,7 @@ function PreviewCard({
         <div className="mt-4 pt-3 border-t border-white/15 space-y-0.5">
           <p className="text-xs font-semibold text-white/60 mb-2">Use this audience</p>
           <Button variant="ghost-inverse" size="sm" className="w-full justify-start"
-            onClick={() => navigate('/charts')}>
+            onClick={() => navigate('/charts', { state: { benchmarkAudience: { name: audienceName } } })}>
             <IconChartBar strokeWidth={2} />
             Benchmark audience
           </Button>
@@ -496,10 +496,19 @@ function parseQuery(query: string): FilterGroup {
   else if (/millennial/.test(q))
     items.push({ id: cid(), attribute: 'Age (basic)', operator: 'in', value: ['30 - 39 years', '40 - 49 years'] })
 
-  if (/\b(high.?income|wealthy|affluent|100k|150k)\b/.test(q))
+  if (/\b(high.?income|wealthy|affluent|100k|150k|top.?income|top.?bracket)\b/.test(q))
     items.push({ id: cid(), attribute: 'Income bracket', operator: 'in', value: ['$100k–$150k', '$150k+'] })
   else if (/\bmiddle.?(income|class)\b/.test(q))
     items.push({ id: cid(), attribute: 'Income bracket', operator: 'in', value: ['$50k–$75k', '$75k–$100k'] })
+
+  if (/\b(ev|electric.?vehicle|electric.?car|automotive|ev.?interest)\b/.test(q))
+    items.push({ id: cid(), attribute: 'Interest', operator: 'in', value: ['Automotive / Electric Vehicles'] })
+
+  if (/\b(eco.?conscious|sustainability|sustainable|green|eco.?friendly)\b/.test(q))
+    items.push({ id: cid(), attribute: 'Interest', operator: 'in', value: ['Sustainability / Environment'] })
+
+  if (/\b(early.?adopt|tech.?savvy|technophile|innovator)\b/.test(q))
+    items.push({ id: cid(), attribute: 'Psychographic', operator: 'in', value: ['Early Adopter'] })
 
   const hasOr = /\bor\b/.test(q)
   const hasFreq = /\b(daily|weekly|frequent|often|regular)\b/.test(q)
@@ -613,9 +622,9 @@ function HighlightedInput({
 // ─── AI query input ───────────────────────────────────────────────────────────
 
 const AI_EXAMPLES = [
-  'Women aged 30–39 who shop online weekly',
-  'High-income homeowners aged 40–49',
-  'Affluent women aged 30–49, daily shoppers or mobile users',
+  'High-income men aged 25–40 with EV interest',
+  'Gen Z early adopters with sustainability values',
+  'Eco-conscious, top income bracket, aged 18–30',
 ]
 
 function AIQueryInput({ onApply }: { onApply: (f: FilterGroup) => void }) {
@@ -814,7 +823,19 @@ export default function AudienceBuilderPage() {
 
           <div className="h-px bg-border" />
 
-          <AIQueryInput onApply={setFilters} />
+          <AIQueryInput onApply={(generated) => {
+            setFilters(prev => {
+              const existingAttrs = new Set(
+                prev.conditions.flatMap(c =>
+                  'attribute' in c ? [c.attribute] : (c as { conditions: { attribute: string }[] }).conditions.map(x => x.attribute)
+                )
+              )
+              const fresh = generated.conditions.filter(c =>
+                'attribute' in c ? !existingAttrs.has((c as { attribute: string }).attribute) : true
+              )
+              return { ...prev, conditions: [...prev.conditions, ...fresh] }
+            })
+          }} />
 
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-border" />

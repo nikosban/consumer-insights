@@ -52,12 +52,18 @@ const BREAKDOWN_LABELS: Record<string, string[]> = {
   income_bracket: ['<$25k', '$25–50k', '$50–100k', '$100k+'],
   country:        ['US', 'Germany', 'UK', 'France', 'Australia'],
   device_type:    ['Mobile', 'Desktop', 'Tablet', 'Smart TV'],
+  'Car ownership status':         ['Own (ICE)', 'Own (EV/Hybrid)', 'Lease', 'No car'],
+  'Housing type':                 ['House', 'Apartment', 'Condo', 'Other'],
+  'Primary transport mode':       ['Car', 'Public transit', 'Bicycle', 'Other'],
+  'EV Purchase Intent %':         ['Very likely', 'Likely', 'Might', 'Comparing', 'Not interested'],
+  'Settlement type':              ['Urban', 'Suburban', 'Rural'],
+  'Country of residence (EV)':    ['Germany', 'France', 'United States'],
 }
 
-function barData(withBenchmark: boolean, breakdown?: string): ChartData {
+function barData(withBenchmark: boolean, breakdown?: string, audienceName?: string, benchmarkName?: string): ChartData {
   const labels: string[] = (breakdown ? BREAKDOWN_LABELS[breakdown] : undefined) ?? ['18-24', '25-34', '35-44', '45-54', '55+'];
-  const series = [{ name: 'Audience', values: labels.map(() => rand(20, 85)) }];
-  if (withBenchmark) series.push({ name: 'Benchmark', values: labels.map(() => rand(20, 85)) });
+  const series = [{ name: audienceName ?? 'Audience', values: labels.map(() => rand(20, 85)) }];
+  if (withBenchmark) series.push({ name: benchmarkName ?? 'Benchmark', values: labels.map(() => rand(20, 85)) });
   return { labels, series };
 }
 
@@ -69,8 +75,8 @@ function lineData(): ChartData {
   };
 }
 
-function pieData(): ChartData {
-  const labels = ['Mobile', 'Desktop', 'Tablet', 'Other'];
+function pieData(breakdown?: string): ChartData {
+  const labels = (breakdown ? BREAKDOWN_LABELS[breakdown] : undefined) ?? ['Mobile', 'Desktop', 'Tablet', 'Other'];
   return { labels, series: [{ name: 'Share', values: labels.map(() => rand(5, 50)) }] };
 }
 
@@ -308,6 +314,7 @@ export const DIMENSION_VALUES: Record<string, string[]> = {
   'Gender': ['Male', 'Female', 'Non-binary'],
   'Age distribution': ['18-24', '25-34', '35-44', '45-54', '55+'],
   'Country of residence': ['US', 'Germany', 'UK', 'France'],
+  'Country of residence (EV)': ['Germany', 'France', 'United States'],
   'Income bracket': ['<$25k', '$25-50k', '$50-100k', '$100k+'],
   'Smartphone type & OS': ['Android', 'iOS', 'Other'],
   'Housing type': ['House', 'Apartment', 'Condo', 'Other'],
@@ -390,13 +397,15 @@ export function generateChartData(
   metric?: string,
   breakdown?: string,
   category?: string,
+  audienceName?: string,
+  benchmarkName?: string,
 ): ChartData {
   seedRng(seed ? `${seed}:${type}:${crossDimensionLabel ?? ''}` : undefined)
   if (type === 'table' && crossDimensionLabel) return crosstableData(crossDimensionLabel, undefined, metric, category)
   switch (type) {
-    case 'bar':       return barData(hasBenchmark, breakdown)
+    case 'bar':       return barData(hasBenchmark, breakdown, audienceName, benchmarkName)
     case 'line':      return lineData()
-    case 'pie':       return pieData()
+    case 'pie':       return pieData(breakdown)
     case 'scorecard': return scorecardData(hasBenchmark)
     case 'table':     return surveyTableData(metric, category)
     default:          return surveyTableData(metric, category)

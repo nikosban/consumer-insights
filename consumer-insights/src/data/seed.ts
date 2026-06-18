@@ -54,6 +54,42 @@ export const seedAudiences: Audience[] = [
     isShared: true,
     region: 'US',
   },
+  {
+    id: 'aud-ev',
+    name: 'EV Intent Audience — DE, FR, US',
+    description: 'Urban tech professionals across Germany, France and the US with high EV purchase intent',
+    filters: {
+      id: 'fg-ev-multi',
+      operator: 'AND',
+      conditions: [
+        { id: 'ev-c1', attribute: 'Country',       operator: 'in', value: ['DE', 'FR', 'US'] },
+        { id: 'ev-c2', attribute: 'Age (basic)',    operator: 'in', value: ['25-34', '35-44'] },
+        { id: 'ev-c3', attribute: 'Income bracket', operator: 'in', value: ['$75k–$100k', '$100k–$150k', '$150k+'] },
+      ],
+    },
+    createdAt: '2026-06-08T09:00:00Z',
+    updatedAt: '2026-06-08T09:00:00Z',
+    isShared: false,
+    region: 'de-fr-us',
+  },
+  {
+    id: 'aud-rural',
+    name: 'Rural Consumers — DE, FR, US',
+    description: 'Rural and suburban households across Germany, France and the US, lower EV intent baseline',
+    filters: {
+      id: 'fg-rural',
+      operator: 'AND',
+      conditions: [
+        { id: 'r-c1', attribute: 'Country',          operator: 'in', value: ['DE', 'FR', 'US'] },
+        { id: 'r-c2', attribute: 'Housing type',      operator: 'in', value: ['Rural', 'Suburban'] },
+        { id: 'r-c3', attribute: 'Income bracket',    operator: 'in', value: ['$25k–$50k', '$50k–$75k'] },
+      ],
+    },
+    createdAt: '2026-06-08T09:05:00Z',
+    updatedAt: '2026-06-08T09:05:00Z',
+    isShared: false,
+    region: 'de-fr-us',
+  },
 ];
 
 export const seedWidgets: Widget[] = [
@@ -102,6 +138,36 @@ export const seedWidgets: Widget[] = [
     breakdown: 'gender',
     createdAt: '2025-03-12T09:20:00Z',
   },
+  {
+    id: 'wid-ev-1',
+    type: 'table',
+    title: 'EV Purchase Intent by Audience Segment',
+    audienceId: 'aud-ev',
+    metric: 'purchase_intent',
+    breakdown: 'EV Purchase Intent %',
+    crossDimensionLabel: 'Country of residence (EV)',
+    crossDimensionId: 'Country of residence (EV)',
+    createdAt: '2026-06-08T09:10:00Z',
+  },
+  {
+    id: 'wid-ev-2',
+    type: 'bar',
+    title: 'EV Intent — Urban vs Rural Consumers',
+    audienceId: 'aud-ev',
+    benchmarkAudienceId: 'aud-rural',
+    metric: 'purchase_intent',
+    breakdown: 'Settlement type',
+    createdAt: '2026-06-08T09:15:00Z',
+  },
+  {
+    id: 'wid-ev-3',
+    type: 'pie',
+    title: 'Car Ownership Status — EV Audience',
+    audienceId: 'aud-ev',
+    metric: 'category_penetration',
+    breakdown: 'Car ownership status',
+    createdAt: '2026-06-08T09:20:00Z',
+  },
 ];
 
 export const seedDashboards: Dashboard[] = [
@@ -116,6 +182,18 @@ export const seedDashboards: Dashboard[] = [
     isShared: false,
     createdAt: '2025-03-15T10:00:00Z',
     updatedAt: '2025-03-15T10:00:00Z',
+  },
+  {
+    id: 'dash-ev',
+    name: 'EV Consumers',
+    widgets: [
+      { widgetId: 'wid-ev-1', position: { x: 0, y: 0,  w: 12, h: 7 } },
+      { widgetId: 'wid-ev-2', position: { x: 0, y: 7,  w: 7,  h: 7 } },
+      { widgetId: 'wid-ev-3', position: { x: 7, y: 7,  w: 5,  h: 7 } },
+    ],
+    isShared: false,
+    createdAt: '2026-06-08T09:00:00Z',
+    updatedAt: '2026-06-08T09:00:00Z',
   },
 ];
 

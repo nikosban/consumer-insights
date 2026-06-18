@@ -4,15 +4,18 @@ import { cn } from '@/lib/utils'
 
 type ToastKind = 'success' | 'error' | 'info'
 
+type ToastAction = { label: string; onClick: () => void }
+
 type ToastItem = {
   id: number
   kind: ToastKind
   message: string
+  action?: ToastAction
 }
 
 type ToastStore = {
   toasts: ToastItem[]
-  push: (kind: ToastKind, message: string) => void
+  push: (kind: ToastKind, message: string, action?: ToastAction) => void
   dismiss: (id: number) => void
 }
 
@@ -20,21 +23,21 @@ let nextId = 1
 
 const useToastStore = create<ToastStore>((set) => ({
   toasts: [],
-  push: (kind, message) => {
+  push: (kind, message, action) => {
     const id = nextId++
-    set((s) => ({ toasts: [...s.toasts, { id, kind, message }] }))
+    set((s) => ({ toasts: [...s.toasts, { id, kind, message, action }] }))
     setTimeout(() => {
       set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) }))
-    }, 3000)
+    }, 5000)
   },
   dismiss: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
 }))
 
 /** Imperative API — call from anywhere: toast.success('Saved') */
 export const toast = {
-  success: (message: string) => useToastStore.getState().push('success', message),
-  error:   (message: string) => useToastStore.getState().push('error', message),
-  info:    (message: string) => useToastStore.getState().push('info', message),
+  success: (message: string, action?: ToastAction) => useToastStore.getState().push('success', message, action),
+  error:   (message: string, action?: ToastAction) => useToastStore.getState().push('error', message, action),
+  info:    (message: string, action?: ToastAction) => useToastStore.getState().push('info', message, action),
 }
 
 const KIND_STYLES: Record<ToastKind, { icon: React.ReactNode; cls: string }> = {
@@ -55,6 +58,14 @@ export function Toaster() {
         >
           <span className={cn('shrink-0', KIND_STYLES[t.kind].cls)}>{KIND_STYLES[t.kind].icon}</span>
           <span>{t.message}</span>
+          {t.action && (
+            <button
+              onClick={() => { t.action!.onClick(); dismiss(t.id) }}
+              className="shrink-0 ml-1 text-primary font-medium hover:underline whitespace-nowrap"
+            >
+              {t.action.label}
+            </button>
+          )}
           <button
             onClick={() => dismiss(t.id)}
             className="shrink-0 ml-1 p-0.5 rounded text-muted-foreground/50 hover:text-muted-foreground transition-colors"

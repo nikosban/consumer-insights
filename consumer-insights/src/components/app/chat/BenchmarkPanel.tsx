@@ -33,7 +33,7 @@ export function BenchmarkPanel({ panel, onCreateDraft }: { panel: BenchmarkPanel
 
             <div>
               <div className="flex items-baseline justify-between mb-1">
-                <span className="text-[10px] text-secondary-foreground">Intent</span>
+                <span className="text-[10px] text-secondary-foreground">EV purchase intent</span>
                 <span className={cn('text-sm font-semibold', seg.isBestMatch ? 'text-primary' : 'text-foreground')}>
                   {seg.intentScore}%
                 </span>

@@ -149,11 +149,11 @@ const EV_COMPARISON: AIMessage[] = [
     id: 'ev-a2',
     role: 'assistant',
     content:
-      "I've pre-filled the audience builder with the **Urban Tech Professionals** segment — the highest-intent group from the benchmark. The universe sits at ~2.1M in Germany. Review the filters below and open the builder to refine or save.",
+      "I've pre-filled the audience builder with the **Urban Tech Professionals** segment across Germany, France, and the US — the highest-intent group from the benchmark. The combined universe sits at ~7.4M. Review the filters below and open the builder to refine or save.",
     messageType: 'audience_draft',
     audienceDraft: EV_AUDIENCE_DRAFT,
     suggestedFollowUps: [
-      'Extend this audience to France and the US',
+      'Which US regions show intent closest to German levels?',
       'What is the CPM benchmark for this segment?',
     ],
   },

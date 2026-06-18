@@ -48,6 +48,13 @@ import { useLayout } from '@/components/layout/LayoutContext'
 
 type DashPeriod = { year: string; wave: string }
 
+const QUESTION_WIDGET_OVERRIDES: Record<string, Partial<Widget>> = {
+  'pop-ev':       { type: 'bar', metric: 'purchase_intent',       breakdown: 'EV Purchase Intent %',   title: 'EV Purchase Intent'        },
+  'pop-cartype':  { type: 'pie', metric: 'category_penetration',  breakdown: 'Car ownership status',   title: 'Car Ownership Status'      },
+  'pop-sustain':  { type: 'bar', metric: 'category_penetration',  breakdown: 'Settlement type',        title: 'Sustainability Interest'   },
+  'pop-transport':{ type: 'pie', metric: 'category_penetration',  breakdown: 'Primary transport mode', title: 'Primary Transport Mode'    },
+}
+
 const POPULAR_QUESTIONS: SurveyQuestion[] = [
   { id: 'pop-age',      label: 'Age distribution'         },
   { id: 'pop-gender',   label: 'Gender'                   },
@@ -57,6 +64,10 @@ const POPULAR_QUESTIONS: SurveyQuestion[] = [
   { id: 'pop-social',   label: 'Social media platforms'   },
   { id: 'pop-health',   label: 'Health consciousness'     },
   { id: 'pop-country',  label: 'Country of residence'     },
+  { id: 'pop-ev',       label: 'EV purchase intent'       },
+  { id: 'pop-cartype',  label: 'Car ownership status'     },
+  { id: 'pop-sustain',  label: 'Sustainability interest'  },
+  { id: 'pop-transport',label: 'Primary transport mode'   },
 ]
 
 const DASH_REGIONS = ['Global', 'North America', 'Europe', 'DACH', 'Nordics', 'APAC', 'LATAM']
@@ -1109,6 +1120,7 @@ export default function DashboardBuilderPage() {
 
   const addQuestionAsWidget = useCallback((q: SurveyQuestion) => {
     const widgetId = `wid-${Date.now()}`
+    const overrides = QUESTION_WIDGET_OVERRIDES[q.id] ?? {}
     const newWidget: Widget = {
       id: widgetId,
       type: 'table',
@@ -1116,6 +1128,7 @@ export default function DashboardBuilderPage() {
       audienceId: audiences[0]?.id ?? 'aud-1',
       metric: 'category_penetration',
       createdAt: new Date().toISOString(),
+      ...overrides,
     }
     addWidget(newWidget)
     addWidgetToCanvas(widgetId)
@@ -1438,6 +1451,9 @@ export default function DashboardBuilderPage() {
                       `${pw.widgetId}:${pw.chartKey}:${widget.audienceId || dashAudienceId}:${widget.country ?? dashRegion}:${widget.year ?? dashPeriod.year}:${dashPeriod.wave}`,
                       widget.metric,
                       widget.breakdown,
+                      undefined,
+                      audiences.find(a => a.id === (widget.audienceId || dashAudienceId))?.name,
+                      widget.benchmarkAudienceId ? audiences.find(a => a.id === widget.benchmarkAudienceId)?.name : undefined,
                     )
                 const isSelected = selectedWidgetId === pw.widgetId
                 const isDragTarget = dragOverWidgetId === pw.widgetId

@@ -3,53 +3,53 @@ import type { AudienceCardData, DataWidgetCardData, ProcessingStep, BenchmarkPan
 // ─── EV Demo scenario ─────────────────────────────────────────────────────────
 
 export function isEVTrigger(text: string): boolean {
-  return /\bev\b|electric.?vehicle|electric.?car|who.*buy.*germany|ev.*germany|germany.*ev/i.test(text)
+  return /\bev\b|electric.?vehicle|electric.?car|ev.*intent|compare.*ev|ev.*germany|ev.*france|ev.*us\b/i.test(text)
 }
 
 export const EV_PROCESSING_STEPS: Omit<ProcessingStep, 'status'>[] = [
-  { label: 'Parsing intent',       value: '"Who intends to buy EVs in Germany?"' },
+  { label: 'Parsing intent',       value: '"Compare EV purchase intent across Germany, France, and the US"' },
   { label: 'Topic',                value: 'Automotive · Electric Vehicles' },
-  { label: 'Region',               value: 'Germany (DE)' },
-  { label: 'Location scope',       value: 'National' },
+  { label: 'Regions',              value: 'Germany (DE) · France (FR) · United States (US)' },
+  { label: 'Location scope',       value: 'National · cross-market comparison' },
   { label: 'Survey waves',         value: 'Jan 2025 · Apr 2025 · Jul 2025 · Oct 2025 · Jan 2026' },
-  { label: 'Respondents',          value: 'n = 4,187 (internet users 18–64)' },
-  { label: 'Demographics',         value: 'Age · Gender · Income · Education · HH size' },
+  { label: 'Respondents',          value: 'n = 12,840 (DE: 4,187 · FR: 3,921 · US: 4,732 · internet users 18–64)' },
+  { label: 'Demographics',         value: 'Age · Gender · Income · Education · Urban/rural' },
   { label: 'Metric',               value: 'Purchase intent — "plan to buy an EV in next 12 months"' },
-  { label: 'Intent threshold',     value: '> 20% to qualify segment' },
-  { label: 'Identifying segments', value: 'Scanning 40+ demographic cuts…' },
-  { label: 'Segments found',       value: '3 audience groups above threshold' },
+  { label: 'Normalising',          value: 'PPP-adjusted income brackets across markets…' },
+  { label: 'Identifying segments', value: 'Scanning 40+ demographic cuts per market…' },
+  { label: 'Segments found',       value: '3 high-intent audience groups, consistent across all 3 markets' },
   { label: 'Benchmarking',         value: 'Scoring segments on intent × reach × ability to pay…' },
-  { label: 'Best match selected',  value: 'Urban Tech Professionals (score: 91/100)' },
+  { label: 'Best match selected',  value: 'Urban Tech Professionals — strongest signal in DE & FR (score: 91/100)' },
 ]
 
 export const EV_AI_TEXT =
-  'Based on Consumer Insights data for Germany (2025–2026, n = 4,187), three audience segments show meaningful EV purchase intent. The strongest signal comes from **Urban Tech Professionals** — they index highest on both intent and ability to pay, making them the most actionable starting point.'
+  'Across Germany, France, and the US, **EV purchase intent is highest in Germany at 22%**, followed by France at 17% and the US at 14% (Consumer Insights, Jan 2026, n = 12,840). Germany leads on both intent and adoption infrastructure; France benefits from strong government incentives; the US shows wide regional variance with coastal markets tracking closer to European levels.\n\nIn all three markets the **Urban Tech Professionals** segment (age 25–40, high income, urban) shows the strongest combined signal on intent and ability to pay — making it the most actionable starting point for a cross-market campaign.'
 
 export const EV_BENCHMARK_PANEL: BenchmarkPanelData = {
-  nudge: 'Want to activate this audience? I can pre-fill it from the benchmark data.',
+  nudge: 'Want to activate this audience? I can pre-fill it across all three markets.',
   segments: [
     {
       name: 'Urban Tech Professionals',
       ageRange: '25–40',
-      descriptor: 'High-income urban, early adopter mindset',
-      intentScore: 64,
-      universe: '2.1M',
+      descriptor: 'High-income urban, early adopter mindset · strongest in DE & FR',
+      intentScore: 62,
+      universe: '7.4M',
       isBestMatch: true,
     },
     {
       name: 'Eco-Conscious Families',
       ageRange: '35–52',
-      descriptor: 'Suburban, sustainability-driven, mid-high income',
-      intentScore: 41,
-      universe: '3.8M',
+      descriptor: 'Suburban, sustainability-driven, mid-high income · dominant in US',
+      intentScore: 38,
+      universe: '11.2M',
       isBestMatch: false,
     },
     {
       name: 'Green Premium Buyers',
       ageRange: '45–60',
-      descriptor: 'High income, sustainability & status motivated',
-      intentScore: 38,
-      universe: '1.4M',
+      descriptor: 'High income, sustainability & status motivated · consistent across markets',
+      intentScore: 34,
+      universe: '4.1M',
       isBestMatch: false,
     },
   ],
@@ -57,64 +57,68 @@ export const EV_BENCHMARK_PANEL: BenchmarkPanelData = {
 
 export const EV_WIDGET_CLUSTER: DataWidgetCardData[] = [
   {
-    title: 'EV Purchase Intent by Segment',
-    subtitle: 'Germany · Consumer Insights 2025–2026',
+    title: 'EV Purchase Intent by Country',
+    subtitle: 'Overall market intent · Jan 2026',
     chartType: 'bar',
     chartData: {
-      labels: ['Urban Tech Pros', 'Eco-Conscious Families', 'Green Premium Buyers'],
+      labels: ['Germany', 'France', 'United States'],
       series: [
-        { name: 'Purchase intent %', values: [64, 41, 38] },
-        { name: 'DE Market avg', values: [18, 18, 18] },
+        { name: 'Purchase intent %', values: [22, 17, 14] },
+        { name: 'Global avg', values: [16, 16, 16] },
       ],
     },
     metric: 'Purchase intent',
-    source: 'Consumer Insights Global 2026 · Germany · n=4,187',
+    source: 'Consumer Insights Global 2026 · DE/FR/US · n=12,840',
   },
   {
-    title: 'EV Intent Trend — Urban Tech Professionals',
+    title: 'EV Intent Trend — Germany, France, US',
     subtitle: 'Jan 2025 → Jan 2026 · 5 survey waves',
     chartType: 'line',
     chartData: {
       labels: ['Jan 2025', 'Apr 2025', 'Jul 2025', 'Oct 2025', 'Jan 2026'],
-      series: [{ name: 'Purchase intent %', values: [48, 52, 57, 61, 64] }],
+      series: [
+        { name: 'Germany',        values: [16, 17, 19, 21, 22] },
+        { name: 'France',         values: [12, 13, 14, 16, 17] },
+        { name: 'United States',  values: [11, 11, 12, 13, 14] },
+      ],
     },
     metric: 'Intent trend',
-    source: 'Consumer Insights Global 2026 · Germany · n=4,187',
+    source: 'Consumer Insights Global 2026 · DE/FR/US · n=12,840',
   },
   {
-    title: 'Addressable Audience',
-    subtitle: 'Urban Tech Professionals · Germany',
+    title: 'Combined Addressable Audience',
+    subtitle: 'Urban Tech Professionals · DE + FR + US',
     chartType: 'scorecard',
     chartData: {
-      labels: ['Addressable audience', 'Urban Tech Professionals · High intent'],
-      series: [{ name: 'Addressable universe', values: [2100000] }],
+      labels: ['Addressable audience', 'Urban Tech Professionals · High intent · 3 markets'],
+      series: [{ name: 'Addressable universe', values: [7400000] }],
     },
     metric: 'Addressable universe',
-    source: 'Consumer Insights Global 2026 · Germany',
+    source: 'Consumer Insights Global 2026 · DE/FR/US',
   },
 ]
 
 export const EV_AUDIENCE_DRAFT: AudienceDraftData = {
-  name: 'EV Intent Audience — Germany',
+  name: 'EV Intent Audience — DE, FR, US',
   inheritedFrom: 'Urban Tech Professionals',
   filters: [
-    { label: 'Country',         value: 'Germany' },
+    { label: 'Countries',       value: 'Germany · France · United States' },
     { label: 'Age range',       value: '25–40' },
-    { label: 'Income',          value: 'High (top 30%)' },
+    { label: 'Income',          value: 'High (top 30% per market)' },
     { label: 'Interest',        value: 'Automotive / Electric Vehicles' },
     { label: 'Intent signal',   value: 'EV purchase intent > 50%' },
-    { label: 'Universe',        value: '~2.1M' },
+    { label: 'Universe',        value: '~7.4M' },
   ],
   prefill: {
-    name: 'EV Intent Audience — Germany',
-    description: 'Urban tech professionals in Germany with high EV purchase intent',
-    region: 'Germany',
+    name: 'EV Intent Audience — DE, FR, US',
+    description: 'Urban tech professionals across Germany, France and the US with high EV purchase intent',
+    region: 'de-fr-us',
     isShared: false,
     filters: {
-      id: 'fg-ev-germany',
+      id: 'fg-ev-multi',
       operator: 'AND',
       conditions: [
-        { id: 'c1', attribute: 'Country',        operator: 'eq',  value: 'Germany' },
+        { id: 'c1', attribute: 'Country',        operator: 'in',  value: ['DE', 'FR', 'US'] },
         { id: 'c2', attribute: 'Age (basic)',     operator: 'in',  value: ['25-34', '35-44'] },
         { id: 'c3', attribute: 'Income bracket',  operator: 'in',  value: ['$75k–$100k', '$100k–$150k', '$150k+'] },
       ],
@@ -123,9 +127,9 @@ export const EV_AUDIENCE_DRAFT: AudienceDraftData = {
 }
 
 export const EV_FOLLOW_UPS = [
-  'How does EV intent vary by income bracket?',
-  'What motivates Urban Tech Professionals to consider an EV?',
-  'Show me the same analysis for the United Kingdom',
+  'Which US regions show intent closest to German levels?',
+  'How does EV intent vary by income bracket across all three markets?',
+  'Show me the same comparison for hybrid vehicles',
 ]
 
 // ─── Fake AI responses ────────────────────────────────────────────────────────
