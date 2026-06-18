@@ -677,7 +677,7 @@ export default function ChartsPage() {
   const { setLeftPanel } = useLayout()
   const location = useLocation()
   const navigate = useNavigate()
-  const benchmarkAudience = (location.state as { benchmarkAudience?: { name: string } } | null)?.benchmarkAudience
+  const benchmarkAudience = (location.state as { benchmarkAudience?: { name: string; id: string | null } } | null)?.benchmarkAudience
   const [selected, setSelected] = useState<LibraryChart | null>(
     benchmarkAudience ? EV_BENCHMARK_CHART : null
   )
@@ -726,7 +726,7 @@ export default function ChartsPage() {
     if (selected) {
       const isBenchmark = selected.id === 'benchmark-ev-intent'
       setActiveType(isBenchmark ? 'bar' : 'table')
-      setAudienceId(isBenchmark ? 'aud-ev' : '')
+      setAudienceId(isBenchmark ? (benchmarkAudience?.id ?? 'aud-ev') : '')
       setCrossAttrs(isBenchmark ? ['Country of residence', 'Age distribution'] : [])
       setCrossTabConfig(DEFAULT_CROSSTAB_CONFIG)
       setExtraRows([])

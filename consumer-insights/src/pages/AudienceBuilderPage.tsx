@@ -190,9 +190,9 @@ function buildBreakdown(region: string, filters: FilterGroup, total: number): Br
 const LOW_THRESHOLD = 200_000
 
 function PreviewCard({
-  size, region, filters, audienceName,
+  size, region, filters, audienceName, audienceId,
 }: {
-  size: number; region: string; filters: FilterGroup; audienceName: string
+  size: number; region: string; filters: FilterGroup; audienceName: string; audienceId?: string
 }) {
   const navigate = useNavigate()
   const breakdown = buildBreakdown(region, filters, size)
@@ -276,7 +276,7 @@ function PreviewCard({
         <div className="mt-4 pt-3 border-t border-white/15 space-y-0.5">
           <p className="text-xs font-semibold text-white/60 mb-2">Use this audience</p>
           <Button variant="ghost-inverse" size="sm" className="w-full justify-start"
-            onClick={() => navigate('/charts', { state: { benchmarkAudience: { name: audienceName } } })}>
+            onClick={() => navigate('/charts', { state: { benchmarkAudience: { name: audienceName, id: audienceId ?? null } } })}>
             <IconChartBar strokeWidth={2} />
             Benchmark audience
           </Button>
@@ -852,6 +852,7 @@ export default function AudienceBuilderPage() {
           region={region}
           filters={filters}
           audienceName={name.trim() || 'New Audience'}
+          audienceId={existing?.id ?? id}
         />
       </div>
 
