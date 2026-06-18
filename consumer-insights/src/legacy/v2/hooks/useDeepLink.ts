@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useLegacyStore } from '../store/legacyStore'
 // @ts-ignore
 import { countries } from '../data/countries'
+import { adaptPayload } from './deepLinkAdapter'
 
 /**
  * Deep-link schema sent by the Research AI prototype.
@@ -41,6 +42,7 @@ export function useDeepLink() {
   const addToZone           = useLegacyStore(s => s.addToZone)
   const saveTargetGroup     = useLegacyStore(s => s.saveTargetGroup)
   const applyFilterGroup    = useLegacyStore(s => s.applyFilterGroup)
+  const toggleDisplayOption = useLegacyStore(s => s.toggleDisplayOption)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -49,7 +51,7 @@ export function useDeepLink() {
 
     let payload: Record<string, any>
     try {
-      payload = JSON.parse(atob(raw))
+      payload = adaptPayload(JSON.parse(atob(raw)))
     } catch {
       console.warn('[deep-link] Could not parse state param')
       return
@@ -58,6 +60,15 @@ export function useDeepLink() {
     if (payload.country) {
       const country = countries.find((c: any) => c.code === payload.country)
       if (country) setSelectedCountry(country)
+    }
+
+    if (payload.displayOptions) {
+      const store = useLegacyStore.getState()
+      const current = store.displayOptions
+      const next = payload.displayOptions as Record<string, boolean>
+      ;(Object.keys(next) as Array<keyof typeof current>).forEach(key => {
+        if (current[key] !== next[key]) toggleDisplayOption(key)
+      })
     }
 
     if (payload.year) {

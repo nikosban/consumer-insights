@@ -22,6 +22,14 @@ export const categories = [
     label: 'AI & smart technology',
     subcats: [
       { id: 'ai-adoption', label: 'AI Adoption & Awareness', items: ['AI tool usage', 'Awareness of AI assistants'] },
+      { id: 'ai-attitudes', label: 'AI Attitudes & Sentiments', items: [
+        'I am often frustrated by AI systems not understanding my requests',
+        'I enjoy using AI tools (e.g., ChatGPT) to handle everyday tasks',
+        'I prefer services with personal contact',
+        'I gladly pay for services that make my life more convenient',
+        'I tend to book services online',
+        'None of the above',
+      ]},
     ],
   },
   {
