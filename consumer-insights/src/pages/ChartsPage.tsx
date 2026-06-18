@@ -60,6 +60,8 @@ const RAW: { c: string; t: string; ty: WidgetType }[] = [
   { c: 'Media & news',                   t: 'News consumption frequency',       ty: 'bar'       },
   { c: 'Media & news',                   t: 'Streaming subscription share',     ty: 'pie'       },
   { c: 'Media & news',                   t: 'Daily media time spent',           ty: 'line'      },
+  { c: 'Mobility',                       t: 'EV purchase intent',               ty: 'bar'       },
+  { c: 'Mobility',                       t: 'Sustainability interest',          ty: 'bar'       },
   { c: 'Mobility',                       t: 'Primary transport mode',           ty: 'pie'       },
   { c: 'Mobility',                       t: 'Car ownership status',             ty: 'pie'       },
   { c: 'Mobility',                       t: 'Travel frequency distribution',    ty: 'bar'       },
@@ -125,9 +127,9 @@ const EV_BENCHMARK_CHART: LibraryChart = {
 // Charts surfaced at the top of the sidebar for the EV demo flow
 const SUGGESTED_CHART_IDS = [
   'benchmark-ev-intent',
-  'lib-32', // Primary transport mode (Mobility pie)
-  'lib-33', // Car ownership status (Mobility pie)
-  'lib-34', // Travel frequency distribution (Mobility bar)
+  'lib-33', // EV purchase intent (Mobility bar)
+  'lib-34', // Sustainability interest (Mobility bar)
+  'lib-36', // Car ownership status (Mobility pie)
 ]
 
 // ─── Chart type meta ──────────────────────────────────────────────────────────
