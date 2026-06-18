@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { IconSwitchHorizontal, IconCheck, IconPlayerPlay } from '@tabler/icons-react'
 import { VERSIONS, getActiveVersion, V3_VARIANT_KEY } from '@/config/versions'
-import { useDemoContext } from '@/components/layout/AppLayout'
+import { useDemoContext } from '@/App'
 
 export default function VersionSwitcherFab() {
   const [open, setOpen]   = useState(false)

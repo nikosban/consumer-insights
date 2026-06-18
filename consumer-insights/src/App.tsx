@@ -1,9 +1,16 @@
 import { lazy, Suspense } from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import AppLayout from '@/components/layout/AppLayout'
 import SearchModal from '@/components/ui/SearchModal'
 import { Toaster } from '@/components/ui/Toaster'
 import VersionSwitcherFab from '@/components/app/VersionSwitcherFab'
+import { useDemoMode } from '@/demo/useDemoMode'
+import type { DemoModeHandle } from '@/demo/useDemoMode'
+import DemoOverlay from '@/demo/DemoOverlay'
+import { createContext, useContext } from 'react'
+
+export const DemoContext = createContext<DemoModeHandle | null>(null)
+export const useDemoContext = () => useContext(DemoContext)
 
 function FabMount() {
   const { pathname } = useLocation()
@@ -32,12 +39,15 @@ const ResearchAIRootV2   = lazy(() => import('@/legacy/v2/ResearchAIRoot'))
 const DashboardRootV1    = lazy(() => import('@/legacy/v1/DashboardRoot'))
 const DashboardRootV2    = lazy(() => import('@/legacy/v2/DashboardRoot'))
 
-export default function App() {
+function AppInner() {
+  const navigate = useNavigate()
+  const demo = useDemoMode(navigate)
   return (
-    <>
+    <DemoContext.Provider value={demo}>
       <SearchModal />
       <Toaster />
       <FabMount />
+      <DemoOverlay demo={demo} />
       <Suspense fallback={null}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
@@ -65,6 +75,10 @@ export default function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
-    </>
+    </DemoContext.Provider>
   )
+}
+
+export default function App() {
+  return <AppInner />
 }

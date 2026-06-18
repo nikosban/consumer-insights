@@ -1,17 +1,11 @@
 import { Outlet, useNavigate } from 'react-router-dom'
-import { useState, createContext, useContext } from 'react'
+import { useState } from 'react'
 import { IconMenu2 } from '@tabler/icons-react'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import WorkspaceSidebar from './WorkspaceSidebar'
 import { LayoutProvider, useLayout } from './LayoutContext'
 import { Toolbar } from '@/components/app'
 import VersionSwitcherFab from '@/components/app/VersionSwitcherFab'
-import { useDemoMode } from '@/demo/useDemoMode'
-import type { DemoModeHandle } from '@/demo/useDemoMode'
-import DemoOverlay from '@/demo/DemoOverlay'
-
-const DemoContext = createContext<DemoModeHandle | null>(null)
-export const useDemoContext = () => useContext(DemoContext)
 
 function AppShell() {
   const navigate = useNavigate()
@@ -77,15 +71,10 @@ function AppShell() {
 }
 
 export default function AppLayout() {
-  const navigate = useNavigate()
-  const demo = useDemoMode(navigate)
   return (
-    <DemoContext.Provider value={demo}>
-      <LayoutProvider>
-        <AppShell />
-        <VersionSwitcherFab />
-        <DemoOverlay demo={demo} />
-      </LayoutProvider>
-    </DemoContext.Provider>
+    <LayoutProvider>
+      <AppShell />
+      <VersionSwitcherFab />
+    </LayoutProvider>
   )
 }
