@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "read -r stdin; fp=$(echo \"$stdin\" | jq -r '.tool_input.file_path // empty'); echo \"$fp\" | grep -qE 'src/.*\\.(tsx|ts|css)$' && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"UI RULE CHECK: Before editing this file, load every relevant file from UI_rules/ per the CLAUDE.md routing table. Any UI task: Typography.md always. Color/surfaces/borders: Color_guidelines.md + color.tokens.json. Icons: Icons.md. Shadows/elevation: Elevation.md. Buttons/inputs/chips: all four files. Charts/dataviz: Data_visualization.md + Color_guidelines.md + color.tokens.json. This step is mandatory — do it before writing the first line of code.\"}}' || true"
+          }
+        ]
+      }
+    ]
+  }
+}

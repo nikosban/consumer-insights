@@ -28,6 +28,8 @@ const LegacyAppRootV1    = lazy(() => import('@/legacy/v1/LegacyAppRoot'))
 const LegacyAppRootV2    = lazy(() => import('@/legacy/v2/LegacyAppRoot'))
 const ResearchAIRootV1   = lazy(() => import('@/legacy/v1/ResearchAIRoot'))
 const ResearchAIRootV2   = lazy(() => import('@/legacy/v2/ResearchAIRoot'))
+const DashboardRootV1    = lazy(() => import('@/legacy/v1/DashboardRoot'))
+const DashboardRootV2    = lazy(() => import('@/legacy/v2/DashboardRoot'))
 
 export default function App() {
   return (
@@ -54,8 +56,10 @@ export default function App() {
           <Route path="/dashboards/:id/view" element={<DashboardViewPage />} />
           <Route path="/consumer_insights_v0" element={<LegacyAppRootV0 />} />
           <Route path="/consumer_insights_v1/research-ai" element={<ResearchAIRootV1 />} />
+          <Route path="/consumer_insights_v1/dashboard" element={<DashboardRootV1 />} />
           <Route path="/consumer_insights_v1" element={<LegacyAppRootV1 />} />
           <Route path="/consumer_insights_v2/research-ai" element={<ResearchAIRootV2 />} />
+          <Route path="/consumer_insights_v2/dashboard" element={<DashboardRootV2 />} />
           <Route path="/consumer_insights_v2" element={<LegacyAppRootV2 />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

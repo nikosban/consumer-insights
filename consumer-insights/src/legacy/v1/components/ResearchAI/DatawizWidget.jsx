@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { addWidget } from '../../hooks/useDashboard'
 
 const WIDGET_DATA = [
   { year: '2019', value: 40.3 },
@@ -166,6 +167,20 @@ export default function DatawizWidget() {
   const [supportExpanded, setSupportExpanded] = useState(false)
   const [toggleHovered, setToggleHovered] = useState(false)
   const [hoverColor, setHoverColor] = useState(null)
+  const [savedToast, setSavedToast] = useState(false)
+
+  function handleAddToDashboard() {
+    addWidget({
+      title: 'Console gaming market worldwide',
+      source: 'rai',
+      chartType: 'bar',
+      chartTitle: 'Console gaming market worldwide 2019–2029',
+      data: WIDGET_DATA.map(d => ({ label: d.year, value: d.value, valueLabel: `${d.value}bn` })),
+      meta: ['Source 1', 'Source 4'],
+    })
+    setSavedToast(true)
+    setTimeout(() => setSavedToast(false), 2500)
+  }
 
   useEffect(() => {
     const el = containerRef.current
@@ -439,15 +454,18 @@ export default function DatawizWidget() {
               <button style={{
                 display: 'flex', alignItems: 'center', gap: 6,
                 padding: '8px 12px', minWidth: 140,
-                background: 'white', border: '1px solid #e0e0e0', borderRadius: 6, cursor: 'pointer',
-                fontFamily: FF, fontSize: 14, fontWeight: 600, color: '#455f7c',
-                transition: 'background 0.15s, border-color 0.15s',
+                background: savedToast ? '#e8f5e8' : 'white',
+                border: `1px solid ${savedToast ? '#4caf50' : '#e0e0e0'}`, borderRadius: 6, cursor: 'pointer',
+                fontFamily: FF, fontSize: 14, fontWeight: 600,
+                color: savedToast ? '#2e7d32' : '#455f7c',
+                transition: 'background 0.15s, border-color 0.15s, color 0.15s',
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#E8F2FF'; e.currentTarget.style.borderColor = '#0055AA' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#e0e0e0' }}
+              onClick={handleAddToDashboard}
+              onMouseEnter={e => { if (!savedToast) { e.currentTarget.style.background = '#E8F2FF'; e.currentTarget.style.borderColor = '#0055AA' } }}
+              onMouseLeave={e => { if (!savedToast) { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#e0e0e0' } }}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="#455f7c"/></svg>
-                Add to dashboard
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" fill="currentColor"/></svg>
+                {savedToast ? 'Saved!' : 'Add to dashboard'}
               </button>
             )}
           </div>
