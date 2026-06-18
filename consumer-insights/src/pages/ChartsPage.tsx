@@ -726,8 +726,10 @@ export default function ChartsPage() {
     if (selected) {
       const isBenchmark = selected.id === 'benchmark-ev-intent'
       setActiveType(isBenchmark ? 'bar' : 'table')
-      setAudienceId(isBenchmark ? (benchmarkAudience?.id ?? 'aud-ev') : '')
-      setCrossAttrs(isBenchmark ? ['Country of residence', 'Age distribution'] : [])
+      // Benchmark chart embeds both audiences as series — no filter needed.
+      // Other charts show full-market data; user can add a filter manually.
+      setAudienceId('')
+      setCrossAttrs([])
       setCrossTabConfig(DEFAULT_CROSSTAB_CONFIG)
       setExtraRows([])
       setHeatmap(false)
