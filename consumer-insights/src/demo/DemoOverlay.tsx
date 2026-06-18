@@ -11,18 +11,42 @@ function getRect(selector: string): DOMRect | null {
 
 const PAD = 12  // padding around spotlit element
 
-function SpotlightOverlay({ bubble }: { bubble: DemoBubble }) {
+function useElementRect(selector: string) {
   const [rect, setRect] = useState<DOMRect | null>(null)
 
   useLayoutEffect(() => {
-    const update = () => setRect(getRect(bubble.selector))
-    update()
-    const obs = new ResizeObserver(update)
-    const el = document.querySelector(bubble.selector)
-    if (el) obs.observe(el)
-    window.addEventListener('scroll', update, true)
-    return () => { obs.disconnect(); window.removeEventListener('scroll', update, true) }
-  }, [bubble.selector])
+    const resizeObs = new ResizeObserver(() => setRect(getRect(selector)))
+    const mutObs = new MutationObserver(() => {
+      const el = document.querySelector(selector)
+      if (el) {
+        setRect(el.getBoundingClientRect())
+        resizeObs.observe(el)
+        mutObs.disconnect()
+      }
+    })
+
+    const el = document.querySelector(selector)
+    if (el) {
+      setRect(el.getBoundingClientRect())
+      resizeObs.observe(el)
+    } else {
+      mutObs.observe(document.body, { childList: true, subtree: true })
+    }
+
+    const onScroll = () => setRect(getRect(selector))
+    window.addEventListener('scroll', onScroll, true)
+    return () => {
+      resizeObs.disconnect()
+      mutObs.disconnect()
+      window.removeEventListener('scroll', onScroll, true)
+    }
+  }, [selector])
+
+  return rect
+}
+
+function SpotlightOverlay({ bubble }: { bubble: DemoBubble }) {
+  const rect = useElementRect(bubble.selector)
 
   if (!rect) return null
 
@@ -92,18 +116,8 @@ function SpotlightOverlay({ bubble }: { bubble: DemoBubble }) {
 // ─── Pulse ring ───────────────────────────────────────────────────────────────
 
 function PulseRing({ bubble, index }: { bubble: DemoBubble; index: number }) {
-  const [rect, setRect] = useState<DOMRect | null>(null)
+  const rect = useElementRect(bubble.selector)
   const [visible, setVisible] = useState(false)
-
-  useLayoutEffect(() => {
-    const update = () => setRect(getRect(bubble.selector))
-    update()
-    const obs = new ResizeObserver(update)
-    const el = document.querySelector(bubble.selector)
-    if (el) obs.observe(el)
-    window.addEventListener('scroll', update, true)
-    return () => { obs.disconnect(); window.removeEventListener('scroll', update, true) }
-  }, [bubble.selector])
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), index * 300)
