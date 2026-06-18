@@ -60,7 +60,7 @@ export function Hero() {
                 →
               </span>
             </CTAPrimary>
-            <CTASecondary onClick={() => navigate('/consumer_insights_v2/research-ai')}>
+            <CTASecondary onClick={() => navigate('/research-ai')}>
               Try the assistant
             </CTASecondary>
           </motion.div>
