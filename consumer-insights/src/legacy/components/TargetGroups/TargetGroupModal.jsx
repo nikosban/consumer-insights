@@ -1,0 +1,246 @@
+import { useState, useMemo } from 'react'
+import { categories } from '../../data/sidebarData'
+import { useLegacyStore } from '../../store/legacyStore'
+import s from './TargetGroupModal.module.css'
+
+function ModalInner({ existingGroup }) {
+  const selectedCountry = useLegacyStore(st => st.selectedCountry)
+  const selectedYear = useLegacyStore(st => st.selectedYear)
+  const targetGroups = useLegacyStore(st => st.targetGroups)
+  const closeTargetGroupModal = useLegacyStore(st => st.closeTargetGroupModal)
+  const saveTargetGroup = useLegacyStore(st => st.saveTargetGroup)
+  const deleteTargetGroup = useLegacyStore(st => st.deleteTargetGroup)
+
+  const [name, setName] = useState(existingGroup?.name ?? 'Unnamed Target Group')
+  const [selections, setSelections] = useState(existingGroup?.selections ?? [])
+  const [expandedCats, setExpandedCats] = useState([])
+  const [activeSubcat, setActiveSubcat] = useState(null)
+
+  const isNameEmpty = name.trim() === ''
+  const isDuplicate = targetGroups.some(
+    g => g.id !== existingGroup?.id && g.name.toLowerCase() === name.trim().toLowerCase()
+  )
+  const canSave = !isNameEmpty && !isDuplicate
+
+  const respondentCount = useMemo(() => {
+    if (selections.length === 0) return 0
+    const hash = selections.reduce((acc, sel) => acc + sel.item.length * 7 + sel.catId.charCodeAt(0), 0)
+    return Math.floor(60236 * Math.min(0.94, 0.06 + (hash % 89) / 100))
+  }, [selections])
+
+  function toggleCat(catId) {
+    setExpandedCats(prev =>
+      prev.includes(catId) ? prev.filter(id => id !== catId) : [...prev, catId]
+    )
+  }
+
+  function selectSubcat(cat, subcat) {
+    setActiveSubcat({ catId: cat.id, catLabel: cat.label, subcatId: subcat.id, subcatLabel: subcat.label, items: subcat.items })
+  }
+
+  function toggleItem(item) {
+    const already = selections.some(sel => sel.catId === activeSubcat.catId && sel.subcatId === activeSubcat.subcatId && sel.item === item)
+    if (already) {
+      setSelections(prev => prev.filter(sel => !(sel.catId === activeSubcat.catId && sel.subcatId === activeSubcat.subcatId && sel.item === item)))
+    } else {
+      setSelections(prev => [...prev, {
+        catId: activeSubcat.catId,
+        catLabel: activeSubcat.catLabel,
+        subcatId: activeSubcat.subcatId,
+        subcatLabel: activeSubcat.subcatLabel,
+        item,
+      }])
+    }
+  }
+
+  function deselectAll() {
+    if (!activeSubcat) return
+    setSelections(prev => prev.filter(sel => !(sel.catId === activeSubcat.catId && sel.subcatId === activeSubcat.subcatId)))
+  }
+
+  function removeItem(sel) {
+    setSelections(prev => prev.filter(s => !(s.catId === sel.catId && s.subcatId === sel.subcatId && s.item === sel.item)))
+  }
+
+  function clearAll() {
+    setSelections([])
+  }
+
+  function handleSave() {
+    if (!canSave) return
+    saveTargetGroup({ id: existingGroup?.id, name: name.trim(), selections })
+    closeTargetGroupModal()
+  }
+
+  function handleDelete() {
+    deleteTargetGroup(existingGroup.id)
+    closeTargetGroupModal()
+  }
+
+  // Group selections by catLabel
+  const selectionGroups = useMemo(() => {
+    const map = {}
+    selections.forEach(sel => {
+      if (!map[sel.catLabel]) map[sel.catLabel] = []
+      map[sel.catLabel].push(sel)
+    })
+    return Object.entries(map)
+  }, [selections])
+
+  const isEdit = !!existingGroup
+
+  return (
+    <div className={s.backdrop} onClick={e => { if (e.target === e.currentTarget) closeTargetGroupModal() }}>
+      <div className={s.modal}>
+        {/* Header */}
+        <div className={s.modalHeader}>
+          <span className={s.modalTitle}>{isEdit ? 'Edit target group' : 'Create target group'}</span>
+          <div className={s.headerBtns}>
+            {isEdit && (
+              <button className={s.btnOutline} onClick={handleDelete}>
+                <i className="ti ti-trash" /> Delete target group
+              </button>
+            )}
+            <button className={s.btnPrimary} onClick={handleSave} disabled={!canSave}>
+              {isEdit ? 'Save changes and close' : 'Save and close'}
+            </button>
+            <button className={s.closeIconBtn} onClick={closeTargetGroupModal}>
+              <i className="ti ti-x" />
+            </button>
+          </div>
+        </div>
+
+        {/* Current selection pills */}
+        <div className={s.selectionRow}>
+          <span>Current selection:</span>
+          <span className={s.pill}><i className="ti ti-flag" style={{ marginRight: 4, fontSize: 11 }} />{selectedCountry.name}</span>
+          <span className={s.pill}><i className="ti ti-calendar" style={{ marginRight: 4, fontSize: 11 }} />{selectedYear}</span>
+        </div>
+
+        {/* Name input */}
+        <div className={s.nameArea}>
+          <input
+            className={s.nameInput}
+            value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder="Target group name"
+          />
+          {isDuplicate && <div className={s.nameError}>This target group title is already in use.</div>}
+        </div>
+
+        {/* 3 columns */}
+        <div className={s.columns}>
+          {/* Col 1: Items / category tree */}
+          <div className={`${s.col} ${s.colItems}`}>
+            <div className={s.colHeader}>
+              <span className={s.colStep}>1</span>
+              ITEMS
+            </div>
+            <div className={s.colBody}>
+              {categories.map(cat => (
+                <div key={cat.id}>
+                  <div className={s.catRow} onClick={() => toggleCat(cat.id)}>
+                    <i className={`ti ${expandedCats.includes(cat.id) ? 'ti-chevron-down' : 'ti-chevron-right'}`} style={{ fontSize: 12, flexShrink: 0 }} />
+                    <span>{cat.label}</span>
+                  </div>
+                  {expandedCats.includes(cat.id) && cat.subcats.map(subcat => (
+                    <div
+                      key={subcat.id}
+                      className={`${s.subcatRow} ${activeSubcat?.subcatId === subcat.id && activeSubcat?.catId === cat.id ? s.subcatRowActive : ''}`}
+                      onClick={() => selectSubcat(cat, subcat)}
+                    >
+                      {subcat.label}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Col 2: Characteristics */}
+          <div className={`${s.col} ${s.colChars}`}>
+            <div className={s.colHeader}>
+              <span className={s.colStep}>2</span>
+              CHARACTERISTICS
+            </div>
+            {activeSubcat ? (
+              <>
+                <div className={s.charHeader}>
+                  <span>{activeSubcat.subcatLabel}</span>
+                  <button className={s.deselectAll} onClick={deselectAll}>Deselect all</button>
+                </div>
+                <div className={s.colBody}>
+                  {activeSubcat.items.map(item => {
+                    const checked = selections.some(sel => sel.catId === activeSubcat.catId && sel.subcatId === activeSubcat.subcatId && sel.item === item)
+                    return (
+                      <label key={item} className={`${s.checkRow} ${checked ? s.checkRowChecked : ''}`}>
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleItem(item)}
+                        />
+                        {item}
+                      </label>
+                    )
+                  })}
+                </div>
+              </>
+            ) : (
+              <div className={s.emptyChars}>Select a subcategory from the left to view characteristics.</div>
+            )}
+          </div>
+
+          {/* Col 3: Your selection */}
+          <div className={`${s.col} ${s.colSelection}`}>
+            <div className={s.colHeader}>
+              <span className={s.colStep}>3</span>
+              YOUR SELECTION
+            </div>
+            <div className={s.selectionHeader}>
+              <span style={{ fontSize: 12, color: '#455f7c' }}>{selections.length} item{selections.length !== 1 ? 's' : ''} selected</span>
+              {selections.length > 0 && (
+                <button className={s.clearAllBtn} onClick={clearAll}>Clear all</button>
+              )}
+            </div>
+            <div className={s.colBody}>
+              {selectionGroups.map(([catLabel, items]) => (
+                <div key={catLabel}>
+                  <div className={s.selGroupLabel}>{catLabel.toUpperCase()}</div>
+                  {items.map(sel => (
+                    <div key={sel.item} className={s.selItem}>
+                      <span className={s.selItemText}>{sel.item}</span>
+                      <button className={s.removeBtn} onClick={() => removeItem(sel)}>
+                        <i className="ti ti-trash" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ))}
+              {selections.length === 0 && (
+                <div className={s.emptyChars}>No items selected yet.</div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className={s.modalFooter}>
+          Number of respondents: <strong>{respondentCount.toLocaleString()}</strong>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function TargetGroupModal() {
+  const targetGroupModalId = useLegacyStore(s => s.targetGroupModalId)
+  const targetGroups = useLegacyStore(s => s.targetGroups)
+
+  if (!targetGroupModalId) return null
+
+  const existingGroup = targetGroupModalId !== 'create'
+    ? targetGroups.find(g => g.id === targetGroupModalId) ?? null
+    : null
+
+  return <ModalInner key={targetGroupModalId} existingGroup={existingGroup} />
+}

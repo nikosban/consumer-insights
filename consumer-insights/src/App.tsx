@@ -1,8 +1,15 @@
 import { lazy, Suspense } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import AppLayout from '@/components/layout/AppLayout'
 import SearchModal from '@/components/ui/SearchModal'
 import { Toaster } from '@/components/ui/Toaster'
+import VersionSwitcherFab from '@/components/app/VersionSwitcherFab'
+
+function FabMount() {
+  const { pathname } = useLocation()
+  if (pathname === '/') return null
+  return <VersionSwitcherFab />
+}
 
 const LandingPage        = lazy(() => import('@/pages/landing/LandingPage'))
 const AudiencesPage      = lazy(() => import('@/pages/AudiencesPage'))
@@ -16,12 +23,14 @@ const AnalysesPage       = lazy(() => import('@/pages/AnalysesPage'))
 const AnalysisDetailPage = lazy(() => import('@/pages/AnalysisDetailPage'))
 const PlaygroundPage     = lazy(() => import('@/pages/PlaygroundPage'))
 const NotFoundPage       = lazy(() => import('@/pages/NotFoundPage'))
+const LegacyAppRoot      = lazy(() => import('@/legacy/LegacyAppRoot'))
 
 export default function App() {
   return (
     <>
       <SearchModal />
       <Toaster />
+      <FabMount />
       <Suspense fallback={null}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
@@ -39,6 +48,7 @@ export default function App() {
             <Route path="/playground" element={<PlaygroundPage />} />
           </Route>
           <Route path="/dashboards/:id/view" element={<DashboardViewPage />} />
+          <Route path="/consumer_insights_legacy" element={<LegacyAppRoot />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>

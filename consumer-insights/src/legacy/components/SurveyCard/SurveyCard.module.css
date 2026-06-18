@@ -1,0 +1,313 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 32px;
+  background: var(--color-surface);
+  border-radius: 4px;
+  box-shadow: 0 2px 3px rgba(67,94,131,0.149);
+  min-width: 0;
+  max-width: 100%;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--color-on-surface-muted);
+}
+.closeBtn:hover { color: var(--color-on-surface-strong); }
+
+/* Header — card's p-[32px] provides horizontal spacing */
+.header {
+  display: flex;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-outline);
+}
+
+.title {
+  flex: 1;
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 28px;
+  color: var(--color-on-surface);
+  min-width: 0;
+}
+
+.compareBtn {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: var(--font-md);
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Meta — extra padding on top of card's 32px */
+.meta {
+  padding: 20px 20px 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metaName { font-size: var(--font-md); font-weight: 400; color: var(--color-on-surface); line-height: var(--lh-md); }
+.metaType { font-size: var(--font-md); font-weight: 400; color: var(--color-on-surface); line-height: var(--lh-md); }
+.metaBase { font-size: var(--font-md); color: var(--color-on-surface); line-height: var(--lh-md); }
+.metaBase strong { font-weight: 700; }
+
+/* Body — card's p-[32px] provides all outer spacing */
+.body {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.tableWrap {
+  flex: 1;
+  overflow-x: auto;
+  min-width: 0;
+}
+
+.table { width: 100%; border-collapse: collapse; }
+
+.table th {
+  padding: 8px 16px;
+  font-size: var(--font-md);
+  font-weight: 400;
+  color: var(--color-on-surface);
+  border-bottom: 1px solid var(--color-outline);
+  white-space: nowrap;
+}
+
+.table th:first-child { text-align: left; }
+.table th:not(:first-child) { text-align: right; }
+
+.sortable { cursor: pointer; user-select: none; }
+.sortable:hover { background: var(--color-surface-muted); }
+.sortActive { color: var(--color-primary); }
+
+.sort { color: var(--color-on-surface-muted); font-size: 14px; margin-left: 4px; vertical-align: middle; }
+
+.table td {
+  padding: 8px 16px;
+  font-size: var(--font-md);
+  color: var(--color-on-surface);
+  white-space: nowrap;
+}
+
+.table td:first-child { text-align: left; }
+.table td:not(:first-child) { text-align: right; }
+
+.baseRow td { background: var(--color-primary-container); }
+.altRow td { background: var(--color-surface-muted); }
+.pctCol { background: var(--color-primary-container) !important; }
+
+/* Actions column */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 36px;
+  flex-shrink: 0;
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: var(--color-surface);
+  cursor: pointer;
+  border-radius: 4px;
+  box-shadow: 0 5px 26px rgba(67,94,131,0.15);
+  color: var(--color-on-surface-muted);
+  font-size: 16px;
+  flex-shrink: 0;
+  transition: color 0.1s;
+}
+.actionBtn:hover { color: var(--color-on-surface-strong); }
+.infoBtnActive { color: var(--color-primary); }
+
+.chartGroup {
+  display: flex;
+  flex-direction: column;
+  width: 36px;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 5px 13px rgba(67,94,131,0.15);
+  flex-shrink: 0;
+}
+
+.chartBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: var(--color-surface);
+  cursor: pointer;
+  color: var(--color-on-surface-muted);
+  font-size: 16px;
+  flex-shrink: 0;
+  transition: background 0.1s, color 0.1s;
+}
+.chartBtn:hover:not(.chartBtnActive):not(.chartBtnDisabled) { background: var(--color-surface-muted); color: var(--color-on-surface-strong); }
+.chartBtnActive { background: var(--color-primary); color: var(--color-inverted); }
+.chartBtnDisabled { opacity: 0.35; cursor: not-allowed; }
+
+.iconRotate90 { display: inline-block; transform: rotate(90deg); }
+
+/* ─── Crosstab ───────────────────────────────────────────── */
+
+.crosstabTable {
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: auto;
+  min-width: 100%;
+}
+
+/* Sticky first column */
+.stickyCol {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  min-width: 318px;
+  max-width: 318px;
+  text-align: left;
+  border-right: 1px solid rgba(6,102,229,0.3);
+  box-shadow: 4px 0 8px rgba(69,95,124,0.1);
+}
+
+/* Background variants for sticky td per row type */
+.stickyColDefault { background: var(--color-surface); }
+.stickyColBase    { background: #E5F1FF; }
+.stickyColAlt     { background: #F5F8FB; }
+
+/* Sticky th in rows 1-2 (rowSpan=2, contains row question meta) */
+.leftMetaTh {
+  z-index: 3;
+  background: var(--color-surface);
+  vertical-align: top;
+  text-align: left;
+  padding: 24px 24px 24px 16px;
+}
+
+.leftMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Sticky th in row 3 (Answers header) */
+.answersHeader {
+  z-index: 3;
+  background: var(--color-surface);
+  padding: 8px 24px 8px 16px;
+  text-align: left;
+  font-size: var(--font-md);
+  font-weight: 400;
+  line-height: 20px;
+  color: var(--color-on-surface);
+  border-bottom: 1px solid #E9ECEE;
+  white-space: nowrap;
+}
+
+/* Column question metadata header (row 1, each colItem) */
+.colMetaHeader {
+  padding: 24px 24px 24px 16px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid #E9ECEE;
+  border-left: 1px solid rgba(6,102,229,0.2);
+}
+
+.totalColMeta { background: var(--color-surface-muted); border-left: none; }
+.totalSplitHeader { background: var(--color-surface-muted); font-weight: 600; }
+
+.colMetaContent { display: flex; flex-direction: column; gap: 6px; }
+.colMetaName { font-size: var(--font-md); line-height: 20px; font-weight: 400; color: var(--color-on-surface); white-space: nowrap; }
+.colMetaDesc { font-size: var(--font-md); line-height: 20px; font-weight: 400; color: var(--color-on-surface); }
+.colMetaBase { font-size: var(--font-md); line-height: 20px; font-weight: 400; color: var(--color-on-surface); }
+
+/* Split label headers (row 2, e.g. "Total — Gender", "Male", "Female") */
+.splitHeader {
+  padding: 8px 15px;
+  text-align: left;
+  font-size: var(--font-md);
+  font-weight: 400;
+  line-height: 20px;
+  color: var(--color-on-surface);
+  border-bottom: 1px solid #E9ECEE;
+  white-space: nowrap;
+}
+
+/* Sub-column headers (row 3: Absolute, Population, Percent) */
+.subColHeader {
+  padding: 8px 15px;
+  text-align: right;
+  font-size: var(--font-md);
+  font-weight: 400;
+  line-height: 20px;
+  color: var(--color-on-surface);
+  border-bottom: 1px solid #E9ECEE;
+  white-space: nowrap;
+  min-width: 110px;
+}
+
+/* Left border on first cell of each split group (separator between splits) */
+.splitGroupStart { border-left: 1px solid #E9ECEE; }
+
+/* Separator between colItem groups (thin blue border, no wide gap) */
+.colGapTh {
+  width: 1px;
+  min-width: 1px;
+  padding: 0;
+  border: none;
+  border-left: 2px solid rgba(6,102,229,0.2);
+  background: transparent;
+}
+
+.colGapCell {
+  width: 1px;
+  padding: 0;
+  border: none;
+  border-left: 2px solid rgba(6,102,229,0.2);
+  background: transparent !important;
+}
+
+/* Crosstab data cells */
+.crosstabTable td {
+  padding: 8px 15px;
+  font-size: var(--font-md);
+  line-height: 20px;
+  color: var(--color-on-surface);
+  white-space: nowrap;
+  text-align: right;
+}
+
+.crosstabTable td:first-child {
+  text-align: left;
+  padding-left: 16px;
+}

@@ -22,6 +22,7 @@ export type Audience = {
   updatedAt: string;
   isShared: boolean;
   region?: string;
+  wave?: string;
 };
 
 // ─── Widget ──────────────────────────────────────────────────────────────────

@@ -1420,6 +1420,18 @@ function ButtonPage() {
           <Button variant="ghost-success">{ic(IconCheck)} Mark done</Button>
         </div>
 
+        {/* Ghost inverse row */}
+        <div className="grid grid-cols-[90px_1fr_1fr_1fr_1fr] gap-3 items-center py-3 border-t border-border/40 rounded-b-xl bg-blue-950 -mx-4 px-4">
+          <div>
+            <p className="text-xs font-medium text-white">Ghost inverse</p>
+            <p className="text-xs text-white/50">For dark surfaces</p>
+          </div>
+          <Button variant="ghost-inverse">{ic(IconChartBar)} Benchmark</Button>
+          <Button variant="ghost-inverse">{ic(IconLayoutDashboard)} Dashboard</Button>
+          <Button variant="ghost-inverse">{ic(IconTrash)} Delete</Button>
+          <Button variant="ghost-inverse">{ic(IconCheck)} Apply</Button>
+        </div>
+
         {/* Link row */}
         <div className="grid grid-cols-[90px_1fr_1fr_1fr_1fr] gap-3 items-center py-3 border-t border-border/40">
           <div>

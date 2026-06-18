@@ -59,6 +59,8 @@ const vGhost        = "bg-transparent text-foreground  border-transparent hover:
 const vGhostBrand   = "bg-transparent text-primary     border-transparent hover:bg-primary/8        active:bg-primary/12     focus-visible:ring-ring/50"
 const vGhostDanger  = "bg-transparent text-destructive border-transparent hover:bg-destructive/8    active:bg-destructive/12 focus-visible:ring-destructive/50"
 const vGhostSuccess = "bg-transparent text-emerald-700 border-transparent hover:bg-emerald-50       active:bg-emerald-100    focus-visible:ring-emerald-500/50"
+// Ghost inverse — for use on dark/colored surfaces (e.g. bg-blue-950 preview cards)
+const vGhostInverse = "bg-transparent text-white/80    border-transparent hover:text-white hover:bg-white/10 active:bg-white/15 focus-visible:ring-white/30"
 
 // Link — inline, no fixed height, no padding, no shadow
 const lBase = "border-transparent h-auto px-0 font-normal underline-offset-4 hover:underline"
@@ -93,10 +95,11 @@ const buttonVariants = cva(
         "secondary-danger": vSecondaryDanger,
         "secondary-success": vSecondarySuccess,
         // ── Ghost (transparent, flat) ──
-        ghost:          vGhost,
-        "ghost-brand":  vGhostBrand,
-        "ghost-danger": vGhostDanger,
+        ghost:           vGhost,
+        "ghost-brand":   vGhostBrand,
+        "ghost-danger":  vGhostDanger,
         "ghost-success": vGhostSuccess,
+        "ghost-inverse": vGhostInverse,
         // ── Link (inline) ──
         link:          vLink,
         "link-neutral": vLinkNeutral,

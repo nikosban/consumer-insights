@@ -4,7 +4,7 @@ import { useAudienceStore } from '@/store/audienceStore'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Chip, FieldGroup, SegmentedControl, Toolbar, ToolbarActions, Breadcrumb, BreadcrumbItem } from '@/components/app'
+import { Chip, FieldGroup, Toolbar, ToolbarActions, Breadcrumb, BreadcrumbItem } from '@/components/app'
 import {
   Select,
   SelectContent,
@@ -25,6 +25,14 @@ import { ValuePicker } from '@/components/ValuePicker'
 import { toast } from '@/components/ui/Toaster'
 
 type LocationState = { prefill?: Partial<Audience> }
+
+const WAVES = [
+  { value: 'w1-2023-q3', label: 'Wave 1 · Q3 2023' },
+  { value: 'w2-2024-q1', label: 'Wave 2 · Q1 2024' },
+  { value: 'w3-2024-q2', label: 'Wave 3 · Q2 2024' },
+  { value: 'w4-2024-q4', label: 'Wave 4 · Q4 2024' },
+  { value: 'w5-2025-q1', label: 'Wave 5 · Q1 2025' },
+]
 
 const OPERATORS_NUMERIC = ['gte', 'lte', 'eq'] as const
 const OPERATORS_STRING = ['eq', 'neq', 'in'] as const
@@ -191,8 +199,14 @@ function PreviewCard({
   const hasFilters = flattenConditions(filters).length > 0
   const isLow = size < LOW_THRESHOLD
 
+  const totalRows = breakdown.length + (hasFilters ? 1 : 0)
+  const isLong = totalRows > 10
+
   return (
-    <div className="rounded-xl overflow-hidden bg-blue-950 flex flex-col h-full relative">
+    <div className={cn(
+      'rounded-xl overflow-hidden bg-blue-950 flex flex-col relative sticky top-6',
+      isLong ? 'h-auto' : 'h-[520px]'
+    )}>
       {/* Bayer dither */}
       <div className="absolute inset-0 pointer-events-none">
         <DitherCanvas />
@@ -204,7 +218,7 @@ function PreviewCard({
         {/* Title + description */}
         <div className="mb-4">
           <p className="text-sm font-semibold text-white">Respondent preview</p>
-          <p className="text-xs text-white/60 mt-1 leading-relaxed">
+          <p className="text-xs font-medium text-white/75 mt-1 leading-relaxed">
             Estimated reach based on your current region and filters.
           </p>
         </div>
@@ -216,11 +230,11 @@ function PreviewCard({
         <div className="mb-3 space-y-1.5">
           {breakdown.map((row, i) => (
             <div key={i} className="flex items-baseline justify-between gap-2">
-              <span className="text-[11px] text-white/60 truncate min-w-0">{row.label}</span>
+              <span className="text-xs font-medium text-white/80 truncate min-w-0">{row.label}</span>
               <span className={cn(
-                'text-[11px] tabular-nums shrink-0 font-medium',
+                'text-xs tabular-nums shrink-0 font-medium',
                 row.delta === null ? 'text-white' :
-                row.delta < 0 ? 'text-white/60' : 'text-emerald-400'
+                row.delta < 0 ? 'text-white/70' : 'text-emerald-400'
               )}>
                 {row.delta === null
                   ? formatAudienceSize(row.running)
@@ -231,15 +245,15 @@ function PreviewCard({
           ))}
           {hasFilters && (
             <div className="border-t border-white/15 pt-1.5 flex items-baseline justify-between gap-2">
-              <span className="text-[11px] font-semibold text-white">Total</span>
-              <span className="text-[11px] font-semibold text-white tabular-nums">{formatAudienceSize(size)}</span>
+              <span className="text-xs font-semibold text-white">Total</span>
+              <span className="text-xs font-semibold text-white tabular-nums">{formatAudienceSize(size)}</span>
             </div>
           )}
         </div>
 
         {/* Big count */}
         <div className="mb-1">
-          <p className="text-xs text-white/60 mb-1">Estimated respondents</p>
+          <p className="text-xs font-medium text-white/75 mb-1">Estimated respondents</p>
           <p className="text-[32px] leading-[40px] font-semibold text-white tabular-nums">
             {formatAudienceSize(size)}
           </p>
@@ -249,10 +263,10 @@ function PreviewCard({
         {isLow && (
           <div className="mt-3 rounded-lg bg-amber-500/15 border border-amber-400/25 px-3 py-2.5">
             <div className="flex items-start gap-1.5 mb-1">
-              <IconAlertTriangle size={11} strokeWidth={2} className="text-amber-300 shrink-0 mt-0.5" />
-              <p className="text-[11px] font-medium text-amber-200">Sample size may be too small</p>
+              <IconAlertTriangle size={12} strokeWidth={2} className="text-amber-300 shrink-0 mt-0.5" />
+              <p className="text-xs font-medium text-amber-200">Sample size may be too small</p>
             </div>
-            <p className="text-[10px] text-amber-300/80 leading-relaxed">
+            <p className="text-xs text-amber-300/80 leading-relaxed">
               Try broadening the age range, removing a filter, or switching to Global.
             </p>
           </div>
@@ -260,28 +274,22 @@ function PreviewCard({
 
         {/* Suggested actions */}
         <div className="mt-4 pt-3 border-t border-white/15 space-y-0.5">
-          <p className="text-[10px] font-semibold text-white/40 uppercase tracking-wider mb-2">Use this audience</p>
-          <button
-            onClick={() => navigate('/charts')}
-            className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-white/70 hover:text-white hover:bg-white/10 transition-colors"
-          >
-            <IconChartBar size={13} strokeWidth={2} className="shrink-0 text-white/50" />
+          <p className="text-xs font-semibold text-white/60 mb-2">Use this audience</p>
+          <Button variant="ghost-inverse" size="sm" className="w-full justify-start"
+            onClick={() => navigate('/charts')}>
+            <IconChartBar strokeWidth={2} />
             Benchmark audience
-          </button>
-          <button
-            onClick={() => navigate('/dashboards')}
-            className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-white/70 hover:text-white hover:bg-white/10 transition-colors"
-          >
-            <IconLayoutDashboard size={13} strokeWidth={2} className="shrink-0 text-white/50" />
+          </Button>
+          <Button variant="ghost-inverse" size="sm" className="w-full justify-start"
+            onClick={() => navigate('/dashboards')}>
+            <IconLayoutDashboard strokeWidth={2} />
             Apply to a dashboard
-          </button>
-          <button
-            onClick={() => navigate('/chat', { state: { audienceName } })}
-            className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-left text-xs text-white/70 hover:text-white hover:bg-white/10 transition-colors"
-          >
-            <IconMessage size={13} strokeWidth={2} className="shrink-0 text-white/50" />
+          </Button>
+          <Button variant="ghost-inverse" size="sm" className="w-full justify-start"
+            onClick={() => navigate('/chat', { state: { audienceName } })}>
+            <IconMessage strokeWidth={2} />
             Apply to Research AI
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -290,9 +298,14 @@ function PreviewCard({
 
 // ─── Group editor ─────────────────────────────────────────────────────────────
 
-type GroupEditorProps = { group: FilterGroup; onChange: (g: FilterGroup) => void; depth?: number }
+type GroupEditorProps = {
+  group: FilterGroup
+  onChange: (g: FilterGroup) => void
+  depth?: number
+  onRemove?: () => void
+}
 
-function GroupEditor({ group, onChange, depth = 0 }: GroupEditorProps) {
+function GroupEditor({ group, onChange, depth = 0, onRemove }: GroupEditorProps) {
 
   function updateCondition(index: number, patch: Partial<FilterCondition>) {
     const updated = group.conditions.map((c, i) =>
@@ -307,35 +320,64 @@ function GroupEditor({ group, onChange, depth = 0 }: GroupEditorProps) {
     onChange({ ...group, conditions: group.conditions.filter((_, i) => i !== index) })
   }
 
-  return (
-    <div className={cn('space-y-3', depth > 0 ? 'ml-4 pl-4 border-l-2 border-border' : '')}>
-      {/* AND / OR segmented toggle */}
-      <div className="flex items-center gap-2.5">
-        <SegmentedControl
-          options={['AND', 'OR'] as const}
-          value={group.operator}
-          onChange={(op) => onChange({ ...group, operator: op })}
-        />
-        <span className="text-xs text-muted-foreground">
-          match {group.operator === 'AND' ? 'all' : 'any'} of the following
-        </span>
-      </div>
+  function toggleOperator() {
+    onChange({ ...group, operator: group.operator === 'AND' ? 'OR' : 'AND' })
+  }
 
-      {/* Conditions */}
+  return (
+    <div className={cn(
+      depth > 0 ? 'bg-muted/40 border border-border rounded-lg p-3' : ''
+    )}>
+      {/* Group header — only when nested, shows operator label + remove */}
+      {depth > 0 && (
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-xs text-muted-foreground">
+            Match {group.operator === 'AND' ? 'all' : 'any'} of the following
+          </span>
+          {onRemove && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={onRemove}
+              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
+            >
+              <IconTrash className="h-3.5 w-3.5" strokeWidth={2} />
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* Conditions interleaved with between-connectors */}
+      <div className="space-y-2">
       {group.conditions.map((item, index) => {
+        const connector = index > 0 && (
+          <div key={`sep-${index}`} className="flex items-center gap-2 ml-1">
+            <button
+              type="button"
+              onClick={toggleOperator}
+              className={cn(
+                'text-xs font-semibold px-2 py-0.5 rounded border transition-colors select-none',
+                group.operator === 'AND'
+                  ? 'bg-background border-border text-secondary-foreground hover:border-primary/40 hover:text-primary'
+                  : 'bg-primary/8 border-primary/30 text-primary hover:bg-primary/12'
+              )}
+            >
+              {group.operator}
+            </button>
+          </div>
+        )
+
         if (isFilterGroup(item)) {
           return (
-            <div key={item.id} className="relative">
-              <GroupEditor group={item} onChange={(g) => updateSubGroup(index, g)} depth={depth + 1} />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => removeItem(index)}
-                className="absolute top-0 right-0 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-              >
-                <IconTrash className="h-3.5 w-3.5" strokeWidth={2} />
-              </Button>
+            <div key={item.id}>
+              {connector}
+              <GroupEditor
+                group={item}
+                onChange={(g) => updateSubGroup(index, g)}
+                depth={depth + 1}
+                onRemove={() => removeItem(index)}
+              />
             </div>
           )
         }
@@ -346,67 +388,73 @@ function GroupEditor({ group, onChange, depth = 0 }: GroupEditorProps) {
         const operators = isNumeric ? OPERATORS_NUMERIC : OPERATORS_STRING
 
         return (
-          <div key={item.id} className="flex items-center gap-2 flex-wrap">
-            <AttributePicker
-              value={item.attribute}
-              onSelect={(attr) => {
-                const opts = ATTRIBUTE_OPTIONS[attr]
-                updateCondition(index, { attribute: attr, operator: opts ? 'in' : 'eq', value: opts ? [] : '' })
-              }}
-            />
-
-            {hasOptions ? (
-              <span className="text-xs text-secondary-foreground px-0.5">is one of</span>
-            ) : (
-              <Select
-                value={item.operator}
-                onValueChange={(val) => { if (val !== null) updateCondition(index, { operator: val as FilterCondition['operator'] }) }}
-              >
-                <SelectTrigger className="w-36 h-8 text-xs">
-                  <span>{OPERATOR_LABELS[item.operator] ?? item.operator}</span>
-                </SelectTrigger>
-                <SelectContent>
-                  {operators.map((op) => (
-                    <SelectItem key={op} value={op} className="text-xs">
-                      {OPERATOR_LABELS[op] ?? op}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-
-            {hasOptions ? (
-              <ValuePicker
-                options={attrOptions}
-                value={Array.isArray(item.value) ? item.value as string[] : []}
-                onChange={(vals) => updateCondition(index, { value: vals })}
-              />
-            ) : (
-              <Input
-                className="h-8 text-xs w-40"
-                placeholder={item.operator === 'in' ? 'val1, val2' : 'value'}
-                value={Array.isArray(item.value) ? item.value.join(', ') : String(item.value)}
-                onChange={(e) => {
-                  const raw = e.target.value
-                  updateCondition(index, { value: item.operator === 'in' ? raw.split(',').map(s => s.trim()) : raw })
+          <div key={item.id}>
+            {connector}
+            <div className="grid grid-cols-[208px_1fr_auto] items-center gap-2">
+              <AttributePicker
+                value={item.attribute}
+                onSelect={(attr) => {
+                  const opts = ATTRIBUTE_OPTIONS[attr]
+                  updateCondition(index, { attribute: attr, operator: opts ? 'in' : 'eq', value: opts ? [] : '' })
                 }}
               />
-            )}
 
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => removeItem(index)}
-              className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-            >
-              <IconTrash className="h-3.5 w-3.5" strokeWidth={2} />
-            </Button>
+              <div className="flex items-center gap-2 min-w-0">
+                {hasOptions ? (
+                  <span className="text-xs text-secondary-foreground shrink-0">is one of</span>
+                ) : (
+                  <Select
+                    value={item.operator}
+                    onValueChange={(val) => { if (val !== null) updateCondition(index, { operator: val as FilterCondition['operator'] }) }}
+                  >
+                    <SelectTrigger className="w-32 shrink-0 h-8 text-xs">
+                      <span>{OPERATOR_LABELS[item.operator] ?? item.operator}</span>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {operators.map((op) => (
+                        <SelectItem key={op} value={op} className="text-xs">
+                          {OPERATOR_LABELS[op] ?? op}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+
+                {hasOptions ? (
+                  <ValuePicker
+                    options={attrOptions}
+                    value={Array.isArray(item.value) ? item.value as string[] : []}
+                    onChange={(vals) => updateCondition(index, { value: vals })}
+                  />
+                ) : (
+                  <Input
+                    className="h-8 text-xs min-w-0"
+                    placeholder={item.operator === 'in' ? 'val1, val2' : 'value'}
+                    value={Array.isArray(item.value) ? item.value.join(', ') : String(item.value)}
+                    onChange={(e) => {
+                      const raw = e.target.value
+                      updateCondition(index, { value: item.operator === 'in' ? raw.split(',').map(s => s.trim()) : raw })
+                    }}
+                  />
+                )}
+              </div>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => removeItem(index)}
+                className="shrink-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              >
+                <IconTrash className="h-3.5 w-3.5" strokeWidth={2} />
+              </Button>
+            </div>
           </div>
         )
       })}
+      </div>
 
-      <div className="flex gap-2 pt-1">
+      <div className="flex gap-2 pt-2">
         <Button type="button" variant="ghost" size="sm" className="text-xs h-7"
           onClick={() => onChange({ ...group, conditions: [...group.conditions, newCondition()] })}>
           <IconPlus className="h-3.5 w-3.5 mr-1" strokeWidth={2} /> Add condition
@@ -601,7 +649,7 @@ function AIQueryInput({ onApply }: { onApply: (f: FilterGroup) => void }) {
       </div>
 
       <div>
-        <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider mb-2">Examples</p>
+        <p className="text-xs font-medium text-muted-foreground mb-2">Examples</p>
         <div className="flex flex-wrap gap-1.5">
           {AI_EXAMPLES.map(ex => (
             <Chip
@@ -632,6 +680,7 @@ export default function AudienceBuilderPage() {
   const [name, setName]               = useState(existing?.name ?? prefill?.name ?? '')
   const [description, setDescription] = useState(existing?.description ?? prefill?.description ?? '')
   const [region, setRegion]           = useState<string>(existing?.region ?? prefill?.region ?? 'us')
+  const [wave, setWave]               = useState<string>(existing?.wave ?? prefill?.wave ?? WAVES[WAVES.length - 1].value)
   const [filters, setFilters]         = useState<FilterGroup>(
     existing?.filters ?? (prefill?.filters as FilterGroup | undefined) ?? newGroup()
   )
@@ -647,12 +696,14 @@ export default function AudienceBuilderPage() {
     name: existing?.name ?? prefill?.name ?? '',
     description: existing?.description ?? prefill?.description ?? '',
     region: existing?.region ?? prefill?.region ?? 'us',
+    wave: existing?.wave ?? prefill?.wave ?? WAVES[WAVES.length - 1].value,
     filters: JSON.stringify(existing?.filters ?? prefill?.filters ?? newGroup()),
   })
   const isDirty = !isEditing || (
     name !== savedRef.current.name ||
     description !== savedRef.current.description ||
     region !== savedRef.current.region ||
+    wave !== savedRef.current.wave ||
     JSON.stringify(filters) !== savedRef.current.filters
   )
 
@@ -668,11 +719,11 @@ export default function AudienceBuilderPage() {
     if (!canSave) return
     const now = new Date().toISOString()
     if (isEditing && id) {
-      update(id, { name, description, region, filters, updatedAt: now })
-      savedRef.current = { name, description, region, filters: JSON.stringify(filters) }
+      update(id, { name, description, region, wave, filters, updatedAt: now })
+      savedRef.current = { name, description, region, wave, filters: JSON.stringify(filters) }
       toast.success('Audience updated')
     } else {
-      add({ id: `aud-${Date.now()}`, name, description, region, filters, isShared: false, createdAt: now, updatedAt: now })
+      add({ id: `aud-${Date.now()}`, name, description, region, wave, filters, isShared: false, createdAt: now, updatedAt: now })
       toast.success('Audience created')
       navigate('/audiences')
     }
@@ -726,12 +777,24 @@ export default function AudienceBuilderPage() {
     <div className="px-6 py-10 max-w-[960px] mx-auto pb-10">
 
       {/* 2-column grid */}
-      <div className="grid grid-cols-[1fr_280px] gap-8 items-stretch">
+      <div className="grid grid-cols-[1fr_280px] gap-8 items-start">
         {/* Left column */}
         <div className="space-y-6 min-w-0">
           <div className="space-y-5">
             <FieldGroup label="Region">
               <RegionPicker value={region} onChange={setRegion} />
+            </FieldGroup>
+            <FieldGroup label="Wave">
+              <Select value={wave} onValueChange={(val) => val !== null && setWave(val)}>
+                <SelectTrigger className="h-8 text-xs">
+                  <span>{WAVES.find(w => w.value === wave)?.label ?? wave}</span>
+                </SelectTrigger>
+                <SelectContent>
+                  {WAVES.map(w => (
+                    <SelectItem key={w.value} value={w.value} className="text-xs">{w.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </FieldGroup>
             <FieldGroup label="Description">
               <Textarea
