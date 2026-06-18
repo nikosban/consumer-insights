@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useState, useRef, useCallback, useEffect } from 'react'
+import { V3_VARIANT_KEY } from '@/config/versions'
 import { useAIStore } from '@/store/aiStore'
 import {
   IconMessage, IconUsers, IconChartBar, IconFlask, IconLogout,
@@ -54,6 +55,17 @@ export default function WorkspaceSidebar() {
   const reset = useAIStore(s => s.reset)
   const [width, setWidth] = useState(DEFAULT_WIDTH)
   const [collapsed, setCollapsed] = useState(false)
+  const [v3variant, setV3variant] = useState(() => localStorage.getItem(V3_VARIANT_KEY) ?? '3.2')
+
+  useEffect(() => {
+    function onStorage() { setV3variant(localStorage.getItem(V3_VARIANT_KEY) ?? '3.2') }
+    window.addEventListener('storage', onStorage)
+    // also catch same-tab updates via a custom event
+    window.addEventListener('ci-variant-change', onStorage)
+    return () => { window.removeEventListener('storage', onStorage); window.removeEventListener('ci-variant-change', onStorage) }
+  }, [])
+
+  const showFullNav = v3variant !== '3.1'
   const isResizing = useRef(false)
 
   useEffect(() => {
@@ -154,8 +166,8 @@ export default function WorkspaceSidebar() {
         <NavItem to="/research-ai" icon={<IconMessage       size={14} strokeWidth={2} />} label="Chat"       collapsed={collapsed} onClick={reset} />
         <NavItem to="/audiences"   icon={<IconUsers         size={14} strokeWidth={2} />} label="Audience"   collapsed={collapsed} />
         <NavItem to="/charts"      icon={<IconChartBar      size={14} strokeWidth={2} />} label="Charts"     collapsed={collapsed} />
-        <NavItem to="/dashboards"  icon={<IconLayoutDashboard size={14} strokeWidth={2} />} label="Dashboards" collapsed={collapsed} />
-        <NavItem to="/analyses"    icon={<IconFlask         size={14} strokeWidth={2} />} label="Analysis"   collapsed={collapsed} />
+        {showFullNav && <NavItem to="/dashboards"  icon={<IconLayoutDashboard size={14} strokeWidth={2} />} label="Dashboards" collapsed={collapsed} />}
+        {showFullNav && <NavItem to="/analyses"    icon={<IconFlask         size={14} strokeWidth={2} />} label="Analysis"   collapsed={collapsed} />}
       </div>
 
       {/* Bottom — theme toggle + logout */}
