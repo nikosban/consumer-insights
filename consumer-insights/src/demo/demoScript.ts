@@ -11,14 +11,17 @@ export interface DemoBubble {
 export interface DemoStep {
   id: string
   scene: string           // human label for the control bar
-  path?: string           // navigate to this path before showing bubbles
-  action?: string         // selector to click after bubbles are dismissed
-  actionDelay?: number    // ms to wait before clicking action (default 1200)
-  autoContinue?: boolean  // advance automatically after bubbles (default: presenter presses Next)
+  path?: string           // navigate to this path when the step starts
+  variant?: string        // apply this V3 variant (e.g. '3.2') when the step starts
+  action?: string         // selector to click when advancing away from this step
+  actionDelay?: number    // ms to wait after clicking action before next step
+  holdMs?: number         // override how long this step is shown before auto-advance
   bubbles: DemoBubble[]
 }
 
 // ─── Script ──────────────────────────────────────────────────────────────────
+// The demo auto-plays. Navigation between pages happens via `path`. The only
+// in-page click action is opening the Gen Z chat (no route for a single chat).
 
 export const DEMO_SCRIPT: DemoStep[] = [
 
@@ -27,16 +30,14 @@ export const DEMO_SCRIPT: DemoStep[] = [
     id: 'landing',
     scene: 'Landing page',
     path: '/',
-    autoContinue: false,
+    holdMs: 4000,
     bubbles: [],
-    action: '[data-demo="cta-try-assistant"]',
-    actionDelay: 2000,
   },
 
   // ACT 2 — Research AI empty state
   {
     id: 'rai-prompt',
-    scene: 'Chat — prompt',
+    scene: 'Chat — ask anything',
     path: '/research-ai',
     bubbles: [
       {
@@ -50,7 +51,7 @@ export const DEMO_SCRIPT: DemoStep[] = [
   },
   {
     id: 'rai-modes',
-    scene: 'Chat — mode chips',
+    scene: 'Chat — data sources',
     bubbles: [
       {
         selector: '[data-demo="rai-modes"]',
@@ -76,66 +77,69 @@ export const DEMO_SCRIPT: DemoStep[] = [
   },
   {
     id: 'rai-history',
-    scene: 'Chat — history',
+    scene: 'Chat — pick up past research',
+    holdMs: 4000,
     bubbles: [
       {
         selector: '[data-demo="rai-history"]',
         label: 'Pick up any previous research',
-        sublabel: 'All your past chats, searchable and ready to continue.',
+        sublabel: 'All your past chats, ready to continue — let\'s open one.',
         type: 'spotlight',
         position: 'top',
       },
     ],
-    action: '[data-demo="history-genz"]',
-    actionDelay: 1500,
+    action: '[data-demo="history-genz"] button',
+    actionDelay: 1600,
   },
 
-  // ACT 3 — Gen Z chat scroll
+  // ACT 3 — Gen Z conversation
   {
     id: 'chat-query',
-    scene: 'Chat — conversation',
+    scene: 'Chat — your question in context',
+    holdMs: 5500,
     bubbles: [
       {
         selector: '[data-demo="chat-query"]',
         label: 'Your question, always in context',
         sublabel: 'The original query anchors the entire conversation.',
         type: 'pulse',
-        position: 'right',
+        position: 'left',
       },
       {
         selector: '[data-demo="chat-chart"]',
         label: 'Auto-generated chart from real data',
         sublabel: 'Statista data visualised instantly — no setup required.',
         type: 'pulse',
-        position: 'right',
+        position: 'left',
       },
+    ],
+  },
+  {
+    id: 'chat-tools',
+    scene: 'Chat — export & sources',
+    holdMs: 5000,
+    bubbles: [
       {
         selector: '[data-demo="chat-chart-toolbar"]',
         label: 'Export right from the chat',
-        sublabel: 'Download, share, or add any chart to a dashboard in one click.',
+        sublabel: 'Download, copy, or add any chart to a dashboard in one click.',
         type: 'pulse',
         position: 'top',
       },
       {
         selector: '[data-demo="chat-sources"]',
         label: 'Every claim is sourced',
-        sublabel: 'Click any badge to open the full underlying dataset.',
+        sublabel: 'The underlying Statista dataset is always one click away.',
         type: 'pulse',
-        position: 'right',
+        position: 'top',
       },
     ],
   },
   {
-    id: 'chat-suggestions',
-    scene: 'Chat — suggestions & audience',
+    id: 'chat-audience',
+    scene: 'Chat — segment detected',
+    holdMs: 5500,
     bubbles: [
-      {
-        selector: '[data-demo="chat-suggestions"]',
-        label: 'AI suggests the next question',
-        sublabel: 'Follow the thread or pivot — the AI keeps up.',
-        type: 'pulse',
-        position: 'top',
-      },
       {
         selector: '[data-demo="chat-audience-card"]',
         label: 'Segment detected automatically',
@@ -145,20 +149,19 @@ export const DEMO_SCRIPT: DemoStep[] = [
       },
       {
         selector: '[data-demo="chat-audience-actions"]',
-        label: 'Save or open in the builder',
-        sublabel: 'One click to save the segment or customise it further.',
+        label: 'Save it or open the builder',
+        sublabel: 'One click to save the segment — or customise it further.',
         type: 'pulse',
         position: 'top',
       },
     ],
-    action: '[data-demo="chat-open-builder"]',
-    actionDelay: 2000,
   },
 
   // ACT 4 — Audience Builder
   {
-    id: 'builder-preview',
-    scene: 'Audience Builder — preview',
+    id: 'builder-universe',
+    scene: 'Audience Builder — live estimate',
+    path: '/audiences/new',
     bubbles: [
       {
         selector: '[data-demo="builder-universe"]',
@@ -171,7 +174,7 @@ export const DEMO_SCRIPT: DemoStep[] = [
   },
   {
     id: 'builder-input',
-    scene: 'Audience Builder — natural input',
+    scene: 'Audience Builder — plain English',
     bubbles: [
       {
         selector: '[data-demo="builder-input"]',
@@ -183,21 +186,8 @@ export const DEMO_SCRIPT: DemoStep[] = [
     ],
   },
   {
-    id: 'builder-region',
-    scene: 'Audience Builder — region',
-    bubbles: [
-      {
-        selector: '[data-demo="builder-region"]',
-        label: 'Scope by market or region',
-        sublabel: 'Filter to a single country or build a multi-market audience.',
-        type: 'spotlight',
-        position: 'right',
-      },
-    ],
-  },
-  {
     id: 'builder-logic',
-    scene: 'Audience Builder — AND/OR',
+    scene: 'Audience Builder — boolean logic',
     bubbles: [
       {
         selector: '[data-demo="builder-logic"]',
@@ -207,39 +197,29 @@ export const DEMO_SCRIPT: DemoStep[] = [
         position: 'right',
       },
     ],
-    action: '[data-demo="builder-save"]',
-    actionDelay: 1500,
   },
 
-  // ACT 5 — Back in chat, export callout
+  // ACT 5 — Charts
   {
-    id: 'chat-export',
-    scene: 'Chat — export',
-    path: '/research-ai',
-    action: '[data-demo="history-genz"]',
-    actionDelay: 500,
-    bubbles: [],
-    autoContinue: true,
-  },
-  {
-    id: 'chat-export-highlight',
-    scene: 'Chat — export tools',
+    id: 'charts-open',
+    scene: 'Charts — chart library',
+    path: '/charts',
+    holdMs: 4000,
     bubbles: [
       {
-        selector: '[data-demo="chat-chart-toolbar"]',
-        label: 'Export any insight directly',
-        sublabel: 'Charts and findings can leave the chat as files or dashboard widgets.',
-        type: 'pulse',
-        position: 'top',
+        selector: '[data-demo="charts-leaf"]',
+        label: 'Browse the full chart library',
+        sublabel: 'Pick any metric to start building — let\'s open one.',
+        type: 'spotlight',
+        position: 'right',
       },
     ],
+    action: '[data-demo="charts-leaf"]',
+    actionDelay: 1400,
   },
-
-  // ACT 6 — Charts
   {
     id: 'charts-rows',
-    scene: 'Charts — row zone',
-    path: '/charts',
+    scene: 'Charts — rows',
     bubbles: [
       {
         selector: '[data-demo="charts-rows"]',
@@ -252,7 +232,7 @@ export const DEMO_SCRIPT: DemoStep[] = [
   },
   {
     id: 'charts-cols',
-    scene: 'Charts — column zone',
+    scene: 'Charts — columns',
     bubbles: [
       {
         selector: '[data-demo="charts-cols"]',
@@ -265,7 +245,7 @@ export const DEMO_SCRIPT: DemoStep[] = [
   },
   {
     id: 'charts-types',
-    scene: 'Charts — view types',
+    scene: 'Charts — visualisation types',
     bubbles: [
       {
         selector: '[data-demo="charts-types"]',
@@ -278,40 +258,40 @@ export const DEMO_SCRIPT: DemoStep[] = [
   },
   {
     id: 'charts-add-dashboard',
-    scene: 'Charts — add to dashboard',
+    scene: 'Charts — save to dashboard',
     bubbles: [
       {
         selector: '[data-demo="charts-add-dashboard"]',
         label: 'Push any chart to a dashboard',
         sublabel: 'One click saves the chart with its current configuration.',
         type: 'spotlight',
-        position: 'top',
+        position: 'bottom',
       },
     ],
   },
 
-  // ACT 7 — Version switch
+  // ACT 6 — Unlock the full feature set (variant 3.2)
   {
     id: 'version-switch',
-    scene: 'Switch to full feature set',
+    scene: 'Unlocking the full feature set',
+    variant: '3.2',
+    holdMs: 4500,
     bubbles: [
       {
         selector: '[title="Switch version"]',
-        label: 'Switching to the full feature set',
-        sublabel: 'Dashboards and Analysis are now unlocked.',
+        label: 'The full feature set is now on',
+        sublabel: 'Dashboards and Analysis are unlocked in the sidebar.',
         type: 'spotlight',
         position: 'top',
       },
     ],
-    action: '[title="Switch version"]',
-    actionDelay: 2000,
   },
 
-  // ACT 8 — Dashboard
+  // ACT 7 — Dashboard
   {
     id: 'dashboard-grid',
-    scene: 'Dashboard — grid',
-    path: '/dashboards',
+    scene: 'Dashboard — your saved charts',
+    path: '/dashboards/dash-1',
     bubbles: [
       {
         selector: '[data-demo="dashboard-grid"]',
@@ -324,59 +304,16 @@ export const DEMO_SCRIPT: DemoStep[] = [
   },
   {
     id: 'dashboard-widget',
-    scene: 'Dashboard — widget',
+    scene: 'Dashboard — live widgets',
     bubbles: [
       {
         selector: '[data-demo="dashboard-widget"]',
         label: 'Live, interactive widgets',
-        sublabel: 'Click any widget to inspect, filter, or update it.',
+        sublabel: 'Inspect, filter, or rearrange any widget on the canvas.',
         type: 'pulse',
         position: 'top',
       },
     ],
-  },
-  {
-    id: 'dashboard-edit',
-    scene: 'Dashboard — edit mode',
-    bubbles: [
-      {
-        selector: '[data-demo="dashboard-edit"]',
-        label: 'Enter edit mode',
-        sublabel: 'Rearrange, add, or remove widgets freely.',
-        type: 'spotlight',
-        position: 'bottom',
-      },
-    ],
-    action: '[data-demo="dashboard-edit"]',
-    actionDelay: 1500,
-  },
-  {
-    id: 'dashboard-drag',
-    scene: 'Dashboard — drag & drop',
-    bubbles: [
-      {
-        selector: '[data-demo="dashboard-drag"]',
-        label: 'Drag to rearrange',
-        sublabel: 'Move any widget to the layout that tells your story best.',
-        type: 'pulse',
-        position: 'right',
-      },
-    ],
-  },
-  {
-    id: 'dashboard-ai',
-    scene: 'Dashboard — AI card',
-    bubbles: [
-      {
-        selector: '[data-demo="dashboard-ai"]',
-        label: 'Let AI fill the gap',
-        sublabel: 'Describe a chart and the AI builds and places it for you.',
-        type: 'spotlight',
-        position: 'top',
-      },
-    ],
-    action: '[data-demo="dashboard-done"]',
-    actionDelay: 2000,
   },
   {
     id: 'dashboard-export',
@@ -390,15 +327,13 @@ export const DEMO_SCRIPT: DemoStep[] = [
         position: 'bottom',
       },
     ],
-    action: '[data-demo="dashboard-export"]',
-    actionDelay: 1500,
   },
 
-  // ACT 9 — Analysis
+  // ACT 8 — Analysis
   {
     id: 'analysis-report',
-    scene: 'Analysis — report',
-    path: '/analyses',
+    scene: 'Analysis — narrative report',
+    path: '/analyses/ana-1',
     bubbles: [
       {
         selector: '[data-demo="analysis-report"]',
@@ -415,14 +350,12 @@ export const DEMO_SCRIPT: DemoStep[] = [
     bubbles: [
       {
         selector: '[data-demo="analysis-export"]',
-        label: 'One-click to PDF or PowerPoint',
+        label: 'One click to PDF or PowerPoint',
         sublabel: 'Your research, formatted and ready to present.',
         type: 'spotlight',
-        position: 'top',
+        position: 'bottom',
       },
     ],
-    action: '[data-demo="analysis-export-pptx"]',
-    actionDelay: 1500,
   },
 
   // End
@@ -430,6 +363,5 @@ export const DEMO_SCRIPT: DemoStep[] = [
     id: 'end',
     scene: 'Demo complete',
     bubbles: [],
-    autoContinue: false,
   },
 ]

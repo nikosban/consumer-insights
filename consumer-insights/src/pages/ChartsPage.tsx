@@ -266,6 +266,7 @@ function ChartSidebar({
               {isOpen && charts.map(chart => (
                 <button
                   key={chart.id}
+                  data-demo="charts-leaf"
                   draggable
                   onDragStart={e => {
                     e.dataTransfer.setData('text/plain', chart.title)

@@ -1,45 +1,53 @@
-import { useEffect, useLayoutEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { DemoBubble } from './demoScript'
 import type { DemoModeHandle } from './useDemoMode'
 
 // ─── Spotlight ────────────────────────────────────────────────────────────────
 
-function getRect(selector: string): DOMRect | null {
-  const el = document.querySelector(selector)
-  return el ? el.getBoundingClientRect() : null
-}
-
 const PAD = 12  // padding around spotlit element
 
+/**
+ * Finds the first *visible* element matching the selector. The app shell renders
+ * the page through two <Outlet />s (a hidden mobile one and the desktop one), so
+ * a selector can match a 0×0 hidden duplicate that appears first in the DOM. We
+ * skip those and return the first element that is actually laid out on screen.
+ */
+function findVisible(selector: string): Element | null {
+  const els = document.querySelectorAll(selector)
+  for (const el of els) {
+    const r = el.getBoundingClientRect()
+    if (r.width > 0 && r.height > 0) return el
+  }
+  return null
+}
+
+/**
+ * Continuously tracks an element's on-screen rect via requestAnimationFrame.
+ * This is robust to lazy-loaded pages, async layout, scrolling, and animations:
+ * it only reports a rect once the element exists AND has a non-zero size, and
+ * keeps it in sync every frame. Returns null until the element is laid out.
+ */
 function useElementRect(selector: string) {
   const [rect, setRect] = useState<DOMRect | null>(null)
 
-  useLayoutEffect(() => {
-    const resizeObs = new ResizeObserver(() => setRect(getRect(selector)))
-    const mutObs = new MutationObserver(() => {
-      const el = document.querySelector(selector)
-      if (el) {
-        setRect(el.getBoundingClientRect())
-        resizeObs.observe(el)
-        mutObs.disconnect()
+  useEffect(() => {
+    let raf = 0
+    let prevKey = ''
+    const tick = () => {
+      const el = findVisible(selector)
+      const r = el ? el.getBoundingClientRect() : null
+      const valid = !!r && r.width > 0 && r.height > 0
+      const key = valid
+        ? `${Math.round(r!.left)},${Math.round(r!.top)},${Math.round(r!.width)},${Math.round(r!.height)}`
+        : 'none'
+      if (key !== prevKey) {
+        prevKey = key
+        setRect(valid ? r : null)
       }
-    })
-
-    const el = document.querySelector(selector)
-    if (el) {
-      setRect(el.getBoundingClientRect())
-      resizeObs.observe(el)
-    } else {
-      mutObs.observe(document.body, { childList: true, subtree: true })
+      raf = requestAnimationFrame(tick)
     }
-
-    const onScroll = () => setRect(getRect(selector))
-    window.addEventListener('scroll', onScroll, true)
-    return () => {
-      resizeObs.disconnect()
-      mutObs.disconnect()
-      window.removeEventListener('scroll', onScroll, true)
-    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
   }, [selector])
 
   return rect
