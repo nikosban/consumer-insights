@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState } from 'react'
 import {
   BarChart,
   Bar,
@@ -40,46 +40,28 @@ const CATEGORICAL_COLORS = [
 
 const SANS = "'Instrument Sans Variable', 'Instrument Sans', system-ui, sans-serif"
 
-function useCSSVar(prop: string) {
-  const [value, setValue] = useState(() =>
-    getComputedStyle(document.documentElement).getPropertyValue(prop).trim()
-  )
-  const observer = useRef<MutationObserver | null>(null)
-  useEffect(() => {
-    const read = () => setValue(getComputedStyle(document.documentElement).getPropertyValue(prop).trim())
-    observer.current = new MutationObserver(read)
-    observer.current.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
-    return () => observer.current?.disconnect()
-  }, [prop])
-  return value
-}
-
 function ChartTooltip({ active, payload, label }: {
   active?: boolean
   payload?: Array<{ name: string; value: number; color: string }>
   label?: string
 }) {
-  const bg = useCSSVar('--popover')
-  const border = useCSSVar('--border')
-  const fg = useCSSVar('--popover-foreground')
-  const fgMuted = useCSSVar('--muted-foreground')
   if (!active || !payload?.length) return null
   return (
     <div style={{
-      background: `oklch(${bg})`,
-      border: `1px solid oklch(${border})`,
+      background: 'var(--popover)',
+      border: '1px solid var(--border)',
       borderRadius: 6,
       padding: '6px 10px',
       fontSize: 12,
       fontFamily: SANS,
-      boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
       lineHeight: '18px',
     }}>
-      {label && <p style={{ fontWeight: 600, color: `oklch(${fg})`, marginBottom: 2 }}>{label}</p>}
+      {label && <p style={{ fontWeight: 600, color: 'var(--popover-foreground)', marginBottom: 2 }}>{label}</p>}
       {payload.map((entry) => (
         <p key={entry.name} style={{ color: entry.color, margin: 0 }}>
-          <span style={{ color: `oklch(${fgMuted})` }}>{entry.name}: </span>
-          <span style={{ fontWeight: 600 }}>{entry.value}</span>
+          <span style={{ color: 'var(--muted-foreground)' }}>{entry.name}: </span>
+          <span style={{ fontWeight: 600, color: 'var(--popover-foreground)' }}>{entry.value}</span>
         </p>
       ))}
     </div>
@@ -95,10 +77,11 @@ function heatmapBg(pct: number): string {
 export default function ChartRenderer({ widget, data, height = 200, crossTabConfig, extraRowsData = [], heatmap = false }: ChartRendererProps) {
   const { type } = widget
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
-  const borderToken = useCSSVar('--border')
-  const mutedFgToken = useCSSVar('--muted-foreground')
-  const gridStroke = `oklch(${borderToken})`
-  const axisStyle = { fontSize: 12, fill: `oklch(${mutedFgToken})`, fontFamily: SANS }
+  // var(--border) and var(--muted-foreground) used directly — no JS read needed.
+  // SVG <text> elements don't support CSS custom props as presentation attributes,
+  // so axis labels are styled via the [&_text]:fill-muted-foreground wrapper class.
+  const gridStroke = 'var(--border)'
+  const axisStyle = { fontSize: 12, fontFamily: SANS }
 
   function toggleGroup(name: string) {
     setExpandedGroups(prev => {
@@ -108,6 +91,10 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
     })
   }
 
+  // Wrapper class: [&_text]:fill-muted-foreground targets all SVG <text> elements
+  // (axis ticks, labels) inside Recharts. CSS fill property overrides SVG presentation attrs.
+  const chartWrap = 'size-full [&_text]:fill-muted-foreground [&_.recharts-legend-item-text]:!text-muted-foreground'
+
   if (type === 'bar') {
     const chartData = data.labels.map((label, i) => {
       const row: Record<string, string | number> = { label }
@@ -115,18 +102,20 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
       return row
     })
     return (
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={chartData} margin={{ top: 4, right: 8, bottom: 4, left: -16 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
-          <XAxis dataKey="label" tick={axisStyle} axisLine={false} tickLine={false} />
-          <YAxis tick={axisStyle} axisLine={false} tickLine={false} />
-          <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(6,102,229,0.04)' }} />
-          {data.series.length > 1 && <Legend iconSize={8} wrapperStyle={{ fontSize: 12, fontFamily: SANS }} />}
-          {data.series.map((s, idx) => (
-            <Bar key={s.name} dataKey={s.name} fill={CATEGORICAL_COLORS[idx % CATEGORICAL_COLORS.length]} radius={[3, 3, 0, 0]} maxBarSize={40} />
-          ))}
-        </BarChart>
-      </ResponsiveContainer>
+      <div className={chartWrap}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={chartData} margin={{ top: 4, right: 8, bottom: 4, left: -16 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+            <XAxis dataKey="label" tick={axisStyle} axisLine={false} tickLine={false} />
+            <YAxis tick={axisStyle} axisLine={false} tickLine={false} />
+            <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(6,102,229,0.04)' }} />
+            {data.series.length > 1 && <Legend iconSize={8} wrapperStyle={{ fontSize: 12, fontFamily: SANS }} />}
+            {data.series.map((s, idx) => (
+              <Bar key={s.name} dataKey={s.name} fill={CATEGORICAL_COLORS[idx % CATEGORICAL_COLORS.length]} radius={[3, 3, 0, 0]} maxBarSize={40} />
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     )
   }
 
@@ -137,26 +126,28 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
       return row
     })
     return (
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={chartData} margin={{ top: 4, right: 8, bottom: 4, left: -16 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
-          <XAxis dataKey="label" tick={axisStyle} axisLine={false} tickLine={false} />
-          <YAxis tick={axisStyle} axisLine={false} tickLine={false} />
-          <Tooltip content={<ChartTooltip />} />
-          {data.series.length > 1 && <Legend iconSize={8} wrapperStyle={{ fontSize: 12, fontFamily: SANS }} />}
-          {data.series.map((s, idx) => (
-            <Line
-              key={s.name}
-              type="monotone"
-              dataKey={s.name}
-              stroke={CATEGORICAL_COLORS[idx % CATEGORICAL_COLORS.length]}
-              strokeWidth={2}
-              dot={{ r: 3, fill: CATEGORICAL_COLORS[idx % CATEGORICAL_COLORS.length], strokeWidth: 0 }}
-              activeDot={{ r: 4, strokeWidth: 0 }}
-            />
-          ))}
-        </LineChart>
-      </ResponsiveContainer>
+      <div className={chartWrap}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chartData} margin={{ top: 4, right: 8, bottom: 4, left: -16 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+            <XAxis dataKey="label" tick={axisStyle} axisLine={false} tickLine={false} />
+            <YAxis tick={axisStyle} axisLine={false} tickLine={false} />
+            <Tooltip content={<ChartTooltip />} />
+            {data.series.length > 1 && <Legend iconSize={8} wrapperStyle={{ fontSize: 12, fontFamily: SANS }} />}
+            {data.series.map((s, idx) => (
+              <Line
+                key={s.name}
+                type="monotone"
+                dataKey={s.name}
+                stroke={CATEGORICAL_COLORS[idx % CATEGORICAL_COLORS.length]}
+                strokeWidth={2}
+                dot={{ r: 3, fill: CATEGORICAL_COLORS[idx % CATEGORICAL_COLORS.length], strokeWidth: 0 }}
+                activeDot={{ r: 4, strokeWidth: 0 }}
+              />
+            ))}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     )
   }
 
@@ -166,26 +157,28 @@ export default function ChartRenderer({ widget, data, height = 200, crossTabConf
       value: data.series[0]?.values[i] ?? 0,
     }))
     return (
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={pieEntries}
-            cx="50%"
-            cy="50%"
-            innerRadius={Math.floor(height * 0.2)}
-            outerRadius={Math.floor(height * 0.38)}
-            paddingAngle={2}
-            dataKey="value"
-            strokeWidth={0}
-          >
-            {pieEntries.map((_, idx) => (
-              <Cell key={idx} fill={CATEGORICAL_COLORS[idx % CATEGORICAL_COLORS.length]} />
-            ))}
-          </Pie>
-          <Tooltip content={<ChartTooltip />} />
-          <Legend iconSize={8} iconType="circle" wrapperStyle={{ fontSize: 12, fontFamily: SANS }} />
-        </PieChart>
-      </ResponsiveContainer>
+      <div className={chartWrap}>
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={pieEntries}
+              cx="50%"
+              cy="50%"
+              innerRadius={Math.floor(height * 0.2)}
+              outerRadius={Math.floor(height * 0.38)}
+              paddingAngle={2}
+              dataKey="value"
+              strokeWidth={0}
+            >
+              {pieEntries.map((_, idx) => (
+                <Cell key={idx} fill={CATEGORICAL_COLORS[idx % CATEGORICAL_COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip content={<ChartTooltip />} />
+            <Legend iconSize={8} iconType="circle" wrapperStyle={{ fontSize: 12, fontFamily: SANS }} />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
     )
   }
 
