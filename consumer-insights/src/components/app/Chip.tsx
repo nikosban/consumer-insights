@@ -18,7 +18,7 @@ export function Chip({ label, onRemove, onClick, variant = 'default', className 
         'inline-flex items-center gap-1 px-2.5 h-7 rounded-md text-xs max-w-full',
         variant === 'default' && 'bg-muted text-foreground',
         variant === 'primary' && 'bg-primary/8 border border-primary/20 text-primary',
-        variant === 'suggestion' && 'rounded-full border border-border bg-white text-secondary-foreground hover:bg-accent hover:text-foreground transition-colors',
+        variant === 'suggestion' && 'rounded-full border border-border bg-background text-secondary-foreground hover:bg-accent hover:text-foreground transition-colors',
         className
       )}
     >

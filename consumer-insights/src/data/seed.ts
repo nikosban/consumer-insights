@@ -62,7 +62,6 @@ export const seedAudiences: Audience[] = [
       id: 'fg-ev-multi',
       operator: 'AND',
       conditions: [
-        { id: 'ev-c1', attribute: 'Country',       operator: 'in', value: ['DE', 'FR', 'US'] },
         { id: 'ev-c2', attribute: 'Age (basic)',    operator: 'in', value: ['25-34', '35-44'] },
         { id: 'ev-c3', attribute: 'Income bracket', operator: 'in', value: ['$75k–$100k', '$100k–$150k', '$150k+'] },
       ],
@@ -80,7 +79,6 @@ export const seedAudiences: Audience[] = [
       id: 'fg-rural',
       operator: 'AND',
       conditions: [
-        { id: 'r-c1', attribute: 'Country',          operator: 'in', value: ['DE', 'FR', 'US'] },
         { id: 'r-c2', attribute: 'Housing type',      operator: 'in', value: ['Rural', 'Suburban'] },
         { id: 'r-c3', attribute: 'Income bracket',    operator: 'in', value: ['$25k–$50k', '$50k–$75k'] },
       ],
