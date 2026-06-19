@@ -733,9 +733,10 @@ export default function AudienceBuilderPage() {
       savedRef.current = { name, description, region, wave, filters: JSON.stringify(filters) }
       toast.success('Audience updated')
     } else {
-      add({ id: `aud-${Date.now()}`, name, description, region, wave, filters, isShared: false, createdAt: now, updatedAt: now })
+      const newId = `aud-${Date.now()}`
+      add({ id: newId, name, description, region, wave, filters, isShared: false, createdAt: now, updatedAt: now })
       toast.success('Audience created')
-      navigate('/audiences')
+      navigate(`/audiences/${newId}`, { replace: true })
     }
   }
 
