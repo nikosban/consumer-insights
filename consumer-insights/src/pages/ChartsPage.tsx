@@ -678,15 +678,18 @@ export default function ChartsPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const benchmarkAudience = (location.state as { benchmarkAudience?: { name: string; id: string | null } } | null)?.benchmarkAudience
-  const [selected, setSelected] = useState<LibraryChart | null>(
-    benchmarkAudience ? EV_BENCHMARK_CHART : null
-  )
+  // When arriving from Audience Builder, pre-select the EV purchase intent table
+  // with Country of residence as a column so the audience filter + over-index are immediately visible.
+  const initialChart = benchmarkAudience
+    ? (CHART_LIBRARY.find(c => c.title === 'EV purchase intent') ?? EV_BENCHMARK_CHART)
+    : null
+  const [selected, setSelected] = useState<LibraryChart | null>(initialChart)
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT)
 
   // Chart config state — lifted here so both panel and centre share it
-  const [activeType, setActiveType]       = useState<WidgetType>(benchmarkAudience ? 'bar' : 'table')
+  const [activeType, setActiveType]       = useState<WidgetType>('table')
   const [audienceId, setAudienceId]       = useState<string>(benchmarkAudience?.id ?? '')
-  const [crossAttrs, setCrossAttrs]       = useState<string[]>([])
+  const [crossAttrs, setCrossAttrs]       = useState<string[]>(benchmarkAudience ? ['Country of residence'] : [])
   const [crossTabConfig, setCrossTabConfig] = useState<CrossTabConfig>(DEFAULT_CROSSTAB_CONFIG)
   const [heatmap, setHeatmap] = useState(false)
   const [extraRows, setExtraRows]         = useState<string[]>([])
@@ -700,6 +703,7 @@ export default function ChartsPage() {
   const [creatingDash, setCreatingDash] = useState(false)
   const [newDashName, setNewDashName] = useState('')
   const addToDashRef = useRef<HTMLDivElement>(null)
+  const isFirstRender = useRef(true)
 
   // Drop target for columns
   const [isDragOver, setIsDragOver] = useState(false)
@@ -723,8 +727,10 @@ export default function ChartsPage() {
     return () => document.removeEventListener('mousedown', handler)
   }, [dashMenuOpen])
 
-  // Reset chart config when selection changes — always default to table view
+  // Reset chart config when selection changes — always default to table view.
+  // Skip the first render so pre-loaded crossAttrs/activeType survive initial mount.
   useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return }
     if (selected) {
       const isBenchmark = selected.id === 'benchmark-ev-intent'
       setActiveType(isBenchmark ? 'bar' : 'table')
