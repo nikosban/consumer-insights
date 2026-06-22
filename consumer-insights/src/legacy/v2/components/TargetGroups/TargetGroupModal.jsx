@@ -1,7 +1,16 @@
 import { useState, useMemo } from 'react'
 import { categories } from '../../data/sidebarData'
+import { countries } from '../../data/countries'
 import { useLegacyStore } from '../../store/legacyStore'
 import s from './TargetGroupModal.module.css'
+
+const YEARS = [
+  '2026 - Update 1',
+  '2025 - Update 2',
+  '2025 - Update 1',
+  '2024 - Update 2',
+  '2024 - Update 1',
+]
 
 function initGroups(existingGroup) {
   if (!existingGroup?.selectionGroups) {
@@ -21,6 +30,8 @@ function initGroups(existingGroup) {
 function ModalInner({ existingGroup }) {
   const selectedCountry       = useLegacyStore(st => st.selectedCountry)
   const selectedYear          = useLegacyStore(st => st.selectedYear)
+  const setSelectedCountry    = useLegacyStore(st => st.setSelectedCountry)
+  const setSelectedYear       = useLegacyStore(st => st.setSelectedYear)
   const targetGroups          = useLegacyStore(st => st.targetGroups)
   const closeTargetGroupModal = useLegacyStore(st => st.closeTargetGroupModal)
   const saveTargetGroup       = useLegacyStore(st => st.saveTargetGroup)
@@ -150,6 +161,13 @@ function ModalInner({ existingGroup }) {
         <div className={s.header}>
           <div className={s.titleRow}>
             <span className={s.title}>{isEdit ? 'Edit target group' : 'Create target group'}</span>
+            <div className={s.respondentKpi}>
+              <span className={s.respondentCount}>
+                {totalItems === 0 ? '—' : respondentCount.toLocaleString()}
+              </span>
+              <span className={s.respondentLabel}>respondents match</span>
+            </div>
+            <div className={s.titleDivider} />
             <div className={s.headerBtns}>
               {isEdit && (
                 <button className={s.iconBtn} onClick={handleDelete} title="Delete target group">
@@ -171,8 +189,24 @@ function ModalInner({ existingGroup }) {
               onChange={e => setName(e.target.value)}
               placeholder="Unnamed Target Group"
             />
-<span className={s.chip}>{selectedCountry.name}</span>
-            <span className={s.chip}>{selectedYear}</span>
+            <select
+              className={s.metaSelect}
+              value={selectedCountry.code}
+              onChange={e => setSelectedCountry(countries.find(c => c.code === e.target.value))}
+            >
+              {countries.map(c => (
+                <option key={c.code} value={c.code}>{c.name}</option>
+              ))}
+            </select>
+            <select
+              className={s.metaSelect}
+              value={selectedYear}
+              onChange={e => setSelectedYear(e.target.value)}
+            >
+              {YEARS.map(y => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
           </div>
           {isDuplicate && <div className={s.nameError}>This target group title is already in use.</div>}
         </div>
@@ -311,9 +345,7 @@ function ModalInner({ existingGroup }) {
                   ))
                 )}
               </div>
-              <div className={s.footer}>
-                Number of respondents: {respondentCount.toLocaleString()}
-              </div>
+              <div className={s.footer} />
             </div>
 
           </div>{/* colBodies */}

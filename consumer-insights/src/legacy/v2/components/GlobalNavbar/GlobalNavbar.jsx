@@ -5,7 +5,6 @@ const NAV_ITEMS = [
   { label: 'Statistics',   hasChevron: true  },
   { label: 'Insights',     hasChevron: true,  href: '/consumer_insights_v2' },
   { label: 'Research AI',  hasChevron: false, href: '/consumer_insights_v2/research-ai' },
-  { label: 'Dashboard',    hasChevron: false, href: '/consumer_insights_v2/dashboard' },
   { label: 'Connect',      hasChevron: true, badge: 'New' },
   { label: 'Daily Data',   hasChevron: true  },
   { label: 'Services',     hasChevron: true  },

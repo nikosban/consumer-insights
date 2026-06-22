@@ -40,6 +40,14 @@ const IconCollapse = ({ direction = 'left' }) => {
     </svg>
   )
 }
+const IconDashboard = () => (
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+    <rect x="1" y="1" width="5" height="5" rx="1.5" stroke="#455f7c" strokeWidth="1.3"/>
+    <rect x="8" y="1" width="5" height="5" rx="1.5" stroke="#455f7c" strokeWidth="1.3"/>
+    <rect x="1" y="8" width="5" height="5" rx="1.5" stroke="#455f7c" strokeWidth="1.3"/>
+    <rect x="8" y="8" width="5" height="5" rx="1.5" stroke="#455f7c" strokeWidth="1.3"/>
+  </svg>
+)
 const IconAccount = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
     <circle cx="8" cy="5.5" r="3" stroke="#455f7c" strokeWidth="1.3"/>
@@ -116,6 +124,12 @@ export default function CiModeSidebar({ collapsed, onToggle, mode, onModeChange,
           <IconCollapse direction="left" />
         </button>
       </div>
+
+      <a href="/consumer_insights_v2/dashboard" className={s.navItem}>
+        <IconDashboard />
+        Dashboard
+        <span className={s.soonPill}>Soon</span>
+      </a>
 
       <div className={s.historyList}>
         {historyGroups.map(({ label, items }) => (
