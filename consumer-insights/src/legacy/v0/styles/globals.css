@@ -1,4 +1,6 @@
-.legacy-root *, .legacy-root *::before, .legacy-root *::after { box-sizing: border-box; margin: 0; padding: 0; }
+@layer legacy-base {
+  .legacy-root *, .legacy-root *::before, .legacy-root *::after { box-sizing: border-box; margin: 0; padding: 0; }
+}
 
 .legacy-root {
   --color-surface:           #ffffff;
