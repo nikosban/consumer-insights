@@ -1,3 +1,4 @@
+import { IconRowInsertBottom, IconRowRemove } from '@tabler/icons-react'
 import { useLegacyStore } from '../../store/legacyStore'
 import s from './Sidebar.module.css'
 
@@ -49,7 +50,10 @@ export default function CatItem({ cat }) {
                           onClick={() => { if (wasDragging) return; toggleItem(item) }}
                         >
                           <span className={s.itemLabel}>{item}</span>
-                          <i className={`ti ${added ? 'ti-minus' : 'ti-plus'} ${s.itemAction}`} />
+                          {added
+                            ? <IconRowRemove size={16} strokeWidth={2} className={s.itemAction} />
+                            : <IconRowInsertBottom size={16} strokeWidth={2} className={s.itemAction} />
+                          }
                         </div>
                       )
                     })}

@@ -8,9 +8,9 @@ export interface AppVersion {
 }
 
 export const VERSIONS: AppVersion[] = [
-  { id: 'v0', label: 'V0', description: 'Current Consumer Insights', path: '/consumer_insights_v0', hidden: true },
-  { id: 'v1', label: 'V1', description: 'First application, connect to Research AI, uplift current major issues (Statistical and analytical flows), a more focused user interface', path: '/consumer_insights_v1', hidden: true },
-  { id: 'v2', label: 'V2', description: 'Second iteration, expanding feature set and enchancing the user flow', path: '/consumer_insights_v2', hidden: true },
+  { id: 'v0', label: 'V0', description: 'Current Consumer Insights', path: '/consumer_insights_v0' },
+  { id: 'v1', label: 'V1', description: 'First application, connect to Research AI, uplift current major issues (Statistical and analytical flows), a more focused user interface', path: '/consumer_insights_v1' },
+  { id: 'v2', label: 'V2', description: 'Second iteration, expanding feature set and enchancing the user flow', path: '/consumer_insights_v2' },
   { id: 'v3.1', label: 'Consumer Insights Demo — 3.1', description: 'Core flows: Chat, Audience, Charts', path: '/research-ai', variant: '3.1' },
   { id: 'v3.2', label: 'Consumer Insights Demo — 3.2', description: 'Full feature set: adds Dashboards and Analysis', path: '/research-ai', variant: '3.2' },
 ]

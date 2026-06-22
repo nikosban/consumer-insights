@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useDeepLink } from './hooks/useDeepLink'
 import GlobalNavbar from './components/GlobalNavbar/GlobalNavbar'
 import Sidebar from './components/Sidebar/Sidebar'
-import ControlsPanel from './components/Controls/ControlsPanel'
+import SetupSidebar from './components/SetupSidebar/SetupSidebar'
 import SurveyCard from './components/SurveyCard/SurveyCard'
 import SurveyCardErrorBoundary from './components/SurveyCard/SurveyCardErrorBoundary'
 import DetailsPanel from './components/DetailsPanel/DetailsPanel'
@@ -57,7 +57,6 @@ export default function LegacyAppInner({ rootRef }) {
       <div className={s.body}>
         <Sidebar />
         <main className={s.main}>
-          <ControlsPanel />
           <div ref={contentAreaRef} className={s.contentArea}>
 
             {rowItems.map(name => (
@@ -73,6 +72,7 @@ export default function LegacyAppInner({ rootRef }) {
             ))}
           </div>
         </main>
+        <SetupSidebar />
       </div>
       <DetailsPanel />
       <TargetGroupModal />
