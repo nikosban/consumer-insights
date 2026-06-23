@@ -57,6 +57,7 @@ export default function CiModeSidebar({ collapsed, onNewChat, onDashboard }) {
         <button className={s.navItem} onClick={goToTargetGroups}>
           <i className={`ti ti-users ${s.navIcon}`} />
           <span className={s.navLabel}>Target Groups</span>
+          <i className={`ti ti-arrow-up-right ${s.navExternal}`} />
         </button>
       </nav>
 
