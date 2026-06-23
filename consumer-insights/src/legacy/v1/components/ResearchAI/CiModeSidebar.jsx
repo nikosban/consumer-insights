@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import s from './CiModeSidebar.module.css'
 import { HISTORY_BY_MODE } from '../../data/ciModeData'
+import { useLegacyStore } from '../../store/legacyStore'
 
 const SAVED_DASHBOARDS = ['My Dashboard']
 
@@ -8,6 +9,12 @@ export default function CiModeSidebar({ collapsed, onNewChat, onDashboard }) {
   const historyGroups = HISTORY_BY_MODE.rai
   const [dashOpen, setDashOpen] = useState(true)
   const [historyOpen, setHistoryOpen] = useState(true)
+  const setOpenAccordion = useLegacyStore(s => s.setOpenAccordion)
+
+  function goToTargetGroups() {
+    localStorage.setItem('ci_open_accordion', 'target')
+    window.location.href = '/consumer_insights_v1'
+  }
 
   if (collapsed) {
     return (
@@ -19,7 +26,7 @@ export default function CiModeSidebar({ collapsed, onNewChat, onDashboard }) {
         <button title="Crosstabs" className={s.collapsedIconBtn}>
           <i className="ti ti-table-column" />
         </button>
-        <button title="Target Groups" className={s.collapsedIconBtn}>
+        <button title="Target Groups" className={s.collapsedIconBtn} onClick={goToTargetGroups}>
           <i className="ti ti-users" />
         </button>
         <div className={s.collapsedDivider} />
@@ -47,7 +54,7 @@ export default function CiModeSidebar({ collapsed, onNewChat, onDashboard }) {
           <span className={s.navLabel}>Crosstabs</span>
           <i className={`ti ti-arrow-up-right ${s.navExternal}`} />
         </a>
-        <button className={s.navItem}>
+        <button className={s.navItem} onClick={goToTargetGroups}>
           <i className={`ti ti-users ${s.navIcon}`} />
           <span className={s.navLabel}>Target Groups</span>
         </button>

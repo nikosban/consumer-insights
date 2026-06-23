@@ -23,6 +23,14 @@ export default function Sidebar() {
   const openTargetGroupModal = useLegacyStore(s => s.openTargetGroupModal)
   const applyFilterGroup = useLegacyStore(s => s.applyFilterGroup)
 
+  useEffect(() => {
+    const pending = localStorage.getItem('ci_open_accordion')
+    if (pending) {
+      setOpenAccordion(pending)
+      localStorage.removeItem('ci_open_accordion')
+    }
+  }, [setOpenAccordion])
+
   const [surveyDetailsOpen, setSurveyDetailsOpen] = useState(true)
   const [customGroupsOpen, setCustomGroupsOpen] = useState(true)
   const [currentSurvey, setCurrentSurvey] = useState('Global Survey')
