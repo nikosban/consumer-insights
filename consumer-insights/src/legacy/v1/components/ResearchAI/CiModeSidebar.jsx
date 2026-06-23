@@ -16,9 +16,6 @@ export default function CiModeSidebar({ collapsed, onNewChat, onDashboard }) {
           <i className="ti ti-message-plus" />
         </button>
         <div className={s.collapsedDivider} />
-        <a title="Chat" href="/consumer_insights_v1/research-ai" className={s.collapsedIconBtn}>
-          <i className="ti ti-messages" />
-        </a>
         <button title="Crosstabs" className={s.collapsedIconBtn}>
           <i className="ti ti-table-column" />
         </button>
@@ -45,10 +42,6 @@ export default function CiModeSidebar({ collapsed, onNewChat, onDashboard }) {
 
       {/* Nav items */}
       <nav className={s.nav}>
-        <a className={s.navItem} href="/consumer_insights_v1/research-ai">
-          <i className={`ti ti-messages ${s.navIcon}`} />
-          <span className={s.navLabel}>Chat</span>
-        </a>
         <a className={s.navItem} href="/consumer_insights_v1" target="_blank" rel="noopener noreferrer">
           <i className={`ti ti-table-column ${s.navIcon}`} />
           <span className={s.navLabel}>Crosstabs</span>

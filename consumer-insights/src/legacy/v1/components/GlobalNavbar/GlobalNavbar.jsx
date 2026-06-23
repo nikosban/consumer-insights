@@ -3,8 +3,7 @@ import s from './GlobalNavbar.module.css'
 
 const NAV_ITEMS = [
   { label: 'Statistics',   hasChevron: true  },
-  { label: 'Insights',     hasChevron: true,  href: '/consumer_insights_v1' },
-  { label: 'Research AI',  hasChevron: false, href: '/consumer_insights_v1/research-ai' },
+  { label: 'Insights',     hasChevron: true,  href: '/consumer_insights_v1/research-ai' },
   { label: 'Connect',      hasChevron: true, badge: 'New' },
   { label: 'Daily Data',   hasChevron: true  },
   { label: 'Services',     hasChevron: true  },
