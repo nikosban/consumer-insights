@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAudienceStore } from '@/store/audienceStore'
 import { IconEdit, IconCheck, IconUsers, IconArrowUpRight } from '@tabler/icons-react'
@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 import { toast } from '@/components/ui/Toaster'
 import type { AudienceDraftData, Audience } from '@/types'
 
-export function AudienceDraftCard({ draft }: { draft: AudienceDraftData }) {
+export const AudienceDraftCard = memo(function AudienceDraftCard({ draft }: { draft: AudienceDraftData }) {
   const navigate = useNavigate()
   const { add: addAudience } = useAudienceStore()
   const [saved, setSaved] = useState(false)
@@ -84,4 +84,4 @@ export function AudienceDraftCard({ draft }: { draft: AudienceDraftData }) {
       </div>
     </div>
   )
-}
+})

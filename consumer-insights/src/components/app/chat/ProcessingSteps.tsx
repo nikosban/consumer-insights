@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { IconChevronDown, IconCheck } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
 import type { ProcessingStep } from '@/types'
 
-export function ProcessingStepsDisplay({ steps }: { steps: ProcessingStep[] }) {
+export const ProcessingStepsDisplay = memo(function ProcessingStepsDisplay({ steps }: { steps: ProcessingStep[] }) {
   const [expanded, setExpanded] = useState(false)
   const allDone = steps.every(s => s.status === 'done')
   const activeStep = steps.find(s => s.status === 'active')
@@ -62,4 +62,4 @@ export function ProcessingStepsDisplay({ steps }: { steps: ProcessingStep[] }) {
       )}
     </div>
   )
-}
+})

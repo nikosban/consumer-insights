@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAudienceStore } from '@/store/audienceStore'
 import { useDashboardStore } from '@/store/dashboardStore'
@@ -10,7 +10,7 @@ import type { AudienceCardData, Audience, Widget } from '@/types'
 import { DashboardPickerDropdown } from './DashboardPickerDropdown'
 import { exportElAsPng, copyElAsPng } from './helpers'
 
-export function AudienceCard({ card }: { card: AudienceCardData }) {
+export const AudienceCard = memo(function AudienceCard({ card }: { card: AudienceCardData }) {
   const navigate = useNavigate()
   const { add: addAudience } = useAudienceStore()
   const { dashboards, updateLayout } = useDashboardStore()
@@ -147,7 +147,7 @@ export function AudienceCard({ card }: { card: AudienceCardData }) {
       </div>
 
       {/* CTAs */}
-      <div data-demo="chat-audience-actions" className="px-4 py-3 border-t border-border space-y-2">
+      <div className="px-4 py-3 border-t border-border space-y-2">
         <div className="flex items-center gap-2">
           <button
             onClick={handleSaveToLibrary}
@@ -190,7 +190,7 @@ export function AudienceCard({ card }: { card: AudienceCardData }) {
         </div>
 
         <button
-          data-demo="chat-open-builder"
+         
           onClick={handleOpenBuilder}
           className="w-full flex items-center justify-center gap-1 h-7 text-xs text-muted-foreground hover:text-primary transition-colors"
         >
@@ -212,4 +212,4 @@ export function AudienceCard({ card }: { card: AudienceCardData }) {
       </div>
     </div>
   )
-}
+})

@@ -1,8 +1,9 @@
+import { memo } from 'react'
 import { IconCrown, IconUsers, IconPlus } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
 import type { BenchmarkPanelData } from '@/types'
 
-export function BenchmarkPanel({ panel, onCreateDraft }: { panel: BenchmarkPanelData; onCreateDraft: () => void }) {
+export const BenchmarkPanel = memo(function BenchmarkPanel({ panel, onCreateDraft }: { panel: BenchmarkPanelData; onCreateDraft: () => void }) {
   const maxIntent = Math.max(...panel.segments.map(s => s.intentScore))
 
   return (
@@ -66,4 +67,4 @@ export function BenchmarkPanel({ panel, onCreateDraft }: { panel: BenchmarkPanel
       </div>
     </div>
   )
-}
+})

@@ -345,7 +345,7 @@ function ChartSidebar({
               {isOpen && charts.map(chart => (
                 <button
                   key={chart.id}
-                  data-demo="charts-leaf"
+                 
                   draggable
                   onDragStart={e => {
                     e.dataTransfer.setData('text/plain', chart.title)
@@ -451,7 +451,7 @@ function PropertiesPanel({
           <div>
             <SectionLabel>Rows</SectionLabel>
             <div
-              data-demo="charts-rows"
+             
               className={cn(
                 'flex flex-wrap gap-1.5 mb-1.5 min-h-[28px] rounded-md transition-colors',
                 rowDropOver && 'bg-primary/8 ring-1 ring-primary/30'
@@ -494,7 +494,7 @@ function PropertiesPanel({
           <div>
             <SectionLabel>Columns</SectionLabel>
             <div
-              data-demo="charts-cols"
+             
               className={cn(
                 'flex flex-wrap gap-1.5 mb-1.5 min-h-[28px] rounded-md transition-colors',
                 colDropOver && 'bg-primary/8 ring-1 ring-primary/30'
@@ -583,7 +583,7 @@ function PropertiesPanel({
         {/* Chart type */}
         <div className="p-4 border-b border-border">
           <FieldGroup label="Chart type">
-            <div className="grid grid-cols-5 gap-1" data-demo="charts-types">
+            <div className="grid grid-cols-5 gap-1">
               {CHART_TYPES.map(({ type, label, Icon }) => {
                 const isActive   = effectiveType === type
                 const isDisabled = isCrossTab && type !== 'table'
@@ -916,7 +916,7 @@ export default function ChartsPage() {
                 </Button>
                 <div className="relative" ref={addToDashRef}>
                   <Button
-                    data-demo="charts-add-dashboard"
+                   
                     size="toolbar"
                     onClick={() => setDashMenuOpen(o => !o)}
                   >

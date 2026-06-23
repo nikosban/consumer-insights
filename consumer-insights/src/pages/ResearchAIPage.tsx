@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { memo, useEffect, useRef, useState, useCallback } from 'react'
 import { useLayout } from '@/components/layout/LayoutContext'
 import { useSearchParams } from 'react-router-dom'
 import { useAIStore } from '@/store/aiStore'
@@ -9,7 +9,6 @@ import {
   EV_PROCESSING_STEPS, EV_AI_TEXT, EV_BENCHMARK_PANEL,
   EV_WIDGET_CLUSTER, EV_AUDIENCE_DRAFT, EV_FOLLOW_UPS,
 } from '@/data/fakeGenerators'
-import { PRESET_CONVERSATIONS } from '@/data/presetConversations'
 import type { AIMessage, ProcessingStep } from '@/types'
 import { IconSend, IconSparkles, IconChevronDown, IconTrendingUp, IconMessage, IconUsers, IconGlobe, IconChartBar, IconTrash, IconAlertTriangleFilled, IconEdit } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
@@ -46,7 +45,7 @@ const USE_CASES = [
   { Icon: IconTrendingUp,  title: 'Brand Position',     desc: 'Benchmark awareness and competitive standing', color: '#A855F7' },
 ]
 
-function UseCaseTile({ Icon, title, desc, color, onClick }: { Icon: React.ElementType; title: string; desc: string; color: string; onClick: () => void }) {
+const UseCaseTile = memo(function UseCaseTile({ Icon, title, desc, color, onClick }: { Icon: React.ElementType; title: string; desc: string; color: string; onClick: () => void }) {
   const [hovered, setHovered] = useState(false)
   return (
     <button
@@ -70,7 +69,7 @@ function UseCaseTile({ Icon, title, desc, color, onClick }: { Icon: React.Elemen
       </div>
     </button>
   )
-}
+})
 
 // ─── Chat History ─────────────────────────────────────────────────────────────
 
@@ -91,10 +90,10 @@ function groupHistory(history: ChatHistoryEntry[]) {
   return { recent, older }
 }
 
-function HistoryRow({ entry, onSelect, hideDate, isActive, dataDemoId }: { entry: ChatHistoryEntry; onSelect: (q: string) => void; hideDate?: boolean; isActive?: boolean; dataDemoId?: string }) {
+const HistoryRow = memo(function HistoryRow({ entry, onSelect, hideDate, isActive }: { entry: ChatHistoryEntry; onSelect: (q: string) => void; hideDate?: boolean; isActive?: boolean }) {
   const { removeHistory } = useAIStore()
   return (
-    <div data-demo={dataDemoId} className={`flex items-center px-1 rounded-md transition-colors group ${isActive ? 'bg-accent' : 'hover:bg-accent'}`}>
+    <div className={`flex items-center px-1 rounded-md transition-colors group ${isActive ? 'bg-accent' : 'hover:bg-accent'}`}>
       <button
         onClick={() => onSelect(entry.firstMessage)}
         className="flex items-center gap-2 flex-1 min-w-0 text-left py-2 pl-2 pr-1"
@@ -114,14 +113,14 @@ function HistoryRow({ entry, onSelect, hideDate, isActive, dataDemoId }: { entry
       </button>
     </div>
   )
-}
+})
 
-function HistoryGroup({ label, entries, onSelect, hideDate, activeId, genzId }: { label: string; entries: ChatHistoryEntry[]; onSelect: (q: string) => void; hideDate?: boolean; activeId?: string; genzId?: string }) {
+function HistoryGroup({ label, entries, onSelect, hideDate, activeId }: { label: string; entries: ChatHistoryEntry[]; onSelect: (q: string) => void; hideDate?: boolean; activeId?: string }) {
   if (entries.length === 0) return null
   return (
     <div className="mb-1">
       <p className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase">{label}</p>
-      {entries.map(entry => <HistoryRow key={entry.id} entry={entry} onSelect={onSelect} hideDate={hideDate} isActive={entry.id === activeId} dataDemoId={entry.id === genzId ? 'history-genz' : undefined} />)}
+      {entries.map(entry => <HistoryRow key={entry.id} entry={entry} onSelect={onSelect} hideDate={hideDate} isActive={entry.id === activeId} />)}
     </div>
   )
 }
@@ -132,13 +131,11 @@ function InlineHistory({ onSelect }: { onSelect: (q: string) => void }) {
   const { recent, older } = groupHistory(history)
   const hasAny = recent.length + older.length > 0
   if (!hasAny) return null
-  const genzEntry = history.find(e => e.firstMessage.toLowerCase().includes('gen z'))
-  const genzId = genzEntry?.id
   return (
-    <div data-demo="rai-history" className="mt-8">
+    <div className="mt-8">
       <p className="px-3 text-xs font-semibold text-foreground mb-2">Recent chats</p>
-      <HistoryGroup label="Recent" entries={recent} onSelect={onSelect} genzId={genzId} />
-      <HistoryGroup label="Older"  entries={older}  onSelect={onSelect} genzId={genzId} />
+      <HistoryGroup label="Recent" entries={recent} onSelect={onSelect} />
+      <HistoryGroup label="Older"  entries={older}  onSelect={onSelect} />
     </div>
   )
 }
@@ -147,8 +144,6 @@ function InlineHistory({ onSelect }: { onSelect: (q: string) => void }) {
 function ChatHistoryPanel({ onSelect, onNew, activeId }: { onSelect: (q: string) => void; onNew: () => void; activeId?: string }) {
   const { history, clearHistory } = useAIStore()
   const { recent, older } = groupHistory(history)
-  const genzEntry = history.find(e => e.firstMessage.toLowerCase().includes('gen z'))
-  const genzId = genzEntry?.id
   return (
     <aside className="w-[220px] shrink-0 flex flex-col border-l border-border bg-sidebar h-full overflow-hidden">
       <div className="flex items-center justify-between px-3 h-14 border-b border-border shrink-0">
@@ -173,8 +168,8 @@ function ChatHistoryPanel({ onSelect, onNew, activeId }: { onSelect: (q: string)
         </div>
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto py-2">
-        <HistoryGroup label="Recent" entries={recent} onSelect={onSelect} hideDate activeId={activeId} genzId={genzId} />
-        <HistoryGroup label="Older"  entries={older}  onSelect={onSelect} hideDate activeId={activeId} genzId={genzId} />
+        <HistoryGroup label="Recent" entries={recent} onSelect={onSelect} hideDate activeId={activeId} />
+        <HistoryGroup label="Older"  entries={older}  onSelect={onSelect} hideDate activeId={activeId} />
         {recent.length + older.length === 0 && (
           <p className="px-3 py-4 text-xs text-muted-foreground text-center">No chat history yet</p>
         )}
@@ -381,7 +376,7 @@ function InputBox({
       </div>
 
       {/* Bottom row: chips left, send right */}
-      <div data-demo="rai-modes" className="flex items-center gap-1.5 px-3 pb-2.5 pt-2">
+      <div className="flex items-center gap-1.5 px-3 pb-2.5 pt-2">
         {/* Source chip */}
         <SourceChip value={sourceMode} onChange={setSourceMode} />
 
@@ -433,7 +428,7 @@ function MessageBubble({ msg, onSend, onCreateDraft }: {
 
   if (isUser) {
     return (
-      <div data-demo="chat-query" className="flex justify-end mb-4 group">
+      <div className="flex justify-end mb-4 group">
         <div className="max-w-xl ml-12">
           <div className="rounded-2xl rounded-br-sm px-4 py-3 text-sm leading-relaxed bg-primary text-primary-foreground">
             {msg.content.split('\n').map((line, i, arr) => (
@@ -496,7 +491,7 @@ function MessageBubble({ msg, onSend, onCreateDraft }: {
 
         {/* Audience draft card */}
         {msg.audienceDraft && (
-          <div data-demo="chat-audience-card" className="mt-2">
+          <div className="mt-2">
             <AudienceDraftCard draft={msg.audienceDraft} />
           </div>
         )}
@@ -517,7 +512,7 @@ function MessageBubble({ msg, onSend, onCreateDraft }: {
 
         {/* Follow-up suggestion chips */}
         {!msg.isStreaming && msg.suggestedFollowUps && msg.suggestedFollowUps.length > 0 && (
-          <div data-demo="chat-suggestions">
+          <div>
             <FollowUpChips suggestions={msg.suggestedFollowUps} onSend={onSend} />
           </div>
         )}
@@ -553,9 +548,10 @@ export default function ResearchAIPage() {
 
   const isEmpty = conversation.messages.length === 0
 
-  const handleSelect = useCallback((q: string) => {
+  const handleSelect = useCallback(async (q: string) => {
     const entry = history.find(e => e.firstMessage === q)
     setActiveEntryId(entry?.id)
+    const { PRESET_CONVERSATIONS } = await import('@/data/presetConversations')
     const preset = PRESET_CONVERSATIONS[q]
     if (preset) {
       loadConversation(preset)
@@ -721,7 +717,7 @@ export default function ResearchAIPage() {
                 </h2>
 
                 {/* Input */}
-                <div data-demo="rai-prompt">
+                <div>
                   <InputBox
                     input={input} setInput={setInput}
                     isStreaming={isStreaming} onSend={() => handleSend()}
@@ -734,7 +730,7 @@ export default function ResearchAIPage() {
                 </p>
 
                 {/* Use-case tiles */}
-                <div data-demo="rai-usecases" className="grid grid-cols-3 gap-3 mt-8">
+                <div className="grid grid-cols-3 gap-3 mt-8">
                   {USE_CASES.map(({ Icon, title, desc, color }) => (
                     <UseCaseTile
                       key={title}

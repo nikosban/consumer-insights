@@ -511,6 +511,8 @@ export function generateTableRowData(rowAttr: string, seed?: string): ChartData 
   return { labels, series: [{ name: 'Percent', values: percents }] }
 }
 
+const _chartDataCache = new Map<string, ChartData>()
+
 export function generateChartData(
   type: WidgetType,
   hasBenchmark: boolean,
@@ -523,14 +525,24 @@ export function generateChartData(
   benchmarkName?: string,
   audienceSeed?: string,
 ): ChartData {
+  const cacheKey = `${type}|${hasBenchmark}|${crossDimensionLabel ?? ''}|${seed ?? ''}|${metric ?? ''}|${breakdown ?? ''}|${category ?? ''}|${audienceName ?? ''}|${benchmarkName ?? ''}|${audienceSeed ?? ''}`
+  const cached = _chartDataCache.get(cacheKey)
+  if (cached) return cached
+
   seedRng(seed ? `${seed}:${type}:${crossDimensionLabel ?? ''}` : undefined)
-  if (type === 'table' && crossDimensionLabel) return crosstableData(crossDimensionLabel, undefined, metric, category, audienceName, audienceSeed)
-  switch (type) {
-    case 'bar':       return barData(hasBenchmark, breakdown, audienceName, benchmarkName)
-    case 'line':      return lineData()
-    case 'pie':       return pieData(breakdown)
-    case 'scorecard': return scorecardData(hasBenchmark)
-    case 'table':     return surveyTableData(metric, category)
-    default:          return surveyTableData(metric, category)
+  let result: ChartData
+  if (type === 'table' && crossDimensionLabel) {
+    result = crosstableData(crossDimensionLabel, undefined, metric, category, audienceName, audienceSeed)
+  } else {
+    switch (type) {
+      case 'bar':       result = barData(hasBenchmark, breakdown, audienceName, benchmarkName); break
+      case 'line':      result = lineData(); break
+      case 'pie':       result = pieData(breakdown); break
+      case 'scorecard': result = scorecardData(hasBenchmark); break
+      default:          result = surveyTableData(metric, category)
+    }
   }
+
+  _chartDataCache.set(cacheKey, result)
+  return result
 }

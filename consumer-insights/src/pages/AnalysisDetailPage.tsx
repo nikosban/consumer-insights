@@ -159,7 +159,7 @@ function ExportAnalysisModal({
           <DialogDescription>Choose a format for "{analysisName}"</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-3 pt-2">
-          <Button data-demo="analysis-export-pptx" variant="outline" className="justify-start gap-3 h-14" onClick={handlePPTX} disabled={exporting !== null}>
+          <Button variant="outline" className="justify-start gap-3 h-14" onClick={handlePPTX} disabled={exporting !== null}>
             <IconPresentation className="h-5 w-5 text-primary" strokeWidth={2} />
             <div className="text-left">
               <div className="font-medium">Export as PPTX</div>
@@ -290,7 +290,7 @@ export default function AnalysisDetailPage() {
                 {sections.length} section{sections.length !== 1 ? 's' : ''} · Created {new Date(analysis.createdAt).toLocaleDateString()}
               </p>
             </div>
-            <Button data-demo="analysis-export" variant="outline" size="sm" className="shrink-0 gap-1.5" onClick={() => setExportOpen(true)}>
+            <Button variant="outline" size="sm" className="shrink-0 gap-1.5" onClick={() => setExportOpen(true)}>
               <IconDownload className="h-3.5 w-3.5" strokeWidth={2} />
               Export
             </Button>
@@ -318,7 +318,7 @@ export default function AnalysisDetailPage() {
         {/* Tab content */}
         <div className="flex-1 overflow-y-auto">
           {activeTab === 'report' ? (
-            <div className="max-w-[760px] mx-auto px-6 py-8" data-demo="analysis-report">
+            <div className="max-w-[760px] mx-auto px-6 py-8">
 
               {/* Sections with inline charts */}
               <div className="space-y-10">

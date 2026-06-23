@@ -1,6 +1,7 @@
+import { memo } from 'react'
 import { IconSparkles, IconMessagePlus } from '@tabler/icons-react'
 
-export function FollowUpChips({ suggestions, onSend }: { suggestions: string[]; onSend: (q: string) => void }) {
+export const FollowUpChips = memo(function FollowUpChips({ suggestions, onSend }: { suggestions: string[]; onSend: (q: string) => void }) {
   return (
     <div className="mt-5">
       <div className="flex items-center gap-1.5 mb-2.5">
@@ -21,4 +22,4 @@ export function FollowUpChips({ suggestions, onSend }: { suggestions: string[]; 
       </div>
     </div>
   )
-}
+})

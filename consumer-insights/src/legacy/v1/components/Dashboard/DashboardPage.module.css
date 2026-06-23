@@ -58,14 +58,25 @@
   border-color: #b0b8c4;
 }
 
+.btnPrimary {
+  background: #0666e5;
+  border-color: #0666e5;
+  color: #fff;
+}
+
+.btnPrimary:hover {
+  background: #0554c2;
+  border-color: #0554c2;
+}
+
 .btnDanger {
-  color: #a32d2d;
-  border-color: #f0b8b8;
+  color: #455f7c;
+  border-color: #d4d4d4;
 }
 
 .btnDanger:hover {
-  background: #fff0f0;
-  border-color: #d45a5a;
+  background: #f0f4fa;
+  border-color: #b0b8c4;
 }
 
 .grid {

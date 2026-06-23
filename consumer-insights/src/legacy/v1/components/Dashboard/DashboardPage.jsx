@@ -94,7 +94,7 @@ function WidgetCard({ widget }) {
   )
 }
 
-export default function DashboardPage() {
+function DashboardContent() {
   const dash = useDashboard()
   const [confirmClear, setConfirmClear] = useState(false)
   const widgets = dash.widgets ?? []
@@ -124,44 +124,52 @@ export default function DashboardPage() {
   const emptyCount = Math.max(0, (widgets.length === 0 ? 0 : 4) - filledSlots.length)
 
   return (
+    <div className={s.content}>
+      <div className={s.header}>
+        <h1 className={s.title}>My Dashboard</h1>
+        <div className={s.actions}>
+          <button className={`${s.btn} ${s.btnDanger}`} onClick={handleClear} disabled={widgets.length === 0}>
+            <i className="ti ti-trash" />
+            {confirmClear ? 'Click again to confirm' : 'Delete dashboard'}
+          </button>
+          <button className={`${s.btn} ${s.btnPrimary}`} onClick={handleExport} disabled={widgets.length === 0}>
+            <i className="ti ti-download" />
+            Export
+          </button>
+        </div>
+      </div>
+
+      {widgets.length === 0 ? (
+        <div className={s.empty}>
+          <div className={s.emptyIcon}><i className="ti ti-layout-dashboard" /></div>
+          <p className={s.emptyTitle}>Your dashboard is empty</p>
+          <p className={s.emptyDesc}>
+            Click "Add to dashboard" on any chart in Research AI to save it here.
+          </p>
+        </div>
+      ) : (
+        <div className={s.grid}>
+          {filledSlots.map(w => <WidgetCard key={w.id} widget={w} />)}
+          {Array.from({ length: emptyCount }).map((_, i) => (
+            <div key={i} className={s.emptySlot}>
+              <i className="ti ti-plus" />
+              <span>Add a widget</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export { DashboardContent }
+
+export default function DashboardPage() {
+  return (
     <div className={s.page}>
       <GlobalNavbar />
       <div className={s.body}>
-        <div className={s.content}>
-          <div className={s.header}>
-            <h1 className={s.title}>My Dashboard</h1>
-            <div className={s.actions}>
-              <button className={s.btn} onClick={handleExport} disabled={widgets.length === 0}>
-                <i className="ti ti-download" />
-                Export
-              </button>
-              <button className={`${s.btn} ${s.btnDanger}`} onClick={handleClear} disabled={widgets.length === 0}>
-                <i className="ti ti-trash" />
-                {confirmClear ? 'Click again to confirm' : 'Delete dashboard'}
-              </button>
-            </div>
-          </div>
-
-          {widgets.length === 0 ? (
-            <div className={s.empty}>
-              <div className={s.emptyIcon}><i className="ti ti-layout-dashboard" /></div>
-              <p className={s.emptyTitle}>Your dashboard is empty</p>
-              <p className={s.emptyDesc}>
-                Click "Add to dashboard" on any chart in Research AI to save it here.
-              </p>
-            </div>
-          ) : (
-            <div className={s.grid}>
-              {filledSlots.map(w => <WidgetCard key={w.id} widget={w} />)}
-              {Array.from({ length: emptyCount }).map((_, i) => (
-                <div key={i} className={s.emptySlot}>
-                  <i className="ti ti-plus" />
-                  <span>Add a widget</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <DashboardContent />
       </div>
     </div>
   )

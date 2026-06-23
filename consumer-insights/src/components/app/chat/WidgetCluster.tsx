@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDashboardStore } from '@/store/dashboardStore'
 import { useWidgetStore } from '@/store/widgetStore'
@@ -126,7 +126,7 @@ function WidgetClusterCard({ card, index }: { card: DataWidgetCardData; index: n
   )
 }
 
-export function WidgetCluster({ widgets }: { widgets: DataWidgetCardData[] }) {
+export const WidgetCluster = memo(function WidgetCluster({ widgets }: { widgets: DataWidgetCardData[] }) {
   return (
     <div className="mt-3 flex flex-col gap-3">
       {widgets.map((card, i) => (
@@ -134,4 +134,4 @@ export function WidgetCluster({ widgets }: { widgets: DataWidgetCardData[] }) {
       ))}
     </div>
   )
-}
+})

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { IconSwitchHorizontal, IconCheck } from '@tabler/icons-react'
-import { VERSIONS, getActiveVersion, V3_VARIANT_KEY } from '@/config/versions'
+import { VERSIONS, getActiveVersion } from '@/config/versions'
 
 
 export default function VersionSwitcherFab() {
@@ -55,10 +55,6 @@ export default function VersionSwitcherFab() {
               <button
                 key={v.id}
                 onClick={() => {
-                  if (v.variant) {
-                    localStorage.setItem(V3_VARIANT_KEY, v.variant)
-                    window.dispatchEvent(new Event('ci-variant-change'))
-                  }
                   navigate(v.path)
                   setOpen(false)
                 }}

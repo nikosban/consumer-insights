@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDashboardStore } from '@/store/dashboardStore'
 import { useWidgetStore } from '@/store/widgetStore'
@@ -12,7 +12,7 @@ import { VizSwitcher } from './VizSwitcher'
 import { DashboardPickerDropdown } from './DashboardPickerDropdown'
 import { exportElAsPng, copyElAsPng } from './helpers'
 
-export function DataWidgetCard({ card }: { card: DataWidgetCardData }) {
+export const DataWidgetCard = memo(function DataWidgetCard({ card }: { card: DataWidgetCardData }) {
   const navigate = useNavigate()
   const { dashboards, updateLayout } = useDashboardStore()
   const { add: addWidget } = useWidgetStore()
@@ -69,7 +69,7 @@ export function DataWidgetCard({ card }: { card: DataWidgetCardData }) {
   const delta = peakVal - avg
 
   return (
-    <div data-demo="chat-chart" ref={cardRef} className="w-full rounded-2xl rounded-bl-sm border border-border bg-card shadow-sm overflow-hidden">
+    <div ref={cardRef} className="w-full rounded-2xl rounded-bl-sm border border-border bg-card shadow-sm overflow-hidden">
       {/* Header */}
       <div className="px-4 pt-4 pb-3 border-b border-border">
         <div className="flex items-start justify-between gap-2">
@@ -125,14 +125,14 @@ export function DataWidgetCard({ card }: { card: DataWidgetCardData }) {
 
       {/* Source */}
       {card.source && (
-        <div data-demo="chat-sources" className="px-3 py-1.5 border-t border-border flex items-center gap-1">
+        <div className="px-3 py-1.5 border-t border-border flex items-center gap-1">
           <span className="text-[11px] text-muted-foreground">Source: </span>
           <span className="text-[11px] font-medium text-secondary-foreground">{card.source}</span>
         </div>
       )}
 
       {/* Footer */}
-      <div data-demo="chat-chart-toolbar" className="px-3 py-2 border-t border-border flex items-center gap-1">
+      <div className="px-3 py-2 border-t border-border flex items-center gap-1">
         <VizSwitcher value={vizType} onChange={setVizType} />
         <button
           title="Export PNG"
@@ -162,4 +162,4 @@ export function DataWidgetCard({ card }: { card: DataWidgetCardData }) {
       </div>
     </div>
   )
-}
+})

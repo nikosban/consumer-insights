@@ -60,7 +60,7 @@ export function Hero() {
                 →
               </span>
             </CTAPrimary>
-            <CTASecondary data-demo="cta-try-assistant" onClick={() => navigate('/research-ai')}>
+            <CTASecondary onClick={() => navigate('/research-ai')}>
               Try the assistant
             </CTASecondary>
           </motion.div>
