@@ -112,7 +112,7 @@ export default function RaiStartPage({ onSubmit, sidebarLeft = 56 }) {
                 <RaiSparkle color="#0666e5" />
               </div>
               <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '0.03em', color: '#0F2741', fontFamily: FF }}>
-                RESEARCH AI
+                Consumer Insights
               </span>
             </div>
 
