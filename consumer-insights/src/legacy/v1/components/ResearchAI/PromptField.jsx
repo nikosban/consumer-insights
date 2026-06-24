@@ -1,6 +1,85 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 const FF = "'Open Sans', system-ui, sans-serif"
+
+const COUNTRIES = [
+  { code: 'WW', label: 'Worldwide', flag: '🌍' },
+  { code: 'US', label: 'United States', flag: '🇺🇸' },
+  { code: 'DE', label: 'Germany', flag: '🇩🇪' },
+  { code: 'GB', label: 'United Kingdom', flag: '🇬🇧' },
+  { code: 'FR', label: 'France', flag: '🇫🇷' },
+  { code: 'CN', label: 'China', flag: '🇨🇳' },
+  { code: 'JP', label: 'Japan', flag: '🇯🇵' },
+  { code: 'BR', label: 'Brazil', flag: '🇧🇷' },
+  { code: 'IN', label: 'India', flag: '🇮🇳' },
+  { code: 'AU', label: 'Australia', flag: '🇦🇺' },
+]
+
+function CountrySelect() {
+  const [selected, setSelected] = useState(COUNTRIES[0])
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (!open) return
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
+  return (
+    <div ref={ref} style={{ position: 'relative', flexShrink: 0 }}>
+      <button
+        onClick={() => setOpen(v => !v)}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 5,
+          height: 28, padding: '0 8px',
+          border: '1px solid #e0e0e0', borderRadius: 6,
+          background: open ? '#f0f5ff' : 'white',
+          cursor: 'pointer', fontFamily: FF,
+          transition: 'background 0.15s, border-color 0.15s',
+        }}
+        onMouseEnter={e => { if (!open) e.currentTarget.style.borderColor = '#a0b4c8' }}
+        onMouseLeave={e => { if (!open) e.currentTarget.style.borderColor = '#e0e0e0' }}
+      >
+        <span style={{ fontSize: 14, lineHeight: 1 }}>{selected.flag}</span>
+        <span style={{ fontSize: 12, fontWeight: 500, color: '#455f7c', whiteSpace: 'nowrap' }}>{selected.label}</span>
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
+          <path d="M2 3.5l3 3 3-3" stroke="#7b94a3" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+
+      {open && (
+        <div style={{
+          position: 'absolute', bottom: 'calc(100% + 6px)', left: 0,
+          background: 'white', border: '1px solid #e0e0e0', borderRadius: 8,
+          boxShadow: '0 4px 16px rgba(15,39,65,0.12)',
+          zIndex: 100, minWidth: 180, overflow: 'hidden',
+          padding: '4px 0',
+        }}>
+          {COUNTRIES.map(c => (
+            <button
+              key={c.code}
+              onClick={() => { setSelected(c); setOpen(false) }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                width: '100%', padding: '7px 12px',
+                border: 'none', background: c.code === selected.code ? '#f0f5ff' : 'white',
+                cursor: 'pointer', fontFamily: FF, textAlign: 'left',
+                transition: 'background 0.1s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#f5f8fb' }}
+              onMouseLeave={e => { e.currentTarget.style.background = c.code === selected.code ? '#f0f5ff' : 'white' }}
+            >
+              <span style={{ fontSize: 16, lineHeight: 1 }}>{c.flag}</span>
+              <span style={{ fontSize: 13, color: '#0f2741', fontWeight: c.code === selected.code ? 600 : 400 }}>{c.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function PromptField({ placeholder = 'Ask anything to start', minHeight = 104, onSubmit }) {
   const [value, setValue] = useState('')
@@ -24,7 +103,7 @@ export default function PromptField({ placeholder = 'Ask anything to start', min
       minHeight,
       background: 'white',
       display: 'flex',
-      alignItems: 'flex-end',
+      flexDirection: 'column',
     }}>
       <textarea
         ref={taRef}
@@ -44,33 +123,36 @@ export default function PromptField({ placeholder = 'Ask anything to start', min
           color: '#0f2741',
           background: 'transparent',
           lineHeight: '22px',
-          padding: `16px 56px 16px 16px`,
-          minHeight,
+          padding: '16px 56px 8px 16px',
+          minHeight: minHeight - 44,
           alignSelf: 'stretch',
         }}
       />
-      <button
-        onClick={submit}
-        style={{
-          position: 'absolute',
-          right: 7,
-          bottom: 7,
-          width: 40,
-          height: 40,
-          background: '#0666E5',
-          borderRadius: 4,
-          border: 'none',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-        }}
-      >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M12.854 3.146a.5.5 0 0 1 .125.517L9.979 13.644a.5.5 0 0 1-.968-.028L7.317 9.39 9.854 6.854a.5.5 0 0 0-.708-.708L6.61 8.683 2.314 6.964a.5.5 0 0 1 .022-.969L12.336 3.02a.5.5 0 0 1 .518.126Z" fill="white"/>
-        </svg>
-      </button>
+      {/* Bottom bar: country select left, send button right */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 8px 8px 12px', gap: 8,
+      }}>
+        <CountrySelect />
+        <button
+          onClick={submit}
+          style={{
+            width: 40, height: 40,
+            background: '#0666E5',
+            borderRadius: 4,
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M12.854 3.146a.5.5 0 0 1 .125.517L9.979 13.644a.5.5 0 0 1-.968-.028L7.317 9.39 9.854 6.854a.5.5 0 0 0-.708-.708L6.61 8.683 2.314 6.964a.5.5 0 0 1 .022-.969L12.336 3.02a.5.5 0 0 1 .518.126Z" fill="white"/>
+          </svg>
+        </button>
+      </div>
     </div>
   )
 }

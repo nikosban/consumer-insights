@@ -93,9 +93,10 @@ export default function RaiStartPage({ onSubmit, sidebarLeft = 56 }) {
         flexDirection: 'column',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingTop: 120,
-        paddingLeft: Math.max(sidebarLeft, 16),
+        paddingTop: 'clamp(48px, 10vh, 120px)',
+        paddingLeft: `max(${Math.max(sidebarLeft, 16)}px, 16px)`,
         paddingRight: 16,
+        paddingBottom: 16,
         overflow: 'hidden',
         background: 'white',
         transition: 'padding-left 0.3s ease-in-out',
@@ -103,10 +104,10 @@ export default function RaiStartPage({ onSubmit, sidebarLeft = 56 }) {
         <GridPattern />
 
         {/* Header + body */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 32, alignItems: 'center', width: '100%', position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 28, alignItems: 'center', maxWidth: 720, width: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 3vh, 32px)', alignItems: 'center', width: '100%', position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vh, 28px)', alignItems: 'center', maxWidth: 720, width: '100%' }}>
 
-            {/* Mode badge — exact from prototype: 20×20 accentBg circle + rooftitle text */}
+            {/* Mode badge */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#E5F1FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <RaiSparkle color="#0666e5" />
@@ -117,64 +118,47 @@ export default function RaiStartPage({ onSubmit, sidebarLeft = 56 }) {
             </div>
 
             {/* Headline */}
-            <h1 style={{ margin: 0, fontSize: 28, fontWeight: 300, color: '#0F2741', textAlign: 'center', lineHeight: '38px', fontFamily: FF }}>
+            <h1 style={{ margin: 0, fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 300, color: '#0F2741', textAlign: 'center', lineHeight: 1.35, fontFamily: FF }}>
               What insights do you need today?
             </h1>
           </div>
 
           {/* Prompt + workflows */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'center', width: '100%' }}>
-            <div style={{ width: '100%', maxWidth: 576 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vh, 24px)', alignItems: 'center', width: '100%' }}>
+            <div style={{ width: '100%', maxWidth: 'min(576px, 100%)' }}>
               <PromptField placeholder="Ask anything to start" minHeight={104} onSubmit={onSubmit} />
             </div>
 
             {/* Workflow cards */}
-            <div style={{ width: '100%', maxWidth: 576, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M8 1.5V14.5M1.5 8H14.5" stroke="#455f7c" strokeWidth="1.4" strokeLinecap="round"/>
-                </svg>
-                <span style={{ fontSize: 14, color: '#455f7c', lineHeight: '22px', fontFamily: FF }}>
-                  Start by adding a predefined workflow
-                </span>
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, justifyContent: 'center' }}>
-                {WORKFLOWS.map(wf => (
-                  <button
-                    key={wf.id}
-                    onClick={() => onSubmit?.(wf.title)}
-                    style={{ width: 181, flexShrink: 0, paddingTop: 12, paddingBottom: 12, paddingLeft: 16, paddingRight: 16, border: '1px solid #C4C4C4', borderRadius: 8, background: 'white', cursor: 'pointer', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 8, fontFamily: FF, transition: 'border-color 0.15s, background 0.15s' }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = '#a0b4c8'; e.currentTarget.style.background = '#f8fafc' }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#C4C4C4'; e.currentTarget.style.background = 'white' }}
-                  >
-                    <div style={{ width: 32, height: 32, flexShrink: 0 }}>{wf.icon}</div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                      <div style={{ fontSize: 16, fontWeight: 600, color: '#0F2741', lineHeight: '24px' }}>{wf.title}</div>
-                      <div style={{ fontSize: 14, fontWeight: 400, color: '#455F7C', lineHeight: '22px' }}>{wf.description}</div>
-                    </div>
-                  </button>
-                ))}
-              </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center', width: '100%', maxWidth: 'min(576px, 100%)' }}>
+              {WORKFLOWS.map(wf => (
+                <button
+                  key={wf.id}
+                  onClick={() => onSubmit?.(wf.title)}
+                  style={{ flex: '1 1 160px', minWidth: 0, maxWidth: 200, paddingTop: 12, paddingBottom: 12, paddingLeft: 16, paddingRight: 16, border: '1px solid #C4C4C4', borderRadius: 8, background: 'white', cursor: 'pointer', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 8, fontFamily: FF, transition: 'border-color 0.15s, background 0.15s' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = '#a0b4c8'; e.currentTarget.style.background = '#f8fafc' }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#C4C4C4'; e.currentTarget.style.background = 'white' }}
+                >
+                  <div style={{ width: 32, height: 32, flexShrink: 0 }}>{wf.icon}</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <div style={{ fontSize: 'clamp(13px, 1.4vw, 16px)', fontWeight: 600, color: '#0F2741', lineHeight: '24px' }}>{wf.title}</div>
+                    <div style={{ fontSize: 'clamp(12px, 1.2vw, 14px)', fontWeight: 400, color: '#455F7C', lineHeight: '20px' }}>{wf.description}</div>
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Footer */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 48, alignItems: 'center', paddingBottom: 4, position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <button style={{ display: 'inline-flex', alignItems: 'center', gap: 8, height: 28, padding: '0 12px', border: '1px solid #c4c4c4', borderRadius: 4, background: 'white', cursor: 'pointer', fontFamily: FF, userSelect: 'none' }}>
-              <span style={{ fontSize: 14, fontWeight: 600, color: '#455f7c', lineHeight: '22px' }}>About Research AI</span>
-            </button>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, paddingBottom: 12 }}>
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-              <circle cx="6.5" cy="6.5" r="5.5" stroke="#455f7c" strokeWidth="1.1"/>
-              <path d="M6.5 5.5v3.5M6.5 4.2v.3" stroke="#455f7c" strokeWidth="1.1" strokeLinecap="round"/>
-            </svg>
-            <span style={{ fontSize: 11, color: '#455f7c', lineHeight: '16px', fontFamily: FF }}>
-              Our AI can make mistakes. Please check important information.
-            </span>
-          </div>
+        {/* Footer — disclaimer only */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, paddingTop: 16, position: 'relative', zIndex: 1 }}>
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <circle cx="6.5" cy="6.5" r="5.5" stroke="#455f7c" strokeWidth="1.1"/>
+            <path d="M6.5 5.5v3.5M6.5 4.2v.3" stroke="#455f7c" strokeWidth="1.1" strokeLinecap="round"/>
+          </svg>
+          <span style={{ fontSize: 11, color: '#455f7c', lineHeight: '16px', fontFamily: FF }}>
+            Our AI can make mistakes. Please check important information.
+          </span>
         </div>
       </div>
     </div>
