@@ -91,9 +91,12 @@ export default function RaiStartPage({ onSubmit, sidebarLeft = 56 }) {
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         alignItems: 'center',
-        padding: `clamp(32px, 8vh, 80px) 24px clamp(24px, 4vh, 48px)`,
+        paddingTop: 64,
+        paddingLeft: 24,
+        paddingRight: 24,
+        paddingBottom: 24,
         overflow: 'hidden',
         background: 'white',
         transition: 'padding-left 0.3s ease-in-out',
@@ -102,8 +105,8 @@ export default function RaiStartPage({ onSubmit, sidebarLeft = 56 }) {
         <GridPattern />
 
         {/* Header + body */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 3vh, 32px)', alignItems: 'center', width: '100%', maxWidth: 640, position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vh, 28px)', alignItems: 'center', width: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'center', width: '100%', maxWidth: 600, position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20, alignItems: 'center', width: '100%' }}>
 
             {/* Mode badge */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -116,24 +119,24 @@ export default function RaiStartPage({ onSubmit, sidebarLeft = 56 }) {
             </div>
 
             {/* Headline */}
-            <h1 style={{ margin: 0, fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 300, color: '#0F2741', textAlign: 'center', lineHeight: 1.35, fontFamily: FF }}>
+            <h1 style={{ margin: 0, fontSize: 28, fontWeight: 300, color: '#0F2741', textAlign: 'center', lineHeight: 1.35, fontFamily: FF }}>
               What insights do you need today?
             </h1>
           </div>
 
           {/* Prompt + workflows */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vh, 24px)', alignItems: 'center', width: '100%' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'stretch', width: '100%' }}>
             <div style={{ width: '100%' }}>
               <PromptField placeholder="Ask anything to start" minHeight={104} onSubmit={onSubmit} />
             </div>
 
             {/* Workflow cards */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center', width: '100%' }}>
+            <div style={{ display: 'flex', gap: 12, width: '100%' }}>
               {WORKFLOWS.map(wf => (
                 <button
                   key={wf.id}
                   onClick={() => onSubmit?.(wf.title)}
-                  style={{ flex: '1 1 160px', minWidth: 0, maxWidth: 200, paddingTop: 12, paddingBottom: 12, paddingLeft: 16, paddingRight: 16, border: '1px solid #C4C4C4', borderRadius: 8, background: 'white', cursor: 'pointer', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 8, fontFamily: FF, transition: 'border-color 0.15s, background 0.15s' }}
+                  style={{ flex: '1 1 0', minWidth: 0, padding: '12px 16px', border: '1px solid #C4C4C4', borderRadius: 8, background: 'white', cursor: 'pointer', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 8, fontFamily: FF, transition: 'border-color 0.15s, background 0.15s' }}
                   onMouseEnter={e => { e.currentTarget.style.borderColor = '#a0b4c8'; e.currentTarget.style.background = '#f8fafc' }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = '#C4C4C4'; e.currentTarget.style.background = 'white' }}
                 >
@@ -149,7 +152,7 @@ export default function RaiStartPage({ onSubmit, sidebarLeft = 56 }) {
         </div>
 
         {/* Footer — disclaimer only */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, paddingTop: 16, position: 'relative', zIndex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, paddingTop: 16, width: '100%', maxWidth: 600, position: 'relative', zIndex: 1 }}>
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
             <circle cx="6.5" cy="6.5" r="5.5" stroke="#455f7c" strokeWidth="1.1"/>
             <path d="M6.5 5.5v3.5M6.5 4.2v.3" stroke="#455f7c" strokeWidth="1.1" strokeLinecap="round"/>
