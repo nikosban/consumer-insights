@@ -91,21 +91,19 @@ export default function RaiStartPage({ onSubmit, sidebarLeft = 56 }) {
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         alignItems: 'center',
-        paddingTop: 'clamp(48px, 10vh, 120px)',
-        paddingLeft: `max(${Math.max(sidebarLeft, 16)}px, 16px)`,
-        paddingRight: 16,
-        paddingBottom: 16,
+        padding: `clamp(32px, 8vh, 80px) 24px clamp(24px, 4vh, 48px)`,
         overflow: 'hidden',
         background: 'white',
         transition: 'padding-left 0.3s ease-in-out',
+        boxSizing: 'border-box',
       }}>
         <GridPattern />
 
         {/* Header + body */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 3vh, 32px)', alignItems: 'center', width: '100%', position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vh, 28px)', alignItems: 'center', maxWidth: 720, width: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 3vh, 32px)', alignItems: 'center', width: '100%', maxWidth: 640, position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vh, 28px)', alignItems: 'center', width: '100%' }}>
 
             {/* Mode badge */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -125,12 +123,12 @@ export default function RaiStartPage({ onSubmit, sidebarLeft = 56 }) {
 
           {/* Prompt + workflows */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vh, 24px)', alignItems: 'center', width: '100%' }}>
-            <div style={{ width: '100%', maxWidth: 'min(576px, 100%)' }}>
+            <div style={{ width: '100%' }}>
               <PromptField placeholder="Ask anything to start" minHeight={104} onSubmit={onSubmit} />
             </div>
 
             {/* Workflow cards */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center', width: '100%', maxWidth: 'min(576px, 100%)' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center', width: '100%' }}>
               {WORKFLOWS.map(wf => (
                 <button
                   key={wf.id}

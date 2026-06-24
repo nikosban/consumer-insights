@@ -3,16 +3,16 @@ import { useState, useRef, useEffect } from 'react'
 const FF = "'Open Sans', system-ui, sans-serif"
 
 const COUNTRIES = [
-  { code: 'WW', label: 'Worldwide', flag: '🌍' },
-  { code: 'US', label: 'United States', flag: '🇺🇸' },
-  { code: 'DE', label: 'Germany', flag: '🇩🇪' },
-  { code: 'GB', label: 'United Kingdom', flag: '🇬🇧' },
-  { code: 'FR', label: 'France', flag: '🇫🇷' },
-  { code: 'CN', label: 'China', flag: '🇨🇳' },
-  { code: 'JP', label: 'Japan', flag: '🇯🇵' },
-  { code: 'BR', label: 'Brazil', flag: '🇧🇷' },
-  { code: 'IN', label: 'India', flag: '🇮🇳' },
-  { code: 'AU', label: 'Australia', flag: '🇦🇺' },
+  { code: 'WW', label: 'Worldwide',      icon: 'ti-world' },
+  { code: 'US', label: 'United States',  icon: 'ti-flag' },
+  { code: 'DE', label: 'Germany',        icon: 'ti-flag' },
+  { code: 'GB', label: 'United Kingdom', icon: 'ti-flag' },
+  { code: 'FR', label: 'France',         icon: 'ti-flag' },
+  { code: 'CN', label: 'China',          icon: 'ti-flag' },
+  { code: 'JP', label: 'Japan',          icon: 'ti-flag' },
+  { code: 'BR', label: 'Brazil',         icon: 'ti-flag' },
+  { code: 'IN', label: 'India',          icon: 'ti-flag' },
+  { code: 'AU', label: 'Australia',      icon: 'ti-flag' },
 ]
 
 function CountrySelect() {
@@ -42,11 +42,9 @@ function CountrySelect() {
         onMouseEnter={e => { if (!open) e.currentTarget.style.borderColor = '#a0b4c8' }}
         onMouseLeave={e => { if (!open) e.currentTarget.style.borderColor = '#e0e0e0' }}
       >
-        <span style={{ fontSize: 14, lineHeight: 1 }}>{selected.flag}</span>
+        <i className={`ti ${selected.icon}`} style={{ fontSize: 14, color: '#455f7c', lineHeight: 1 }} />
         <span style={{ fontSize: 12, fontWeight: 500, color: '#455f7c', whiteSpace: 'nowrap' }}>{selected.label}</span>
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
-          <path d="M2 3.5l3 3 3-3" stroke="#7b94a3" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
+        <i className="ti ti-chevron-down" style={{ fontSize: 11, color: '#7b94a3', transition: 'transform 0.15s', transform: open ? 'rotate(180deg)' : 'none' }} />
       </button>
 
       {open && (
@@ -71,7 +69,7 @@ function CountrySelect() {
               onMouseEnter={e => { e.currentTarget.style.background = '#f5f8fb' }}
               onMouseLeave={e => { e.currentTarget.style.background = c.code === selected.code ? '#f0f5ff' : 'white' }}
             >
-              <span style={{ fontSize: 16, lineHeight: 1 }}>{c.flag}</span>
+              <i className={`ti ${c.icon}`} style={{ fontSize: 14, color: '#455f7c', flexShrink: 0 }} />
               <span style={{ fontSize: 13, color: '#0f2741', fontWeight: c.code === selected.code ? 600 : 400 }}>{c.label}</span>
             </button>
           ))}
@@ -123,7 +121,7 @@ export default function PromptField({ placeholder = 'Ask anything to start', min
           color: '#0f2741',
           background: 'transparent',
           lineHeight: '22px',
-          padding: '16px 56px 8px 16px',
+          padding: '16px 16px 8px 16px',
           minHeight: minHeight - 44,
           alignSelf: 'stretch',
         }}
