@@ -5,7 +5,6 @@ import { useLegacyStore } from '../../store/legacyStore'
 
 export default function CiModeSidebar({ collapsed, onNewChat, onDashboard }) {
   const historyGroups = HISTORY_BY_MODE.rai
-  const [dashOpen, setDashOpen] = useState(true)
   const [historyOpen, setHistoryOpen] = useState(true)
   const setOpenAccordion = useLegacyStore(s => s.setOpenAccordion)
 
@@ -61,8 +60,7 @@ export default function CiModeSidebar({ collapsed, onNewChat, onDashboard }) {
 
       {/* Dashboards section */}
       <div className={s.section}>
-        <div className={s.sectionHeader} onClick={() => setDashOpen(o => !o)}>
-          <i className={`ti ti-chevron-right ${s.sectionChevron} ${dashOpen ? s.sectionChevronOpen : ''}`} />
+        <div className={s.sectionHeader} style={{ cursor: 'default' }}>
           <span className={s.sectionLabel}>Dashboards</span>
           <span className={s.comingSoonBadge}>Coming soon</span>
         </div>
