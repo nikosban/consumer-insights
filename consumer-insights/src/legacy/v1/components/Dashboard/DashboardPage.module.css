@@ -75,8 +75,15 @@
 }
 
 .btnDanger:hover {
-  background: #f0f4fa;
-  border-color: #b0b8c4;
+  background: #fff0f0;
+  border-color: #f0a0a0;
+  color: #a32d2d;
+}
+
+.btnIcon {
+  padding: 8px;
+  min-width: 36px;
+  justify-content: center;
 }
 
 .grid {

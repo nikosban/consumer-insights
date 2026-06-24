@@ -128,9 +128,17 @@ function DashboardContent() {
       <div className={s.header}>
         <h1 className={s.title}>My Dashboard</h1>
         <div className={s.actions}>
-          <button className={`${s.btn} ${s.btnDanger}`} onClick={handleClear} disabled={widgets.length === 0}>
+          <button
+            className={`${s.btn} ${s.btnDanger} ${s.btnIcon}`}
+            onClick={handleClear}
+            disabled={widgets.length === 0}
+            title={confirmClear ? 'Click again to confirm' : 'Delete dashboard'}
+          >
             <i className="ti ti-trash" />
-            {confirmClear ? 'Click again to confirm' : 'Delete dashboard'}
+          </button>
+          <button className={s.btn} disabled={widgets.length === 0} title="Share dashboard">
+            <i className="ti ti-share" />
+            Share
           </button>
           <button className={`${s.btn} ${s.btnPrimary}`} onClick={handleExport} disabled={widgets.length === 0}>
             <i className="ti ti-download" />
