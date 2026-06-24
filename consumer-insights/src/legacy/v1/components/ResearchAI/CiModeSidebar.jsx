@@ -3,8 +3,6 @@ import s from './CiModeSidebar.module.css'
 import { HISTORY_BY_MODE } from '../../data/ciModeData'
 import { useLegacyStore } from '../../store/legacyStore'
 
-const SAVED_DASHBOARDS = ['My Dashboard']
-
 export default function CiModeSidebar({ collapsed, onNewChat, onDashboard }) {
   const historyGroups = HISTORY_BY_MODE.rai
   const [dashOpen, setDashOpen] = useState(true)
@@ -66,24 +64,8 @@ export default function CiModeSidebar({ collapsed, onNewChat, onDashboard }) {
         <div className={s.sectionHeader} onClick={() => setDashOpen(o => !o)}>
           <i className={`ti ti-chevron-right ${s.sectionChevron} ${dashOpen ? s.sectionChevronOpen : ''}`} />
           <span className={s.sectionLabel}>Dashboards</span>
-          <button
-            className={s.sectionActionBtn}
-            title="New dashboard"
-            onClick={e => { e.stopPropagation() }}
-          >
-            <i className="ti ti-plus" />
-          </button>
+          <span className={s.comingSoonBadge}>Coming soon</span>
         </div>
-        {dashOpen && (
-          <div className={s.sectionBody}>
-            {SAVED_DASHBOARDS.map(name => (
-              <button key={name} className={s.dashItem} onClick={onDashboard}>
-                <i className={`ti ti-layout-dashboard ${s.dashItemIcon}`} />
-                {name}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Chat History section */}
@@ -102,6 +84,13 @@ export default function CiModeSidebar({ collapsed, onNewChat, onDashboard }) {
                 ))}
               </div>
             ))}
+            <div className={s.historyGroup}>
+              <span className={s.historyGroupLabel}>Dashboards</span>
+              <button className={s.historyItem} onClick={onDashboard}>
+                <i className={`ti ti-layout-dashboard`} style={{ marginRight: 6, fontSize: 13, verticalAlign: 'middle' }} />
+                My Dashboard
+              </button>
+            </div>
           </div>
         )}
       </div>

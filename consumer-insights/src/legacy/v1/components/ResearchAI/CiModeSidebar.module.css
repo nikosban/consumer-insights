@@ -149,6 +149,20 @@
   letter-spacing: 0.05em;
 }
 
+.comingSoonBadge {
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  color: #7b94a3;
+  background: #f0f4fa;
+  border-radius: 3px;
+  padding: 2px 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
 .sectionActionBtn {
   display: flex;
   align-items: center;
