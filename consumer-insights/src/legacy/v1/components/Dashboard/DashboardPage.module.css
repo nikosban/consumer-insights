@@ -254,6 +254,62 @@
   margin-top: 4px;
 }
 
+.chartTabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-right: 4px;
+}
+
+.chartTab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.chartTab:hover {
+  background: #f0f4fa;
+}
+
+.chartTabActive {
+  background: #e5f1ff;
+}
+
+.widgetFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px 12px;
+  border-top: 1px solid #f2f2f2;
+  gap: 8px;
+}
+
+.widgetFooterLeft {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.widgetFooterSource {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #9eb0bf;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: 'Open Sans', system-ui, sans-serif;
+}
+
 .widgetMeta {
   padding: 8px 16px 12px;
   display: flex;
